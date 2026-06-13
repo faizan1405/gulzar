@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
-import { markUserAsPaid } from '@/lib/profileStore';
+import { verifyPackagePurchase } from '@/lib/profileStore';
 import crypto from 'crypto';
 
 export async function POST(req: NextRequest) {
@@ -20,12 +20,11 @@ export async function POST(req: NextRequest) {
     }
 
     if (isSimulated || orderId.startsWith('order_sim_')) {
-      // Mark as paid in simulator mode
-      const profile = await markUserAsPaid(activeUserId);
+      const purchase = await verifyPackagePurchase(orderId, paymentId);
       return NextResponse.json({
         success: true,
         message: 'Mock payment verified successfully!',
-        profile,
+        purchase,
       });
     }
 
@@ -45,13 +44,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid payment signature. Verification failed.' }, { status: 400 });
     }
 
-    // Mark profile as paid in database
-    const profile = await markUserAsPaid(activeUserId);
+    const purchase = await verifyPackagePurchase(orderId, paymentId);
 
     return NextResponse.json({
       success: true,
-      message: 'Payment verified and subscription activated!',
-      profile,
+      message: 'Payment verified and package activated!',
+      purchase,
     });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Internal Server Error';

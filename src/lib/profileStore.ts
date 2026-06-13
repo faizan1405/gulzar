@@ -1,5 +1,5 @@
 import { prisma } from './db';
-import { VerificationStatus, ProfileCompletionStatus } from '@prisma/client';
+import { VerificationStatus, ProfileCompletionStatus, PackageType, PaymentStatus, ApprovalStatus } from '@prisma/client';
 
 // In-Memory Fallback State (if database is offline/unconfigured)
 const MOCK_PROFILES_DB: Array<{
@@ -144,17 +144,53 @@ const MOCK_VERIFICATION_REQUESTS: Array<{
   }
 ];
 
+const MOCK_PURCHASES: Array<{
+  id: string;
+  profileId: string;
+  packageType: PackageType;
+  basePrice: number;
+  gstRate: number;
+  totalAmount: number;
+  billingType: string;
+  successFeeAmount: number;
+  razorpayOrderId: string | null;
+  razorpayPaymentId: string | null;
+  paymentStatus: PaymentStatus;
+  purchaseDate: Date;
+  expiryDate: Date | null;
+  accessStatus: string;
+  eligibilityStatus: ApprovalStatus;
+  marriageConfirmation: string;
+  successFeePaymentStatus: PaymentStatus;
+  internalNotes: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+}> = [];
+
+const MOCK_CURATED_LEADS: Array<{
+  id: string;
+  buyerProfileId: string;
+  leadProfileId: string;
+  status: string;
+  assignedAt: Date;
+  updatedAt: Date;
+}> = [];
+
 // Global objects for in-memory fallbacks to survive hot reloads
 const globalStore = globalThis as unknown as {
   inMemoryProfiles: typeof MOCK_PROFILES_DB | undefined;
   inMemoryRequests: typeof MOCK_VERIFICATION_REQUESTS | undefined;
   inMemoryLogs: typeof MOCK_AUDIT_LOGS | undefined;
+  inMemoryPurchases: typeof MOCK_PURCHASES | undefined;
+  inMemoryCuratedLeads: typeof MOCK_CURATED_LEADS | undefined;
   isDbConnected: boolean | undefined;
 };
 
 if (!globalStore.inMemoryProfiles) globalStore.inMemoryProfiles = [...MOCK_PROFILES_DB];
 if (!globalStore.inMemoryRequests) globalStore.inMemoryRequests = [...MOCK_VERIFICATION_REQUESTS];
 if (!globalStore.inMemoryLogs) globalStore.inMemoryLogs = [...MOCK_AUDIT_LOGS];
+if (!globalStore.inMemoryPurchases) globalStore.inMemoryPurchases = [...MOCK_PURCHASES];
+if (!globalStore.inMemoryCuratedLeads) globalStore.inMemoryCuratedLeads = [...MOCK_CURATED_LEADS];
 
 // Check if Neon DB is reachable, caching result
 async function testDbConnection() {
@@ -459,4 +495,373 @@ export async function getAuditLogs() {
     }
   }
   return globalStore.inMemoryLogs || [];
+}
+
+export async function createPackagePurchase(data: {
+  profileId: string;
+  packageType: PackageType;
+  basePrice: number;
+  gstRate: number;
+  totalAmount: number;
+  billingType: string;
+  successFeeAmount: number;
+  razorpayOrderId: string;
+}) {
+  const isDb = await testDbConnection();
+  const purchaseData = {
+    ...data,
+    paymentStatus: 'PENDING' as PaymentStatus,
+    accessStatus: 'ACTIVE',
+    eligibilityStatus: data.packageType === 'HIGH_PROFILE' ? ('PENDING' as ApprovalStatus) : ('APPROVED' as ApprovalStatus),
+    marriageConfirmation: 'PENDING',
+    successFeePaymentStatus: 'PENDING' as PaymentStatus,
+    razorpayPaymentId: null,
+    expiryDate: null,
+    internalNotes: '',
+  };
+
+  if (isDb) {
+    try {
+      return await prisma.packagePurchase.create({
+        data: purchaseData,
+      });
+    } catch (e) {
+      console.error('Database write failed, using fallback', e);
+    }
+  }
+
+  // Fallback
+  const newPurchase = {
+    id: `purchase-${Date.now()}`,
+    ...purchaseData,
+    purchaseDate: new Date(),
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
+  globalStore.inMemoryPurchases?.push(newPurchase);
+  return newPurchase;
+}
+
+export async function verifyPackagePurchase(orderId: string, paymentId: string) {
+  const isDb = await testDbConnection();
+  const expiryDate = new Date();
+  expiryDate.setMonth(expiryDate.getMonth() + 1); // 1 month from now
+
+  if (isDb) {
+    try {
+      const purchase = await prisma.packagePurchase.findFirst({
+        where: { razorpayOrderId: orderId },
+      });
+
+      if (!purchase) return null;
+
+      const updatedPurchase = await prisma.packagePurchase.update({
+        where: { id: purchase.id },
+        data: {
+          paymentStatus: 'PAID' as PaymentStatus,
+          razorpayPaymentId: paymentId,
+          expiryDate: purchase.packageType === 'STANDARD' ? expiryDate : null,
+        },
+      });
+
+      if (purchase.packageType === 'STANDARD') {
+        await prisma.matrimonialProfile.update({
+          where: { id: purchase.profileId },
+          data: { hasPaid: true },
+        });
+      }
+
+      await prisma.auditLog.create({
+        data: {
+          actorUserId: 'system',
+          action: `PAYMENT_VERIFIED_${purchase.packageType}`,
+          targetType: 'PackagePurchase',
+          targetId: purchase.id,
+          metadata: JSON.stringify({ orderId, paymentId }),
+        },
+      });
+
+      return updatedPurchase;
+    } catch (e) {
+      console.error('Database write failed, using fallback', e);
+    }
+  }
+
+  // Fallback
+  const purchase = globalStore.inMemoryPurchases?.find((p) => p.razorpayOrderId === orderId);
+  if (purchase) {
+    purchase.paymentStatus = 'PAID' as PaymentStatus;
+    purchase.razorpayPaymentId = paymentId;
+    purchase.expiryDate = purchase.packageType === 'STANDARD' ? expiryDate : null;
+    purchase.updatedAt = new Date();
+
+    if (purchase.packageType === 'STANDARD') {
+      const profile = globalStore.inMemoryProfiles?.find((p) => p.id === purchase.profileId);
+      if (profile) {
+        profile.hasPaid = true;
+      }
+    }
+
+    globalStore.inMemoryLogs?.unshift({
+      id: `log-${Date.now()}`,
+      actorUserId: 'system',
+      action: `PAYMENT_VERIFIED_${purchase.packageType}`,
+      targetType: 'PackagePurchase',
+      targetId: purchase.id,
+      metadata: JSON.stringify({ orderId, paymentId }),
+      createdAt: new Date(),
+    });
+  }
+  return purchase || null;
+}
+
+export async function getUserPurchases(profileId: string) {
+  const isDb = await testDbConnection();
+  if (isDb) {
+    try {
+      return await prisma.packagePurchase.findMany({
+        where: { profileId },
+        orderBy: { purchaseDate: 'desc' },
+      });
+    } catch (e) {
+      console.error('Database query failed, using fallback', e);
+    }
+  }
+  return globalStore.inMemoryPurchases?.filter((p) => p.profileId === profileId) || [];
+}
+
+export async function getAllPurchases() {
+  const isDb = await testDbConnection();
+  if (isDb) {
+    try {
+      return await prisma.packagePurchase.findMany({
+        include: {
+          profile: true,
+        },
+        orderBy: { purchaseDate: 'desc' },
+      });
+    } catch (e) {
+      console.error('Database query failed, using fallback', e);
+    }
+  }
+
+  return (globalStore.inMemoryPurchases || []).map((p) => ({
+    ...p,
+    profile: globalStore.inMemoryProfiles?.find((prof) => prof.id === p.profileId) || null,
+  }));
+}
+
+export async function assignCuratedLead(buyerProfileId: string, leadProfileId: string) {
+  const isDb = await testDbConnection();
+  if (isDb) {
+    try {
+      return await prisma.curatedLeadAssignment.create({
+        data: {
+          buyerProfileId,
+          leadProfileId,
+          status: 'PENDING',
+        },
+      });
+    } catch (e) {
+      console.error('Database write failed, using fallback', e);
+    }
+  }
+
+  // Fallback
+  const newAssignment = {
+    id: `assignment-${Date.now()}`,
+    buyerProfileId,
+    leadProfileId,
+    status: 'PENDING',
+    assignedAt: new Date(),
+    updatedAt: new Date(),
+  };
+  globalStore.inMemoryCuratedLeads?.push(newAssignment);
+  return newAssignment;
+}
+
+export async function getCuratedAssignments() {
+  const isDb = await testDbConnection();
+  if (isDb) {
+    try {
+      return await prisma.curatedLeadAssignment.findMany({
+        include: {
+          buyerProfile: true,
+          leadProfile: true,
+        },
+        orderBy: { assignedAt: 'desc' },
+      });
+    } catch (e) {
+      console.error('Database query failed, using fallback', e);
+    }
+  }
+
+  return (globalStore.inMemoryCuratedLeads || []).map((a) => ({
+    ...a,
+    buyerProfile: globalStore.inMemoryProfiles?.find((prof) => prof.id === a.buyerProfileId) || null,
+    leadProfile: globalStore.inMemoryProfiles?.find((prof) => prof.id === a.leadProfileId) || null,
+  }));
+}
+
+export async function updateCuratedLeadStatus(assignmentId: string, status: string) {
+  const isDb = await testDbConnection();
+  if (isDb) {
+    try {
+      return await prisma.curatedLeadAssignment.update({
+        where: { id: assignmentId },
+        data: { status },
+      });
+    } catch (e) {
+      console.error('Database write failed, using fallback', e);
+    }
+  }
+
+  // Fallback
+  const assignment = globalStore.inMemoryCuratedLeads?.find((a) => a.id === assignmentId);
+  if (assignment) {
+    assignment.status = status;
+    assignment.updatedAt = new Date();
+  }
+  return assignment || null;
+}
+
+export async function updateHighProfileEligibility(purchaseId: string, status: ApprovalStatus, notes: string, adminId: string) {
+  const isDb = await testDbConnection();
+  if (isDb) {
+    try {
+      const updated = await prisma.packagePurchase.update({
+        where: { id: purchaseId },
+        data: {
+          eligibilityStatus: status,
+          internalNotes: notes,
+        },
+      });
+
+      await prisma.auditLog.create({
+        data: {
+          actorUserId: adminId,
+          action: `HIGH_PROFILE_ELIGIBILITY_${status}`,
+          targetType: 'PackagePurchase',
+          targetId: purchaseId,
+          metadata: JSON.stringify({ notes }),
+        },
+      });
+
+      return updated;
+    } catch (e) {
+      console.error('Database write failed, using fallback', e);
+    }
+  }
+
+  // Fallback
+  const purchase = globalStore.inMemoryPurchases?.find((p) => p.id === purchaseId);
+  if (purchase) {
+    purchase.eligibilityStatus = status;
+    purchase.internalNotes = notes;
+    purchase.updatedAt = new Date();
+
+    globalStore.inMemoryLogs?.unshift({
+      id: `log-${Date.now()}`,
+      actorUserId: adminId,
+      action: `HIGH_PROFILE_ELIGIBILITY_${status}`,
+      targetType: 'PackagePurchase',
+      targetId: purchaseId,
+      metadata: JSON.stringify({ notes }),
+      createdAt: new Date(),
+    });
+  }
+  return purchase || null;
+}
+
+export async function confirmMarriage(purchaseId: string, confirmed: boolean, adminId: string) {
+  const isDb = await testDbConnection();
+  const statusStr = confirmed ? 'CONFIRMED' : 'PENDING';
+  if (isDb) {
+    try {
+      const updated = await prisma.packagePurchase.update({
+        where: { id: purchaseId },
+        data: {
+          marriageConfirmation: statusStr,
+        },
+      });
+
+      await prisma.auditLog.create({
+        data: {
+          actorUserId: adminId,
+          action: `MARRIAGE_CONFIRMATION_${statusStr}`,
+          targetType: 'PackagePurchase',
+          targetId: purchaseId,
+          metadata: '',
+        },
+      });
+
+      return updated;
+    } catch (e) {
+      console.error('Database write failed, using fallback', e);
+    }
+  }
+
+  // Fallback
+  const purchase = globalStore.inMemoryPurchases?.find((p) => p.id === purchaseId);
+  if (purchase) {
+    purchase.marriageConfirmation = statusStr;
+    purchase.updatedAt = new Date();
+
+    globalStore.inMemoryLogs?.unshift({
+      id: `log-${Date.now()}`,
+      actorUserId: adminId,
+      action: `MARRIAGE_CONFIRMATION_${statusStr}`,
+      targetType: 'PackagePurchase',
+      targetId: purchaseId,
+      metadata: '',
+      createdAt: new Date(),
+    });
+  }
+  return purchase || null;
+}
+
+export async function updateSuccessFeeStatus(purchaseId: string, status: PaymentStatus, adminId: string) {
+  const isDb = await testDbConnection();
+  if (isDb) {
+    try {
+      const updated = await prisma.packagePurchase.update({
+        where: { id: purchaseId },
+        data: {
+          successFeePaymentStatus: status,
+        },
+      });
+
+      await prisma.auditLog.create({
+        data: {
+          actorUserId: adminId,
+          action: `SUCCESS_FEE_PAYMENT_${status}`,
+          targetType: 'PackagePurchase',
+          targetId: purchaseId,
+          metadata: '',
+        },
+      });
+
+      return updated;
+    } catch (e) {
+      console.error('Database write failed, using fallback', e);
+    }
+  }
+
+  // Fallback
+  const purchase = globalStore.inMemoryPurchases?.find((p) => p.id === purchaseId);
+  if (purchase) {
+    purchase.successFeePaymentStatus = status;
+    purchase.updatedAt = new Date();
+
+    globalStore.inMemoryLogs?.unshift({
+      id: `log-${Date.now()}`,
+      actorUserId: adminId,
+      action: `SUCCESS_FEE_PAYMENT_${status}`,
+      targetType: 'PackagePurchase',
+      targetId: purchaseId,
+      metadata: '',
+      createdAt: new Date(),
+    });
+  }
+  return purchase || null;
 }

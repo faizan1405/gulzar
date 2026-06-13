@@ -64,6 +64,8 @@ export default function Home() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [hasPaid300, setHasPaid300] = useState(false);
   const [hasPremiumAccess, setHasPremiumAccess] = useState(false);
+  const [simulatedPackages, setSimulatedPackages] = useState<string[]>([]);
+  const [simulatedHighProfileApproved, setSimulatedHighProfileApproved] = useState(false);
   const [isAdminMode, setIsAdminMode] = useState(false);
   const [referralRate, setReferralRate] = useState(21);
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -89,9 +91,15 @@ export default function Home() {
   // --- Admin Dashboard States ---
   const [adminRequests, setAdminRequests] = useState<VerificationRequest[]>([]);
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
-  const [adminActiveTab, setAdminActiveTab] = useState<'verification' | 'logs'>('verification');
+  const [adminPurchases, setAdminPurchases] = useState<any[]>([]);
+  const [adminAssignments, setAdminAssignments] = useState<any[]>([]);
+  const [adminActiveTab, setAdminActiveTab] = useState<'verification' | 'logs' | 'purchases' | 'assignments'>('verification');
   const [selectedRequestForReview, setSelectedRequestForReview] = useState<VerificationRequest | null>(null);
   const [reviewNotes, setReviewNotes] = useState('');
+
+  // --- Curated Assignment Tool Fields ---
+  const [assignBuyerId, setAssignBuyerId] = useState('');
+  const [assignLeadId, setAssignLeadId] = useState('');
 
   // --- Registration Form Fields ---
   const [formData, setFormData] = useState({
@@ -159,6 +167,8 @@ export default function Home() {
       'x-simulator-paid': hasPaid300 ? 'true' : 'false',
       'x-simulator-admin': 'true', // Allow admin actions in simulator mode
       'x-simulator-admin-id': 'simulated-admin-999',
+      'x-simulator-packages': simulatedPackages.join(','),
+      'x-simulator-high-profile-approved': simulatedHighProfileApproved ? 'true' : 'false',
     };
   };
 
@@ -167,14 +177,7 @@ export default function Home() {
     async function loadAllData() {
       setIsLoading(true);
       try {
-        const simulatorHeaders = {
-          'Content-Type': 'application/json',
-          'x-simulator-user-id': 'simulated-user-123',
-          'x-simulator-logged-in': isLoggedIn ? 'true' : 'false',
-          'x-simulator-paid': hasPaid300 ? 'true' : 'false',
-          'x-simulator-admin': 'true',
-          'x-simulator-admin-id': 'simulated-admin-999',
-        };
+        const simulatorHeaders = getSimulatorHeaders();
 
         // 1. Fetch current user profile
         if (isLoggedIn) {
@@ -231,6 +234,19 @@ export default function Home() {
         if (dataLogs.logs) {
           setAuditLogs(dataLogs.logs);
         }
+
+        // 3. Fetch premium package purchases & curated assignments
+        const resPurchases = await fetch('/api/admin/packages', { headers: simulatorHeaders });
+        const dataPurchases = await resPurchases.json();
+        if (dataPurchases.purchases) {
+          setAdminPurchases(dataPurchases.purchases);
+        }
+
+        const resAssignments = await fetch('/api/admin/packages?mode=assignments', { headers: simulatorHeaders });
+        const dataAssignments = await resAssignments.json();
+        if (dataAssignments.assignments) {
+          setAdminAssignments(dataAssignments.assignments);
+        }
       } catch (err) {
         console.error('Failed fetching DB state', err);
       } finally {
@@ -239,7 +255,7 @@ export default function Home() {
     }
 
     loadAllData();
-  }, [isLoggedIn, hasPaid300, reloadTrigger]);
+  }, [isLoggedIn, hasPaid300, simulatedPackages, simulatedHighProfileApproved, reloadTrigger]);
 
   // --- Google Login Simulation ---
   const handleGoogleLogin = () => {
@@ -316,7 +332,7 @@ export default function Home() {
   };
 
   // --- Razorpay Payment Checkout ---
-  const handleRazorpayCheckout = async (amountInRupees = 300, planName = 'Standard Monthly Membership') => {
+  const handleRazorpayCheckout = async (packageType: string, amountInRupees = 300, planName = 'Standard Monthly Membership') => {
     if (!isLoggedIn) {
       setShowLoginModal(true);
       return;
@@ -326,6 +342,7 @@ export default function Home() {
       const res = await fetch('/api/payment/order', {
         method: 'POST',
         headers: getSimulatorHeaders(),
+        body: JSON.stringify({ packageType }),
       });
 
       const data = await res.json();
@@ -359,11 +376,10 @@ export default function Home() {
 
             const verifyData = await verifyRes.json();
             if (verifyData.success) {
-              if (amountInRupees === 300) {
+              if (packageType === 'STANDARD') {
                 setHasPaid300(true);
-              } else {
-                setHasPremiumAccess(true);
               }
+              setSimulatedPackages((prev) => [...prev, packageType]);
               alert(`Alhamdulillah! Payment verified and your ${planName} is now active.`);
               setReloadTrigger((prev) => prev + 1);
             } else {
@@ -444,6 +460,127 @@ export default function Home() {
     }
   };
 
+  const handleAssignLead = async () => {
+    if (!assignBuyerId || !assignLeadId) {
+      alert('Please select both a curated buyer and a lead profile.');
+      return;
+    }
+    try {
+      const res = await fetch('/api/admin/packages', {
+        method: 'POST',
+        headers: getSimulatorHeaders(),
+        body: JSON.stringify({
+          action: 'assign_lead',
+          buyerProfileId: assignBuyerId,
+          leadProfileId: assignLeadId,
+        }),
+      });
+      if (res.ok) {
+        alert('Curated lead assigned successfully!');
+        setAssignLeadId('');
+        setReloadTrigger((prev) => prev + 1);
+      } else {
+        const data = await res.json();
+        alert(data.error || 'Failed to assign curated lead.');
+      }
+    } catch {
+      alert('Error assigning lead.');
+    }
+  };
+
+  const handleUpdateLeadStatus = async (assignmentId: string, status: string) => {
+    try {
+      const res = await fetch('/api/admin/packages', {
+        method: 'POST',
+        headers: getSimulatorHeaders(),
+        body: JSON.stringify({
+          action: 'update_lead_status',
+          assignmentId,
+          status,
+        }),
+      });
+      if (res.ok) {
+        alert(`Lead status updated to: ${status}`);
+        setReloadTrigger((prev) => prev + 1);
+      } else {
+        const data = await res.json();
+        alert(data.error || 'Failed to update lead status.');
+      }
+    } catch {
+      alert('Error updating lead status.');
+    }
+  };
+
+  const handleUpdateHPStatus = async (purchaseId: string, status: 'APPROVED' | 'REJECTED', notes: string) => {
+    try {
+      const res = await fetch('/api/admin/packages', {
+        method: 'POST',
+        headers: getSimulatorHeaders(),
+        body: JSON.stringify({
+          action: 'update_eligibility',
+          purchaseId,
+          status,
+          notes,
+        }),
+      });
+      if (res.ok) {
+        alert(`Eligibility status updated to: ${status}`);
+        setReloadTrigger((prev) => prev + 1);
+      } else {
+        const data = await res.json();
+        alert(data.error || 'Failed to update eligibility status.');
+      }
+    } catch {
+      alert('Error updating eligibility.');
+    }
+  };
+
+  const handleConfirmMarriage = async (purchaseId: string, confirmed: boolean) => {
+    try {
+      const res = await fetch('/api/admin/packages', {
+        method: 'POST',
+        headers: getSimulatorHeaders(),
+        body: JSON.stringify({
+          action: 'confirm_marriage',
+          purchaseId,
+          confirmed,
+        }),
+      });
+      if (res.ok) {
+        alert(`Marriage status updated successfully.`);
+        setReloadTrigger((prev) => prev + 1);
+      } else {
+        const data = await res.json();
+        alert(data.error || 'Failed to update marriage status.');
+      }
+    } catch {
+      alert('Error updating marriage confirmation.');
+    }
+  };
+
+  const handleUpdateSuccessFee = async (purchaseId: string, status: string) => {
+    try {
+      const res = await fetch('/api/admin/packages', {
+        method: 'POST',
+        headers: getSimulatorHeaders(),
+        body: JSON.stringify({
+          action: 'update_success_fee_status',
+          purchaseId,
+          status,
+        }),
+      });
+      if (res.ok) {
+        alert(`Success fee status updated to: ${status}`);
+        setReloadTrigger((prev) => prev + 1);
+      } else {
+        const data = await res.json();
+        alert(data.error || 'Failed to update success fee status.');
+      }
+    } catch {
+      alert('Error updating success fee payment.');
+    }
+  };
+
   // Filter local profile display
   const filteredProfiles = profiles.filter((p) => {
     if (selectedDistance !== 'All') {
@@ -483,7 +620,8 @@ export default function Home() {
                 setIsLoggedIn(e.target.checked);
                 if (!e.target.checked) {
                   setHasPaid300(false);
-                  setHasPremiumAccess(false);
+                  setSimulatedPackages([]);
+                  setSimulatedHighProfileApproved(false);
                 }
               }}
               id="sim-logged-in-checkbox"
@@ -493,21 +631,80 @@ export default function Home() {
           <label className="demo-bar-checkbox">
             <input
               type="checkbox"
-              checked={hasPaid300}
-              onChange={(e) => setHasPaid300(e.target.checked)}
+              checked={hasPaid300 || simulatedPackages.includes('STANDARD')}
+              onChange={(e) => {
+                const checked = e.target.checked;
+                setHasPaid300(checked);
+                if (checked) {
+                  setSimulatedPackages(prev => Array.from(new Set([...prev, 'STANDARD'])));
+                } else {
+                  setSimulatedPackages(prev => prev.filter(p => p !== 'STANDARD'));
+                }
+              }}
               id="sim-paid-300-checkbox"
             />
-            Paid (₹300 Membership)
+            Standard Pkg
           </label>
           <label className="demo-bar-checkbox">
             <input
               type="checkbox"
-              checked={hasPremiumAccess}
-              onChange={(e) => setHasPremiumAccess(e.target.checked)}
-              id="sim-premium-checkbox"
+              checked={simulatedPackages.includes('CURATED')}
+              onChange={(e) => {
+                const checked = e.target.checked;
+                if (checked) {
+                  setSimulatedPackages(prev => Array.from(new Set([...prev, 'CURATED'])));
+                } else {
+                  setSimulatedPackages(prev => prev.filter(p => p !== 'CURATED'));
+                }
+              }}
+              id="sim-curated-checkbox"
             />
-            Premium Package Access
+            Curated Pkg
           </label>
+          <label className="demo-bar-checkbox">
+            <input
+              type="checkbox"
+              checked={simulatedPackages.includes('SECOND_MARRIAGE')}
+              onChange={(e) => {
+                const checked = e.target.checked;
+                if (checked) {
+                  setSimulatedPackages(prev => Array.from(new Set([...prev, 'SECOND_MARRIAGE'])));
+                } else {
+                  setSimulatedPackages(prev => prev.filter(p => p !== 'SECOND_MARRIAGE'));
+                }
+              }}
+              id="sim-second-marriage-checkbox"
+            />
+            Second Marriage Pkg
+          </label>
+          <label className="demo-bar-checkbox">
+            <input
+              type="checkbox"
+              checked={simulatedPackages.includes('HIGH_PROFILE')}
+              onChange={(e) => {
+                const checked = e.target.checked;
+                if (checked) {
+                  setSimulatedPackages(prev => Array.from(new Set([...prev, 'HIGH_PROFILE'])));
+                } else {
+                  setSimulatedPackages(prev => prev.filter(p => p !== 'HIGH_PROFILE'));
+                  setSimulatedHighProfileApproved(false);
+                }
+              }}
+              id="sim-high-profile-checkbox"
+            />
+            High Profile Pkg
+          </label>
+          {simulatedPackages.includes('HIGH_PROFILE') && (
+            <label className="demo-bar-checkbox" style={{ color: 'var(--gold-accent)' }}>
+              <input
+                type="checkbox"
+                checked={simulatedHighProfileApproved}
+                onChange={(e) => setSimulatedHighProfileApproved(e.target.checked)}
+                id="sim-high-profile-approved-checkbox"
+              />
+              Approved High-Profile
+            </label>
+          )}
           <label className="demo-bar-checkbox">
             <input
               type="checkbox"
@@ -1380,7 +1577,40 @@ export default function Home() {
                   {/* Profiles Grid */}
                   <div className="grid-3">
                     {filteredProfiles.map((profile, index) => {
-                      const shouldBlur = !isLoggedIn || !hasPaid300;
+                      const isSecMarriage = profile.maritalStatus !== 'Single';
+                      const isHighProf = 
+                        profile.occupation.toLowerCase().includes('doctor') ||
+                        profile.occupation.toLowerCase().includes('engineer') ||
+                        profile.occupation.toLowerCase().includes('business') ||
+                        profile.annualIncomeRange.includes('₹10 LPA') ||
+                        profile.annualIncomeRange.includes('₹15 LPA') ||
+                        profile.annualIncomeRange.includes('Above');
+
+                      const hasSecMarriageAccess = simulatedPackages.includes('SECOND_MARRIAGE');
+                      const hasHighProfAccess = simulatedPackages.includes('HIGH_PROFILE') && simulatedHighProfileApproved;
+
+                      let shouldBlur = !isLoggedIn;
+                      let lockReason = '';
+                      let unlockText = 'Unlock Standard (₹300)';
+
+                      if (!isLoggedIn) {
+                        shouldBlur = true;
+                        lockReason = 'Log in using your secure account to view photos and contact';
+                        unlockText = 'Log In';
+                      } else if (isSecMarriage && !hasSecMarriageAccess) {
+                        shouldBlur = true;
+                        lockReason = 'Second-Marriage Candidate (Locked). Access requires Second-Marriage package.';
+                        unlockText = 'Unlock Second-Marriage (₹11,000)';
+                      } else if (isHighProf && !hasHighProfAccess) {
+                        shouldBlur = true;
+                        lockReason = 'High-Profile Match (Locked). Requires High-Profile package & Admin eligibility approval.';
+                        unlockText = 'Unlock High-Profile (₹21,000)';
+                      } else if (!hasPaid300 && !simulatedPackages.includes('STANDARD')) {
+                        shouldBlur = true;
+                        lockReason = 'Activate standard membership to view photos and contact';
+                        unlockText = 'Unlock Standard (₹300)';
+                      }
+
                       const themeClass = getThemeClass(profile.themeColor);
 
                       return (
@@ -1394,6 +1624,12 @@ export default function Home() {
                           <div className="profile-card-badge-container">
                             {profile.verificationStatus === 'APPROVED' && (
                               <span className="card-badge card-badge-verified">✓ Call Verified</span>
+                            )}
+                            {isHighProf && (
+                              <span className="card-badge" style={{ backgroundColor: 'var(--gold-dark)', color: '#fff' }}>⭐ High-Profile</span>
+                            )}
+                            {isSecMarriage && (
+                              <span className="card-badge" style={{ backgroundColor: 'var(--text-dark)', color: '#fff' }}>👥 Second-Marriage</span>
                             )}
                             <span className="card-badge card-badge-distance">
                               📍 Mumbai • {index === 0 ? '1.8' : index === 1 ? '5.4' : '12.0'} km away
@@ -1418,11 +1654,7 @@ export default function Home() {
                             {shouldBlur && (
                               <div className="blur-blocker">
                                 <div className="blur-blocker-title">🔓 Candidate Protected</div>
-                                <p>
-                                  {!isLoggedIn
-                                    ? 'Log in using your secure account to view photos and contact'
-                                    : 'Activate standard membership to view photos and contact'}
-                                </p>
+                                <p style={{ fontSize: '12px', padding: '0 8px' }}>{lockReason}</p>
                                 {!isLoggedIn ? (
                                   <button
                                     onClick={() => setShowLoginModal(true)}
@@ -1437,7 +1669,7 @@ export default function Home() {
                                     className="btn btn-gold"
                                     style={{ padding: '8px 20px', fontSize: '13px' }}
                                   >
-                                    Unlock Standard (₹300)
+                                    {unlockText}
                                   </a>
                                 )}
                               </div>
@@ -1449,7 +1681,7 @@ export default function Home() {
                               {shouldBlur ? 'Profile Details Blurred' : profile.fullName}
                             </h3>
                             <div className="profile-card-subtitle">
-                              Muslim Matrimonial Candidate
+                              {isHighProf ? 'High-Profile Match' : isSecMarriage ? 'Second-Marriage Candidate' : 'Muslim Matrimonial Candidate'}
                             </div>
 
                             <div className="profile-specs-grid">
@@ -1519,12 +1751,12 @@ export default function Home() {
                         <li>Direct candidate contacts</li>
                       </ul>
                       <button
-                        onClick={() => handleRazorpayCheckout(300, 'Standard Monthly Membership')}
+                        onClick={() => handleRazorpayCheckout('STANDARD', 300, 'Standard Monthly Membership')}
                         className="btn btn-gold"
                         style={{ marginTop: 'auto', width: '100%' }}
-                        disabled={hasPaid300}
+                        disabled={hasPaid300 || simulatedPackages.includes('STANDARD')}
                       >
-                        {hasPaid300 ? 'Active Subscription' : 'Activate Plan'}
+                        {hasPaid300 || simulatedPackages.includes('STANDARD') ? 'Active Subscription' : 'Activate Plan'}
                       </button>
                     </div>
 
@@ -1542,11 +1774,12 @@ export default function Home() {
                         <li>Success Fee: ₹21,000</li>
                       </ul>
                       <button
-                        onClick={() => handleRazorpayCheckout(5500, 'Curated Matches Package')}
+                        onClick={() => handleRazorpayCheckout('CURATED', 5500, 'Curated Matches Package')}
                         className="btn btn-primary"
                         style={{ marginTop: 'auto', width: '100%' }}
+                        disabled={simulatedPackages.includes('CURATED')}
                       >
-                        Select Package
+                        {simulatedPackages.includes('CURATED') ? 'Active Package' : 'Select Package'}
                       </button>
                     </div>
 
@@ -1564,11 +1797,12 @@ export default function Home() {
                         <li>No Success Fee</li>
                       </ul>
                       <button
-                        onClick={() => handleRazorpayCheckout(11000, 'Second-Marriage Package')}
+                        onClick={() => handleRazorpayCheckout('SECOND_MARRIAGE', 11000, 'Second-Marriage Package')}
                         className="btn btn-primary"
                         style={{ marginTop: 'auto', width: '100%' }}
+                        disabled={simulatedPackages.includes('SECOND_MARRIAGE')}
                       >
-                        Select Package
+                        {simulatedPackages.includes('SECOND_MARRIAGE') ? 'Active Package' : 'Select Package'}
                       </button>
                     </div>
 
@@ -1586,11 +1820,12 @@ export default function Home() {
                         <li>Success Fee: ₹25,000</li>
                       </ul>
                       <button
-                        onClick={() => handleRazorpayCheckout(21000, 'High-Profile Matches Package')}
+                        onClick={() => handleRazorpayCheckout('HIGH_PROFILE', 21000, 'High-Profile Matches Package')}
                         className="btn btn-primary"
                         style={{ marginTop: 'auto', width: '100%' }}
+                        disabled={simulatedPackages.includes('HIGH_PROFILE')}
                       >
-                        Select Package
+                        {simulatedPackages.includes('HIGH_PROFILE') ? 'Active Package' : 'Select Package'}
                       </button>
                     </div>
                   </div>
@@ -1801,6 +2036,18 @@ export default function Home() {
               👤 Verification Queue
             </div>
             <div
+              className={`admin-nav-link ${adminActiveTab === 'purchases' ? 'active' : ''}`}
+              onClick={() => setAdminActiveTab('purchases')}
+            >
+              💎 Premium Purchases
+            </div>
+            <div
+              className={`admin-nav-link ${adminActiveTab === 'assignments' ? 'active' : ''}`}
+              onClick={() => setAdminActiveTab('assignments')}
+            >
+              🤝 Curated Lead Assigner
+            </div>
+            <div
               className={`admin-nav-link ${adminActiveTab === 'logs' ? 'active' : ''}`}
               onClick={() => setAdminActiveTab('logs')}
             >
@@ -1825,13 +2072,13 @@ export default function Home() {
           </aside>
 
           <main className="admin-view-area">
-            {adminActiveTab === 'verification' ? (
+            {adminActiveTab === 'verification' && (
               <div>
                 <h1 style={{ fontFamily: 'var(--font-serif)', color: 'var(--gold-dark)', marginBottom: '24px' }}>
                   Verification Call Queue
                 </h1>
 
-                {selectedRequestForReview && selectedRequestForReview.profile ? (
+                {selectedRequestForReview && selectedRequestForReview.profile && (
                   <div className="card-theme-wrapper" style={{ marginBottom: '30px' }}>
                     <div className="ornament ornament-tl"></div>
                     <div className="ornament ornament-tr"></div>
@@ -1871,7 +2118,7 @@ export default function Home() {
                       </button>
                     </div>
                   </div>
-                ) : null}
+                )}
 
                 <div style={{ backgroundColor: 'var(--white)', padding: '24px', borderRadius: '12px', border: '1px solid var(--border-color)', overflowX: 'auto' }}>
                   <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '500px' }}>
@@ -1936,7 +2183,174 @@ export default function Home() {
                   </table>
                 </div>
               </div>
-            ) : (
+            )}
+
+            {adminActiveTab === 'purchases' && (
+              <div>
+                <h1 style={{ fontFamily: 'var(--font-serif)', color: 'var(--gold-dark)', marginBottom: '24px' }}>
+                  Premium Package Purchases
+                </h1>
+
+                <div style={{ backgroundColor: 'var(--white)', padding: '24px', borderRadius: '12px', border: '1px solid var(--border-color)', overflowX: 'auto' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '800px' }}>
+                    <thead>
+                      <tr style={{ borderBottom: '2px solid var(--border-color)', height: '40px', fontSize: '13px', textTransform: 'uppercase', color: 'var(--gold-dark)' }}>
+                        <th style={{ padding: '8px' }}>Candidate Name</th>
+                        <th style={{ padding: '8px' }}>Package Type</th>
+                        <th style={{ padding: '8px' }}>Price + GST</th>
+                        <th style={{ padding: '8px' }}>Payment Status</th>
+                        <th style={{ padding: '8px' }}>HP Eligibility</th>
+                        <th style={{ padding: '8px' }}>Marriage Confirm</th>
+                        <th style={{ padding: '8px' }}>Success Fee</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {adminPurchases.map((purchase) => (
+                        <tr key={purchase.id} style={{ borderBottom: '1px solid var(--border-color)', fontSize: '13.5px' }}>
+                          <td style={{ padding: '12px 8px' }}>
+                            <strong>{purchase.profile?.fullName || 'N/A'}</strong>
+                          </td>
+                          <td style={{ padding: '12px 8px' }}>{purchase.packageType}</td>
+                          <td style={{ padding: '12px 8px' }}>₹{purchase.totalAmount}</td>
+                          <td style={{ padding: '12px 8px' }}>
+                            <span style={{ color: purchase.paymentStatus === 'PAID' ? 'green' : 'orange', fontWeight: 'bold' }}>
+                              {purchase.paymentStatus}
+                            </span>
+                          </td>
+                          <td style={{ padding: '12px 8px' }}>
+                            {purchase.packageType === 'HIGH_PROFILE' ? (
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                <span style={{ fontWeight: 'bold', color: purchase.eligibilityStatus === 'APPROVED' ? 'green' : purchase.eligibilityStatus === 'REJECTED' ? 'red' : 'orange' }}>
+                                  {purchase.eligibilityStatus}
+                                </span>
+                                {purchase.eligibilityStatus === 'PENDING' && (
+                                  <div style={{ display: 'flex', gap: '4px' }}>
+                                    <button onClick={() => handleUpdateHPStatus(purchase.id, 'APPROVED', 'Eligible candidate approved')} className="btn btn-secondary" style={{ padding: '2px 6px', fontSize: '10px' }}>Approve</button>
+                                    <button onClick={() => handleUpdateHPStatus(purchase.id, 'REJECTED', 'Criteria not met')} className="btn btn-primary" style={{ padding: '2px 6px', fontSize: '10px' }}>Reject</button>
+                                  </div>
+                                )}
+                              </div>
+                            ) : (
+                              <span>N/A</span>
+                            )}
+                          </td>
+                          <td style={{ padding: '12px 8px' }}>
+                            {['CURATED', 'HIGH_PROFILE'].includes(purchase.packageType) ? (
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                <span>{purchase.marriageConfirmation}</span>
+                                {purchase.marriageConfirmation === 'PENDING' ? (
+                                  <button onClick={() => handleConfirmMarriage(purchase.id, true)} className="btn btn-gold" style={{ padding: '2px 6px', fontSize: '10px' }}>
+                                    Confirm Marriage
+                                  </button>
+                                ) : (
+                                  <button onClick={() => handleConfirmMarriage(purchase.id, false)} className="btn btn-secondary" style={{ padding: '2px 6px', fontSize: '10px' }}>
+                                    Reset
+                                  </button>
+                                )}
+                              </div>
+                            ) : (
+                              <span>N/A</span>
+                            )}
+                          </td>
+                          <td style={{ padding: '12px 8px' }}>
+                            {['CURATED', 'HIGH_PROFILE'].includes(purchase.packageType) ? (
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                <span>Status: {purchase.successFeePaymentStatus}</span>
+                                {purchase.successFeePaymentStatus === 'PENDING' && (
+                                  <button onClick={() => handleUpdateSuccessFee(purchase.id, 'PAID')} className="btn btn-gold" style={{ padding: '2px 6px', fontSize: '10px' }}>
+                                    Mark Paid
+                                  </button>
+                                )}
+                              </div>
+                            ) : (
+                              <span>N/A</span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {adminActiveTab === 'assignments' && (
+              <div>
+                <h1 style={{ fontFamily: 'var(--font-serif)', color: 'var(--gold-dark)', marginBottom: '24px' }}>
+                  Curated Match Lead Assigner
+                </h1>
+
+                {/* Assignment Tool Form */}
+                <div className="card-theme-wrapper" style={{ marginBottom: '30px' }}>
+                  <h3>Assign New Lead</h3>
+                  <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', marginTop: '15px' }}>
+                    <div style={{ flexGrow: 1, minWidth: '200px' }}>
+                      <label className="form-label">Select Curated Buyer</label>
+                      <select className="form-control" value={assignBuyerId} onChange={(e) => setAssignBuyerId(e.target.value)}>
+                        <option value="">-- Choose Buyer --</option>
+                        {adminPurchases.filter(p => p.packageType === 'CURATED' && p.paymentStatus === 'PAID').map(p => (
+                          <option key={p.id} value={p.profileId}>{p.profile?.fullName} ({p.profile?.city})</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div style={{ flexGrow: 1, minWidth: '200px' }}>
+                      <label className="form-label">Select Match Lead</label>
+                      <select className="form-control" value={assignLeadId} onChange={(e) => setAssignLeadId(e.target.value)}>
+                        <option value="">-- Choose Lead Profile --</option>
+                        {profiles.filter(p => p.verificationStatus === 'APPROVED').map(p => (
+                          <option key={p.id} value={p.id}>{p.fullName} ({p.gender} - {p.occupation})</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <button onClick={handleAssignLead} className="btn btn-gold" style={{ alignSelf: 'flex-end', height: '42px' }}>
+                      Assign Lead
+                    </button>
+                  </div>
+                </div>
+
+                <div style={{ backgroundColor: 'var(--white)', padding: '24px', borderRadius: '12px', border: '1px solid var(--border-color)', overflowX: 'auto' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '600px' }}>
+                    <thead>
+                      <tr style={{ borderBottom: '2px solid var(--border-color)', height: '40px', fontSize: '13px', textTransform: 'uppercase', color: 'var(--gold-dark)' }}>
+                        <th style={{ padding: '8px' }}>Curated Buyer</th>
+                        <th style={{ padding: '8px' }}>Assigned Lead</th>
+                        <th style={{ padding: '8px' }}>Lead Status</th>
+                        <th style={{ padding: '8px' }}>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {adminAssignments.map((a) => (
+                        <tr key={a.id} style={{ borderBottom: '1px solid var(--border-color)', fontSize: '13.5px', height: '50px' }}>
+                          <td style={{ padding: '8px' }}><strong>{a.buyerProfile?.fullName || 'N/A'}</strong></td>
+                          <td style={{ padding: '8px' }}>{a.leadProfile?.fullName || 'N/A'}</td>
+                          <td style={{ padding: '8px' }}>
+                            <span style={{ fontWeight: 'bold', color: a.status === 'MARRIED' ? 'green' : 'var(--text-dark)' }}>{a.status}</span>
+                          </td>
+                          <td style={{ padding: '8px' }}>
+                            <select
+                              value={a.status}
+                              onChange={(e) => handleUpdateLeadStatus(a.id, e.target.value)}
+                              className="form-control"
+                              style={{ padding: '4px', fontSize: '12px', width: '130px' }}
+                            >
+                              <option value="PENDING">PENDING</option>
+                              <option value="CONTACTED">CONTACTED</option>
+                              <option value="INTERESTED">INTERESTED</option>
+                              <option value="DECLINED">DECLINED</option>
+                              <option value="MARRIED">MARRIED</option>
+                            </select>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {adminActiveTab === 'logs' && (
               <div>
                 <h1 style={{ fontFamily: 'var(--font-serif)', color: 'var(--gold-dark)', marginBottom: '24px' }}>
                   Admin Verification Audit Logs
@@ -2023,81 +2437,123 @@ export default function Home() {
       )}
 
       {/* Candidate Profile Details Modal */}
-      {selectedProfileForDetails && (
-        <div className="modal-overlay" onClick={() => setSelectedProfileForDetails(null)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <span className="modal-title">Biodata Preview</span>
-              <button className="modal-close-btn" onClick={() => setSelectedProfileForDetails(null)}>×</button>
-            </div>
-            <div className="modal-body">
-              <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', marginBottom: '20px' }}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={getProfileImage(selectedProfileForDetails.gender, 0)}
-                  alt={selectedProfileForDetails.fullName}
-                  style={{
-                    width: '120px',
-                    height: '120px',
-                    objectFit: 'cover',
-                    borderRadius: '8px',
-                    border: '1.5px solid var(--gold-accent)',
-                    filter: (!isLoggedIn || !hasPaid300) ? 'blur(10px)' : 'none'
-                  }}
-                />
-                <div>
-                  <h3 style={{ fontFamily: 'var(--font-serif)', color: 'var(--gold-dark)', fontSize: '20px' }}>
-                    {(!isLoggedIn || !hasPaid300) ? 'Name Hidden' : selectedProfileForDetails.fullName}
-                  </h3>
-                  <p style={{ fontSize: '13.5px', color: 'var(--text-muted)', marginTop: '4px' }}>
-                    {selectedProfileForDetails.gender} • {2026 - new Date(selectedProfileForDetails.dateOfBirth).getFullYear()} years old
-                  </p>
-                  <span style={{ display: 'inline-block', marginTop: '10px' }} className="card-badge card-badge-verified">
-                    {selectedProfileForDetails.verificationStatus} Verification
-                  </span>
-                </div>
-              </div>
+      {selectedProfileForDetails && (() => {
+        const isSecMarriage = selectedProfileForDetails.maritalStatus !== 'Single';
+        const isHighProf = 
+          selectedProfileForDetails.occupation.toLowerCase().includes('doctor') ||
+          selectedProfileForDetails.occupation.toLowerCase().includes('engineer') ||
+          selectedProfileForDetails.occupation.toLowerCase().includes('business') ||
+          selectedProfileForDetails.annualIncomeRange.includes('₹10 LPA') ||
+          selectedProfileForDetails.annualIncomeRange.includes('₹15 LPA') ||
+          selectedProfileForDetails.annualIncomeRange.includes('Above');
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', fontSize: '13.5px' }}>
-                <div style={{ gridColumn: 'span 2', borderTop: '1px solid var(--border-color)', paddingTop: '12px' }}>
-                  <strong>Personal Bio</strong>
-                  <p style={{ color: 'var(--text-dark)', marginTop: '4px', lineHeight: '1.6' }}>{selectedProfileForDetails.bio}</p>
+        const hasSecMarriageAccess = simulatedPackages.includes('SECOND_MARRIAGE');
+        const hasHighProfAccess = simulatedPackages.includes('HIGH_PROFILE') && simulatedHighProfileApproved;
+
+        let modalBlur = !isLoggedIn;
+        let modalLockReason = '';
+        let modalUnlockText = 'Unlock Standard (₹300)';
+
+        if (!isLoggedIn) {
+          modalBlur = true;
+          modalLockReason = 'Log in using your secure account to view photos and contact';
+          modalUnlockText = 'Log In';
+        } else if (isSecMarriage && !hasSecMarriageAccess) {
+          modalBlur = true;
+          modalLockReason = 'Second-Marriage Candidate (Locked). Access requires Second-Marriage package.';
+          modalUnlockText = 'Unlock Second-Marriage (₹11,000)';
+        } else if (isHighProf && !hasHighProfAccess) {
+          modalBlur = true;
+          modalLockReason = 'High-Profile Match (Locked). Requires High-Profile package & Admin eligibility approval.';
+          modalUnlockText = 'Unlock High-Profile (₹21,000)';
+        } else if (!hasPaid300 && !simulatedPackages.includes('STANDARD')) {
+          modalBlur = true;
+          modalLockReason = 'Activate standard membership to view photos and contact';
+          modalUnlockText = 'Unlock Standard (₹300)';
+        }
+
+        return (
+          <div className="modal-overlay" onClick={() => setSelectedProfileForDetails(null)}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+              <div className="modal-header">
+                <span className="modal-title">Biodata Preview</span>
+                <button className="modal-close-btn" onClick={() => setSelectedProfileForDetails(null)}>×</button>
+              </div>
+              <div className="modal-body">
+                <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', marginBottom: '20px' }}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={getProfileImage(selectedProfileForDetails.gender, 0)}
+                    alt={selectedProfileForDetails.fullName}
+                    style={{
+                      width: '120px',
+                      height: '120px',
+                      objectFit: 'cover',
+                      borderRadius: '8px',
+                      border: '1.5px solid var(--gold-accent)',
+                      filter: modalBlur ? 'blur(10px)' : 'none'
+                    }}
+                  />
+                  <div>
+                    <h3 style={{ fontFamily: 'var(--font-serif)', color: 'var(--gold-dark)', fontSize: '20px' }}>
+                      {modalBlur ? 'Profile Details Blurred' : selectedProfileForDetails.fullName}
+                    </h3>
+                    <p style={{ fontSize: '13.5px', color: 'var(--text-muted)', marginTop: '4px' }}>
+                      {selectedProfileForDetails.gender} • {2026 - new Date(selectedProfileForDetails.dateOfBirth).getFullYear()} years old
+                    </p>
+                    <span style={{ display: 'inline-block', marginTop: '10px' }} className="card-badge card-badge-verified">
+                      {selectedProfileForDetails.verificationStatus} Verification
+                    </span>
+                  </div>
                 </div>
-                <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '12px' }}>
-                  <strong>Education & Occupation</strong>
-                  <p style={{ color: 'var(--text-dark)', marginTop: '4px' }}>
-                    {(!isLoggedIn || !hasPaid300) ? 'Hidden' : `${selectedProfileForDetails.education} • ${selectedProfileForDetails.occupation}`}
-                  </p>
-                </div>
-                <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '12px' }}>
-                  <strong>Income Range</strong>
-                  <p style={{ color: 'var(--text-dark)', marginTop: '4px' }}>{selectedProfileForDetails.annualIncomeRange}</p>
-                </div>
-                <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '12px', gridColumn: 'span 2' }}>
-                  <strong>Family Background</strong>
-                  <p style={{ color: 'var(--text-dark)', marginTop: '4px', lineHeight: '1.6' }}>{selectedProfileForDetails.familyInfo}</p>
-                </div>
-                <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '12px', gridColumn: 'span 2' }}>
-                  <strong>Phone / Contact Information</strong>
-                  <p style={{ color: 'var(--text-dark)', marginTop: '4px', fontWeight: 'bold' }}>
-                    {(!isLoggedIn || !hasPaid300) ? '+91-XXXXX-XXXXX (Membership unlock required)' : selectedProfileForDetails.phoneNumber}
-                  </p>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', fontSize: '13.5px' }}>
+                  <div style={{ gridColumn: 'span 2', borderTop: '1px solid var(--border-color)', paddingTop: '12px' }}>
+                    <strong>Personal Bio</strong>
+                    <p style={{ color: 'var(--text-dark)', marginTop: '4px', lineHeight: '1.6' }}>
+                      {modalBlur ? `Details Protected: ${modalLockReason}` : selectedProfileForDetails.bio}
+                    </p>
+                  </div>
+                  <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '12px' }}>
+                    <strong>Education & Occupation</strong>
+                    <p style={{ color: 'var(--text-dark)', marginTop: '4px' }}>
+                      {modalBlur ? 'Hidden' : `${selectedProfileForDetails.education} • ${selectedProfileForDetails.occupation}`}
+                    </p>
+                  </div>
+                  <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '12px' }}>
+                    <strong>Income Range</strong>
+                    <p style={{ color: 'var(--text-dark)', marginTop: '4px' }}>
+                      {modalBlur ? 'Hidden' : selectedProfileForDetails.annualIncomeRange}
+                    </p>
+                  </div>
+                  <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '12px', gridColumn: 'span 2' }}>
+                    <strong>Family Background</strong>
+                    <p style={{ color: 'var(--text-dark)', marginTop: '4px', lineHeight: '1.6' }}>
+                      {modalBlur ? 'Hidden' : selectedProfileForDetails.familyInfo}
+                    </p>
+                  </div>
+                  <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '12px', gridColumn: 'span 2' }}>
+                    <strong>Phone / Contact Information</strong>
+                    <p style={{ color: 'var(--text-dark)', marginTop: '4px', fontWeight: 'bold' }}>
+                      {modalBlur ? '+91-XXXXX-XXXXX' : selectedProfileForDetails.phoneNumber}
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div style={{ padding: '16px 24px', borderTop: '1px solid var(--border-color)', backgroundColor: 'var(--cream-card)', display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
-              {(!isLoggedIn || !hasPaid300) && (
-                <a href="#premium-pricing" onClick={() => setSelectedProfileForDetails(null)} className="btn btn-gold" style={{ padding: '8px 16px', fontSize: '12px' }}>
-                  Unlock Details
-                </a>
-              )}
-              <button className="btn btn-secondary" onClick={() => setSelectedProfileForDetails(null)} style={{ padding: '8px 16px', fontSize: '12px' }}>
-                Close
-              </button>
+              <div style={{ padding: '16px 24px', borderTop: '1px solid var(--border-color)', backgroundColor: 'var(--cream-card)', display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
+                {modalBlur && (
+                  <a href="#premium-pricing" onClick={() => setSelectedProfileForDetails(null)} className="btn btn-gold" style={{ padding: '8px 16px', fontSize: '12px' }}>
+                    {modalUnlockText}
+                  </a>
+                )}
+                <button className="btn btn-secondary" onClick={() => setSelectedProfileForDetails(null)} style={{ padding: '8px 16px', fontSize: '12px' }}>
+                  Close
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
     </>
   );
 }

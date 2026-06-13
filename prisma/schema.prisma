@@ -108,8 +108,67 @@ model MatrimonialProfile {
   adminApprovalStatus     String                  @default("PENDING") // PENDING, APPROVED, REJECTED
   hasPaid                 Boolean                 @default(false)
   verificationRequests    VerificationRequest[]
+  purchases               PackagePurchase[]
+  buyerLeads              CuratedLeadAssignment[] @relation("BuyerLeads")
+  assignedLeads           CuratedLeadAssignment[] @relation("AssignedLeads")
   createdAt               DateTime                @default(now())
   updatedAt               DateTime                @updatedAt
+}
+
+enum PackageType {
+  STANDARD
+  CURATED
+  SECOND_MARRIAGE
+  HIGH_PROFILE
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+}
+
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model PackagePurchase {
+  id                      String             @id @default(cuid())
+  profileId               String
+  profile                 MatrimonialProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  packageType             PackageType
+  basePrice               Float
+  gstRate                 Float              @default(0.18)
+  totalAmount             Float
+  billingType             String             // "MONTHLY" or "ONE_TIME"
+  successFeeAmount        Float              @default(0)
+  razorpayOrderId         String?            @unique
+  razorpayPaymentId       String?
+  paymentStatus           PaymentStatus      @default(PENDING)
+  purchaseDate            DateTime           @default(now())
+  expiryDate              DateTime?          // For monthly memberships
+  accessStatus            String             @default("ACTIVE") // "ACTIVE", "EXPIRED", "REVOKED"
+  eligibilityStatus       ApprovalStatus     @default(APPROVED) // PENDING, APPROVED, REJECTED (Specifically for HIGH_PROFILE)
+  marriageConfirmation    String             @default("PENDING") // PENDING, CONFIRMED
+  successFeePaymentStatus PaymentStatus      @default(PENDING) // PENDING, PAID for success fee
+  internalNotes           String?
+  createdAt               DateTime           @default(now())
+  updatedAt               DateTime           @updatedAt
+}
+
+model CuratedLeadAssignment {
+  id              String             @id @default(cuid())
+  buyerProfileId  String
+  buyerProfile    MatrimonialProfile @relation("BuyerLeads", fields: [buyerProfileId], references: [id], onDelete: Cascade)
+  leadProfileId   String
+  leadProfile     MatrimonialProfile @relation("AssignedLeads", fields: [leadProfileId], references: [id], onDelete: Cascade)
+  status          String             @default("PENDING") // "PENDING", "CONTACTED", "INTERESTED", "DECLINED", "MARRIED"
+  assignedAt      DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+
+  @@unique([buyerProfileId, leadProfileId])
 }
 
 model VerificationRequest {

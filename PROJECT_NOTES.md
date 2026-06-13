@@ -30,10 +30,46 @@ This file tracks the approved decisions, architecture, system design, business r
 ## 3. Technology Stack & Architecture
 * **Frontend**: Next.js 16 (App Router) with TypeScript
 * **Backend & API**: Next.js Server Components & Route Handlers
-* **Database**: Supabase (PostgreSQL with PostGIS for location radius calculations)
-* **Authentication**: Google OAuth 2.0
-* **Payment Gateway**: Razorpay (Integration with dynamic GST calculation)
+* **Database**: Neon/Local PostgreSQL accessed via Prisma ORM (client-side simulation fallback is active if database connection is unavailable)
+* **Authentication**: Google OAuth 2.0 via Auth.js v5 (with full header-based developer fallback simulator)
+* **Payment Gateway**: Razorpay (with cryptographic signature verification and sandbox/simulator checkout fallbacks)
 * **Styling**: Vanilla CSS (Design tokens, Custom variables)
+
+### Project Mind Map
+```mermaid
+graph TD
+    %% Styling
+    classDef main fill:#f9f6f0,stroke:#d4af37,stroke-width:2px,color:#2c3e50;
+    classDef database fill:#e8f4f8,stroke:#2980b9,stroke-width:2px,color:#2c3e50;
+    classDef external fill:#fbf2ea,stroke:#e67e22,stroke-width:2px,color:#2c3e50;
+    
+    %% Main Architecture
+    App[MOM Web Application]:::main
+    Database[(PostgreSQL Database)]:::database
+    Auth[NextAuth Google Login]:::external
+    Razorpay[Razorpay Payments]:::external
+
+    App --> Auth
+    App --> Database
+
+    %% User Flow
+    subgraph User Journey
+        Onboarding[1. Onboarding Wizard] --> Verification[2. Phone Verification]
+        Verification --> Paywall[3. Subscription Paywall]
+        Paywall --> Search[4. Profile Directory]
+    end
+    
+    App --> Onboarding
+    Paywall --> Razorpay
+
+    %% Admin Flow
+    subgraph Admin Control
+        AdminPanel[Admin Dashboard] --> MemberVerify[Verify Members]
+        AdminPanel --> Settings[Themes & Referral Control]
+    end
+    
+    App --> AdminPanel
+```
 
 ---
 
@@ -41,7 +77,7 @@ This file tracks the approved decisions, architecture, system design, business r
 * **Core Public App**: Landing Page, Search & Directory, Interactive Paywall blurs.
 * **Onboarding Module**: Profile Registration Form, verification status locks.
 * **Admin Dashboard**: Member Verification & Call Logs, Referral configurations, Custom Color Theme mappings.
-* **Payment Integration**: Razorpay Webhook listener, dynamic invoice builder (dynamic 18% GST).
+* **Payment Integration**: Razorpay Webhook listener simulation, dynamic invoice builder (dynamic 18% GST).
 * **Vendor Marketplace**: Vendor directory, ratings & category listing.
 
 ---
@@ -50,10 +86,10 @@ This file tracks the approved decisions, architecture, system design, business r
 - [x] Phase 1: Foundation, Auth & Profile Setup
 - [x] Phase 2: Database Setup, Google Authentication, and Manual Verification Flow
 - [x] Phase 3: Subscription, Razorpay (₹300 Standard Package & dynamic theme application)
-- [ ] Phase 4: Premium Packages (Curated, Second-Marriage, High-Profile)
+- [/] Phase 4: Premium Packages (Curated, Second-Marriage, High-Profile) [In Progress]
 - [ ] Phase 5: Referral System & Marketplace
-- [ ] Phase 6: Admin Panel (Verification Dashboard, Referral configuration, Theme Management)
-- [x] Phase 7: Polish, Security Hardening & Launch (Frontend Redesign Completed)
+- [x] Phase 6: Admin Panel Call Queue (Verification Dashboard, Referral configuration, Theme Management)
+- [ ] Phase 7: Full Admin Premium Controls, Polish & Final Launch Prep [In Progress]
 
 ---
 

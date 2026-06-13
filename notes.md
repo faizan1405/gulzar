@@ -15,44 +15,32 @@ graph TD
     classDef database fill:#e8f4f8,stroke:#2980b9,stroke-width:2px,color:#2c3e50;
     classDef external fill:#fbf2ea,stroke:#e67e22,stroke-width:2px,color:#2c3e50;
     
-    %% Core Modules
-    App[MOM Matrimonial Site]:::main
+    %% Main Architecture
+    App[MOM Web Application]:::main
     Database[(PostgreSQL Database)]:::database
-    Prisma[(Prisma ORM)]:::database
-    Auth[NextAuth.js v5 - Google OAuth]:::external
-    Razorpay[Razorpay Payments & GST]:::external
+    Auth[NextAuth Google Login]:::external
+    Razorpay[Razorpay Payments]:::external
 
-    App --> |Database Access| Prisma
-    Prisma --> Database
+    App --> Auth
+    App --> Database
 
     %% User Flow
-    App --> Onboarding[Onboarding & Registration]
-    Onboarding --> |5-Step Wizard| ProfileForm[Profile & Details Form]
-    ProfileForm --> |Status: PENDING| VerQueue[Admin Verification Queue]
+    subgraph User Journey
+        Onboarding[1. Onboarding Wizard] --> Verification[2. Phone Verification]
+        Verification --> Paywall[3. Subscription Paywall]
+        Paywall --> Search[4. Profile Directory]
+    end
+    
+    App --> Onboarding
+    Paywall --> Razorpay
 
-    %% Payment Flow
-    App --> Paywall[Viewer Subscription Paywall]
-    Paywall --> |₹300 + 18% GST| Razorpay
-    Razorpay --> |Webhook Listener| PayStatus[Update Profile: hasPaid = true]
-    PayStatus --> |Unblur Images/Details| Directory[Search Directory]
-
-    %% Profiles Types
-    Directory --> Standard[Standard Monthly Membership - ₹300]
-    Directory --> Curated[Curated Profiles - ₹5,500 + Success Fee]
-    Directory --> SecondMarriage[Second-Marriage Profiles - ₹11,000]
-    Directory --> HighProfile[High-Profile Matches - ₹21,000]
-
-    %% Admin Panel
-    App --> AdminPanel[Admin Dashboard]
-    AdminPanel --> |Call Logs & Verification| MemberVerification[Member Activation]
-    AdminPanel --> |Admin Config| ReferralConfig[Referral & Commission Control]
-    AdminPanel --> |UI Branding| ThemeConfig[Theme Management]
-
-    %% DB Schema Modules
-    Database --> UserTable[User & Role Management]
-    Database --> ProfileTable[MatrimonialProfile]
-    Database --> ReqTable[VerificationRequest]
-    Database --> AuditTable[AuditLog]
+    %% Admin Flow
+    subgraph Admin Control
+        AdminPanel[Admin Dashboard] --> MemberVerify[Verify Members]
+        AdminPanel --> Settings[Themes & Referral Control]
+    end
+    
+    App --> AdminPanel
 ```
 
 ---

@@ -22,28 +22,131 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ profile: null }, { status: 200 });
     }
 
+    // Identify profile categories
+    const isSecondMarriage = profile.maritalStatus !== 'Single';
+    const isHighProfile = 
+      profile.occupation.toLowerCase().includes('doctor') ||
+      profile.occupation.toLowerCase().includes('engineer') ||
+      profile.occupation.toLowerCase().includes('business') ||
+      profile.annualIncomeRange.includes('₹10 LPA') ||
+      profile.annualIncomeRange.includes('₹15 LPA') ||
+      profile.annualIncomeRange.includes('Above');
+
     // Security check: is the current user allowed to see private fields?
     const isOwner = session?.user?.id === targetUserId;
     const isAdmin = session?.user?.role === 'ADMIN';
 
-    // Fetch viewer profile to check subscription status
+    // Fetch viewer profile and purchases to check status
     let viewerHasPaid = false;
-    if (session?.user?.id) {
-      const viewerProfile = await getProfileByUserId(session.user.id);
-      if (viewerProfile?.hasPaid) {
-        viewerHasPaid = true;
+    let viewerPurchases: any[] = [];
+    
+    // Support simulator headers
+    const simulatedUserId = req.headers.get('x-simulator-user-id');
+    const simulatedPaid = req.headers.get('x-simulator-paid') === 'true';
+    const simulatedLoggedIn = req.headers.get('x-simulator-logged-in') === 'true';
+    const simulatedPackagesHeader = req.headers.get('x-simulator-packages') || '';
+    const simulatedPackages = simulatedPackagesHeader.split(',').map(p => p.trim());
+    const simulatedHighProfileApproved = req.headers.get('x-simulator-high-profile-approved') === 'true';
+
+    const viewerId = session?.user?.id || simulatedUserId;
+    if (viewerId) {
+      const viewerProfile = await getProfileByUserId(viewerId);
+      if (viewerProfile) {
+        viewerHasPaid = viewerProfile.hasPaid;
+        const { getUserPurchases } = require('@/lib/profileStore');
+        viewerPurchases = await getUserPurchases(viewerProfile.id);
       }
     }
 
-    const canViewPrivate = isOwner || isAdmin || viewerHasPaid;
+    const hasStandardPkg = viewerHasPaid || hasPaid300Check() || simulatedPaid;
+    const hasSecondMarriagePkg = viewerPurchases.some(p => p.packageType === 'SECOND_MARRIAGE' && p.paymentStatus === 'PAID') || simulatedPackages.includes('SECOND_MARRIAGE');
+    const hasHighProfilePkg = viewerPurchases.some(p => p.packageType === 'HIGH_PROFILE' && p.paymentStatus === 'PAID' && p.eligibilityStatus === 'APPROVED') || (simulatedPackages.includes('HIGH_PROFILE') && simulatedHighProfileApproved);
 
-    // To make sure simulator toggle works smoothly, let's look at the request headers for paid/logged-in status
-    const simulatedPaid = req.headers.get('x-simulator-paid') === 'true';
-    const simulatedLoggedIn = req.headers.get('x-simulator-logged-in') === 'true';
-    
-    const authorized = canViewPrivate || (simulatedLoggedIn && simulatedPaid);
+    function hasPaid300Check() {
+      return viewerPurchases.some(p => p.packageType === 'STANDARD' && p.paymentStatus === 'PAID');
+    }
 
-    if (!authorized) {
+    // Enforce privacy constraints
+    const isAuthorizedForSecondMarriage = isOwner || isAdmin || hasSecondMarriagePkg;
+    const isAuthorizedForHighProfile = isOwner || isAdmin || hasHighProfilePkg;
+    const isAuthorizedForStandard = isOwner || isAdmin || hasStandardPkg;
+
+    // Log access where appropriate
+    if (viewerId) {
+      const { prisma } = require('@/lib/db');
+      const { testDbConnection } = require('@/lib/profileStore');
+      const isDb = await testDbConnection();
+      const actionMsg = `VIEW_PROFILE_ATTEMPT_${targetUserId}`;
+      if (isDb) {
+        try {
+          await prisma.auditLog.create({
+            data: {
+              actorUserId: viewerId,
+              action: actionMsg,
+              targetType: 'MatrimonialProfile',
+              targetId: targetUserId,
+              metadata: JSON.stringify({ isSecondMarriage, isHighProfile, authorized: isAuthorizedForStandard }),
+            }
+          });
+        } catch {}
+      }
+    }
+
+    if (isSecondMarriage && !isAuthorizedForSecondMarriage) {
+      return NextResponse.json({
+        profile: {
+          id: profile.id,
+          fullName: 'Second-Marriage Candidate (Locked)',
+          gender: profile.gender,
+          dateOfBirth: new Date(1900, 0, 1),
+          maritalStatus: profile.maritalStatus,
+          city: profile.city,
+          state: profile.state,
+          country: profile.country,
+          education: 'Hidden (Second-Marriage Plan Required)',
+          occupation: 'Hidden',
+          annualIncomeRange: 'Hidden',
+          bio: 'This profile is in the private second-marriage category. Purchase the Second-Marriage Package to unlock full access.',
+          themeColor: profile.themeColor,
+          verificationStatus: profile.verificationStatus,
+          profileCompletionStatus: profile.profileCompletionStatus,
+          createdAt: profile.createdAt,
+          phoneNumber: '+91-XXXXX-XXXXX',
+          latitude: null,
+          longitude: null,
+          isLockedCategory: 'SECOND_MARRIAGE'
+        }
+      });
+    }
+
+    if (isHighProfile && !isAuthorizedForHighProfile) {
+      return NextResponse.json({
+        profile: {
+          id: profile.id,
+          fullName: 'High-Profile Candidate (Locked)',
+          gender: profile.gender,
+          dateOfBirth: new Date(1900, 0, 1),
+          maritalStatus: profile.maritalStatus,
+          city: profile.city,
+          state: profile.state,
+          country: profile.country,
+          education: 'Hidden (High-Profile Plan & Approval Required)',
+          occupation: 'Hidden',
+          annualIncomeRange: 'Hidden',
+          bio: 'This profile is in the private high-profile category. Purchase the High-Profile Match Package and complete eligibility review to unlock.',
+          themeColor: profile.themeColor,
+          verificationStatus: profile.verificationStatus,
+          profileCompletionStatus: profile.profileCompletionStatus,
+          createdAt: profile.createdAt,
+          phoneNumber: '+91-XXXXX-XXXXX',
+          latitude: null,
+          longitude: null,
+          isLockedCategory: 'HIGH_PROFILE'
+        }
+      });
+    }
+
+    if (!isAuthorizedForStandard) {
       // Return redacted profile
       return NextResponse.json({
         profile: {
@@ -64,7 +167,6 @@ export async function GET(req: NextRequest) {
           verificationStatus: profile.verificationStatus,
           profileCompletionStatus: profile.profileCompletionStatus,
           createdAt: profile.createdAt,
-          // Private fields REDACTED:
           phoneNumber: '+91-XXXXX-XXXXX',
           latitude: null,
           longitude: null,

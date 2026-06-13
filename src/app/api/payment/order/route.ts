@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import Razorpay from 'razorpay';
+import { PREMIUM_PACKAGES, PackageType } from '@/lib/packages';
+import { getProfileByUserId, createPackagePurchase } from '@/lib/profileStore';
 
 export async function POST(req: NextRequest) {
   try {
@@ -12,20 +14,46 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
     }
 
-    const baseAmount = 300; // ₹300
-    const gstAmount = baseAmount * 0.18; // 18% GST = ₹54
-    const totalAmount = baseAmount + gstAmount; // ₹354
-    const totalAmountPaise = Math.round(totalAmount * 100); // 35400 paise for Razorpay
+    const body = await req.json();
+    const packageTypeInput = (body.packageType || 'STANDARD') as PackageType;
+
+    const pkgDef = PREMIUM_PACKAGES[packageTypeInput];
+    if (!pkgDef) {
+      return NextResponse.json({ error: 'Invalid package type' }, { status: 400 });
+    }
+
+    const profile = await getProfileByUserId(activeUserId);
+    if (!profile) {
+      return NextResponse.json({ error: 'Please create your matrimonial profile card first.' }, { status: 400 });
+    }
+
+    const baseAmount = pkgDef.basePrice;
+    const gstAmount = baseAmount * pkgDef.gstRate;
+    const totalAmount = baseAmount + gstAmount;
+    const totalAmountPaise = Math.round(totalAmount * 100);
 
     const keyId = process.env.RAZORPAY_KEY_ID;
     const keySecret = process.env.RAZORPAY_KEY_SECRET;
 
+    const orderId = `order_${packageTypeInput.toLowerCase()}_${Date.now()}`;
+
     if (!keyId || !keySecret || keyId.includes('dummy') || keySecret.includes('dummy')) {
-      // Return a simulated order for local/sandbox testing
+      // Create pending purchase in simulator mode
+      await createPackagePurchase({
+        profileId: profile.id,
+        packageType: packageTypeInput,
+        basePrice: baseAmount,
+        gstRate: pkgDef.gstRate,
+        totalAmount: totalAmount,
+        billingType: pkgDef.billingType,
+        successFeeAmount: pkgDef.successFeeAmount,
+        razorpayOrderId: `order_sim_${Date.now()}_${packageTypeInput.toLowerCase()}`,
+      });
+
       return NextResponse.json({
         success: true,
         isSimulated: true,
-        orderId: `order_sim_${Date.now()}`,
+        orderId: `order_sim_${Date.now()}_${packageTypeInput.toLowerCase()}`,
         amount: totalAmountPaise,
         currency: 'INR',
         keyId: 'rzp_test_dummyKeyId123',
@@ -40,7 +68,19 @@ export async function POST(req: NextRequest) {
     const order = await razorpayInstance.orders.create({
       amount: totalAmountPaise,
       currency: 'INR',
-      receipt: `receipt_sub_${activeUserId}_${Date.now()}`,
+      receipt: `receipt_sub_${profile.id}_${Date.now()}`,
+    });
+
+    // Create pending purchase record in DB
+    await createPackagePurchase({
+      profileId: profile.id,
+      packageType: packageTypeInput,
+      basePrice: baseAmount,
+      gstRate: pkgDef.gstRate,
+      totalAmount: totalAmount,
+      billingType: pkgDef.billingType,
+      successFeeAmount: pkgDef.successFeeAmount,
+      razorpayOrderId: order.id,
     });
 
     return NextResponse.json({
