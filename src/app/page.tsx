@@ -607,7 +607,7 @@ export default function Home() {
               <li>
                 {isLoggedIn ? (
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--gold-dark)' }}>As-salamu alaykum</span>
+                    <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--primary-brand)' }}>As-salamu alaykum</span>
                     <button
                       onClick={() => {
                         setIsLoggedIn(false);
@@ -621,13 +621,27 @@ export default function Home() {
                     </button>
                   </div>
                 ) : (
-                  <button
-                    onClick={() => setShowLoginModal(true)}
-                    className="btn btn-gold"
-                    id="btn-login-trigger"
-                  >
-                    Login
-                  </button>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button
+                      onClick={() => setShowLoginModal(true)}
+                      className="btn btn-secondary"
+                      id="btn-login-trigger"
+                      style={{ padding: '8px 16px' }}
+                    >
+                      Login
+                    </button>
+                    <button
+                      onClick={() => {
+                        setIsLoggedIn(true); // Simulate registration/onboard flow directly
+                        setIsRegistering(true);
+                        setRegStep(1);
+                      }}
+                      className="btn btn-gold"
+                      style={{ padding: '8px 16px' }}
+                    >
+                      Register Free
+                    </button>
+                  </div>
                 )}
               </li>
             </ul>
@@ -1049,17 +1063,17 @@ export default function Home() {
           ) : (
             /* Main Landing Page */
             <>
-              {/* Hero Section */}
-              <section className="hero">
-                <div className="container">
-                  <p className="hero-subtitle">Halal & Secure Muslim Matrimony</p>
-                  <h1 className="hero-title">Find Your Perfect Partner in Faith & Life</h1>
+              {/* Premium Hero Section */}
+              <section className="hero-split container">
+                <div className="hero-content">
+                  <div className="hero-subtitle">Halal & Secure Matrimony</div>
+                  <h1 className="hero-title">Where meaningful matches begin.</h1>
                   <p className="hero-description">
-                    Welcome to MOM — a premium matrimonial platform designed with the elegance of a modern wedding card, offering absolute privacy, verified phone calls, and tailored Muslim matches.
+                    Built for serious Nikah journeys, trusted by families. Welcome to MOM — a premium, Shariah-compliant Muslim matchmaking platform offering verified candidates, absolute privacy, and dedicated marriage-focused match assistance.
                   </p>
-                  <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                  <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
                     <a href="#browse-profiles" className="btn btn-gold" id="hero-browse-btn">
-                      Browse Matches
+                      Explore Matches
                     </a>
                     <button
                       onClick={() => {
@@ -1073,31 +1087,132 @@ export default function Home() {
                       className="btn btn-primary"
                       id="hero-register-btn"
                     >
-                      {userProfile ? 'Edit Profile' : 'Register Now'}
+                      {userProfile ? 'Edit Your Profile' : 'Create Your Profile'}
                     </button>
+                  </div>
+                  
+                  {/* Trust statistics strip */}
+                  <div className="trust-strip">
+                    <div className="stat-item">
+                      <span className="stat-number">100%</span>
+                      <span className="stat-label">Call Verified</span>
+                    </div>
+                    <div className="stat-item">
+                      <span className="stat-number">Secure</span>
+                      <span className="stat-label">Privacy First</span>
+                    </div>
+                    <div className="stat-item">
+                      <span className="stat-number">Family</span>
+                      <span className="stat-label">Focused Nikah</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="hero-visual-container">
+                  <div className="hero-visual-frame">
+                    {/* Tasteful premium placeholder image representing matrimony trust */}
+                    <img 
+                      src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&q=80&w=600&h=800" 
+                      alt="Elegant Muslim Wedding Scene" 
+                      className="hero-visual-img"
+                    />
+                  </div>
+                  
+                  {/* Floating preview cards with verification badges */}
+                  <div className="floating-preview-card floating-card-1">
+                    <span style={{ fontSize: '20px' }}>🟢</span>
+                    <div>
+                      <strong style={{ display: 'block', fontSize: '13px', color: 'var(--text-dark)' }}>Verified Match</strong>
+                      <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Mumbai • Doctor</span>
+                    </div>
+                  </div>
+
+                  <div className="floating-preview-card floating-card-2">
+                    <span style={{ fontSize: '20px' }}>✨</span>
+                    <div>
+                      <strong style={{ display: 'block', fontSize: '13px', color: 'var(--text-dark)' }}>Active Search</strong>
+                      <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Delhi • Engineer</span>
+                    </div>
                   </div>
                 </div>
               </section>
 
-              {/* How It Works Section */}
-              <section style={{ padding: '80px 0', backgroundColor: 'var(--cream-card)', borderBottom: '1px solid var(--border-color)' }}>
+              {/* Smart Search Panel */}
+              <div className="container" style={{ position: 'relative', zIndex: '20' }}>
+                <div className="search-panel">
+                  <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '18px', color: 'var(--primary-brand)', marginBottom: '16px' }}>
+                    Quick Match Search
+                  </h3>
+                  <div className="search-panel-grid">
+                    <div>
+                      <label className="form-label">Looking For</label>
+                      <select className="form-control" style={{ backgroundColor: 'var(--cream-bg)' }}>
+                        <option>Bride (Female)</option>
+                        <option>Groom (Male)</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="form-label">Age Range</label>
+                      <select className="form-control" style={{ backgroundColor: 'var(--cream-bg)' }}>
+                        <option>18 - 25 Yrs</option>
+                        <option>26 - 32 Yrs</option>
+                        <option>33 - 40 Yrs</option>
+                        <option>40+ Yrs</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="form-label">City</label>
+                      <select className="form-control" style={{ backgroundColor: 'var(--cream-bg)' }} value={selectedDistance} onChange={(e) => setSelectedDistance(e.target.value)}>
+                        <option value="All">All India</option>
+                        <option value="50">Mumbai Only</option>
+                        <option value="100">Excluding Delhi</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="form-label">Caste / Community</label>
+                      <select className="form-control" style={{ backgroundColor: 'var(--cream-bg)' }} value={selectedCaste} onChange={(e) => setSelectedCaste(e.target.value)}>
+                        <option value="All">All Communities</option>
+                        <option value="Sunni">Sunni</option>
+                        <option value="Syed">Syed</option>
+                        <option value="Hanafi">Hanafi</option>
+                        <option value="Sheikh">Sheikh</option>
+                      </select>
+                    </div>
+                    <a href="#browse-profiles" className="btn btn-primary" style={{ width: '100%' }}>
+                      Search
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+              {/* How It Works Section with Connected Timeline */}
+              <section style={{ backgroundColor: 'var(--cream-card)', borderBottom: '1px solid var(--border-color)' }}>
                 <div className="container">
                   <div className="section-header">
-                    <h2>How It Works</h2>
-                    <p>3 simple steps to find your lifelong companion</p>
+                    <h2>How MOM Works</h2>
+                    <p>Designed for pure, respectful, and Shariah-compliant introductions</p>
                   </div>
-                  <div className="grid-3" style={{ marginTop: '40px' }}>
-                    <div style={{ textAlign: 'center', padding: '24px' }}>
-                      <div style={{ fontSize: '36px', color: 'var(--gold-accent)', marginBottom: '16px' }}>1. Create Profile</div>
-                      <p style={{ color: 'var(--text-muted)', fontSize: '14.5px' }}>Fill out our simple registration form, add background info, partner preference, and choose your card theme accent.</p>
-                    </div>
-                    <div style={{ textAlign: 'center', padding: '24px' }}>
-                      <div style={{ fontSize: '36px', color: 'var(--gold-accent)', marginBottom: '16px' }}>2. Phone Call Verification</div>
-                      <p style={{ color: 'var(--text-muted)', fontSize: '14.5px' }}>Our admin team reviews your profile details and performs a manual phone call check before approving you to search queue.</p>
-                    </div>
-                    <div style={{ textAlign: 'center', padding: '24px' }}>
-                      <div style={{ fontSize: '36px', color: 'var(--gold-accent)', marginBottom: '16px' }}>3. Secure Matchmaking</div>
-                      <p style={{ color: 'var(--text-muted)', fontSize: '14.5px' }}>Unlock unblurred photos and full profile information once approved. Safely contact verified prospects with full privacy.</p>
+                  
+                  <div className="timeline-container">
+                    <div className="timeline-line"></div>
+                    <div className="timeline-grid">
+                      <div className="timeline-step">
+                        <div className="timeline-number">1</div>
+                        <h3>Create Your Biodata</h3>
+                        <p>Fill in details about yourself, education, career, family details, and choose your custom card accent theme.</p>
+                      </div>
+                      
+                      <div className="timeline-step">
+                        <div className="timeline-number">2</div>
+                        <h3>Verification Call</h3>
+                        <p>Our dedicated admin desk schedules a telephone call check to verify user information and maintain quality standards.</p>
+                      </div>
+                      
+                      <div className="timeline-step">
+                        <div className="timeline-number">3</div>
+                        <h3>Connect Securely</h3>
+                        <p>Approved candidates can unlock photos, access direct contact details, and start family-focused introductions.</p>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1107,7 +1222,7 @@ export default function Home() {
               {isLoggedIn && (
                 <section style={{ padding: '60px 0', backgroundColor: 'var(--cream-bg)', borderBottom: '1px solid var(--border-color)' }}>
                   <div className="container">
-                    <div className="card-theme-wrapper" style={{ maxWidth: '900px', margin: '0 auto' }}>
+                    <div className="card-theme-wrapper" style={{ maxWidth: '960px', margin: '0 auto' }}>
                       <div className="ornament ornament-tl"></div>
                       <div className="ornament ornament-tr"></div>
                       <div className="ornament ornament-bl"></div>
@@ -1115,11 +1230,11 @@ export default function Home() {
 
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '20px' }}>
                         <div>
-                          <h3 style={{ fontFamily: 'var(--font-serif)', color: 'var(--gold-dark)', fontSize: '22px', marginBottom: '8px' }}>
+                          <h3 style={{ fontFamily: 'var(--font-serif)', color: 'var(--primary-brand)', fontSize: '24px', marginBottom: '8px' }}>
                             Assalamu Alaykum, {userProfile?.fullName || 'Valued Candidate'}!
                           </h3>
-                          <p style={{ fontSize: '14.5px', color: 'var(--text-muted)' }}>
-                            Welcome to your personalized matrimonial dashboard dashboard.
+                          <p style={{ fontSize: '15px', color: 'var(--text-muted)' }}>
+                            Welcome to your personalized matrimonial dashboard. Manage details, verification call, and active matches.
                           </p>
                         </div>
                         <div style={{ display: 'flex', gap: '12px' }}>
@@ -1136,21 +1251,21 @@ export default function Home() {
                       </div>
 
                       <div className="grid-3" style={{ marginTop: '30px', borderTop: '1px solid var(--border-color)', paddingTop: '24px' }}>
-                        <div style={{ backgroundColor: 'var(--white)', padding: '16px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
-                          <span style={{ fontSize: '12px', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: '600' }}>Verification Status</span>
-                          <div style={{ fontSize: '18px', fontWeight: 'bold', color: userProfile?.verificationStatus === 'APPROVED' ? 'green' : 'orange', marginTop: '4px' }}>
+                        <div style={{ backgroundColor: 'var(--white)', padding: '20px', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
+                          <span style={{ fontSize: '11px', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: '700', letterSpacing: '0.5px' }}>Verification Status</span>
+                          <div style={{ fontSize: '18px', fontWeight: 'bold', color: userProfile?.verificationStatus === 'APPROVED' ? 'green' : 'orange', marginTop: '6px' }}>
                             {userProfile?.verificationStatus || 'PENDING'}
                           </div>
                         </div>
-                        <div style={{ backgroundColor: 'var(--white)', padding: '16px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
-                          <span style={{ fontSize: '12px', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: '600' }}>Membership Status</span>
-                          <div style={{ fontSize: '18px', fontWeight: 'bold', color: hasPaid300 ? 'green' : 'orange', marginTop: '4px' }}>
-                            {hasPaid300 ? 'Standard Active' : 'Unpaid Mode'}
+                        <div style={{ backgroundColor: 'var(--white)', padding: '20px', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
+                          <span style={{ fontSize: '11px', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: '700', letterSpacing: '0.5px' }}>Membership Status</span>
+                          <div style={{ fontSize: '18px', fontWeight: 'bold', color: hasPaid300 ? 'green' : 'orange', marginTop: '6px' }}>
+                            {hasPaid300 ? 'Standard Active' : 'Unpaid Preview'}
                           </div>
                         </div>
-                        <div style={{ backgroundColor: 'var(--white)', padding: '16px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
-                          <span style={{ fontSize: '12px', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: '600' }}>Saved Matches</span>
-                          <div style={{ fontSize: '18px', fontWeight: 'bold', color: 'var(--gold-dark)', marginTop: '4px' }}>
+                        <div style={{ backgroundColor: 'var(--white)', padding: '20px', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
+                          <span style={{ fontSize: '11px', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: '700', letterSpacing: '0.5px' }}>Saved Matches</span>
+                          <div style={{ fontSize: '18px', fontWeight: 'bold', color: 'var(--primary-brand)', marginTop: '6px' }}>
                             {savedProfiles.length} Saved Profiles
                           </div>
                         </div>
@@ -1161,25 +1276,38 @@ export default function Home() {
               )}
 
               {/* Profiles Section */}
-              <section id="browse-profiles" style={{ padding: '80px 0', backgroundColor: 'var(--cream-bg)' }}>
+              <section id="browse-profiles" style={{ backgroundColor: 'var(--cream-bg)' }}>
                 <div className="container">
                   <div className="section-header">
                     <h2>Browse Matrimonial Candidates</h2>
                     <p>Connect with compatible, call-verified profiles</p>
                   </div>
 
+                  {/* Filter Tabs */}
+                  <div className="tabs-container">
+                    <button className="tab-btn active">Recommended</button>
+                    <button className="tab-btn" onClick={() => setVerificationFilter('Verified')}>Verified Profiles</button>
+                    <button className="tab-btn" onClick={() => setSelectedDistance('50')}>Nearby Matches</button>
+                    <button className="tab-btn" onClick={() => {
+                      setSearchQuery('');
+                      setSelectedDistance('All');
+                      setSelectedCaste('All');
+                      setVerificationFilter('All');
+                    }}>Reset Filters</button>
+                  </div>
+
                   {/* Search and Filters wrapper */}
                   <div style={{
                     backgroundColor: 'var(--white)',
-                    padding: '24px',
+                    padding: '28px',
                     borderRadius: 'var(--border-radius-lg)',
                     border: '1px solid var(--border-color)',
-                    boxShadow: 'var(--shadow-sm)',
-                    marginBottom: '40px'
+                    boxShadow: 'var(--shadow-premium)',
+                    marginBottom: '48px'
                   }}>
-                    <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'flex-end' }}>
-                      <div style={{ flexGrow: 1, minWidth: '250px' }}>
-                        <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: '6px', textTransform: 'uppercase', color: 'var(--gold-dark)' }}>Search keyword</label>
+                    <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', alignItems: 'flex-end' }}>
+                      <div style={{ flexGrow: 1, minWidth: '280px' }}>
+                        <label className="form-label">Search Keyword</label>
                         <input
                           type="text"
                           value={searchQuery}
@@ -1190,12 +1318,12 @@ export default function Home() {
                       </div>
 
                       <div>
-                        <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: '6px', textTransform: 'uppercase', color: 'var(--gold-dark)' }}>Distance Radius</label>
+                        <label className="form-label">Distance Radius</label>
                         <select
                           value={selectedDistance}
                           onChange={(e) => setSelectedDistance(e.target.value)}
                           className="form-control"
-                          style={{ minWidth: '160px' }}
+                          style={{ minWidth: '180px' }}
                           id="filter-distance"
                         >
                           <option value="All">All India</option>
@@ -1205,12 +1333,12 @@ export default function Home() {
                       </div>
 
                       <div>
-                        <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: '6px', textTransform: 'uppercase', color: 'var(--gold-dark)' }}>Caste / Community</label>
+                        <label className="form-label">Caste / Community</label>
                         <select
                           value={selectedCaste}
                           onChange={(e) => setSelectedCaste(e.target.value)}
                           className="form-control"
-                          style={{ minWidth: '160px' }}
+                          style={{ minWidth: '180px' }}
                           id="filter-caste"
                         >
                           <option value="All">All Castes</option>
@@ -1222,12 +1350,12 @@ export default function Home() {
                       </div>
 
                       <div>
-                        <label style={{ fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: '6px', textTransform: 'uppercase', color: 'var(--gold-dark)' }}>Verification</label>
+                        <label className="form-label">Verification</label>
                         <select
                           value={verificationFilter}
                           onChange={(e) => setVerificationFilter(e.target.value)}
                           className="form-control"
-                          style={{ minWidth: '160px' }}
+                          style={{ minWidth: '180px' }}
                           id="filter-verification"
                         >
                           <option value="All">All Profiles</option>
@@ -1299,7 +1427,7 @@ export default function Home() {
                                   <button
                                     onClick={() => setShowLoginModal(true)}
                                     className="btn btn-gold"
-                                    style={{ padding: '6px 16px', fontSize: '12px' }}
+                                    style={{ padding: '8px 20px', fontSize: '13px' }}
                                   >
                                     Log In
                                   </button>
@@ -1307,7 +1435,7 @@ export default function Home() {
                                   <a
                                     href="#premium-pricing"
                                     className="btn btn-gold"
-                                    style={{ padding: '6px 16px', fontSize: '12px' }}
+                                    style={{ padding: '8px 20px', fontSize: '13px' }}
                                   >
                                     Unlock Standard (₹300)
                                   </a>
@@ -1348,13 +1476,13 @@ export default function Home() {
                             </div>
 
                             <div className="profile-card-footer">
-                              <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
+                              <span style={{ fontSize: '13.5px', color: 'var(--text-muted)', fontWeight: '600' }}>
                                 📞 {shouldBlur ? '+91-XXXXX-XXXXX' : profile.phoneNumber}
                               </span>
                               <button
                                 onClick={() => setSelectedProfileForDetails(profile)}
                                 className="btn btn-secondary"
-                                style={{ padding: '6px 14px', fontSize: '12px' }}
+                                style={{ padding: '8px 18px', fontSize: '13px' }}
                               >
                                 View Details
                               </button>
@@ -1368,7 +1496,7 @@ export default function Home() {
               </section>
 
               {/* Pricing & Premium Packages */}
-              <section id="premium-pricing" style={{ padding: '80px 0', backgroundColor: 'var(--cream-card)', borderBottom: '1px solid var(--border-color)' }}>
+              <section id="premium-pricing" style={{ backgroundColor: 'var(--cream-card)', borderBottom: '1px solid var(--border-color)' }}>
                 <div className="container">
                   <div className="section-header">
                     <h2>Pricing & Tailored Packages</h2>
@@ -1470,32 +1598,54 @@ export default function Home() {
               </section>
 
               {/* Safety & Verification Section */}
-              <section style={{ padding: '80px 0', backgroundColor: 'var(--cream-bg)', borderBottom: '1px solid var(--border-color)' }}>
-                <div className="container" style={{ maxWidth: '800px' }}>
+              <section style={{ backgroundColor: 'var(--cream-bg)', borderBottom: '1px solid var(--border-color)' }}>
+                <div className="container">
                   <div className="section-header">
-                    <h2>Strict Safety & Verification</h2>
-                    <p>We keep matchmaking pure, halal, and trustworthy</p>
+                    <h2>Trust & Family Safety</h2>
+                    <p>Designed from the ground up to protect members and their families</p>
                   </div>
-                  <div className="card-theme-wrapper" style={{ padding: '30px' }}>
-                    <div className="ornament ornament-tl"></div>
-                    <div className="ornament ornament-tr"></div>
-                    <div className="ornament ornament-bl"></div>
-                    <div className="ornament ornament-br"></div>
-                    <h3 style={{ fontFamily: 'var(--font-serif)', color: 'var(--gold-dark)', marginBottom: '16px', textAlign: 'center' }}>
-                      Manual Phone Verification Policy
-                    </h3>
-                    <p style={{ fontSize: '14.5px', color: 'var(--text-dark)', lineHeight: '1.8', marginBottom: '16px' }}>
-                      Unlike other automated matrimonial websites, MOM requires every registered candidate to complete a manual telephone check. Our admin verification desk calls the user to confirm their biodata, family details, and background.
-                    </p>
-                    <p style={{ fontSize: '14.5px', color: 'var(--text-dark)', lineHeight: '1.8' }}>
-                      Profiles that do not pass or haven&apos;t finished this verification call are labeled as <strong>Pending Call Check</strong> and will not expose sensitive information to keep matches free from spam or fake accounts.
-                    </p>
+                  
+                  <div className="safety-wrapper">
+                    <div>
+                      {/* Premium editorial visual representation of safety */}
+                      <img 
+                        src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=500&h=400" 
+                        alt="Matrimonial Security Verification Process" 
+                        style={{ width: '100%', height: 'auto', borderRadius: 'var(--border-radius-lg)', boxShadow: 'var(--shadow-premium)' }}
+                      />
+                    </div>
+                    
+                    <ul className="safety-list">
+                      <li className="safety-item">
+                        <div className="safety-icon">✓</div>
+                        <div className="safety-text">
+                          <h4>Manual Telephone Verification</h4>
+                          <p>Every profile undergoes manual checks and validation by our dedicated admin queue before going public.</p>
+                        </div>
+                      </li>
+
+                      <li className="safety-item">
+                        <div className="safety-icon">✓</div>
+                        <div className="safety-text">
+                          <h4>Photo & Number Blur Protection</h4>
+                          <p>Keep your contact details and photos hidden from unauthenticated visitors and standard unpaid members.</p>
+                        </div>
+                      </li>
+
+                      <li className="safety-item">
+                        <div className="safety-icon">✓</div>
+                        <div className="safety-text">
+                          <h4>Shariah-Compliant Process</h4>
+                          <p>Matchmaking structured for serious life partners with high integrity, family consent, and zero dating app swipe systems.</p>
+                        </div>
+                      </li>
+                    </ul>
                   </div>
                 </div>
               </section>
 
               {/* Referral Section */}
-              <section style={{ padding: '80px 0', backgroundColor: 'var(--cream-card)', borderBottom: '1px solid var(--border-color)' }}>
+              <section style={{ backgroundColor: 'var(--cream-card)', borderBottom: '1px solid var(--border-color)' }}>
                 <div className="container">
                   <div className="section-header">
                     <h2>MOM Referral Program</h2>
@@ -1534,7 +1684,7 @@ export default function Home() {
                       )}
                     </div>
 
-                    <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', backgroundColor: 'var(--white)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '30px', boxShadow: 'var(--shadow-sm)' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', backgroundColor: 'var(--white)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '30px', boxShadow: 'var(--shadow-premium)' }}>
                       <h4 style={{ color: 'var(--gold-dark)', marginBottom: '16px' }}>Commission Estimator</h4>
                       <div style={{ fontSize: '28px', fontWeight: 'bold', color: 'var(--text-dark)' }}>
                         ₹{Math.floor(300 * (referralRate / 100))} <span style={{ fontSize: '14px', fontWeight: 'normal', color: 'var(--text-muted)' }}>per referral checkout</span>
@@ -1548,10 +1698,10 @@ export default function Home() {
               </section>
 
               {/* Testimonials Section */}
-              <section style={{ padding: '80px 0', backgroundColor: 'var(--cream-bg)', borderBottom: '1px solid var(--border-color)' }}>
+              <section style={{ backgroundColor: 'var(--cream-bg)', borderBottom: '1px solid var(--border-color)' }}>
                 <div className="container">
                   <div className="section-header">
-                    <h2>Success Stories</h2>
+                    <h2>Blessed Success Stories</h2>
                     <p>Alhamdulillah! Read stories from our blessed couples</p>
                   </div>
                   <div className="grid-3" style={{ marginTop: '40px' }}>
@@ -1559,43 +1709,43 @@ export default function Home() {
                       <p className="testimonial-text">
                         &ldquo;MOM made the search simple and extremely respectful. The manual call verification gave my family peace of mind. We found our match within two months of joining!&rdquo;
                       </p>
-                      <div className="testimonial-author">— Dr. Sarah & Brother Tariq</div>
+                      <div className="testimonial-author">— Dr. Sarah & Brother Tariq (Mumbai)</div>
                     </div>
                     <div className="testimonial-card">
                       <p className="testimonial-text">
                         &ldquo;Alhamdulillah! I registered under the Curated Matchmaking program. The personalized matches were highly compatible and respected all family parameters. Highly recommended platform.&rdquo;
                       </p>
-                      <div className="testimonial-author">— Sister Aisha & Brother Khalid</div>
+                      <div className="testimonial-author">— Sister Aisha & Brother Khalid (Delhi)</div>
                     </div>
                     <div className="testimonial-card">
                       <p className="testimonial-text">
                         &ldquo;The standard ₹300 plan was very affordable, and the photos were blurred, keeping my privacy fully intact. I felt safe throughout my onboarding and matchmaking journey.&rdquo;
                       </p>
-                      <div className="testimonial-author">— Brother Adnan & Sister Yasmin</div>
+                      <div className="testimonial-author">— Brother Adnan & Sister Yasmin (Bangalore)</div>
                     </div>
                   </div>
                 </div>
               </section>
 
               {/* Wedding Services Section */}
-              <section id="wedding-services" style={{ padding: '80px 0', backgroundColor: 'var(--cream-card)' }}>
+              <section id="wedding-services" style={{ backgroundColor: 'var(--cream-card)' }}>
                 <div className="container">
                   <div className="section-header">
                     <h2>Wedding Invitation Services</h2>
                     <p>Explore trusted local Islamic vendors for your big day</p>
                   </div>
                   <div className="grid-3" style={{ marginTop: '40px' }}>
-                    <div style={{ backgroundColor: 'var(--white)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '24px', boxShadow: 'var(--shadow-sm)' }}>
+                    <div style={{ backgroundColor: 'var(--white)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '24px', boxShadow: 'var(--shadow-premium)' }}>
                       <div style={{ fontSize: '24px', marginBottom: '8px' }}>📸 Pure Frame Photography</div>
                       <p style={{ color: 'var(--text-muted)', fontSize: '13.5px', marginBottom: '12px' }}>Shariah-compliant separated wedding capture. Modern cinematic portfolios.</p>
                       <span className="card-badge card-badge-distance">Mumbai • Bandra</span>
                     </div>
-                    <div style={{ backgroundColor: 'var(--white)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '24px', boxShadow: 'var(--shadow-sm)' }}>
+                    <div style={{ backgroundColor: 'var(--white)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '24px', boxShadow: 'var(--shadow-premium)' }}>
                       <div style={{ fontSize: '24px', marginBottom: '8px' }}>🍲 Al-Barkat Catering</div>
                       <p style={{ color: 'var(--text-muted)', fontSize: '13.5px', marginBottom: '12px' }}>Gourmet Mughal & Arabic cuisine. 100% halal preparation and management.</p>
                       <span className="card-badge card-badge-distance">Delhi • Karol Bagh</span>
                     </div>
-                    <div style={{ backgroundColor: 'var(--white)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '24px', boxShadow: 'var(--shadow-sm)' }}>
+                    <div style={{ backgroundColor: 'var(--white)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '24px', boxShadow: 'var(--shadow-premium)' }}>
                       <div style={{ fontSize: '24px', marginBottom: '8px' }}>🕌 Royal Shahi Venues</div>
                       <p style={{ color: 'var(--text-muted)', fontSize: '13.5px', marginBottom: '12px' }}>Spacious elegant wedding halls with custom partition and divider facilities.</p>
                       <span className="card-badge card-badge-distance">Bangalore • Indiranagar</span>
@@ -1607,24 +1757,24 @@ export default function Home() {
               {/* Footer */}
               <footer className="footer">
                 <div className="container">
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '30px', marginBottom: '40px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '40px', marginBottom: '40px' }}>
                     <div>
-                      <h3 style={{ fontFamily: 'var(--font-serif)', color: 'var(--gold-light)', marginBottom: '16px' }}>MOM Matrimonial</h3>
-                      <p style={{ fontSize: '13px', color: 'var(--gold-light)', opacity: 0.8, lineHeight: '1.7' }}>
+                      <div className="footer-logo">MOM<span>.</span></div>
+                      <p style={{ fontSize: '13.5px', color: 'rgba(247, 245, 240, 0.75)', lineHeight: '1.8' }}>
                         Trusted Halal Matrimony. Dedicated to helping single, divorced, and high-profile Muslim candidates find compatible marriage partners.
                       </p>
                     </div>
                     <div>
-                      <h4 style={{ color: 'var(--gold-accent)', fontSize: '15px', marginBottom: '16px', textTransform: 'uppercase' }}>Quick Links</h4>
-                      <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '13px' }}>
+                      <h4 style={{ color: 'var(--gold-accent)', fontSize: '15px', marginBottom: '20px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Quick Links</h4>
+                      <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13.5px' }}>
                         <li><a href="#browse-profiles" style={{ opacity: 0.8 }}>Browse Candidates</a></li>
                         <li><a href="#premium-pricing" style={{ opacity: 0.8 }}>Pricing Packages</a></li>
                         <li><a href="#wedding-services" style={{ opacity: 0.8 }}>Wedding Vendors</a></li>
                       </ul>
                     </div>
                     <div>
-                      <h4 style={{ color: 'var(--gold-accent)', fontSize: '15px', marginBottom: '16px', textTransform: 'uppercase' }}>Safety & Privacy</h4>
-                      <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '13px' }}>
+                      <h4 style={{ color: 'var(--gold-accent)', fontSize: '15px', marginBottom: '20px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Safety & Privacy</h4>
+                      <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13.5px' }}>
                         <li><span style={{ opacity: 0.8 }}>Manual Phone Verification</span></li>
                         <li><span style={{ opacity: 0.8 }}>Photo & Number Blur protection</span></li>
                         <li><span style={{ opacity: 0.8 }}>Shariah-Compliant guidelines</span></li>
@@ -1632,7 +1782,7 @@ export default function Home() {
                     </div>
                   </div>
                   <div className="footer-bottom">
-                    &copy; 2026 MOM Matrimonial Site. All Rights Reserved. For Internal preview only.
+                    &copy; 2026 MOM Matrimonial Site. All Rights Reserved. Created for premium internal launch preview.
                   </div>
                 </div>
               </footer>
