@@ -17,7 +17,7 @@ graph TD
     
     %% Main Architecture
     App[MOM Web Application]:::main
-    Database[(PostgreSQL Database)]:::database
+    Database[(MongoDB Atlas Database)]:::database
     Auth[NextAuth Google Login]:::external
     Razorpay[Razorpay Payments]:::external
 

@@ -58,6 +58,40 @@ interface AuditLog {
   metadata: string;
   createdAt: string;
 }
+interface PackagePurchase {
+  id: string;
+  profileId: string;
+  packageType: string;
+  basePrice: number;
+  gstRate: number;
+  totalAmount: number;
+  billingType: string;
+  successFeeAmount: number;
+  razorpayOrderId: string | null;
+  razorpayPaymentId: string | null;
+  paymentStatus: string;
+  purchaseDate: string;
+  expiryDate: string | null;
+  accessStatus: string;
+  eligibilityStatus: string;
+  marriageConfirmation: string;
+  successFeePaymentStatus: string;
+  internalNotes: string | null;
+  createdAt: string;
+  updatedAt: string;
+  profile?: Profile | null;
+}
+
+interface CuratedLeadAssignment {
+  id: string;
+  buyerProfileId: string;
+  leadProfileId: string;
+  status: string;
+  assignedAt: string;
+  updatedAt: string;
+  buyerProfile?: Profile | null;
+  leadProfile?: Profile | null;
+}
 
 export default function Home() {
   // --- Simulator & Session States ---
@@ -91,8 +125,8 @@ export default function Home() {
   // --- Admin Dashboard States ---
   const [adminRequests, setAdminRequests] = useState<VerificationRequest[]>([]);
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
-  const [adminPurchases, setAdminPurchases] = useState<any[]>([]);
-  const [adminAssignments, setAdminAssignments] = useState<any[]>([]);
+  const [adminPurchases, setAdminPurchases] = useState<PackagePurchase[]>([]);
+  const [adminAssignments, setAdminAssignments] = useState<CuratedLeadAssignment[]>([]);
   const [adminActiveTab, setAdminActiveTab] = useState<'verification' | 'logs' | 'purchases' | 'assignments'>('verification');
   const [selectedRequestForReview, setSelectedRequestForReview] = useState<VerificationRequest | null>(null);
   const [reviewNotes, setReviewNotes] = useState('');

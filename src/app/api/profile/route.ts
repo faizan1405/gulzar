@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
-import { getProfileByUserId, upsertProfile } from '@/lib/profileStore';
+import { getProfileByUserId, upsertProfile, getUserPurchases, testDbConnection, getValidObjectId } from '@/lib/profileStore';
+import { prisma } from '@/lib/db';
 
 // Get user profile
 export async function GET(req: NextRequest) {
@@ -38,7 +39,12 @@ export async function GET(req: NextRequest) {
 
     // Fetch viewer profile and purchases to check status
     let viewerHasPaid = false;
-    let viewerPurchases: any[] = [];
+    let viewerPurchases: Array<{
+      id: string;
+      packageType: string;
+      paymentStatus: string;
+      eligibilityStatus?: string;
+    }> = [];
     
     // Support simulator headers
     const simulatedUserId = req.headers.get('x-simulator-user-id');
@@ -53,7 +59,6 @@ export async function GET(req: NextRequest) {
       const viewerProfile = await getProfileByUserId(viewerId);
       if (viewerProfile) {
         viewerHasPaid = viewerProfile.hasPaid;
-        const { getUserPurchases } = require('@/lib/profileStore');
         viewerPurchases = await getUserPurchases(viewerProfile.id);
       }
     }
@@ -73,15 +78,13 @@ export async function GET(req: NextRequest) {
 
     // Log access where appropriate
     if (viewerId) {
-      const { prisma } = require('@/lib/db');
-      const { testDbConnection } = require('@/lib/profileStore');
       const isDb = await testDbConnection();
       const actionMsg = `VIEW_PROFILE_ATTEMPT_${targetUserId}`;
       if (isDb) {
         try {
           await prisma.auditLog.create({
             data: {
-              actorUserId: viewerId,
+              actorUserId: getValidObjectId(viewerId),
               action: actionMsg,
               targetType: 'MatrimonialProfile',
               targetId: targetUserId,

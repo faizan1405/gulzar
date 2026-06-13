@@ -1,5 +1,5 @@
 datasource db {
-  provider = "postgresql"
+  provider = "mongodb"
   url      = env("DATABASE_URL")
 }
 
@@ -30,7 +30,7 @@ enum VerificationStatus {
 }
 
 model User {
-  id               String               @id @default(cuid())
+  id               String               @id @default(auto()) @map("_id") @db.ObjectId
   name             String?
   email            String?              @unique
   emailVerified    DateTime?
@@ -47,17 +47,17 @@ model User {
 }
 
 model Account {
-  id                 String  @id @default(cuid())
-  userId             String
+  id                 String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId             String  @db.ObjectId
   type               String
   provider           String
   providerAccountId  String
-  refresh_token      String? @db.Text
-  access_token       String? @db.Text
+  refresh_token      String? @db.String
+  access_token       String? @db.String
   expires_at         Int?
   token_type         String?
   scope              String?
-  id_token           String? @db.Text
+  id_token           String? @db.String
   session_state      String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -66,15 +66,15 @@ model Account {
 }
 
 model Session {
-  id           String   @id @default(cuid())
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
   sessionToken String   @unique
-  userId       String
+  userId       String   @db.ObjectId
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model VerificationToken {
-  id         String   @id @default(cuid())
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
   identifier String
   token      String   @unique
   expires    DateTime
@@ -83,8 +83,8 @@ model VerificationToken {
 }
 
 model MatrimonialProfile {
-  id                      String                  @id @default(cuid())
-  userId                  String                  @unique
+  id                      String                  @id @default(auto()) @map("_id") @db.ObjectId
+  userId                  String                  @unique @db.ObjectId
   user                    User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
   fullName                String
   gender                  String
@@ -135,8 +135,8 @@ enum ApprovalStatus {
 }
 
 model PackagePurchase {
-  id                      String             @id @default(cuid())
-  profileId               String
+  id                      String             @id @default(auto()) @map("_id") @db.ObjectId
+  profileId               String             @db.ObjectId
   profile                 MatrimonialProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
   packageType             PackageType
   basePrice               Float
@@ -159,10 +159,10 @@ model PackagePurchase {
 }
 
 model CuratedLeadAssignment {
-  id              String             @id @default(cuid())
-  buyerProfileId  String
+  id              String             @id @default(auto()) @map("_id") @db.ObjectId
+  buyerProfileId  String             @db.ObjectId
   buyerProfile    MatrimonialProfile @relation("BuyerLeads", fields: [buyerProfileId], references: [id], onDelete: Cascade)
-  leadProfileId   String
+  leadProfileId   String             @db.ObjectId
   leadProfile     MatrimonialProfile @relation("AssignedLeads", fields: [leadProfileId], references: [id], onDelete: Cascade)
   status          String             @default("PENDING") // "PENDING", "CONTACTED", "INTERESTED", "DECLINED", "MARRIED"
   assignedAt      DateTime           @default(now())
@@ -172,11 +172,11 @@ model CuratedLeadAssignment {
 }
 
 model VerificationRequest {
-  id              String             @id @default(cuid())
-  profileId       String
+  id              String             @id @default(auto()) @map("_id") @db.ObjectId
+  profileId       String             @db.ObjectId
   profile         MatrimonialProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
   status          VerificationStatus @default(PENDING)
-  assignedAdminId String?
+  assignedAdminId String?            @db.ObjectId
   assignedAdmin   User?              @relation("AdminRequests", fields: [assignedAdminId], references: [id], onDelete: SetNull)
   notes           String?            // Internal phone call notes
   verifiedAt      DateTime?
@@ -185,8 +185,8 @@ model VerificationRequest {
 }
 
 model AuditLog {
-  id          String   @id @default(cuid())
-  actorUserId String?
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  actorUserId String?  @db.ObjectId
   actorUser   User?    @relation("ActorUser", fields: [actorUserId], references: [id], onDelete: SetNull)
   action      String   // e.g. "VERIFICATION_STATUS_CHANGE"
   targetType  String   // e.g. "MatrimonialProfile"

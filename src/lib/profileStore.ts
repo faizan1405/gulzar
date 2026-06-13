@@ -1,5 +1,6 @@
 import { prisma } from './db';
 import { VerificationStatus, ProfileCompletionStatus, PackageType, PaymentStatus, ApprovalStatus } from '@prisma/client';
+import crypto from 'crypto';
 
 // In-Memory Fallback State (if database is offline/unconfigured)
 const MOCK_PROFILES_DB: Array<{
@@ -30,8 +31,8 @@ const MOCK_PROFILES_DB: Array<{
   updatedAt: Date;
 }> = [
   {
-    id: 'p1',
-    userId: 'u1',
+    id: '60d5ecb86f67a213e4b7b261',
+    userId: '60d5ecb86f67a213e4b7b251',
     fullName: 'Dr. Sarah Khan',
     gender: 'Female',
     dateOfBirth: new Date(1999, 4, 12),
@@ -57,8 +58,8 @@ const MOCK_PROFILES_DB: Array<{
     updatedAt: new Date(),
   },
   {
-    id: 'p2',
-    userId: 'u2',
+    id: '60d5ecb86f67a213e4b7b262',
+    userId: '60d5ecb86f67a213e4b7b252',
     fullName: 'Aisha Rahman',
     gender: 'Female',
     dateOfBirth: new Date(1995, 8, 20),
@@ -84,8 +85,8 @@ const MOCK_PROFILES_DB: Array<{
     updatedAt: new Date(),
   },
   {
-    id: 'p3',
-    userId: 'u3',
+    id: '60d5ecb86f67a213e4b7b263',
+    userId: '60d5ecb86f67a213e4b7b253',
     fullName: 'Adnan Siddiqui',
     gender: 'Male',
     dateOfBirth: new Date(1997, 2, 5),
@@ -133,10 +134,10 @@ const MOCK_VERIFICATION_REQUESTS: Array<{
   updatedAt: Date;
 }> = [
   {
-    id: 'vr1',
-    profileId: 'p1',
+    id: '60d5ecb86f67a213e4b7b271',
+    profileId: '60d5ecb86f67a213e4b7b261',
     status: 'APPROVED' as VerificationStatus,
-    assignedAdminId: 'admin1',
+    assignedAdminId: '60d5ecb86f67a213e4b7b281',
     notes: 'Called user. Verified documents and family background.',
     verifiedAt: new Date(),
     createdAt: new Date(),
@@ -192,33 +193,65 @@ if (!globalStore.inMemoryLogs) globalStore.inMemoryLogs = [...MOCK_AUDIT_LOGS];
 if (!globalStore.inMemoryPurchases) globalStore.inMemoryPurchases = [...MOCK_PURCHASES];
 if (!globalStore.inMemoryCuratedLeads) globalStore.inMemoryCuratedLeads = [...MOCK_CURATED_LEADS];
 
-// Check if Neon DB is reachable, caching result
-async function testDbConnection() {
+// Safely sanitize credentials in connection string from error logs
+export function sanitizeErrorMessage(msg: string): string {
+  return msg.replace(/(mongodb\+srv:\/\/|mongodb:\/\/|postgresql:\/\/)[^\s@]+@[^\s/]+/g, '$1***:***@***');
+}
+
+// Verify if fallback mode is allowed (never in production mode unless explicitly configured)
+export function isFallbackAllowed(): boolean {
+  if (process.env.NODE_ENV === 'production' && process.env.ALLOW_DB_FALLBACK !== 'true') {
+    return false;
+  }
+  return true;
+}
+
+// Check if MongoDB DB is reachable, caching result
+export async function testDbConnection() {
   if (globalStore.isDbConnected !== undefined) {
     return globalStore.isDbConnected;
   }
   try {
-    // Attempt a quick, light query
-    await prisma.$queryRaw`SELECT 1`;
+    // Attempt a lightweight query
+    await prisma.user.findFirst({ select: { id: true } });
     globalStore.isDbConnected = true;
-    console.log('Neon DB connection active. Using PostgreSQL database.');
+    console.log('MongoDB connection active.');
   } catch (error) {
     globalStore.isDbConnected = false;
-    console.warn('Neon DB not reachable. Using secure in-memory store fallback.', error);
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    console.warn('Database connection check failed:', sanitizeErrorMessage(errorMsg));
+    if (!isFallbackAllowed()) {
+      throw new Error(`Database connection failed: ${sanitizeErrorMessage(errorMsg)}`);
+    }
   }
   return globalStore.isDbConnected;
+}
+
+// Deterministically map any string/mock ID to a valid 24-character hex MongoDB ObjectId
+export function getValidObjectId(id: string): string {
+  if (/^[0-9a-fA-F]{24}$/.test(id)) {
+    return id;
+  }
+  return crypto.createHash('md5').update(id).digest('hex').substring(0, 24);
 }
 
 export async function getProfileByUserId(userId: string) {
   const isDb = await testDbConnection();
   if (isDb) {
     try {
+      const dbUserId = getValidObjectId(userId);
       return await prisma.matrimonialProfile.findUnique({
-        where: { userId },
+        where: { userId: dbUserId },
       });
     } catch (e) {
-      console.error('Database query failed, using fallback', e);
+      const msg = sanitizeErrorMessage(e instanceof Error ? e.message : String(e));
+      if (!isFallbackAllowed()) {
+        throw new Error(`Database query failed: ${msg}`);
+      }
+      console.error('Database query failed, using fallback', msg);
     }
+  } else if (!isFallbackAllowed()) {
+    throw new Error('Database is offline or not configured.');
   }
   return globalStore.inMemoryProfiles?.find((p) => p.userId === userId) || null;
 }
@@ -231,8 +264,14 @@ export async function getAllProfiles() {
         orderBy: { createdAt: 'desc' },
       });
     } catch (e) {
-      console.error('Database query failed, using fallback', e);
+      const msg = sanitizeErrorMessage(e instanceof Error ? e.message : String(e));
+      if (!isFallbackAllowed()) {
+        throw new Error(`Database query failed: ${msg}`);
+      }
+      console.error('Database query failed, using fallback', msg);
     }
+  } else if (!isFallbackAllowed()) {
+    throw new Error('Database is offline or not configured.');
   }
   return globalStore.inMemoryProfiles || [];
 }
@@ -262,27 +301,34 @@ export async function upsertProfile(
   const isDb = await testDbConnection();
   if (isDb) {
     try {
+      const dbUserId = getValidObjectId(userId);
       return await prisma.matrimonialProfile.upsert({
-        where: { userId },
+        where: { userId: dbUserId },
         update: {
           ...data,
           profileCompletionStatus: 'COMPLETE' as ProfileCompletionStatus,
         },
         create: {
           ...data,
-          userId,
+          userId: dbUserId,
           profileCompletionStatus: 'COMPLETE' as ProfileCompletionStatus,
           verificationStatus: 'PENDING' as VerificationStatus,
         },
       });
     } catch (e) {
-      console.error('Database write failed, using fallback', e);
+      const msg = sanitizeErrorMessage(e instanceof Error ? e.message : String(e));
+      if (!isFallbackAllowed()) {
+        throw new Error(`Database write failed: ${msg}`);
+      }
+      console.error('Database write failed, using fallback', msg);
     }
+  } else if (!isFallbackAllowed()) {
+    throw new Error('Database is offline or not configured.');
   }
 
   // Fallback
   const existingIndex = globalStore.inMemoryProfiles?.findIndex((p) => p.userId === userId) ?? -1;
-    const profileData = {
+  const profileData = {
     id: `p-${Date.now()}`,
     userId,
     fullName: data.fullName,
@@ -339,13 +385,20 @@ export async function markUserAsPaid(userId: string) {
   const isDb = await testDbConnection();
   if (isDb) {
     try {
+      const dbUserId = getValidObjectId(userId);
       return await prisma.matrimonialProfile.update({
-        where: { userId },
+        where: { userId: dbUserId },
         data: { hasPaid: true },
       });
     } catch (e) {
-      console.error('Database write failed, using fallback', e);
+      const msg = sanitizeErrorMessage(e instanceof Error ? e.message : String(e));
+      if (!isFallbackAllowed()) {
+        throw new Error(`Database write failed: ${msg}`);
+      }
+      console.error('Database write failed, using fallback', msg);
     }
+  } else if (!isFallbackAllowed()) {
+    throw new Error('Database is offline or not configured.');
   }
 
   // Fallback
@@ -367,8 +420,14 @@ export async function getVerificationRequests() {
         orderBy: { createdAt: 'desc' },
       });
     } catch (e) {
-      console.error('Database query failed, using fallback', e);
+      const msg = sanitizeErrorMessage(e instanceof Error ? e.message : String(e));
+      if (!isFallbackAllowed()) {
+        throw new Error(`Database query failed: ${msg}`);
+      }
+      console.error('Database query failed, using fallback', msg);
     }
+  } else if (!isFallbackAllowed()) {
+    throw new Error('Database is offline or not configured.');
   }
 
   // Fallback: Map request profiles
@@ -387,9 +446,12 @@ export async function updateVerificationStatus(
   const isDb = await testDbConnection();
   if (isDb) {
     try {
+      const dbProfileId = getValidObjectId(profileId);
+      const dbAdminId = getValidObjectId(adminId);
+
       // Find or create verification request
       const existingReq = await prisma.verificationRequest.findFirst({
-        where: { profileId },
+        where: { profileId: dbProfileId },
       });
 
       if (existingReq) {
@@ -398,17 +460,17 @@ export async function updateVerificationStatus(
           data: {
             status,
             notes,
-            assignedAdminId: adminId,
+            assignedAdminId: dbAdminId,
             verifiedAt: status === 'APPROVED' ? new Date() : null,
           },
         });
       } else {
         await prisma.verificationRequest.create({
           data: {
-            profileId,
+            profileId: dbProfileId,
             status,
             notes,
-            assignedAdminId: adminId,
+            assignedAdminId: dbAdminId,
             verifiedAt: status === 'APPROVED' ? new Date() : null,
           },
         });
@@ -416,7 +478,7 @@ export async function updateVerificationStatus(
 
       // Update profile status
       await prisma.matrimonialProfile.update({
-        where: { id: profileId },
+        where: { id: dbProfileId },
         data: {
           verificationStatus: status,
           adminApprovalStatus: status,
@@ -426,18 +488,24 @@ export async function updateVerificationStatus(
       // Create Audit Log
       await prisma.auditLog.create({
         data: {
-          actorUserId: adminId,
+          actorUserId: dbAdminId,
           action: `VERIFICATION_STATUS_CHANGE_${status}`,
           targetType: 'MatrimonialProfile',
-          targetId: profileId,
+          targetId: dbProfileId,
           metadata: JSON.stringify({ notes }),
         },
       });
 
       return true;
     } catch (e) {
-      console.error('Database write failed, using fallback', e);
+      const msg = sanitizeErrorMessage(e instanceof Error ? e.message : String(e));
+      if (!isFallbackAllowed()) {
+        throw new Error(`Database write failed: ${msg}`);
+      }
+      console.error('Database write failed, using fallback', msg);
     }
+  } else if (!isFallbackAllowed()) {
+    throw new Error('Database is offline or not configured.');
   }
 
   // Fallback logic
@@ -491,8 +559,14 @@ export async function getAuditLogs() {
         orderBy: { createdAt: 'desc' },
       });
     } catch (e) {
-      console.error('Database query failed, using fallback', e);
+      const msg = sanitizeErrorMessage(e instanceof Error ? e.message : String(e));
+      if (!isFallbackAllowed()) {
+        throw new Error(`Database query failed: ${msg}`);
+      }
+      console.error('Database query failed, using fallback', msg);
     }
+  } else if (!isFallbackAllowed()) {
+    throw new Error('Database is offline or not configured.');
   }
   return globalStore.inMemoryLogs || [];
 }
@@ -508,8 +582,10 @@ export async function createPackagePurchase(data: {
   razorpayOrderId: string;
 }) {
   const isDb = await testDbConnection();
+  const dbProfileId = getValidObjectId(data.profileId);
   const purchaseData = {
     ...data,
+    profileId: dbProfileId,
     paymentStatus: 'PENDING' as PaymentStatus,
     accessStatus: 'ACTIVE',
     eligibilityStatus: data.packageType === 'HIGH_PROFILE' ? ('PENDING' as ApprovalStatus) : ('APPROVED' as ApprovalStatus),
@@ -526,14 +602,21 @@ export async function createPackagePurchase(data: {
         data: purchaseData,
       });
     } catch (e) {
-      console.error('Database write failed, using fallback', e);
+      const msg = sanitizeErrorMessage(e instanceof Error ? e.message : String(e));
+      if (!isFallbackAllowed()) {
+        throw new Error(`Database write failed: ${msg}`);
+      }
+      console.error('Database write failed, using fallback', msg);
     }
+  } else if (!isFallbackAllowed()) {
+    throw new Error('Database is offline or not configured.');
   }
 
   // Fallback
   const newPurchase = {
     id: `purchase-${Date.now()}`,
     ...purchaseData,
+    profileId: data.profileId, // keep original in fallback
     purchaseDate: new Date(),
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -573,7 +656,7 @@ export async function verifyPackagePurchase(orderId: string, paymentId: string) 
 
       await prisma.auditLog.create({
         data: {
-          actorUserId: 'system',
+          actorUserId: null, // 'system' is not an ObjectId
           action: `PAYMENT_VERIFIED_${purchase.packageType}`,
           targetType: 'PackagePurchase',
           targetId: purchase.id,
@@ -583,8 +666,14 @@ export async function verifyPackagePurchase(orderId: string, paymentId: string) 
 
       return updatedPurchase;
     } catch (e) {
-      console.error('Database write failed, using fallback', e);
+      const msg = sanitizeErrorMessage(e instanceof Error ? e.message : String(e));
+      if (!isFallbackAllowed()) {
+        throw new Error(`Database write failed: ${msg}`);
+      }
+      console.error('Database write failed, using fallback', msg);
     }
+  } else if (!isFallbackAllowed()) {
+    throw new Error('Database is offline or not configured.');
   }
 
   // Fallback
@@ -619,13 +708,20 @@ export async function getUserPurchases(profileId: string) {
   const isDb = await testDbConnection();
   if (isDb) {
     try {
+      const dbProfileId = getValidObjectId(profileId);
       return await prisma.packagePurchase.findMany({
-        where: { profileId },
+        where: { profileId: dbProfileId },
         orderBy: { purchaseDate: 'desc' },
       });
     } catch (e) {
-      console.error('Database query failed, using fallback', e);
+      const msg = sanitizeErrorMessage(e instanceof Error ? e.message : String(e));
+      if (!isFallbackAllowed()) {
+        throw new Error(`Database query failed: ${msg}`);
+      }
+      console.error('Database query failed, using fallback', msg);
     }
+  } else if (!isFallbackAllowed()) {
+    throw new Error('Database is offline or not configured.');
   }
   return globalStore.inMemoryPurchases?.filter((p) => p.profileId === profileId) || [];
 }
@@ -641,8 +737,14 @@ export async function getAllPurchases() {
         orderBy: { purchaseDate: 'desc' },
       });
     } catch (e) {
-      console.error('Database query failed, using fallback', e);
+      const msg = sanitizeErrorMessage(e instanceof Error ? e.message : String(e));
+      if (!isFallbackAllowed()) {
+        throw new Error(`Database query failed: ${msg}`);
+      }
+      console.error('Database query failed, using fallback', msg);
     }
+  } else if (!isFallbackAllowed()) {
+    throw new Error('Database is offline or not configured.');
   }
 
   return (globalStore.inMemoryPurchases || []).map((p) => ({
@@ -655,16 +757,24 @@ export async function assignCuratedLead(buyerProfileId: string, leadProfileId: s
   const isDb = await testDbConnection();
   if (isDb) {
     try {
+      const dbBuyerId = getValidObjectId(buyerProfileId);
+      const dbLeadId = getValidObjectId(leadProfileId);
       return await prisma.curatedLeadAssignment.create({
         data: {
-          buyerProfileId,
-          leadProfileId,
+          buyerProfileId: dbBuyerId,
+          leadProfileId: dbLeadId,
           status: 'PENDING',
         },
       });
     } catch (e) {
-      console.error('Database write failed, using fallback', e);
+      const msg = sanitizeErrorMessage(e instanceof Error ? e.message : String(e));
+      if (!isFallbackAllowed()) {
+        throw new Error(`Database write failed: ${msg}`);
+      }
+      console.error('Database write failed, using fallback', msg);
     }
+  } else if (!isFallbackAllowed()) {
+    throw new Error('Database is offline or not configured.');
   }
 
   // Fallback
@@ -692,8 +802,14 @@ export async function getCuratedAssignments() {
         orderBy: { assignedAt: 'desc' },
       });
     } catch (e) {
-      console.error('Database query failed, using fallback', e);
+      const msg = sanitizeErrorMessage(e instanceof Error ? e.message : String(e));
+      if (!isFallbackAllowed()) {
+        throw new Error(`Database query failed: ${msg}`);
+      }
+      console.error('Database query failed, using fallback', msg);
     }
+  } else if (!isFallbackAllowed()) {
+    throw new Error('Database is offline or not configured.');
   }
 
   return (globalStore.inMemoryCuratedLeads || []).map((a) => ({
@@ -707,13 +823,20 @@ export async function updateCuratedLeadStatus(assignmentId: string, status: stri
   const isDb = await testDbConnection();
   if (isDb) {
     try {
+      const dbAssignmentId = getValidObjectId(assignmentId);
       return await prisma.curatedLeadAssignment.update({
-        where: { id: assignmentId },
+        where: { id: dbAssignmentId },
         data: { status },
       });
     } catch (e) {
-      console.error('Database write failed, using fallback', e);
+      const msg = sanitizeErrorMessage(e instanceof Error ? e.message : String(e));
+      if (!isFallbackAllowed()) {
+        throw new Error(`Database write failed: ${msg}`);
+      }
+      console.error('Database write failed, using fallback', msg);
     }
+  } else if (!isFallbackAllowed()) {
+    throw new Error('Database is offline or not configured.');
   }
 
   // Fallback
@@ -729,8 +852,10 @@ export async function updateHighProfileEligibility(purchaseId: string, status: A
   const isDb = await testDbConnection();
   if (isDb) {
     try {
+      const dbPurchaseId = getValidObjectId(purchaseId);
+      const dbAdminId = getValidObjectId(adminId);
       const updated = await prisma.packagePurchase.update({
-        where: { id: purchaseId },
+        where: { id: dbPurchaseId },
         data: {
           eligibilityStatus: status,
           internalNotes: notes,
@@ -739,18 +864,24 @@ export async function updateHighProfileEligibility(purchaseId: string, status: A
 
       await prisma.auditLog.create({
         data: {
-          actorUserId: adminId,
+          actorUserId: dbAdminId,
           action: `HIGH_PROFILE_ELIGIBILITY_${status}`,
           targetType: 'PackagePurchase',
-          targetId: purchaseId,
+          targetId: dbPurchaseId,
           metadata: JSON.stringify({ notes }),
         },
       });
 
       return updated;
     } catch (e) {
-      console.error('Database write failed, using fallback', e);
+      const msg = sanitizeErrorMessage(e instanceof Error ? e.message : String(e));
+      if (!isFallbackAllowed()) {
+        throw new Error(`Database write failed: ${msg}`);
+      }
+      console.error('Database write failed, using fallback', msg);
     }
+  } else if (!isFallbackAllowed()) {
+    throw new Error('Database is offline or not configured.');
   }
 
   // Fallback
@@ -778,8 +909,10 @@ export async function confirmMarriage(purchaseId: string, confirmed: boolean, ad
   const statusStr = confirmed ? 'CONFIRMED' : 'PENDING';
   if (isDb) {
     try {
+      const dbPurchaseId = getValidObjectId(purchaseId);
+      const dbAdminId = getValidObjectId(adminId);
       const updated = await prisma.packagePurchase.update({
-        where: { id: purchaseId },
+        where: { id: dbPurchaseId },
         data: {
           marriageConfirmation: statusStr,
         },
@@ -787,18 +920,24 @@ export async function confirmMarriage(purchaseId: string, confirmed: boolean, ad
 
       await prisma.auditLog.create({
         data: {
-          actorUserId: adminId,
+          actorUserId: dbAdminId,
           action: `MARRIAGE_CONFIRMATION_${statusStr}`,
           targetType: 'PackagePurchase',
-          targetId: purchaseId,
+          targetId: dbPurchaseId,
           metadata: '',
         },
       });
 
       return updated;
     } catch (e) {
-      console.error('Database write failed, using fallback', e);
+      const msg = sanitizeErrorMessage(e instanceof Error ? e.message : String(e));
+      if (!isFallbackAllowed()) {
+        throw new Error(`Database write failed: ${msg}`);
+      }
+      console.error('Database write failed, using fallback', msg);
     }
+  } else if (!isFallbackAllowed()) {
+    throw new Error('Database is offline or not configured.');
   }
 
   // Fallback
@@ -824,8 +963,10 @@ export async function updateSuccessFeeStatus(purchaseId: string, status: Payment
   const isDb = await testDbConnection();
   if (isDb) {
     try {
+      const dbPurchaseId = getValidObjectId(purchaseId);
+      const dbAdminId = getValidObjectId(adminId);
       const updated = await prisma.packagePurchase.update({
-        where: { id: purchaseId },
+        where: { id: dbPurchaseId },
         data: {
           successFeePaymentStatus: status,
         },
@@ -833,18 +974,24 @@ export async function updateSuccessFeeStatus(purchaseId: string, status: Payment
 
       await prisma.auditLog.create({
         data: {
-          actorUserId: adminId,
+          actorUserId: dbAdminId,
           action: `SUCCESS_FEE_PAYMENT_${status}`,
           targetType: 'PackagePurchase',
-          targetId: purchaseId,
+          targetId: dbPurchaseId,
           metadata: '',
         },
       });
 
       return updated;
     } catch (e) {
-      console.error('Database write failed, using fallback', e);
+      const msg = sanitizeErrorMessage(e instanceof Error ? e.message : String(e));
+      if (!isFallbackAllowed()) {
+        throw new Error(`Database write failed: ${msg}`);
+      }
+      console.error('Database write failed, using fallback', msg);
     }
+  } else if (!isFallbackAllowed()) {
+    throw new Error('Database is offline or not configured.');
   }
 
   // Fallback

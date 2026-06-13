@@ -30,7 +30,7 @@ This file tracks the approved decisions, architecture, system design, business r
 ## 3. Technology Stack & Architecture
 * **Frontend**: Next.js 16 (App Router) with TypeScript
 * **Backend & API**: Next.js Server Components & Route Handlers
-* **Database**: Neon/Local PostgreSQL accessed via Prisma ORM (client-side simulation fallback is active if database connection is unavailable)
+* **Database**: MongoDB Atlas accessed via Prisma ORM (client-side simulation fallback is active if database connection is unavailable in development)
 * **Authentication**: Google OAuth 2.0 via Auth.js v5 (with full header-based developer fallback simulator)
 * **Payment Gateway**: Razorpay (with cryptographic signature verification and sandbox/simulator checkout fallbacks)
 * **Styling**: Vanilla CSS (Design tokens, Custom variables)
@@ -45,7 +45,7 @@ graph TD
     
     %% Main Architecture
     App[MOM Web Application]:::main
-    Database[(PostgreSQL Database)]:::database
+    Database[(MongoDB Atlas Database)]:::database
     Auth[NextAuth Google Login]:::external
     Razorpay[Razorpay Payments]:::external
 
@@ -100,3 +100,5 @@ graph TD
 * **2026-06-13**: Phase 2.5 completed. Conducted comprehensive static security audit and code path verification for database connectivity, OAuth flow, onboarding validation, verification queue, and privacy filters. Prepared full integration guides for production environments. Code linting and Next.js production builds verified clean.
 * **2026-06-13**: Phase 3 completed. Added payment order creation and signature verification routes for Razorpay, implemented standard ₹300 monthly membership with dynamic 18% GST (₹54), added viewer subscription checks to redact profile details, integrated frontend checkout loader, and verified builds/lints cleanly.
 * **2026-06-13**: Complete Frontend Redesign completed. Redesigned layout to use a premium marriage-card invitation aesthetic with soft cream backgrounds, Islamic geometric SVG patterns, and 8 controlled themes. Added sections for How It Works, Testimonials, Safety, Referrals, and Wedding Services. Refined profile preview cards, details modal, mobile navigation drawer, and onboarding registration steps. Validated code and verified builds compile and lint cleanly.
+* **2026-06-13**: Database backend migrated from Neon/PostgreSQL to MongoDB Atlas. Updated schema to conform to MongoDB ObjectIds and mapped relations. Configured connection status health check for MongoDB. Integrated production/preview fallback store safeguards and sanitized database exceptions. Validated builds and linting.
+
