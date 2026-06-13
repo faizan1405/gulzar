@@ -31,6 +31,13 @@ interface ProfileFiltersProps {
   sameMaslakFilter: boolean;
   setSameMaslakFilter: (val: boolean) => void;
 
+  selectedGender: string;
+  setSelectedGender: (val: string) => void;
+  minAge: string;
+  setMinAge: (val: string) => void;
+  maxAge: string;
+  setMaxAge: (val: string) => void;
+
   totalResults: number;
 }
 
@@ -60,6 +67,14 @@ export const ProfileFilters: React.FC<ProfileFiltersProps> = ({
   setSameCasteFilter,
   sameMaslakFilter,
   setSameMaslakFilter,
+
+  selectedGender,
+  setSelectedGender,
+  minAge,
+  setMinAge,
+  maxAge,
+  setMaxAge,
+
   totalResults
 }) => {
   const { masterMaslaks, masterCastes, masterLocations } = useSimulator();
@@ -78,6 +93,9 @@ export const ProfileFilters: React.FC<ProfileFiltersProps> = ({
     setWillingToRelocateFilter(false);
     setSameCasteFilter(false);
     setSameMaslakFilter(false);
+    setSelectedGender('No preference');
+    setMinAge('Any');
+    setMaxAge('Any');
   };
 
   const activeMaslaks = masterMaslaks.filter(m => !m.isDisabled);
@@ -92,8 +110,57 @@ export const ProfileFilters: React.FC<ProfileFiltersProps> = ({
     ? Array.from(new Set(activeLocations.filter(l => l.state === selectedState && l.district === selectedDistrict && l.locality).map(l => l.locality!)))
     : [];
 
+  const ageOptions = Array.from({ length: 53 }, (_, i) => 18 + i);
+
   return (
     <div className="search-panel font-sans" style={{ backgroundColor: 'var(--white)', border: '1px solid var(--border-color)', borderRadius: 'var(--border-radius-lg)', padding: '24px', marginBottom: '40px', boxShadow: 'var(--shadow-premium)' }}>
+      {/* Primary Gender and Age Row */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', alignItems: 'flex-end', marginBottom: '24px' }}>
+        <div>
+          <label className="form-label" htmlFor="search-gender-select">Gender</label>
+          <select
+            value={selectedGender}
+            onChange={(e) => setSelectedGender(e.target.value)}
+            className="form-control"
+            id="search-gender-select"
+          >
+            <option value="No preference">No preference</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="form-label" htmlFor="search-minage-select">Minimum Age</label>
+          <select
+            value={minAge}
+            onChange={(e) => setMinAge(e.target.value)}
+            className="form-control"
+            id="search-minage-select"
+          >
+            <option value="Any">Any</option>
+            {ageOptions.map(age => (
+              <option key={`min-${age}`} value={age}>{age}</option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label className="form-label" htmlFor="search-maxage-select">Maximum Age</label>
+          <select
+            value={maxAge}
+            onChange={(e) => setMaxAge(e.target.value)}
+            className="form-control"
+            id="search-maxage-select"
+          >
+            <option value="Any">Any</option>
+            {ageOptions.map(age => (
+              <option key={`max-${age}`} value={age}>{age}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '20px', alignItems: 'flex-end' }}>
         <div>
           <label className="form-label">Search Keyword</label>

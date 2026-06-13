@@ -24,8 +24,54 @@ export default function SearchPage() {
   const [sameCasteFilter, setSameCasteFilter] = useState(false);
   const [sameMaslakFilter, setSameMaslakFilter] = useState(false);
 
+  // New Gender and Age filters
+  const [selectedGender, setSelectedGender] = useState('No preference');
+  const [minAge, setMinAge] = useState('Any');
+  const [maxAge, setMaxAge] = useState('Any');
+
+  const parsedMin = minAge !== 'Any' ? Number(minAge) : null;
+  const parsedMax = maxAge !== 'Any' ? Number(maxAge) : null;
+  const isAgeRangeInvalid = parsedMin !== null && parsedMax !== null && parsedMin > parsedMax;
+
+  // Calculate age dynamically from dateOfBirth, fallback to age, or null
+  const getProfileAge = (p: any): number | null => {
+    if (p.dateOfBirth) {
+      const dob = new Date(p.dateOfBirth);
+      const today = new Date();
+      let age = today.getFullYear() - dob.getFullYear();
+      const m = today.getMonth() - dob.getMonth();
+      if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
+        age--;
+      }
+      return age;
+    }
+    if (p.age !== undefined && p.age !== null) {
+      return Number(p.age);
+    }
+    return null;
+  };
+
   // Apply strict filtering
   const filteredProfiles = profiles.filter((p) => {
+    // 0a. Gender filter (hard filter)
+    if (selectedGender !== 'No preference') {
+      if (p.gender.toLowerCase() !== selectedGender.toLowerCase()) {
+        return false;
+      }
+    }
+
+    // 0b. Age range filter (hard filter)
+    if (isAgeRangeInvalid) {
+      return false;
+    }
+    const age = getProfileAge(p);
+    if (parsedMin !== null) {
+      if (age === null || age < parsedMin) return false;
+    }
+    if (parsedMax !== null) {
+      if (age === null || age > parsedMax) return false;
+    }
+
     // 1. Keyword search (name, occupation, education, city, state, bio)
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
@@ -137,6 +183,24 @@ export default function SearchPage() {
             subtitle="Browse call-verified brides and grooms. Use filters to narrow down compatibility matches."
           />
 
+          {isAgeRangeInvalid && (
+            <div style={{
+              backgroundColor: '#FEF2F2',
+              border: '1px solid #FCA5A5',
+              color: '#991B1B',
+              padding: '12px 16px',
+              borderRadius: '8px',
+              marginBottom: '20px',
+              fontSize: '14.5px',
+              fontWeight: 500,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }} className="error-banner">
+              ⚠️ Minimum age cannot be greater than maximum age.
+            </div>
+          )}
+
           <ProfileFilters
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
@@ -163,6 +227,13 @@ export default function SearchPage() {
             setSameCasteFilter={setSameCasteFilter}
             sameMaslakFilter={sameMaslakFilter}
             setSameMaslakFilter={setSameMaslakFilter}
+
+            selectedGender={selectedGender}
+            setSelectedGender={setSelectedGender}
+            minAge={minAge}
+            setMinAge={setMinAge}
+            maxAge={maxAge}
+            setMaxAge={setMaxAge}
 
             totalResults={rankedProfiles.length}
           />
