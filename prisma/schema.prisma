@@ -91,10 +91,10 @@ model MatrimonialProfile {
   dateOfBirth             DateTime
   maritalStatus           String
   phoneNumber             String
-  city                    String
-  areaOrLocality          String
-  state                   String
-  country                 String
+  city                    String?
+  areaOrLocality          String?
+  state                   String?
+  country                 String?
   latitude                Float?
   longitude               Float?
   education               String
@@ -107,6 +107,21 @@ model MatrimonialProfile {
   profileCompletionStatus ProfileCompletionStatus @default(INCOMPLETE)
   adminApprovalStatus     String                  @default("PENDING") // PENDING, APPROVED, REJECTED
   hasPaid                 Boolean                 @default(false)
+  
+  // New Matrimonial Identity Fields
+  maslak                  String?
+  fiqh                    String?
+  biradari                String?
+  biradariAliases         String[]
+  district                String?
+  locality                String?
+  preferredLocations      String[]
+  sameCastePreference     Boolean                 @default(false)
+  sameMaslakPreference    Boolean                 @default(false)
+  noCastePreference       Boolean                 @default(false)
+  noMaslakPreference      Boolean                 @default(false)
+  willingToRelocate       Boolean                 @default(false)
+
   verificationRequests    VerificationRequest[]
   purchases               PackagePurchase[]
   buyerLeads              CuratedLeadAssignment[] @relation("BuyerLeads")
@@ -114,6 +129,38 @@ model MatrimonialProfile {
   createdAt               DateTime                @default(now())
   updatedAt               DateTime                @updatedAt
 }
+
+model MaslakOption {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  label      String   @unique
+  aliases    String[]
+  isDisabled Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model CasteOption {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  label      String   @unique
+  aliases    String[]
+  isDisabled Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model LocationOption {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  state          String
+  district       String
+  locality       String?
+  isHighPriority Boolean  @default(false)
+  isDisabled     Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([state, district, locality])
+}
+
 
 enum PackageType {
   STANDARD

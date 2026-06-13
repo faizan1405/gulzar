@@ -35,8 +35,6 @@ export async function POST(req: NextRequest) {
     const keyId = process.env.RAZORPAY_KEY_ID;
     const keySecret = process.env.RAZORPAY_KEY_SECRET;
 
-    const orderId = `order_${packageTypeInput.toLowerCase()}_${Date.now()}`;
-
     if (!keyId || !keySecret || keyId.includes('dummy') || keySecret.includes('dummy')) {
       // Create pending purchase in simulator mode
       await createPackagePurchase({

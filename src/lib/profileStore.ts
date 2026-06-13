@@ -1,6 +1,60 @@
 import { prisma } from './db';
 import { VerificationStatus, ProfileCompletionStatus, PackageType, PaymentStatus, ApprovalStatus } from '@prisma/client';
 import crypto from 'crypto';
+import { DEFAULT_MASLAKS, DEFAULT_FIQHS, DEFAULT_CASTES, DEFAULT_LOCATIONS } from './masterData';
+
+// Fallback Master Data Lists
+export let MOCK_MASLAK_OPTIONS: Array<{
+  id: string;
+  label: string;
+  aliases: string[];
+  isDisabled: boolean;
+}> = [];
+
+export let MOCK_CASTE_OPTIONS: Array<{
+  id: string;
+  label: string;
+  aliases: string[];
+  isDisabled: boolean;
+}> = [];
+
+export let MOCK_LOCATION_OPTIONS: Array<{
+  id: string;
+  state: string;
+  district: string;
+  locality: string | null;
+  isHighPriority: boolean;
+  isDisabled: boolean;
+}> = [];
+
+export function initFallbackOptions() {
+  if (MOCK_MASLAK_OPTIONS.length === 0) {
+    MOCK_MASLAK_OPTIONS = DEFAULT_MASLAKS.map((m, idx) => ({
+      id: `maslak-${idx}`,
+      label: m.label,
+      aliases: m.aliases,
+      isDisabled: false
+    }));
+  }
+  if (MOCK_CASTE_OPTIONS.length === 0) {
+    MOCK_CASTE_OPTIONS = DEFAULT_CASTES.map((c, idx) => ({
+      id: `caste-${idx}`,
+      label: c.label,
+      aliases: c.aliases,
+      isDisabled: false
+    }));
+  }
+  if (MOCK_LOCATION_OPTIONS.length === 0) {
+    MOCK_LOCATION_OPTIONS = DEFAULT_LOCATIONS.map((l, idx) => ({
+      id: `loc-${idx}`,
+      state: l.state,
+      district: l.district,
+      locality: l.locality || null,
+      isHighPriority: l.isHighPriority || false,
+      isDisabled: false
+    }));
+  }
+}
 
 // In-Memory Fallback State (if database is offline/unconfigured)
 const MOCK_PROFILES_DB: Array<{
@@ -11,10 +65,10 @@ const MOCK_PROFILES_DB: Array<{
   dateOfBirth: Date;
   maritalStatus: string;
   phoneNumber: string;
-  city: string;
-  areaOrLocality: string;
-  state: string;
-  country: string;
+  city: string | null;
+  areaOrLocality: string | null;
+  state: string | null;
+  country: string | null;
   latitude: number | null;
   longitude: number | null;
   education: string;
@@ -29,6 +83,18 @@ const MOCK_PROFILES_DB: Array<{
   hasPaid: boolean;
   createdAt: Date;
   updatedAt: Date;
+  maslak: string | null;
+  fiqh: string | null;
+  biradari: string | null;
+  biradariAliases: string[];
+  district: string | null;
+  locality: string | null;
+  preferredLocations: string[];
+  sameCastePreference: boolean;
+  sameMaslakPreference: boolean;
+  noCastePreference: boolean;
+  noMaslakPreference: boolean;
+  willingToRelocate: boolean;
 }> = [
   {
     id: '60d5ecb86f67a213e4b7b261',
@@ -56,6 +122,18 @@ const MOCK_PROFILES_DB: Array<{
     hasPaid: true,
     createdAt: new Date(),
     updatedAt: new Date(),
+    maslak: 'Sunni',
+    fiqh: 'Hanafi',
+    biradari: 'Khan',
+    biradariAliases: [],
+    district: 'Mumbai',
+    locality: 'Bandra',
+    preferredLocations: ['Maharashtra'],
+    sameCastePreference: false,
+    sameMaslakPreference: true,
+    noCastePreference: false,
+    noMaslakPreference: false,
+    willingToRelocate: true,
   },
   {
     id: '60d5ecb86f67a213e4b7b262',
@@ -83,6 +161,18 @@ const MOCK_PROFILES_DB: Array<{
     hasPaid: true,
     createdAt: new Date(),
     updatedAt: new Date(),
+    maslak: 'Sunni Deobandi',
+    fiqh: 'Hanafi',
+    biradari: 'Ansari',
+    biradariAliases: [],
+    district: 'Bengaluru',
+    locality: 'Indiranagar',
+    preferredLocations: ['Karnataka', 'Maharashtra'],
+    sameCastePreference: true,
+    sameMaslakPreference: true,
+    noCastePreference: false,
+    noMaslakPreference: false,
+    willingToRelocate: false,
   },
   {
     id: '60d5ecb86f67a213e4b7b263',
@@ -110,8 +200,21 @@ const MOCK_PROFILES_DB: Array<{
     hasPaid: true,
     createdAt: new Date(),
     updatedAt: new Date(),
+    maslak: 'Sunni Barelvi / Ahle Sunnat Wal Jamaat',
+    fiqh: 'Hanafi',
+    biradari: 'Siddiqui',
+    biradariAliases: [],
+    district: 'Central Delhi',
+    locality: 'Karol Bagh',
+    preferredLocations: ['Delhi', 'Uttar Pradesh'],
+    sameCastePreference: false,
+    sameMaslakPreference: false,
+    noCastePreference: true,
+    noMaslakPreference: true,
+    willingToRelocate: true,
   }
 ];
+
 
 
 const MOCK_AUDIT_LOGS: Array<{
@@ -284,10 +387,10 @@ export async function upsertProfile(
     dateOfBirth: string;
     maritalStatus: string;
     phoneNumber: string;
-    city: string;
-    areaOrLocality: string;
-    state: string;
-    country: string;
+    city?: string | null;
+    areaOrLocality?: string | null;
+    state?: string | null;
+    country?: string | null;
     education: string;
     occupation: string;
     annualIncomeRange: string;
@@ -296,6 +399,20 @@ export async function upsertProfile(
     themeColor?: string;
     latitude?: number;
     longitude?: number;
+
+    // New Matrimonial Identity Fields
+    maslak?: string | null;
+    fiqh?: string | null;
+    biradari?: string | null;
+    biradariAliases?: string[];
+    district?: string | null;
+    locality?: string | null;
+    preferredLocations?: string[];
+    sameCastePreference?: boolean;
+    sameMaslakPreference?: boolean;
+    noCastePreference?: boolean;
+    noMaslakPreference?: boolean;
+    willingToRelocate?: boolean;
   }
 ) {
   const isDb = await testDbConnection();
@@ -336,10 +453,10 @@ export async function upsertProfile(
     dateOfBirth: new Date(data.dateOfBirth),
     maritalStatus: data.maritalStatus,
     phoneNumber: data.phoneNumber,
-    city: data.city,
-    areaOrLocality: data.areaOrLocality,
-    state: data.state,
-    country: data.country,
+    city: data.city || null,
+    areaOrLocality: data.areaOrLocality || null,
+    state: data.state || null,
+    country: data.country || 'India',
     latitude: data.latitude ?? null,
     longitude: data.longitude ?? null,
     education: data.education,
@@ -354,6 +471,19 @@ export async function upsertProfile(
     hasPaid: false,
     createdAt: new Date(),
     updatedAt: new Date(),
+    // New fields:
+    maslak: data.maslak ?? null,
+    fiqh: data.fiqh ?? null,
+    biradari: data.biradari ?? null,
+    biradariAliases: data.biradariAliases ?? [],
+    district: data.district ?? null,
+    locality: data.locality ?? null,
+    preferredLocations: data.preferredLocations ?? [],
+    sameCastePreference: data.sameCastePreference ?? false,
+    sameMaslakPreference: data.sameMaslakPreference ?? false,
+    noCastePreference: data.noCastePreference ?? false,
+    noMaslakPreference: data.noMaslakPreference ?? false,
+    willingToRelocate: data.willingToRelocate ?? false,
   };
 
   if (existingIndex > -1 && globalStore.inMemoryProfiles) {
@@ -380,6 +510,7 @@ export async function upsertProfile(
     return profileData;
   }
 }
+
 
 export async function markUserAsPaid(userId: string) {
   const isDb = await testDbConnection();
@@ -1012,3 +1143,299 @@ export async function updateSuccessFeeStatus(purchaseId: string, status: Payment
   }
   return purchase || null;
 }
+
+export async function seedMasterDataIfEmpty() {
+  const isDb = await testDbConnection();
+  if (isDb) {
+    try {
+      const mCount = await prisma.maslakOption.count();
+      if (mCount === 0) {
+        await prisma.maslakOption.createMany({
+          data: DEFAULT_MASLAKS.map(m => ({ label: m.label, aliases: m.aliases, isDisabled: false }))
+        });
+        console.log('Seeded Maslak options to DB.');
+      }
+      const cCount = await prisma.casteOption.count();
+      if (cCount === 0) {
+        await prisma.casteOption.createMany({
+          data: DEFAULT_CASTES.map(c => ({ label: c.label, aliases: c.aliases, isDisabled: false }))
+        });
+        console.log('Seeded Caste options to DB.');
+      }
+      const lCount = await prisma.locationOption.count();
+      if (lCount === 0) {
+        await prisma.locationOption.createMany({
+          data: DEFAULT_LOCATIONS.map(l => ({
+            state: l.state,
+            district: l.district,
+            locality: l.locality || null,
+            isHighPriority: l.isHighPriority || false,
+            isDisabled: false
+          }))
+        });
+        console.log('Seeded Location options to DB.');
+      }
+    } catch (e) {
+      console.error('Failed to seed empty master data options in DB:', e);
+    }
+  }
+}
+
+export async function getMasterDataOptions() {
+  const isDb = await testDbConnection();
+  if (isDb) {
+    try {
+      await seedMasterDataIfEmpty();
+      const maslaks = await prisma.maslakOption.findMany();
+      const castes = await prisma.casteOption.findMany();
+      const locations = await prisma.locationOption.findMany();
+      return { maslaks, castes, locations };
+    } catch (e) {
+      console.error('Error fetching master data from DB, using fallback', e);
+    }
+  }
+  initFallbackOptions();
+  return {
+    maslaks: MOCK_MASLAK_OPTIONS,
+    castes: MOCK_CASTE_OPTIONS,
+    locations: MOCK_LOCATION_OPTIONS
+  };
+}
+
+export async function addMaslakOption(label: string, aliases: string[]) {
+  const isDb = await testDbConnection();
+  if (isDb) {
+    return await prisma.maslakOption.create({
+      data: { label, aliases, isDisabled: false }
+    });
+  }
+  initFallbackOptions();
+  const newOpt = { id: `maslak-${Date.now()}`, label, aliases, isDisabled: false };
+  MOCK_MASLAK_OPTIONS.push(newOpt);
+  return newOpt;
+}
+
+export async function editMaslakOption(id: string, label: string, aliases: string[]) {
+  const isDb = await testDbConnection();
+  if (isDb) {
+    return await prisma.maslakOption.update({
+      where: { id: getValidObjectId(id) },
+      data: { label, aliases }
+    });
+  }
+  initFallbackOptions();
+  const opt = MOCK_MASLAK_OPTIONS.find(o => o.id === id);
+  if (opt) {
+    opt.label = label;
+    opt.aliases = aliases;
+  }
+  return opt;
+}
+
+export async function toggleDisableMaslakOption(id: string, isDisabled: boolean) {
+  const isDb = await testDbConnection();
+  if (isDb) {
+    return await prisma.maslakOption.update({
+      where: { id: getValidObjectId(id) },
+      data: { isDisabled }
+    });
+  }
+  initFallbackOptions();
+  const opt = MOCK_MASLAK_OPTIONS.find(o => o.id === id);
+  if (opt) {
+    opt.isDisabled = isDisabled;
+  }
+  return opt;
+}
+
+export async function addCasteOption(label: string, aliases: string[]) {
+  const isDb = await testDbConnection();
+  if (isDb) {
+    return await prisma.casteOption.create({
+      data: { label, aliases, isDisabled: false }
+    });
+  }
+  initFallbackOptions();
+  const newOpt = { id: `caste-${Date.now()}`, label, aliases, isDisabled: false };
+  MOCK_CASTE_OPTIONS.push(newOpt);
+  return newOpt;
+}
+
+export async function editCasteOption(id: string, label: string, aliases: string[]) {
+  const isDb = await testDbConnection();
+  if (isDb) {
+    return await prisma.casteOption.update({
+      where: { id: getValidObjectId(id) },
+      data: { label, aliases }
+    });
+  }
+  initFallbackOptions();
+  const opt = MOCK_CASTE_OPTIONS.find(o => o.id === id);
+  if (opt) {
+    opt.label = label;
+    opt.aliases = aliases;
+  }
+  return opt;
+}
+
+export async function toggleDisableCasteOption(id: string, isDisabled: boolean) {
+  const isDb = await testDbConnection();
+  if (isDb) {
+    return await prisma.casteOption.update({
+      where: { id: getValidObjectId(id) },
+      data: { isDisabled }
+    });
+  }
+  initFallbackOptions();
+  const opt = MOCK_CASTE_OPTIONS.find(o => o.id === id);
+  if (opt) {
+    opt.isDisabled = isDisabled;
+  }
+  return opt;
+}
+
+export async function addLocationOption(state: string, district: string, locality: string | null, isHighPriority: boolean) {
+  const isDb = await testDbConnection();
+  if (isDb) {
+    return await prisma.locationOption.create({
+      data: { state, district, locality: locality || null, isHighPriority, isDisabled: false }
+    });
+  }
+  initFallbackOptions();
+  const newOpt = { id: `loc-${Date.now()}`, state, district, locality, isHighPriority, isDisabled: false };
+  MOCK_LOCATION_OPTIONS.push(newOpt);
+  return newOpt;
+}
+
+export async function toggleLocationPriority(id: string, isHighPriority: boolean) {
+  const isDb = await testDbConnection();
+  if (isDb) {
+    return await prisma.locationOption.update({
+      where: { id: getValidObjectId(id) },
+      data: { isHighPriority }
+    });
+  }
+  initFallbackOptions();
+  const opt = MOCK_LOCATION_OPTIONS.find(o => o.id === id);
+  if (opt) {
+    opt.isHighPriority = isHighPriority;
+  }
+  return opt;
+}
+
+export async function toggleDisableLocationOption(id: string, isDisabled: boolean) {
+  const isDb = await testDbConnection();
+  if (isDb) {
+    return await prisma.locationOption.update({
+      where: { id: getValidObjectId(id) },
+      data: { isDisabled }
+    });
+  }
+  initFallbackOptions();
+  const opt = MOCK_LOCATION_OPTIONS.find(o => o.id === id);
+  if (opt) {
+    opt.isDisabled = isDisabled;
+  }
+  return opt;
+}
+
+export async function mergeCastes(sourceLabel: string, targetLabel: string) {
+  const isDb = await testDbConnection();
+  if (isDb) {
+    await prisma.matrimonialProfile.updateMany({
+      where: { biradari: sourceLabel },
+      data: { biradari: targetLabel }
+    });
+    
+    const targetOpt = await prisma.casteOption.findFirst({
+      where: { label: targetLabel }
+    });
+    if (targetOpt) {
+      const updatedAliases = Array.from(new Set([...targetOpt.aliases, sourceLabel]));
+      await prisma.casteOption.update({
+        where: { id: targetOpt.id },
+        data: { aliases: updatedAliases }
+      });
+    }
+
+    await prisma.casteOption.updateMany({
+      where: { label: sourceLabel },
+      data: { isDisabled: true }
+    });
+    
+    return true;
+  }
+
+  initFallbackOptions();
+  if (globalStore.inMemoryProfiles) {
+    globalStore.inMemoryProfiles.forEach(p => {
+      if (p.biradari === sourceLabel) {
+        p.biradari = targetLabel;
+      }
+    });
+  }
+
+  const targetOpt = MOCK_CASTE_OPTIONS.find(o => o.label === targetLabel);
+  if (targetOpt) {
+    targetOpt.aliases = Array.from(new Set([...targetOpt.aliases, sourceLabel]));
+  }
+
+  const sourceOpt = MOCK_CASTE_OPTIONS.find(o => o.label === sourceLabel);
+  if (sourceOpt) {
+    sourceOpt.isDisabled = true;
+  }
+
+  return true;
+}
+
+export async function mergeLocations(sourceId: string, targetId: string) {
+  const isDb = await testDbConnection();
+  if (isDb) {
+    const source = await prisma.locationOption.findUnique({ where: { id: getValidObjectId(sourceId) } });
+    const target = await prisma.locationOption.findUnique({ where: { id: getValidObjectId(targetId) } });
+    if (!source || !target) return false;
+
+    await prisma.matrimonialProfile.updateMany({
+      where: {
+        state: source.state,
+        district: source.district,
+        locality: source.locality
+      },
+      data: {
+        state: target.state,
+        district: target.district,
+        locality: target.locality,
+        city: target.district,
+        areaOrLocality: target.locality || target.district
+      }
+    });
+
+    await prisma.locationOption.update({
+      where: { id: source.id },
+      data: { isDisabled: true }
+    });
+
+    return true;
+  }
+
+  initFallbackOptions();
+  const source = MOCK_LOCATION_OPTIONS.find(o => o.id === sourceId);
+  const target = MOCK_LOCATION_OPTIONS.find(o => o.id === targetId);
+  if (!source || !target) return false;
+
+  if (globalStore.inMemoryProfiles) {
+    globalStore.inMemoryProfiles.forEach(p => {
+      if (p.state === source.state && p.district === source.district && p.locality === source.locality) {
+        p.state = target.state;
+        p.district = target.district;
+        p.locality = target.locality;
+        p.city = target.district;
+        p.areaOrLocality = target.locality || target.district;
+      }
+    });
+  }
+
+  source.isDisabled = true;
+  return true;
+}
+

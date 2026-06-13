@@ -10,37 +10,79 @@ The mind map below visualizes the architectural components, core integrations, u
 
 ```mermaid
 graph TD
-    %% Styling
+    %% Styling and Classes
     classDef main fill:#f9f6f0,stroke:#d4af37,stroke-width:2px,color:#2c3e50;
     classDef database fill:#e8f4f8,stroke:#2980b9,stroke-width:2px,color:#2c3e50;
     classDef external fill:#fbf2ea,stroke:#e67e22,stroke-width:2px,color:#2c3e50;
-    
-    %% Main Architecture
+    classDef flow fill:#f0fbf4,stroke:#27ae60,stroke-width:1.5px,color:#2c3e50;
+    classDef api fill:#f5f0fb,stroke:#8e44ad,stroke-width:1.5px,color:#2c3e50;
+
+    %% Primary Nodes
     App[Shadi Mubarak Web Application]:::main
-    Database[(MongoDB Atlas Database)]:::database
-    Auth[NextAuth Google Login]:::external
-    Razorpay[Razorpay Payments]:::external
+    DB[(MongoDB Atlas via Prisma)]:::database
+    Auth[NextAuth v5 Google Login / Simulator]:::external
+    Razorpay[Razorpay Payments / Sandbox Simulator]:::external
 
+    %% Relations
     App --> Auth
-    App --> Database
+    App --> DB
+    App --> Razorpay
 
-    %% User Flow
-    subgraph User Journey
-        Onboarding[1. Onboarding Wizard] --> Verification[2. Phone Verification]
-        Verification --> Paywall[3. Subscription Paywall]
-        Paywall --> Search[4. Profile Directory]
-    end
-    
-    App --> Onboarding
-    Paywall --> Razorpay
+    %% Database Models Subgraph
+    subgraph Data Models (schema.prisma)
+        User[User Model]
+        Profile[MatrimonialProfile]
+        Purchase[PackagePurchase]
+        CuratedLead[CuratedLeadAssignment]
+        VerifyRequest[VerificationRequest]
+        Audit[AuditLog]
 
-    %% Admin Flow
-    subgraph Admin Control
-        AdminPanel[Admin Dashboard] --> MemberVerify[Verify Members]
-        AdminPanel --> Settings[Themes & Referral Control]
+        User --> Profile
+        Profile --> Purchase
+        Profile --> CuratedLead
+        Profile --> VerifyRequest
+        User --> Audit
     end
-    
-    App --> AdminPanel
+
+    %% Application Flows Subgraph
+    subgraph User Journey & UI Flow
+        direction TB
+        Onboard[Onboarding Wizard<br/>5 Steps + Theme Choice]:::flow
+        VerifyLock[Manual Phone Verification<br/>Status: PENDING/APPROVED]:::flow
+        Paywall[Subscription Paywall<br/>18% GST + Blurred View]:::flow
+        Directory[Profile Directory<br/>Search, Filter & Theme Styling]:::flow
+
+        Onboard --> VerifyLock
+        VerifyLock --> Paywall
+        Paywall --> Directory
+    end
+
+    %% Route Endpoints Subgraph
+    subgraph API Route Endpoints (src/app/api)
+        direction LR
+        ApiAuth[api/auth<br/>NextAuth endpoints]:::api
+        ApiPayment[api/payment/order & verify<br/>Razorpay Checkout & Webhooks]:::api
+        ApiProfile[api/profile<br/>CRUD & Completion Verification]:::api
+        ApiAdmin[api/admin/verification & packages<br/>Approvals & Settings]:::api
+    end
+
+    App --> Onboard
+    App --> ApiAuth
+    App --> ApiPayment
+    App --> ApiProfile
+    App --> ApiAdmin
+
+    %% Scripts Subgraph
+    subgraph Utility Scripts
+        direction LR
+        BackupScript[backup.ts<br/>Database Backups]
+        SeedScript[seed.ts<br/>Seeding 25-30 Profiles]
+        CleanupScript[cleanup.ts<br/>Safe Demo Data Cleanup]
+    end
+
+    DB -.-> SeedScript
+    DB -.-> CleanupScript
+    DB -.-> BackupScript
 ```
 
 ---
@@ -52,32 +94,46 @@ Below is the structured layout of the project, mapping out key files and their p
 ```text
 Gulzar bhai/
 ├── prisma/
-│   └── schema.prisma         # Prisma schema defining User, Account, Session, Profile, and Verification models
-├── public/                   # Static assets (images, icons, theme assets)
+│   └── schema.prisma         # Prisma schema defining User, Account, Session, VerificationToken, MatrimonialProfile, PackagePurchase, CuratedLeadAssignment, VerificationRequest, and AuditLog models
+├── public/                   # Static assets (images, icons, theme assets, SVG patterns)
+├── scripts/                  # Database utility scripts
+│   ├── backup.ts             # Script to backup the database before migrations or seeding
+│   ├── cleanup.ts            # Script to clean up seeded demo data safely
+│   └── seed.ts               # Seeding script populating 25-30 realistic, structured profiles
 ├── src/
 │   ├── app/
-│   │   ├── api/              # Route handlers (Server endpoints)
-│   │   │   ├── admin/        # Admin endpoints for verification and audit logs
-│   │   │   ├── auth/         # NextAuth.js v5 setup endpoints
-│   │   │   ├── payment/      # Razorpay payment orders & verification webhook handlers
-│   │   │   ├── profile/      # Profile CRUD and completion status handling
-│   │   │   └── upload/       # Profile image upload handlers
+│   │   ├── api/              # API Route Handlers (endpoints)
+│   │   │   ├── admin/        # Admin endpoints
+│   │   │   │   ├── packages/ # Handles admin package updates
+│   │   │   │   └── verification/ # Handles admin verification actions
+│   │   │   ├── auth/         # NextAuth.js catch-all endpoints
+│   │   │   ├── payment/      # Razorpay payment endpoints
+│   │   │   │   ├── order/    # Creates new Razorpay orders (with 18% GST)
+│   │   │   │   └── verify/   # Cryptographically verifies Razorpay signatures/callbacks
+│   │   │   ├── profile/      # Handles profile CRUD and status updates
+│   │   │   └── upload/       # Profile picture file/base64 uploads
 │   │   ├── favicon.ico       # Site icon
-│   │   ├── globals.css       # Core stylesheets, design tokens, responsive typography, and themes
-│   │   ├── layout.tsx        # Next.js global wrapper (Root layout with fonts and metadata)
-│   │   └── page.tsx          # Main Application Page (Directory, Paywall, Wizard, Admin Simulator, etc.)
-│   ├── auth.ts               # NextAuth v5 configuration and middleware helpers
-│   └── lib/
+│   │   ├── globals.css       # Global styling rules, premium typography, and 8 color theme HSL mappings
+│   │   ├── layout.tsx        # Next.js global layout wrapper with fonts and metadata
+│   │   └── page.tsx          # Core Page Component containing Onboarding Wizard, Directory, Admin Control panel, and Simulator views
+│   ├── components/           # Reusable UI component blocks
+│   │   └── NikahComponents.tsx # Custom components (Header, Footer, Profile Card, Details Modal, Onboarding Wizard steps, Admin Queue, Simulator Controls)
+│   ├── auth.ts               # NextAuth.js configurations, provider registration, and middleware helpers
+│   └── lib/                  # Library/Utility functions
 │       ├── db.ts             # Global Prisma Client instance initialization
-│       └── profileStore.ts   # In-memory simulator fallback & client-side UI state management
-├── .env                      # Application environment variables (Secrets, keys, database URLs)
+│       ├── packages.ts       # Packages config metadata and structures
+│       └── profileStore.ts   # fallbacks, local storage mock data system & state management
+├── .env                      # Application environment variables (MongoDB URL, NextAuth secrets, Google Client IDs)
 ├── .env.example              # Template for environment configuration
+├── .gitignore                # Git untracked file settings
 ├── AGENTS.md                 # Rules & conventions for AI coding agents
-├── CLAUDE.md                 # Project instructions / general shortcuts
-├── next.config.ts            # Next.js bundler and compiler settings
-├── package.json              # Project dependencies, scripts, and runtime engines
-├── PROJECT_NOTES.md          # Approved business rules, pricing details, and phase logs
-└── tsconfig.json             # TypeScript compiler settings
+├── CLAUDE.md                 # Developer shortcuts and general CLI instructions
+├── eslint.config.mjs         # ESLint layout configurations
+├── next-env.d.ts             # Next.js TypeScript environment declarations
+├── next.config.ts            # Next.js compiler/bundler configurations
+├── package.json              # Project dependencies, script configurations, and node engines
+├── PROJECT_NOTES.md          # Approved business rules, pricing tiers, design updates, and development log
+└── tsconfig.json             # TypeScript configurations
 ```
 
 ---

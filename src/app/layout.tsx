@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { SimulatorProvider } from "../context/SimulatorContext";
+import DemoSimulatorBar from "../components/DemoSimulatorBar";
+import ProfileDetails from "../components/ProfileDetails";
 
 export const metadata: Metadata = {
   title: "Shadi Mubarak — Trusted Muslim Matrimonial Platform",
@@ -14,8 +17,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        {children}
+        <SimulatorProvider>
+          <DemoSimulatorBar />
+          <ProfileDetails />
+          {children}
+        </SimulatorProvider>
       </body>
     </html>
   );
 }
+
+

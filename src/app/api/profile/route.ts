@@ -49,7 +49,6 @@ export async function GET(req: NextRequest) {
     // Support simulator headers
     const simulatedUserId = req.headers.get('x-simulator-user-id');
     const simulatedPaid = req.headers.get('x-simulator-paid') === 'true';
-    const simulatedLoggedIn = req.headers.get('x-simulator-logged-in') === 'true';
     const simulatedPackagesHeader = req.headers.get('x-simulator-packages') || '';
     const simulatedPackages = simulatedPackagesHeader.split(',').map(p => p.trim());
     const simulatedHighProfileApproved = req.headers.get('x-simulator-high-profile-approved') === 'true';
@@ -173,9 +172,23 @@ export async function GET(req: NextRequest) {
           phoneNumber: '+91-XXXXX-XXXXX',
           latitude: null,
           longitude: null,
+
+          // Matrimonial identity fields
+          maslak: profile.maslak,
+          fiqh: profile.fiqh,
+          biradari: profile.biradari,
+          district: profile.district,
+          locality: profile.locality,
+          preferredLocations: profile.preferredLocations || [],
+          sameCastePreference: profile.sameCastePreference,
+          sameMaslakPreference: profile.sameMaslakPreference,
+          noCastePreference: profile.noCastePreference,
+          noMaslakPreference: profile.noMaslakPreference,
+          willingToRelocate: profile.willingToRelocate,
         }
       });
     }
+
 
     return NextResponse.json({ profile });
   } catch (error) {

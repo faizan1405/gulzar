@@ -1,8 +1,28 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import { useRouter } from 'next/navigation';
+import { useSimulator } from '../context/SimulatorContext';
+import { getProfileImage, getThemeClass } from '../lib/helpers';
+import Navbar from '../components/Navbar';
+import HeroSection from '../components/HeroSection';
+import SearchableCombobox from '../components/SearchableCombobox';
+import { DEFAULT_FIQHS } from '../lib/masterData';
 
-// Controlled themes
+import {
+  FloralCorner,
+  BismillahCalligraphy,
+  SectionHeading,
+  QuranVerseBlock,
+  ProfileCard,
+  SuccessStoryCard,
+  SafetyFeatureCard,
+  FinalCTA,
+  PremiumFooter,
+  PremiumPlanCard
+} from '../components/NikahComponents';
+
+// Theme options matching original config
 const THEME_COLORS = [
   { name: 'Emerald Green', value: 'emerald' },
   { name: 'Royal Crimson', value: 'crimson' },
@@ -14,293 +34,37 @@ const THEME_COLORS = [
   { name: 'Saffron Glow', value: 'saffron' }
 ];
 
-interface Profile {
-  id: string;
-  userId: string;
-  fullName: string;
-  gender: string;
-  dateOfBirth: string;
-  maritalStatus: string;
-  phoneNumber: string;
-  city: string;
-  areaOrLocality: string;
-  state: string;
-  country: string;
-  education: string;
-  occupation: string;
-  annualIncomeRange: string;
-  familyInfo: string;
-  bio: string;
-  themeColor: string;
-  verificationStatus: string;
-  profileCompletionStatus: string;
-  createdAt: string;
-}
-
-interface VerificationRequest {
-  id: string;
-  profileId: string;
-  status: string;
-  assignedAdminId: string | null;
-  notes: string | null;
-  verifiedAt: string | null;
-  createdAt: string;
-  updatedAt: string;
-  profile: Profile | null;
-}
-
-interface AuditLog {
-  id: string;
-  actorUserId: string | null;
-  action: string;
-  targetType: string;
-  targetId: string | null;
-  metadata: string;
-  createdAt: string;
-}
-interface PackagePurchase {
-  id: string;
-  profileId: string;
-  packageType: string;
-  basePrice: number;
-  gstRate: number;
-  totalAmount: number;
-  billingType: string;
-  successFeeAmount: number;
-  razorpayOrderId: string | null;
-  razorpayPaymentId: string | null;
-  paymentStatus: string;
-  purchaseDate: string;
-  expiryDate: string | null;
-  accessStatus: string;
-  eligibilityStatus: string;
-  marriageConfirmation: string;
-  successFeePaymentStatus: string;
-  internalNotes: string | null;
-  createdAt: string;
-  updatedAt: string;
-  profile?: Profile | null;
-}
-
-interface CuratedLeadAssignment {
-  id: string;
-  buyerProfileId: string;
-  leadProfileId: string;
-  status: string;
-  assignedAt: string;
-  updatedAt: string;
-  buyerProfile?: Profile | null;
-  leadProfile?: Profile | null;
-}
-
 export default function Home() {
-  // --- Simulator & Session States ---
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [hasPaid300, setHasPaid300] = useState(false);
-  const [hasPremiumAccess, setHasPremiumAccess] = useState(false);
-  const [simulatedPackages, setSimulatedPackages] = useState<string[]>([]);
-  const [simulatedHighProfileApproved, setSimulatedHighProfileApproved] = useState(false);
-  const [isAdminMode, setIsAdminMode] = useState(false);
-  const [referralRate, setReferralRate] = useState(21);
-  const [showLoginModal, setShowLoginModal] = useState(false);
-  const [reloadTrigger, setReloadTrigger] = useState(0);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
+  const {
+    isLoggedIn,
+    hasPaid300,
+    simulatedPackages,
+    simulatedHighProfileApproved,
+    showLoginModal,
+    setShowLoginModal,
+    handleGoogleLogin,
+    isRegistering,
+    setIsRegistering,
+    regStep,
+    setRegStep,
+    registrationError,
+    setRegistrationError,
+    formData,
+    setFormData,
+    handleRegisterSubmit,
+    handleRazorpayCheckout,
+    profiles,
+    savedProfiles,
+    toggleSaveProfile,
+    setSelectedProfileForDetails,
+    userProfile,
+    isLoading,
+    masterMaslaks,
+    masterCastes,
+    masterLocations,
+  } = useSimulator();
 
-  // --- Profile List / Search Filters ---
-  const [profiles, setProfiles] = useState<Profile[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedDistance, setSelectedDistance] = useState('All');
-  const [selectedCaste, setSelectedCaste] = useState('All');
-  const [verificationFilter, setVerificationFilter] = useState('All');
-  const [savedProfiles, setSavedProfiles] = useState<string[]>([]);
-  const [selectedProfileForDetails, setSelectedProfileForDetails] = useState<Profile | null>(null);
-
-  // --- Current User Profile Form & Registration State ---
-  const [userProfile, setUserProfile] = useState<Profile | null>(null);
-  const [isRegistering, setIsRegistering] = useState(false);
-  const [regStep, setRegStep] = useState(1);
-  const [registrationError, setRegistrationError] = useState('');
-
-  // --- Admin Dashboard States ---
-  const [adminRequests, setAdminRequests] = useState<VerificationRequest[]>([]);
-  const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
-  const [adminPurchases, setAdminPurchases] = useState<PackagePurchase[]>([]);
-  const [adminAssignments, setAdminAssignments] = useState<CuratedLeadAssignment[]>([]);
-  const [adminActiveTab, setAdminActiveTab] = useState<'overview' | 'verification' | 'purchases' | 'assignments' | 'logs'>('overview');
-  const [selectedRequestForReview, setSelectedRequestForReview] = useState<VerificationRequest | null>(null);
-  const [reviewNotes, setReviewNotes] = useState('');
-  const [isAdminMobileOpen, setIsAdminMobileOpen] = useState(false);
-  const [logSearchQuery, setLogSearchQuery] = useState('');
-  const [logActionFilter, setLogActionFilter] = useState('All');
-
-  // --- Curated Assignment Tool Fields ---
-  const [assignBuyerId, setAssignBuyerId] = useState('');
-  const [assignLeadId, setAssignLeadId] = useState('');
-
-  // --- Registration Form Fields ---
-  const [formData, setFormData] = useState({
-    fullName: '',
-    gender: 'Female',
-    dateOfBirth: '',
-    maritalStatus: 'Single',
-    phoneNumber: '',
-    city: '',
-    areaOrLocality: '',
-    state: '',
-    country: 'India',
-    education: '',
-    occupation: '',
-    annualIncomeRange: '₹3 LPA - ₹5 LPA',
-    familyInfo: '',
-    bio: '',
-    partnerPref: '',
-    themeColor: 'emerald',
-    consent: false,
-    terms: false,
-  });
-
-  const getThemeClass = (color: string) => {
-    if (!color) return 'theme-emerald';
-    if (color.includes('hsl(')) {
-      if (color.includes('150')) return 'theme-emerald';
-      if (color.includes('345')) return 'theme-crimson';
-      if (color.includes('42')) return 'theme-gold';
-      return 'theme-navy';
-    }
-    return `theme-${color}`;
-  };
-
-  const getProfileImage = (gender: string, index: number) => {
-    const maleImages = [
-      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=300&h=300',
-      'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=300&h=300',
-      'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=300&h=300'
-    ];
-    const femaleImages = [
-      'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=300&h=300',
-      'https://images.unsplash.com/photo-1594744803329-e58b31de215f?auto=format&fit=crop&q=80&w=300&h=300',
-      'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=300&h=300'
-    ];
-
-    if (gender.toLowerCase() === 'male') {
-      return maleImages[index % maleImages.length];
-    }
-    return femaleImages[index % femaleImages.length];
-  };
-
-  const toggleSaveProfile = (id: string) => {
-    setSavedProfiles((prev) =>
-      prev.includes(id) ? prev.filter((pId) => pId !== id) : [...prev, id]
-    );
-  };
-
-  // Simulator helper headers
-  const getSimulatorHeaders = () => {
-    return {
-      'Content-Type': 'application/json',
-      'x-simulator-user-id': 'simulated-user-123',
-      'x-simulator-logged-in': isLoggedIn ? 'true' : 'false',
-      'x-simulator-paid': hasPaid300 ? 'true' : 'false',
-      'x-simulator-admin': 'true', // Allow admin actions in simulator mode
-      'x-simulator-admin-id': 'simulated-admin-999',
-      'x-simulator-packages': simulatedPackages.join(','),
-      'x-simulator-high-profile-approved': simulatedHighProfileApproved ? 'true' : 'false',
-    };
-  };
-
-  // --- Fetch Data on State Changes ---
-  useEffect(() => {
-    async function loadAllData() {
-      setIsLoading(true);
-      try {
-        const simulatorHeaders = getSimulatorHeaders();
-
-        // 1. Fetch current user profile
-        if (isLoggedIn) {
-          const res = await fetch('/api/profile', { headers: simulatorHeaders });
-          const data = await res.json();
-          if (data.profile) {
-            setUserProfile(data.profile);
-            if (data.profile.hasPaid) {
-              setHasPaid300(true);
-            }
-            setFormData({
-              fullName: data.profile.fullName || '',
-              gender: data.profile.gender || 'Female',
-              dateOfBirth: data.profile.dateOfBirth ? new Date(data.profile.dateOfBirth).toISOString().substring(0, 10) : '',
-              maritalStatus: data.profile.maritalStatus || 'Single',
-              phoneNumber: data.profile.phoneNumber || '',
-              city: data.profile.city || '',
-              areaOrLocality: data.profile.areaOrLocality || '',
-              state: data.profile.state || '',
-              country: data.profile.country || 'India',
-              education: data.profile.education || '',
-              occupation: data.profile.occupation || '',
-              annualIncomeRange: data.profile.annualIncomeRange || '₹3 LPA - ₹5 LPA',
-              familyInfo: data.profile.familyInfo || '',
-              bio: data.profile.bio || '',
-              partnerPref: data.profile.partnerPref || '',
-              themeColor: data.profile.themeColor || 'emerald',
-              consent: true,
-              terms: true,
-            });
-            setIsRegistering(false);
-          } else {
-            setUserProfile(null);
-            setIsRegistering(true);
-            setRegStep(1);
-          }
-        } else {
-          setUserProfile(null);
-          setIsRegistering(false);
-        }
-
-        // 2. Fetch admin verification requests & logs
-        const resReq = await fetch('/api/admin/verification', { headers: simulatorHeaders });
-        const dataReq = await resReq.json();
-        if (dataReq.requests) {
-          setAdminRequests(dataReq.requests);
-          // Extract profiles for general display
-          const mappedProfiles = dataReq.requests.map((r: VerificationRequest) => r.profile).filter(Boolean) as Profile[];
-          setProfiles(mappedProfiles);
-        }
-
-        const resLogs = await fetch('/api/admin/verification?mode=audit', { headers: simulatorHeaders });
-        const dataLogs = await resLogs.json();
-        if (dataLogs.logs) {
-          setAuditLogs(dataLogs.logs);
-        }
-
-        // 3. Fetch premium package purchases & curated assignments
-        const resPurchases = await fetch('/api/admin/packages', { headers: simulatorHeaders });
-        const dataPurchases = await resPurchases.json();
-        if (dataPurchases.purchases) {
-          setAdminPurchases(dataPurchases.purchases);
-        }
-
-        const resAssignments = await fetch('/api/admin/packages?mode=assignments', { headers: simulatorHeaders });
-        const dataAssignments = await resAssignments.json();
-        if (dataAssignments.assignments) {
-          setAdminAssignments(dataAssignments.assignments);
-        }
-      } catch (err) {
-        console.error('Failed fetching DB state', err);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
-    loadAllData();
-  }, [isLoggedIn, hasPaid300, simulatedPackages, simulatedHighProfileApproved, reloadTrigger]);
-
-  // --- Google Login Simulation ---
-  const handleGoogleLogin = () => {
-    setIsLoggedIn(true);
-    setShowLoginModal(false);
-  };
-
-  // --- Registration / Profile Submission ---
   const handleNextStep = () => {
     if (regStep === 1) {
       if (!formData.fullName || !formData.dateOfBirth || !formData.phoneNumber || !formData.bio) {
@@ -317,8 +81,8 @@ export default function Home() {
         return;
       }
     } else if (regStep === 2) {
-      if (!formData.city || !formData.areaOrLocality || !formData.state) {
-        setRegistrationError('Please fill in your complete location.');
+      if (!formData.city || !formData.state) {
+        setRegistrationError('Please fill in your current state and city.');
         return;
       }
     } else if (regStep === 3) {
@@ -327,6 +91,8 @@ export default function Home() {
         return;
       }
     } else if (regStep === 4) {
+      // Community Preferences step has optional inputs, no mandatory validation required
+    } else if (regStep === 5) {
       if (!formData.familyInfo) {
         setRegistrationError('Please enter family background details.');
         return;
@@ -341,2524 +107,738 @@ export default function Home() {
     setRegStep(regStep - 1);
   };
 
-  const handleRegisterSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!formData.consent || !formData.terms) {
-      setRegistrationError('You must accept the terms and provide consent.');
-      return;
-    }
-
-    try {
-      const res = await fetch('/api/profile', {
-        method: 'POST',
-        headers: getSimulatorHeaders(),
-        body: JSON.stringify(formData),
-      });
-
-      if (res.ok) {
-        alert('Matrimonial profile saved successfully! Entering manual verification queue.');
-        setReloadTrigger((prev) => prev + 1);
-        setIsRegistering(false);
-      } else {
-        const data = await res.json();
-        setRegistrationError(data.error || 'Failed to save profile.');
-      }
-    } catch {
-      setRegistrationError('Network error saving profile.');
-    }
+  const handleNavigate = (view: string) => {
+    setIsRegistering(false);
+    router.push('/' + (view === 'home' ? '' : view));
   };
 
-  // --- Razorpay Payment Checkout ---
-  const handleRazorpayCheckout = async (packageType: string, amountInRupees = 300, planName = 'Standard Monthly Membership') => {
-    if (!isLoggedIn) {
-      setShowLoginModal(true);
-      return;
-    }
-
-    try {
-      const res = await fetch('/api/payment/order', {
-        method: 'POST',
-        headers: getSimulatorHeaders(),
-        body: JSON.stringify({ packageType }),
-      });
-
-      const data = await res.json();
-      if (!data.success) {
-        alert(data.error || 'Failed to create payment order.');
-        return;
-      }
-
-      const { orderId, amount, currency, keyId, isSimulated } = data;
-
-      const options = {
-        key: keyId,
-        amount: amount,
-        currency: currency,
-        name: 'Shadi Mubarak',
-        description: `${planName} (₹${amountInRupees} + 18% GST)`,
-        image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=100&h=100',
-        order_id: orderId,
-        handler: async function (response: { razorpay_payment_id?: string; razorpay_signature?: string }) {
-          try {
-            const verifyRes = await fetch('/api/payment/verify', {
-              method: 'POST',
-              headers: getSimulatorHeaders(),
-              body: JSON.stringify({
-                orderId: orderId,
-                paymentId: response.razorpay_payment_id || 'mock_pay_id',
-                signature: response.razorpay_signature || 'mock_sig',
-                isSimulated: isSimulated,
-              }),
-            });
-
-            const verifyData = await verifyRes.json();
-            if (verifyData.success) {
-              if (packageType === 'STANDARD') {
-                setHasPaid300(true);
-              }
-              setSimulatedPackages((prev) => [...prev, packageType]);
-              alert(`Alhamdulillah! Payment verified and your ${planName} is now active.`);
-              setReloadTrigger((prev) => prev + 1);
-            } else {
-              alert(verifyData.error || 'Payment verification failed.');
-            }
-          } catch {
-            alert('Network error verifying payment.');
-          }
-        },
-        prefill: {
-          name: formData.fullName || 'User Name',
-          contact: formData.phoneNumber || '+919999999999',
-        },
-        theme: {
-          color: '#876b2d',
-        },
-      };
-
-      if (isSimulated) {
-        if (confirm(`[SIMULATOR] Razorpay checkout popup triggered.\n\nOrder ID: ${orderId}\nAmount: ₹${amount/100}\n\nClick OK to simulate successful transaction approval.`)) {
-          options.handler({
-            razorpay_payment_id: 'pay_mock_' + Date.now(),
-            razorpay_signature: 'sig_mock_' + Date.now(),
-          });
-        }
-      } else {
-        const loadScript = () => {
-          return new Promise((resolve) => {
-            const script = document.createElement('script');
-            script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-            script.onload = () => resolve(true);
-            script.onerror = () => resolve(false);
-            document.body.appendChild(script);
-          });
-        };
-
-        const loaded = await loadScript();
-        if (!loaded) {
-          alert('Failed to load Razorpay payment widget. Check network connection.');
-          return;
-        }
-
-        /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-        const rzp = new (window as any).Razorpay(options);
-        rzp.open();
-      }
-    } catch (err) {
-      console.error('Checkout error:', err);
-      alert('Failed starting payment flow.');
-    }
-  };
-
-  // --- Admin Actions ---
-  const handleReviewSubmit = async (status: 'APPROVED' | 'REJECTED' | 'NEEDS_FOLLOW_UP') => {
-    if (!selectedRequestForReview || !selectedRequestForReview.profile) return;
-    try {
-      const res = await fetch('/api/admin/verification', {
-        method: 'POST',
-        headers: getSimulatorHeaders(),
-        body: JSON.stringify({
-          profileId: selectedRequestForReview.profile.id,
-          status,
-          notes: reviewNotes,
-        }),
-      });
-
-      if (res.ok) {
-        alert(`Status updated to ${status}! Audit log entry created.`);
-        setSelectedRequestForReview(null);
-        setReviewNotes('');
-        setReloadTrigger((prev) => prev + 1);
-      } else {
-        const err = await res.json();
-        alert(err.error || 'Failed to update verification status.');
-      }
-    } catch {
-      alert('Error updating status.');
-    }
-  };
-
-  const handleAssignLead = async () => {
-    if (!assignBuyerId || !assignLeadId) {
-      alert('Please select both a curated buyer and a lead profile.');
-      return;
-    }
-    try {
-      const res = await fetch('/api/admin/packages', {
-        method: 'POST',
-        headers: getSimulatorHeaders(),
-        body: JSON.stringify({
-          action: 'assign_lead',
-          buyerProfileId: assignBuyerId,
-          leadProfileId: assignLeadId,
-        }),
-      });
-      if (res.ok) {
-        alert('Curated lead assigned successfully!');
-        setAssignLeadId('');
-        setReloadTrigger((prev) => prev + 1);
-      } else {
-        const data = await res.json();
-        alert(data.error || 'Failed to assign curated lead.');
-      }
-    } catch {
-      alert('Error assigning lead.');
-    }
-  };
-
-  const handleUpdateLeadStatus = async (assignmentId: string, status: string) => {
-    try {
-      const res = await fetch('/api/admin/packages', {
-        method: 'POST',
-        headers: getSimulatorHeaders(),
-        body: JSON.stringify({
-          action: 'update_lead_status',
-          assignmentId,
-          status,
-        }),
-      });
-      if (res.ok) {
-        alert(`Lead status updated to: ${status}`);
-        setReloadTrigger((prev) => prev + 1);
-      } else {
-        const data = await res.json();
-        alert(data.error || 'Failed to update lead status.');
-      }
-    } catch {
-      alert('Error updating lead status.');
-    }
-  };
-
-  const handleUpdateHPStatus = async (purchaseId: string, status: 'APPROVED' | 'REJECTED', notes: string) => {
-    try {
-      const res = await fetch('/api/admin/packages', {
-        method: 'POST',
-        headers: getSimulatorHeaders(),
-        body: JSON.stringify({
-          action: 'update_eligibility',
-          purchaseId,
-          status,
-          notes,
-        }),
-      });
-      if (res.ok) {
-        alert(`Eligibility status updated to: ${status}`);
-        setReloadTrigger((prev) => prev + 1);
-      } else {
-        const data = await res.json();
-        alert(data.error || 'Failed to update eligibility status.');
-      }
-    } catch {
-      alert('Error updating eligibility.');
-    }
-  };
-
-  const handleConfirmMarriage = async (purchaseId: string, confirmed: boolean) => {
-    try {
-      const res = await fetch('/api/admin/packages', {
-        method: 'POST',
-        headers: getSimulatorHeaders(),
-        body: JSON.stringify({
-          action: 'confirm_marriage',
-          purchaseId,
-          confirmed,
-        }),
-      });
-      if (res.ok) {
-        alert(`Marriage status updated successfully.`);
-        setReloadTrigger((prev) => prev + 1);
-      } else {
-        const data = await res.json();
-        alert(data.error || 'Failed to update marriage status.');
-      }
-    } catch {
-      alert('Error updating marriage confirmation.');
-    }
-  };
-
-  const handleUpdateSuccessFee = async (purchaseId: string, status: string) => {
-    try {
-      const res = await fetch('/api/admin/packages', {
-        method: 'POST',
-        headers: getSimulatorHeaders(),
-        body: JSON.stringify({
-          action: 'update_success_fee_status',
-          purchaseId,
-          status,
-        }),
-      });
-      if (res.ok) {
-        alert(`Success fee status updated to: ${status}`);
-        setReloadTrigger((prev) => prev + 1);
-      } else {
-        const data = await res.json();
-        alert(data.error || 'Failed to update success fee status.');
-      }
-    } catch {
-      alert('Error updating success fee payment.');
-    }
-  };
-
-  // Filter local profile display
-  const filteredProfiles = profiles.filter((p) => {
-    if (selectedDistance !== 'All') {
-      if (selectedDistance === '50' && p.city !== 'Mumbai') return false;
-      if (selectedDistance === '100' && p.city === 'Delhi') return false;
-    }
-    if (selectedCaste !== 'All') {
-      const community = p.bio.toLowerCase() + p.familyInfo.toLowerCase();
-      if (!community.includes(selectedCaste.toLowerCase())) return false;
-    }
-    if (verificationFilter === 'Verified' && p.verificationStatus !== 'APPROVED') return false;
-    if (verificationFilter === 'Unverified' && p.verificationStatus === 'APPROVED') return false;
-
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
-      return (
-        p.fullName.toLowerCase().includes(q) ||
-        p.occupation.toLowerCase().includes(q) ||
-        p.education.toLowerCase().includes(q) ||
-        p.city.toLowerCase().includes(q)
-      );
-    }
-    return true;
-  });
 
   return (
     <>
-      {/* Demo Simulator Quick Bar */}
-      <div className="demo-bar">
-        <span className="demo-bar-label">DEMO MODE — For Internal Preview Only</span>
-        <div className="demo-bar-controls">
-          <label className="demo-bar-checkbox">
-            <input
-              type="checkbox"
-              checked={isLoggedIn}
-              onChange={(e) => {
-                setIsLoggedIn(e.target.checked);
-                if (!e.target.checked) {
-                  setHasPaid300(false);
-                  setSimulatedPackages([]);
-                  setSimulatedHighProfileApproved(false);
-                }
-              }}
-              id="sim-logged-in-checkbox"
-            />
-            Logged In
-          </label>
-          <label className="demo-bar-checkbox">
-            <input
-              type="checkbox"
-              checked={hasPaid300 || simulatedPackages.includes('STANDARD')}
-              onChange={(e) => {
-                const checked = e.target.checked;
-                setHasPaid300(checked);
-                if (checked) {
-                  setSimulatedPackages(prev => Array.from(new Set([...prev, 'STANDARD'])));
-                } else {
-                  setSimulatedPackages(prev => prev.filter(p => p !== 'STANDARD'));
-                }
-              }}
-              id="sim-paid-300-checkbox"
-            />
-            Standard Pkg
-          </label>
-          <label className="demo-bar-checkbox">
-            <input
-              type="checkbox"
-              checked={simulatedPackages.includes('CURATED')}
-              onChange={(e) => {
-                const checked = e.target.checked;
-                if (checked) {
-                  setSimulatedPackages(prev => Array.from(new Set([...prev, 'CURATED'])));
-                } else {
-                  setSimulatedPackages(prev => prev.filter(p => p !== 'CURATED'));
-                }
-              }}
-              id="sim-curated-checkbox"
-            />
-            Curated Pkg
-          </label>
-          <label className="demo-bar-checkbox">
-            <input
-              type="checkbox"
-              checked={simulatedPackages.includes('SECOND_MARRIAGE')}
-              onChange={(e) => {
-                const checked = e.target.checked;
-                if (checked) {
-                  setSimulatedPackages(prev => Array.from(new Set([...prev, 'SECOND_MARRIAGE'])));
-                } else {
-                  setSimulatedPackages(prev => prev.filter(p => p !== 'SECOND_MARRIAGE'));
-                }
-              }}
-              id="sim-second-marriage-checkbox"
-            />
-            Second Marriage Pkg
-          </label>
-          <label className="demo-bar-checkbox">
-            <input
-              type="checkbox"
-              checked={simulatedPackages.includes('HIGH_PROFILE')}
-              onChange={(e) => {
-                const checked = e.target.checked;
-                if (checked) {
-                  setSimulatedPackages(prev => Array.from(new Set([...prev, 'HIGH_PROFILE'])));
-                } else {
-                  setSimulatedPackages(prev => prev.filter(p => p !== 'HIGH_PROFILE'));
-                  setSimulatedHighProfileApproved(false);
-                }
-              }}
-              id="sim-high-profile-checkbox"
-            />
-            High Profile Pkg
-          </label>
-          {simulatedPackages.includes('HIGH_PROFILE') && (
-            <label className="demo-bar-checkbox" style={{ color: 'var(--gold-accent)' }}>
-              <input
-                type="checkbox"
-                checked={simulatedHighProfileApproved}
-                onChange={(e) => setSimulatedHighProfileApproved(e.target.checked)}
-                id="sim-high-profile-approved-checkbox"
-              />
-              Approved High-Profile
-            </label>
-          )}
-          <label className="demo-bar-checkbox">
-            <input
-              type="checkbox"
-              checked={isAdminMode}
-              onChange={(e) => setIsAdminMode(e.target.checked)}
-              id="sim-admin-checkbox"
-            />
-            Admin Preview Mode
-          </label>
-        </div>
-      </div>
-
-      {/* Header */}
-      <header className="header">
-        <div className="container nav-container">
-          <a
-            href="#"
-            className="logo"
-            id="header-logo-link"
-            onClick={() => {
-              setIsAdminMode(false);
-              setIsRegistering(false);
-            }}
-          >
-            Shadi Mubarak<span>.</span>
-          </a>
-
-          {/* Hamburger Menu Trigger */}
-          <button
-            className="modal-close-btn"
-            style={{ display: 'none', border: 'none', background: 'none', cursor: 'pointer' }}
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            id="hamburger-btn"
-          >
-            ☰
-          </button>
-          <style>{`
-            @media (max-width: 768px) {
-              #hamburger-btn { display: block !important; }
-              .nav-menu-desktop { display: none !important; }
-            }
-          `}</style>
-
-          <nav className="nav-menu-desktop">
-            <ul className="nav-menu">
-              <li>
-                <a
-                  href="#"
-                  className="nav-link"
-                  onClick={() => {
-                    setIsAdminMode(false);
-                    setIsRegistering(false);
-                  }}
-                  id="nav-link-home"
-                >
-                  Home
-                </a>
-              </li>
-              <li>
-                <a href="#browse-profiles" className="nav-link" id="nav-link-browse" onClick={() => setIsAdminMode(false)}>
-                  Browse Profiles
-                </a>
-              </li>
-              <li>
-                <a href="#premium-pricing" className="nav-link" id="nav-link-pricing" onClick={() => setIsAdminMode(false)}>
-                  Pricing & Packages
-                </a>
-              </li>
-              <li>
-                <a href="#wedding-services" className="nav-link" id="nav-link-services" onClick={() => setIsAdminMode(false)}>
-                  Wedding Services
-                </a>
-              </li>
-              <li>
-                {isLoggedIn && (
-                  <button
-                    onClick={() => {
-                      setIsAdminMode(false);
-                      setIsRegistering(true);
-                      setRegStep(1);
-                    }}
-                    className="btn btn-secondary"
-                  >
-                    Edit Profile
-                  </button>
-                )}
-              </li>
-              <li>
-                <button
-                  onClick={() => setIsAdminMode(!isAdminMode)}
-                  className="btn btn-secondary"
-                  id="btn-toggle-admin"
-                >
-                  {isAdminMode ? 'View Website' : 'Admin Panel'}
-                </button>
-              </li>
-              <li>
-                {isLoggedIn ? (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--primary-brand)' }}>As-salamu alaykum</span>
-                    <button
-                      onClick={() => {
-                        setIsLoggedIn(false);
-                        setHasPaid300(false);
-                        setHasPremiumAccess(false);
-                      }}
-                      className="btn btn-primary"
-                      id="btn-logout"
-                    >
-                      Logout
-                    </button>
-                  </div>
-                ) : (
-                  <div style={{ display: 'flex', gap: '8px' }}>
-                    <button
-                      onClick={() => setShowLoginModal(true)}
-                      className="btn btn-secondary"
-                      id="btn-login-trigger"
-                      style={{ padding: '8px 16px' }}
-                    >
-                      Login
-                    </button>
-                    <button
-                      onClick={() => {
-                        setIsLoggedIn(true); // Simulate registration/onboard flow directly
-                        setIsRegistering(true);
-                        setRegStep(1);
-                      }}
-                      className="btn btn-gold"
-                      style={{ padding: '8px 16px' }}
-                    >
-                      Register Free
-                    </button>
-                  </div>
-                )}
-              </li>
-            </ul>
-          </nav>
-        </div>
-      </header>
-
-      {/* Mobile Drawer Menu */}
-      {isMobileMenuOpen && (
-        <div
-          className="modal-overlay"
-          onClick={() => setIsMobileMenuOpen(false)}
-          style={{ justifyContent: 'flex-start', alignItems: 'stretch', padding: 0 }}
-        >
-          <div
-            style={{
-              backgroundColor: 'var(--cream-bg)',
-              width: '280px',
-              padding: '24px',
-              boxShadow: 'var(--shadow-toast)',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '20px'
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span className="logo">Shadi Mubarak<span>.</span></span>
-              <button className="modal-close-btn" onClick={() => setIsMobileMenuOpen(false)}>×</button>
-            </div>
-            <hr style={{ borderColor: 'var(--border-color)' }} />
-            <a
-              href="#"
-              onClick={() => {
-                setIsAdminMode(false);
-                setIsRegistering(false);
-                setIsMobileMenuOpen(false);
-              }}
-              style={{ padding: '10px 0', fontWeight: '500' }}
-            >
-              Home
-            </a>
-            <a
-              href="#browse-profiles"
-              onClick={() => {
-                setIsAdminMode(false);
-                setIsMobileMenuOpen(false);
-              }}
-              style={{ padding: '10px 0', fontWeight: '500' }}
-            >
-              Browse Profiles
-            </a>
-            <a
-              href="#premium-pricing"
-              onClick={() => {
-                setIsAdminMode(false);
-                setIsMobileMenuOpen(false);
-              }}
-              style={{ padding: '10px 0', fontWeight: '500' }}
-            >
-              Pricing & Packages
-            </a>
-            <a
-              href="#wedding-services"
-              onClick={() => {
-                setIsAdminMode(false);
-                setIsMobileMenuOpen(false);
-              }}
-              style={{ padding: '10px 0', fontWeight: '500' }}
-            >
-              Wedding Services
-            </a>
-
-            {isLoggedIn && (
-              <button
-                onClick={() => {
-                  setIsAdminMode(false);
-                  setIsRegistering(true);
-                  setRegStep(1);
-                  setIsMobileMenuOpen(false);
-                }}
-                className="btn btn-secondary"
-              >
-                Edit Profile
-              </button>
-            )}
-
-            <button
-              onClick={() => {
-                setIsAdminMode(!isAdminMode);
-                setIsMobileMenuOpen(false);
-              }}
-              className="btn btn-secondary"
-            >
-              {isAdminMode ? 'View Website' : 'Admin Panel'}
-            </button>
-
-            {isLoggedIn ? (
-              <button
-                onClick={() => {
-                  setIsLoggedIn(false);
-                  setHasPaid300(false);
-                  setHasPremiumAccess(false);
-                  setIsMobileMenuOpen(false);
-                }}
-                className="btn btn-primary"
-              >
-                Logout
-              </button>
-            ) : (
-              <button
-                onClick={() => {
-                  setShowLoginModal(true);
-                  setIsMobileMenuOpen(false);
-                }}
-                className="btn btn-gold"
-              >
-                Login
-              </button>
-            )}
-          </div>
-        </div>
-      )}
+      <Navbar />
 
       {isLoading && <div className="loading-spinner" />}
 
-      {!isAdminMode ? (
-        <main>
-          {isRegistering ? (
-            /* Multi-step registration form */
-            <section style={{ padding: '60px 0' }} className="container">
-              <div className="card-theme-wrapper reg-wizard-card">
-                <div className="ornament ornament-tl"></div>
-                <div className="ornament ornament-tr"></div>
-                <div className="ornament ornament-bl"></div>
-                <div className="ornament ornament-br"></div>
+      <main className="flex-grow">
+        {isRegistering ? (
+          /* Multi-step onboarding/edit profile wizard */
+          <section style={{ padding: '60px 0' }} className="container font-sans">
+            <div className="card-theme-wrapper reg-wizard-card">
+              <FloralCorner position="tl" color="var(--gold-accent)" />
+              <FloralCorner position="tr" color="var(--gold-accent)" />
+              <FloralCorner position="bl" color="var(--gold-accent)" />
+              <FloralCorner position="br" color="var(--gold-accent)" />
 
-                <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-                  <h2 style={{ fontFamily: 'var(--font-serif)', color: 'var(--gold-dark)', marginBottom: '8px' }}>
-                    {userProfile ? 'Update Matrimonial Profile' : 'Register Matrimonial Profile'}
-                  </h2>
-                  <p style={{ fontSize: '14px', color: 'var(--text-muted)' }}>
-                    Step {regStep} of 5 — {regStep === 1 && 'Personal Information'}
-                    {regStep === 2 && 'Location Details'}
-                    {regStep === 3 && 'Professional Details'}
-                    {regStep === 4 && 'Family Background'}
-                    {regStep === 5 && 'Consent & Theme'}
-                  </p>
-                </div>
-
-                {/* Progress Bar Dots */}
-                <div className="step-indicator-bar">
-                  <div className={`step-dot ${regStep >= 1 ? 'completed' : ''} ${regStep === 1 ? 'active' : ''}`}>1</div>
-                  <div className={`step-dot ${regStep >= 2 ? 'completed' : ''} ${regStep === 2 ? 'active' : ''}`}>2</div>
-                  <div className={`step-dot ${regStep >= 3 ? 'completed' : ''} ${regStep === 3 ? 'active' : ''}`}>3</div>
-                  <div className={`step-dot ${regStep >= 4 ? 'completed' : ''} ${regStep === 4 ? 'active' : ''}`}>4</div>
-                  <div className={`step-dot ${regStep >= 5 ? 'completed' : ''} ${regStep === 5 ? 'active' : ''}`}>5</div>
-                </div>
-
-                {registrationError && (
-                  <div style={{ backgroundColor: 'rgba(230, 92, 92, 0.1)', color: 'var(--gold-dark)', padding: '12px', borderRadius: '8px', marginBottom: '20px', fontSize: '13px', border: '1px solid hsla(0, 50%, 50%, 0.2)' }}>
-                    ⚠️ {registrationError}
-                  </div>
-                )}
-
-                <form onSubmit={handleRegisterSubmit}>
-                  {regStep === 1 && (
-                    <div>
-                      <div className="form-group">
-                        <label className="form-label">Full Name *</label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          value={formData.fullName}
-                          onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                          placeholder="Enter legal full name"
-                          required
-                        />
-                      </div>
-                      <div className="form-group">
-                        <label className="form-label">Gender *</label>
-                        <select
-                          className="form-control"
-                          value={formData.gender}
-                          onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
-                        >
-                          <option value="Female">Female</option>
-                          <option value="Male">Male</option>
-                        </select>
-                      </div>
-                      <div className="form-group">
-                        <label className="form-label">Date of Birth (Eligible adults &gt;= 18) *</label>
-                        <input
-                          type="date"
-                          className="form-control"
-                          value={formData.dateOfBirth}
-                          onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
-                          required
-                        />
-                      </div>
-                      <div className="form-group">
-                        <label className="form-label">Marital Status *</label>
-                        <select
-                          className="form-control"
-                          value={formData.maritalStatus}
-                          onChange={(e) => setFormData({ ...formData, maritalStatus: e.target.value })}
-                        >
-                          <option value="Single">Single</option>
-                          <option value="Divorced">Divorced</option>
-                          <option value="Widowed">Widowed</option>
-                        </select>
-                      </div>
-                      <div className="form-group">
-                        <label className="form-label">Phone Number (Call Verification Required) *</label>
-                        <input
-                          type="tel"
-                          className="form-control"
-                          value={formData.phoneNumber}
-                          onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
-                          placeholder="e.g. +91 9876543210"
-                          required
-                        />
-                      </div>
-                      <div className="form-group">
-                        <label className="form-label">About Me (Bio) *</label>
-                        <textarea
-                          className="form-control"
-                          rows={3}
-                          value={formData.bio}
-                          onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
-                          placeholder="Describe your values, hobbies, and outlook on marriage..."
-                          required
-                        />
-                      </div>
-                    </div>
-                  )}
-
-                  {regStep === 2 && (
-                    <div>
-                      <div className="form-group">
-                        <label className="form-label">City *</label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          value={formData.city}
-                          onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                          placeholder="e.g. Mumbai"
-                          required
-                        />
-                      </div>
-                      <div className="form-group">
-                        <label className="form-label">Area or Locality *</label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          value={formData.areaOrLocality}
-                          onChange={(e) => setFormData({ ...formData, areaOrLocality: e.target.value })}
-                          placeholder="e.g. Bandra West"
-                          required
-                        />
-                      </div>
-                      <div className="form-group">
-                        <label className="form-label">State *</label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          value={formData.state}
-                          onChange={(e) => setFormData({ ...formData, state: e.target.value })}
-                          placeholder="e.g. Maharashtra"
-                          required
-                        />
-                      </div>
-                      <div className="form-group">
-                        <label className="form-label">Country *</label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          value={formData.country}
-                          onChange={(e) => setFormData({ ...formData, country: e.target.value })}
-                          placeholder="e.g. India"
-                          required
-                        />
-                      </div>
-                    </div>
-                  )}
-
-                  {regStep === 3 && (
-                    <div>
-                      <div className="form-group">
-                        <label className="form-label">Education *</label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          value={formData.education}
-                          onChange={(e) => setFormData({ ...formData, education: e.target.value })}
-                          placeholder="e.g. MBBS, M.Tech, B.Com"
-                          required
-                        />
-                      </div>
-                      <div className="form-group">
-                        <label className="form-label">Occupation *</label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          value={formData.occupation}
-                          onChange={(e) => setFormData({ ...formData, occupation: e.target.value })}
-                          placeholder="e.g. Pediatrician, Software Engineer"
-                          required
-                        />
-                      </div>
-                      <div className="form-group">
-                        <label className="form-label">Annual Income Range *</label>
-                        <select
-                          className="form-control"
-                          value={formData.annualIncomeRange}
-                          onChange={(e) => setFormData({ ...formData, annualIncomeRange: e.target.value })}
-                        >
-                          <option value="Under ₹3 LPA">Under ₹3 LPA</option>
-                          <option value="₹3 LPA - ₹5 LPA">₹3 LPA - ₹5 LPA</option>
-                          <option value="₹5 LPA - ₹10 LPA">₹5 LPA - ₹10 LPA</option>
-                          <option value="₹10 LPA - ₹15 LPA">₹10 LPA - ₹15 LPA</option>
-                          <option value="₹15 LPA - ₹25 LPA">₹15 LPA - ₹25 LPA</option>
-                          <option value="Above ₹25 LPA">Above ₹25 LPA</option>
-                        </select>
-                      </div>
-                    </div>
-                  )}
-
-                  {regStep === 4 && (
-                    <div>
-                      <div className="form-group">
-                        <label className="form-label">Family Details (Parents, Siblings background) *</label>
-                        <textarea
-                          className="form-control"
-                          rows={4}
-                          value={formData.familyInfo}
-                          onChange={(e) => setFormData({ ...formData, familyInfo: e.target.value })}
-                          placeholder="Provide family background, parents occupation, number of siblings etc..."
-                          required
-                        />
-                      </div>
-                      <div className="form-group">
-                        <label className="form-label">Partner Preferences Summary</label>
-                        <textarea
-                          className="form-control"
-                          rows={3}
-                          value={formData.partnerPref}
-                          onChange={(e) => setFormData({ ...formData, partnerPref: e.target.value })}
-                          placeholder="Preferred age, education, and religiosity..."
-                        />
-                      </div>
-                    </div>
-                  )}
-
-                  {regStep === 5 && (
-                    <div>
-                      <div className="form-group">
-                        <label className="form-label">Assigned Profile Theme *</label>
-                        <select
-                          className="form-control"
-                          value={formData.themeColor}
-                          onChange={(e) => setFormData({ ...formData, themeColor: e.target.value })}
-                        >
-                          {THEME_COLORS.map((tc) => (
-                            <option key={tc.value} value={tc.value}>
-                              {tc.name}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <div className="form-group" style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', margin: '20px 0' }}>
-                        <input
-                          type="checkbox"
-                          style={{ marginTop: '4px' }}
-                          checked={formData.consent}
-                          onChange={(e) => setFormData({ ...formData, consent: e.target.checked })}
-                          required
-                        />
-                        <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
-                          I consent to manual phone verification call from Shadi Mubarak Admin team to confirm these profile details.
-                        </span>
-                      </div>
-
-                      <div className="form-group" style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', margin: '20px 0' }}>
-                        <input
-                          type="checkbox"
-                          style={{ marginTop: '4px' }}
-                          checked={formData.terms}
-                          onChange={(e) => setFormData({ ...formData, terms: e.target.checked })}
-                          required
-                        />
-                        <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
-                          I accept the Shadi Mubarak Terms of Service and Shariah-compliant match guidelines.
-                        </span>
-                      </div>
-                    </div>
-                  )}
-
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '30px' }}>
-                    {regStep > 1 && (
-                      <button type="button" onClick={handlePrevStep} className="btn btn-secondary">
-                        Back
-                      </button>
-                    )}
-                    {regStep < 5 ? (
-                      <button type="button" onClick={handleNextStep} className="btn btn-primary" style={{ marginLeft: 'auto' }}>
-                        Next Step
-                      </button>
-                    ) : (
-                      <button type="submit" className="btn btn-gold" style={{ marginLeft: 'auto' }}>
-                        Save Profile
-                      </button>
-                    )}
-                  </div>
-                </form>
-              </div>
-            </section>
-          ) : (
-            /* Main Landing Page */
-            <>
-              {/* Premium Hero Section */}
-              <section className="hero-split container">
-                <div className="hero-content">
-                  <div className="hero-subtitle">Halal & Secure Matrimony</div>
-                  <h1 className="hero-title">Where meaningful matches begin.</h1>
-                  <p className="hero-description">
-                    Built for serious Nikah journeys, trusted by families. Welcome to Shadi Mubarak — a premium, Shariah-compliant Muslim matchmaking platform offering verified candidates, absolute privacy, and dedicated marriage-focused match assistance.
-                  </p>
-                  <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-                    <a href="#browse-profiles" className="btn btn-gold" id="hero-browse-btn">
-                      Explore Matches
-                    </a>
-                    <button
-                      onClick={() => {
-                        if (!isLoggedIn) {
-                          setShowLoginModal(true);
-                        } else {
-                          setIsRegistering(true);
-                          setRegStep(1);
-                        }
-                      }}
-                      className="btn btn-primary"
-                      id="hero-register-btn"
-                    >
-                      {userProfile ? 'Edit Your Profile' : 'Create Your Profile'}
-                    </button>
-                  </div>
-                  
-                  {/* Trust statistics strip */}
-                  <div className="trust-strip">
-                    <div className="stat-item">
-                      <span className="stat-number">100%</span>
-                      <span className="stat-label">Call Verified</span>
-                    </div>
-                    <div className="stat-item">
-                      <span className="stat-number">Secure</span>
-                      <span className="stat-label">Privacy First</span>
-                    </div>
-                    <div className="stat-item">
-                      <span className="stat-number">Family</span>
-                      <span className="stat-label">Focused Nikah</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="hero-visual-container">
-                  <div className="hero-visual-frame">
-                    {/* Tasteful premium placeholder image representing matrimony trust */}
-                    <img 
-                      src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&q=80&w=600&h=800" 
-                      alt="Elegant Muslim Wedding Scene" 
-                      className="hero-visual-img"
-                    />
-                  </div>
-                  
-                  {/* Floating preview cards with verification badges */}
-                  <div className="floating-preview-card floating-card-1">
-                    <span style={{ fontSize: '20px' }}>🟢</span>
-                    <div>
-                      <strong style={{ display: 'block', fontSize: '13px', color: 'var(--text-dark)' }}>Verified Match</strong>
-                      <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Mumbai • Doctor</span>
-                    </div>
-                  </div>
-
-                  <div className="floating-preview-card floating-card-2">
-                    <span style={{ fontSize: '20px' }}>✨</span>
-                    <div>
-                      <strong style={{ display: 'block', fontSize: '13px', color: 'var(--text-dark)' }}>Active Search</strong>
-                      <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Delhi • Engineer</span>
-                    </div>
-                  </div>
-                </div>
-              </section>
-
-              {/* Smart Search Panel */}
-              <div className="container" style={{ position: 'relative', zIndex: '20' }}>
-                <div className="search-panel">
-                  <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '18px', color: 'var(--primary-brand)', marginBottom: '16px' }}>
-                    Quick Match Search
-                  </h3>
-                  <div className="search-panel-grid">
-                    <div>
-                      <label className="form-label">Looking For</label>
-                      <select className="form-control" style={{ backgroundColor: 'var(--cream-bg)' }}>
-                        <option>Bride (Female)</option>
-                        <option>Groom (Male)</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="form-label">Age Range</label>
-                      <select className="form-control" style={{ backgroundColor: 'var(--cream-bg)' }}>
-                        <option>18 - 25 Yrs</option>
-                        <option>26 - 32 Yrs</option>
-                        <option>33 - 40 Yrs</option>
-                        <option>40+ Yrs</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="form-label">City</label>
-                      <select className="form-control" style={{ backgroundColor: 'var(--cream-bg)' }} value={selectedDistance} onChange={(e) => setSelectedDistance(e.target.value)}>
-                        <option value="All">All India</option>
-                        <option value="50">Mumbai Only</option>
-                        <option value="100">Excluding Delhi</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="form-label">Caste / Community</label>
-                      <select className="form-control" style={{ backgroundColor: 'var(--cream-bg)' }} value={selectedCaste} onChange={(e) => setSelectedCaste(e.target.value)}>
-                        <option value="All">All Communities</option>
-                        <option value="Sunni">Sunni</option>
-                        <option value="Syed">Syed</option>
-                        <option value="Hanafi">Hanafi</option>
-                        <option value="Sheikh">Sheikh</option>
-                      </select>
-                    </div>
-                    <a href="#browse-profiles" className="btn btn-primary" style={{ width: '100%' }}>
-                      Search
-                    </a>
-                  </div>
-                </div>
+              <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+                <span className="script-accent" style={{ display: 'block', marginBottom: '4px' }}>Bismillah</span>
+                <h2 style={{ fontFamily: 'var(--font-serif)', color: 'var(--deep-maroon)', fontSize: '32px', marginBottom: '8px' }}>
+                  {userProfile ? 'Update Matrimonial Profile' : 'Register Matrimonial Profile'}
+                </h2>
+                <p style={{ fontSize: '14px', color: 'var(--text-muted)' }}>
+                  Step {regStep} of 6 — {
+                    regStep === 1 ? 'Personal Information' :
+                    regStep === 2 ? 'Location Details' :
+                    regStep === 3 ? 'Professional Details' :
+                    regStep === 4 ? 'Community & Family Preferences' :
+                    regStep === 5 ? 'Family Background & Bio' : 'Consent & Themes'
+                  }
+                </p>
               </div>
 
-              {/* How It Works Section with Connected Timeline */}
-              <section style={{ backgroundColor: 'var(--cream-card)', borderBottom: '1px solid var(--border-color)' }}>
-                <div className="container">
-                  <div className="section-header">
-                    <h2>How Shadi Mubarak Works</h2>
-                    <p>Designed for pure, respectful, and Shariah-compliant introductions</p>
-                  </div>
-                  
-                  <div className="timeline-container">
-                    <div className="timeline-line"></div>
-                    <div className="timeline-grid">
-                      <div className="timeline-step">
-                        <div className="timeline-number">1</div>
-                        <h3>Create Your Biodata</h3>
-                        <p>Fill in details about yourself, education, career, family details, and choose your custom card accent theme.</p>
-                      </div>
-                      
-                      <div className="timeline-step">
-                        <div className="timeline-number">2</div>
-                        <h3>Verification Call</h3>
-                        <p>Our dedicated admin desk schedules a telephone call check to verify user information and maintain quality standards.</p>
-                      </div>
-                      
-                      <div className="timeline-step">
-                        <div className="timeline-number">3</div>
-                        <h3>Connect Securely</h3>
-                        <p>Approved candidates can unlock photos, access direct contact details, and start family-focused introductions.</p>
-                      </div>
-                    </div>
-                  </div>
+              <div className="step-indicator-bar">
+                <div className={`step-dot ${regStep >= 1 ? 'completed' : ''} ${regStep === 1 ? 'active' : ''}`}>1</div>
+                <div className={`step-dot ${regStep >= 2 ? 'completed' : ''} ${regStep === 2 ? 'active' : ''}`}>2</div>
+                <div className={`step-dot ${regStep >= 3 ? 'completed' : ''} ${regStep === 3 ? 'active' : ''}`}>3</div>
+                <div className={`step-dot ${regStep >= 4 ? 'completed' : ''} ${regStep === 4 ? 'active' : ''}`}>4</div>
+                <div className={`step-dot ${regStep >= 5 ? 'completed' : ''} ${regStep === 5 ? 'active' : ''}`}>5</div>
+                <div className={`step-dot ${regStep >= 6 ? 'completed' : ''} ${regStep === 6 ? 'active' : ''}`}>6</div>
+              </div>
+
+              {registrationError && (
+                <div style={{ backgroundColor: 'rgba(111, 29, 53, 0.08)', color: 'var(--deep-maroon)', padding: '12px 16px', borderRadius: '8px', marginBottom: '20px', fontSize: '13px', border: '1px solid rgba(111,29,53,0.15)' }}>
+                  ⚠️ {registrationError}
                 </div>
-              </section>
-
-              {/* User Dashboard Summary (If Logged In) */}
-              {isLoggedIn && (
-                <section style={{ padding: '60px 0', backgroundColor: 'var(--cream-bg)', borderBottom: '1px solid var(--border-color)' }}>
-                  <div className="container">
-                    <div className="card-theme-wrapper" style={{ maxWidth: '960px', margin: '0 auto' }}>
-                      <div className="ornament ornament-tl"></div>
-                      <div className="ornament ornament-tr"></div>
-                      <div className="ornament ornament-bl"></div>
-                      <div className="ornament ornament-br"></div>
-
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '20px' }}>
-                        <div>
-                          <h3 style={{ fontFamily: 'var(--font-serif)', color: 'var(--primary-brand)', fontSize: '24px', marginBottom: '8px' }}>
-                            Assalamu Alaykum, {userProfile?.fullName || 'Valued Candidate'}!
-                          </h3>
-                          <p style={{ fontSize: '15px', color: 'var(--text-muted)' }}>
-                            Welcome to your personalized matrimonial dashboard. Manage details, verification call, and active matches.
-                          </p>
-                        </div>
-                        <div style={{ display: 'flex', gap: '12px' }}>
-                          <button
-                            onClick={() => {
-                              setIsRegistering(true);
-                              setRegStep(1);
-                            }}
-                            className="btn btn-secondary"
-                          >
-                            Edit Profile Card
-                          </button>
-                        </div>
-                      </div>
-
-                      <div className="grid-3" style={{ marginTop: '30px', borderTop: '1px solid var(--border-color)', paddingTop: '24px' }}>
-                        <div style={{ backgroundColor: 'var(--white)', padding: '20px', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
-                          <span style={{ fontSize: '11px', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: '700', letterSpacing: '0.5px' }}>Verification Status</span>
-                          <div style={{ fontSize: '18px', fontWeight: 'bold', color: userProfile?.verificationStatus === 'APPROVED' ? 'green' : 'orange', marginTop: '6px' }}>
-                            {userProfile?.verificationStatus || 'PENDING'}
-                          </div>
-                        </div>
-                        <div style={{ backgroundColor: 'var(--white)', padding: '20px', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
-                          <span style={{ fontSize: '11px', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: '700', letterSpacing: '0.5px' }}>Membership Status</span>
-                          <div style={{ fontSize: '18px', fontWeight: 'bold', color: hasPaid300 ? 'green' : 'orange', marginTop: '6px' }}>
-                            {hasPaid300 ? 'Standard Active' : 'Unpaid Preview'}
-                          </div>
-                        </div>
-                        <div style={{ backgroundColor: 'var(--white)', padding: '20px', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
-                          <span style={{ fontSize: '11px', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: '700', letterSpacing: '0.5px' }}>Saved Matches</span>
-                          <div style={{ fontSize: '18px', fontWeight: 'bold', color: 'var(--primary-brand)', marginTop: '6px' }}>
-                            {savedProfiles.length} Saved Profiles
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </section>
               )}
 
-              {/* Profiles Section */}
-              <section id="browse-profiles" style={{ backgroundColor: 'var(--cream-bg)' }}>
-                <div className="container">
-                  <div className="section-header">
-                    <h2>Browse Matrimonial Candidates</h2>
-                    <p>Connect with compatible, call-verified profiles</p>
-                  </div>
-
-                  {/* Filter Tabs */}
-                  <div className="tabs-container">
-                    <button className="tab-btn active">Recommended</button>
-                    <button className="tab-btn" onClick={() => setVerificationFilter('Verified')}>Verified Profiles</button>
-                    <button className="tab-btn" onClick={() => setSelectedDistance('50')}>Nearby Matches</button>
-                    <button className="tab-btn" onClick={() => {
-                      setSearchQuery('');
-                      setSelectedDistance('All');
-                      setSelectedCaste('All');
-                      setVerificationFilter('All');
-                    }}>Reset Filters</button>
-                  </div>
-
-                  {/* Search and Filters wrapper */}
-                  <div style={{
-                    backgroundColor: 'var(--white)',
-                    padding: '28px',
-                    borderRadius: 'var(--border-radius-lg)',
-                    border: '1px solid var(--border-color)',
-                    boxShadow: 'var(--shadow-premium)',
-                    marginBottom: '48px'
-                  }}>
-                    <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', alignItems: 'flex-end' }}>
-                      <div style={{ flexGrow: 1, minWidth: '280px' }}>
-                        <label className="form-label">Search Keyword</label>
-                        <input
-                          type="text"
-                          value={searchQuery}
-                          onChange={(e) => setSearchQuery(e.target.value)}
-                          placeholder="Search by occupation, education, city..."
-                          className="form-control"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="form-label">Distance Radius</label>
-                        <select
-                          value={selectedDistance}
-                          onChange={(e) => setSelectedDistance(e.target.value)}
-                          className="form-control"
-                          style={{ minWidth: '180px' }}
-                          id="filter-distance"
-                        >
-                          <option value="All">All India</option>
-                          <option value="50">Within 50 km</option>
-                          <option value="100">Within 100 km</option>
-                        </select>
-                      </div>
-
-                      <div>
-                        <label className="form-label">Caste / Community</label>
-                        <select
-                          value={selectedCaste}
-                          onChange={(e) => setSelectedCaste(e.target.value)}
-                          className="form-control"
-                          style={{ minWidth: '180px' }}
-                          id="filter-caste"
-                        >
-                          <option value="All">All Castes</option>
-                          <option value="Sunni">Sunni</option>
-                          <option value="Syed">Syed</option>
-                          <option value="Hanafi">Hanafi</option>
-                          <option value="Sheikh">Sheikh</option>
-                        </select>
-                      </div>
-
-                      <div>
-                        <label className="form-label">Verification</label>
-                        <select
-                          value={verificationFilter}
-                          onChange={(e) => setVerificationFilter(e.target.value)}
-                          className="form-control"
-                          style={{ minWidth: '180px' }}
-                          id="filter-verification"
-                        >
-                          <option value="All">All Profiles</option>
-                          <option value="Verified">Call Verified Only</option>
-                          <option value="Unverified">Pending Review Only</option>
-                        </select>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Empty State */}
-                  {filteredProfiles.length === 0 && (
-                    <div className="empty-state card-theme-wrapper" style={{ maxWidth: '600px', margin: '0 auto' }}>
-                      <div className="empty-state-icon">❀</div>
-                      <h3>No Matches Found</h3>
-                      <p style={{ color: 'var(--text-muted)', marginTop: '8px' }}>
-                        Try clearing keywords or adjusting filter parameters.
-                      </p>
-                    </div>
-                  )}
-
-                  {/* Profiles Grid */}
-                  <div className="grid-3">
-                    {filteredProfiles.map((profile, index) => {
-                      const isSecMarriage = profile.maritalStatus !== 'Single';
-                      const isHighProf = 
-                        profile.occupation.toLowerCase().includes('doctor') ||
-                        profile.occupation.toLowerCase().includes('engineer') ||
-                        profile.occupation.toLowerCase().includes('business') ||
-                        profile.annualIncomeRange.includes('₹10 LPA') ||
-                        profile.annualIncomeRange.includes('₹15 LPA') ||
-                        profile.annualIncomeRange.includes('Above');
-
-                      const hasSecMarriageAccess = simulatedPackages.includes('SECOND_MARRIAGE');
-                      const hasHighProfAccess = simulatedPackages.includes('HIGH_PROFILE') && simulatedHighProfileApproved;
-
-                      let shouldBlur = !isLoggedIn;
-                      let lockReason = '';
-                      let unlockText = 'Unlock Standard (₹300)';
-
-                      if (!isLoggedIn) {
-                        shouldBlur = true;
-                        lockReason = 'Log in using your secure account to view photos and contact';
-                        unlockText = 'Log In';
-                      } else if (isSecMarriage && !hasSecMarriageAccess) {
-                        shouldBlur = true;
-                        lockReason = 'Second-Marriage Candidate (Locked). Access requires Second-Marriage package.';
-                        unlockText = 'Unlock Second-Marriage (₹11,000)';
-                      } else if (isHighProf && !hasHighProfAccess) {
-                        shouldBlur = true;
-                        lockReason = 'High-Profile Match (Locked). Requires High-Profile package & Admin eligibility approval.';
-                        unlockText = 'Unlock High-Profile (₹21,000)';
-                      } else if (!hasPaid300 && !simulatedPackages.includes('STANDARD')) {
-                        shouldBlur = true;
-                        lockReason = 'Activate standard membership to view photos and contact';
-                        unlockText = 'Unlock Standard (₹300)';
-                      }
-
-                      const themeClass = getThemeClass(profile.themeColor);
-
-                      return (
-                        <article
-                          key={profile.id}
-                          className={`profile-card ${themeClass} theme-accent-border`}
-                          style={{
-                            '--profile-theme-color': `var(--theme-accent)`
-                          } as React.CSSProperties}
-                        >
-                          <div className="profile-card-badge-container">
-                            {profile.verificationStatus === 'APPROVED' && (
-                              <span className="card-badge card-badge-verified">✓ Call Verified</span>
-                            )}
-                            {isHighProf && (
-                              <span className="card-badge" style={{ backgroundColor: 'var(--gold-dark)', color: '#fff' }}>⭐ High-Profile</span>
-                            )}
-                            {isSecMarriage && (
-                              <span className="card-badge" style={{ backgroundColor: 'var(--text-dark)', color: '#fff' }}>👥 Second-Marriage</span>
-                            )}
-                            <span className="card-badge card-badge-distance">
-                              📍 Mumbai • {index === 0 ? '1.8' : index === 1 ? '5.4' : '12.0'} km away
-                            </span>
-                          </div>
-
-                          <button
-                            onClick={() => toggleSaveProfile(profile.id)}
-                            className="card-save-btn"
-                          >
-                            {savedProfiles.includes(profile.id) ? '❤️' : '🤍'}
-                          </button>
-
-                          <div className="profile-image-wrapper">
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img
-                              src={getProfileImage(profile.gender, index)}
-                              alt={profile.fullName}
-                              className={`profile-img ${shouldBlur ? 'blurred-media' : ''}`}
-                            />
-
-                            {shouldBlur && (
-                              <div className="blur-blocker">
-                                <div className="blur-blocker-title">🔓 Candidate Protected</div>
-                                <p style={{ fontSize: '12px', padding: '0 8px' }}>{lockReason}</p>
-                                {!isLoggedIn ? (
-                                  <button
-                                    onClick={() => setShowLoginModal(true)}
-                                    className="btn btn-gold"
-                                    style={{ padding: '8px 20px', fontSize: '13px' }}
-                                  >
-                                    Log In
-                                  </button>
-                                ) : (
-                                  <a
-                                    href="#premium-pricing"
-                                    className="btn btn-gold"
-                                    style={{ padding: '8px 20px', fontSize: '13px' }}
-                                  >
-                                    {unlockText}
-                                  </a>
-                                )}
-                              </div>
-                            )}
-                          </div>
-
-                          <div className="profile-card-details">
-                            <h3 className="profile-card-name">
-                              {shouldBlur ? 'Profile Details Blurred' : profile.fullName}
-                            </h3>
-                            <div className="profile-card-subtitle">
-                              {isHighProf ? 'High-Profile Match' : isSecMarriage ? 'Second-Marriage Candidate' : 'Muslim Matrimonial Candidate'}
-                            </div>
-
-                            <div className="profile-specs-grid">
-                              <div className="spec-cell">
-                                <span>Gender / Age</span>
-                                <strong>{profile.gender} • {2026 - new Date(profile.dateOfBirth).getFullYear()} Yrs</strong>
-                              </div>
-                              <div className="spec-cell">
-                                <span>Marital Status</span>
-                                <strong>{profile.maritalStatus}</strong>
-                              </div>
-                              <div className="spec-cell">
-                                <span>Location</span>
-                                <strong>{profile.city}, {profile.state}</strong>
-                              </div>
-                              <div className="spec-cell">
-                                <span>Profession</span>
-                                <strong>{shouldBlur ? 'Hidden' : profile.occupation}</strong>
-                              </div>
-                              <div className="spec-cell" style={{ gridColumn: 'span 2' }}>
-                                <span>Education</span>
-                                <strong>{shouldBlur ? 'Hidden' : profile.education}</strong>
-                              </div>
-                            </div>
-
-                            <div className="profile-card-footer">
-                              <span style={{ fontSize: '13.5px', color: 'var(--text-muted)', fontWeight: '600' }}>
-                                📞 {shouldBlur ? '+91-XXXXX-XXXXX' : profile.phoneNumber}
-                              </span>
-                              <button
-                                onClick={() => setSelectedProfileForDetails(profile)}
-                                className="btn btn-secondary"
-                                style={{ padding: '8px 18px', fontSize: '13px' }}
-                              >
-                                View Details
-                              </button>
-                            </div>
-                          </div>
-                        </article>
-                      );
-                    })}
-                  </div>
-                </div>
-              </section>
-
-              {/* Pricing & Premium Packages */}
-              <section id="premium-pricing" style={{ backgroundColor: 'var(--cream-card)', borderBottom: '1px solid var(--border-color)' }}>
-                <div className="container">
-                  <div className="section-header">
-                    <h2>Pricing & Tailored Packages</h2>
-                    <p>Transparent pricing with dynamic 18% GST calculation</p>
-                  </div>
-
-                  <div className="grid-4">
-                    {/* Standard Card */}
-                    <div className="pkg-card pkg-card-popular">
-                      <div className="pkg-badge">Popular</div>
-                      <h3 className="pkg-title">Standard Monthly</h3>
-                      <div className="pkg-price">
-                        ₹300
-                        <span>+ 18% GST (₹54) = ₹354/mo</span>
-                      </div>
-                      <ul className="pkg-features">
-                        <li>View unblurred profile photos</li>
-                        <li>Expose call-verified phone numbers</li>
-                        <li>Search and filter matches</li>
-                        <li>Direct candidate contacts</li>
-                      </ul>
-                      <button
-                        onClick={() => handleRazorpayCheckout('STANDARD', 300, 'Standard Monthly Membership')}
-                        className="btn btn-gold"
-                        style={{ marginTop: 'auto', width: '100%' }}
-                        disabled={hasPaid300 || simulatedPackages.includes('STANDARD')}
-                      >
-                        {hasPaid300 || simulatedPackages.includes('STANDARD') ? 'Active Subscription' : 'Activate Plan'}
-                      </button>
-                    </div>
-
-                    {/* Curated Profiles */}
-                    <div className="pkg-card">
-                      <h3 className="pkg-title">Curated Matches</h3>
-                      <div className="pkg-price">
-                        ₹5,500
-                        <span>+ 18% GST (₹990) = ₹6,490 one-time</span>
-                      </div>
-                      <ul className="pkg-features">
-                        <li>Custom personal matchmaking</li>
-                        <li>Leads provided until marriage</li>
-                        <li>Separate dashboard support</li>
-                        <li>Success Fee: ₹21,000</li>
-                      </ul>
-                      <button
-                        onClick={() => handleRazorpayCheckout('CURATED', 5500, 'Curated Matches Package')}
-                        className="btn btn-primary"
-                        style={{ marginTop: 'auto', width: '100%' }}
-                        disabled={simulatedPackages.includes('CURATED')}
-                      >
-                        {simulatedPackages.includes('CURATED') ? 'Active Package' : 'Select Package'}
-                      </button>
-                    </div>
-
-                    {/* Second Marriage */}
-                    <div className="pkg-card">
-                      <h3 className="pkg-title">Second-Marriage</h3>
-                      <div className="pkg-price">
-                        ₹11,000
-                        <span>+ 18% GST (₹1,980) = ₹12,980 one-time</span>
-                      </div>
-                      <ul className="pkg-features">
-                        <li>Private segregated directory</li>
-                        <li>Specially customized match leads</li>
-                        <li>1-on-1 advisor calls</li>
-                        <li>No Success Fee</li>
-                      </ul>
-                      <button
-                        onClick={() => handleRazorpayCheckout('SECOND_MARRIAGE', 11000, 'Second-Marriage Package')}
-                        className="btn btn-primary"
-                        style={{ marginTop: 'auto', width: '100%' }}
-                        disabled={simulatedPackages.includes('SECOND_MARRIAGE')}
-                      >
-                        {simulatedPackages.includes('SECOND_MARRIAGE') ? 'Active Package' : 'Select Package'}
-                      </button>
-                    </div>
-
-                    {/* High-Profile Matches */}
-                    <div className="pkg-card">
-                      <h3 className="pkg-title">High-Profile</h3>
-                      <div className="pkg-price">
-                        ₹21,000
-                        <span>+ 18% GST (₹3,780) = ₹24,780 one-time</span>
-                      </div>
-                      <ul className="pkg-features">
-                        <li>For Doctors, Masters & Ultra-affluent</li>
-                        <li>Exclusive private group</li>
-                        <li>Dedicated personal matchmaker</li>
-                        <li>Success Fee: ₹25,000</li>
-                      </ul>
-                      <button
-                        onClick={() => handleRazorpayCheckout('HIGH_PROFILE', 21000, 'High-Profile Matches Package')}
-                        className="btn btn-primary"
-                        style={{ marginTop: 'auto', width: '100%' }}
-                        disabled={simulatedPackages.includes('HIGH_PROFILE')}
-                      >
-                        {simulatedPackages.includes('HIGH_PROFILE') ? 'Active Package' : 'Select Package'}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </section>
-
-              {/* Safety & Verification Section */}
-              <section style={{ backgroundColor: 'var(--cream-bg)', borderBottom: '1px solid var(--border-color)' }}>
-                <div className="container">
-                  <div className="section-header">
-                    <h2>Trust & Family Safety</h2>
-                    <p>Designed from the ground up to protect members and their families</p>
-                  </div>
-                  
-                  <div className="safety-wrapper">
-                    <div>
-                      {/* Premium editorial visual representation of safety */}
-                      <img 
-                        src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=500&h=400" 
-                        alt="Matrimonial Security Verification Process" 
-                        style={{ width: '100%', height: 'auto', borderRadius: 'var(--border-radius-lg)', boxShadow: 'var(--shadow-premium)' }}
-                      />
-                    </div>
-                    
-                    <ul className="safety-list">
-                      <li className="safety-item">
-                        <div className="safety-icon">✓</div>
-                        <div className="safety-text">
-                          <h4>Manual Telephone Verification</h4>
-                          <p>Every profile undergoes manual checks and validation by our dedicated admin queue before going public.</p>
-                        </div>
-                      </li>
-
-                      <li className="safety-item">
-                        <div className="safety-icon">✓</div>
-                        <div className="safety-text">
-                          <h4>Photo & Number Blur Protection</h4>
-                          <p>Keep your contact details and photos hidden from unauthenticated visitors and standard unpaid members.</p>
-                        </div>
-                      </li>
-
-                      <li className="safety-item">
-                        <div className="safety-icon">✓</div>
-                        <div className="safety-text">
-                          <h4>Shariah-Compliant Process</h4>
-                          <p>Matchmaking structured for serious life partners with high integrity, family consent, and zero dating app swipe systems.</p>
-                        </div>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-              </section>
-
-              {/* Referral Section */}
-              <section style={{ backgroundColor: 'var(--cream-card)', borderBottom: '1px solid var(--border-color)' }}>
-                <div className="container">
-                  <div className="section-header">
-                    <h2>Shadi Mubarak Referral Program</h2>
-                    <p>Earn commissions by helping others find their matches</p>
-                  </div>
-                  <div className="grid-3" style={{ marginTop: '30px' }}>
-                    <div className="card-theme-wrapper" style={{ gridColumn: 'span 2' }}>
-                      <div className="ornament ornament-tl"></div>
-                      <div className="ornament ornament-tr"></div>
-                      <div className="ornament ornament-bl"></div>
-                      <div className="ornament ornament-br"></div>
-                      <h3 style={{ fontFamily: 'var(--font-serif)', color: 'var(--gold-dark)', marginBottom: '12px' }}>
-                        Invite Friends & Family
-                      </h3>
-                      <p style={{ color: 'var(--text-dark)', fontSize: '14.5px', marginBottom: '20px' }}>
-                        Invite eligible candidates to register on Shadi Mubarak. Whenever your referred candidate unlocks standard membership, you earn a <strong>{referralRate}%</strong> referral commission directly.
-                      </p>
-                      {isLoggedIn ? (
-                        <div style={{ backgroundColor: 'var(--white)', padding: '16px', borderRadius: '8px', border: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
-                          <span style={{ fontSize: '13px', fontWeight: 'bold' }}>YOUR REFERRAL LINK:</span>
-                          <code style={{ fontSize: '14px', color: 'var(--gold-dark)', fontWeight: 'bold' }}>
-                            https://shadimubarak.in/join?ref=simulated_u123
-                          </code>
-                          <button
-                            onClick={() => alert('Referral link copied to clipboard!')}
-                            className="btn btn-secondary"
-                            style={{ padding: '6px 12px', fontSize: '11px' }}
-                          >
-                            Copy Link
-                          </button>
-                        </div>
-                      ) : (
-                        <button onClick={() => setShowLoginModal(true)} className="btn btn-gold">
-                          Log In to Get Referral Link
-                        </button>
-                      )}
-                    </div>
-
-                    <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', backgroundColor: 'var(--white)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '30px', boxShadow: 'var(--shadow-premium)' }}>
-                      <h4 style={{ color: 'var(--gold-dark)', marginBottom: '16px' }}>Commission Estimator</h4>
-                      <div style={{ fontSize: '28px', fontWeight: 'bold', color: 'var(--text-dark)' }}>
-                        ₹{Math.floor(300 * (referralRate / 100))} <span style={{ fontSize: '14px', fontWeight: 'normal', color: 'var(--text-muted)' }}>per referral checkout</span>
-                      </div>
-                      <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '12px' }}>
-                        Calculated at {referralRate}% of the base standard monthly membership fee (₹300).
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </section>
-
-              {/* Testimonials Section */}
-              <section style={{ backgroundColor: 'var(--cream-bg)', borderBottom: '1px solid var(--border-color)' }}>
-                <div className="container">
-                  <div className="section-header">
-                    <h2>Blessed Success Stories</h2>
-                    <p>Alhamdulillah! Read stories from our blessed couples</p>
-                  </div>
-                  <div className="grid-3" style={{ marginTop: '40px' }}>
-                    <div className="testimonial-card">
-                      <p className="testimonial-text">
-                        &ldquo;Shadi Mubarak made the search simple and extremely respectful. The manual call verification gave my family peace of mind. We found our match within two months of joining!&rdquo;
-                      </p>
-                      <div className="testimonial-author">— Dr. Sarah & Brother Tariq (Mumbai)</div>
-                    </div>
-                    <div className="testimonial-card">
-                      <p className="testimonial-text">
-                        &ldquo;Alhamdulillah! I registered under the Curated Matchmaking program. The personalized matches were highly compatible and respected all family parameters. Highly recommended platform.&rdquo;
-                      </p>
-                      <div className="testimonial-author">— Sister Aisha & Brother Khalid (Delhi)</div>
-                    </div>
-                    <div className="testimonial-card">
-                      <p className="testimonial-text">
-                        &ldquo;The standard ₹300 plan was very affordable, and the photos were blurred, keeping my privacy fully intact. I felt safe throughout my onboarding and matchmaking journey.&rdquo;
-                      </p>
-                      <div className="testimonial-author">— Brother Adnan & Sister Yasmin (Bangalore)</div>
-                    </div>
-                  </div>
-                </div>
-              </section>
-
-              {/* Wedding Services Section */}
-              <section id="wedding-services" style={{ backgroundColor: 'var(--cream-card)' }}>
-                <div className="container">
-                  <div className="section-header">
-                    <h2>Wedding Invitation Services</h2>
-                    <p>Explore trusted local Islamic vendors for your big day</p>
-                  </div>
-                  <div className="grid-3" style={{ marginTop: '40px' }}>
-                    <div style={{ backgroundColor: 'var(--white)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '24px', boxShadow: 'var(--shadow-premium)' }}>
-                      <div style={{ fontSize: '24px', marginBottom: '8px' }}>📸 Pure Frame Photography</div>
-                      <p style={{ color: 'var(--text-muted)', fontSize: '13.5px', marginBottom: '12px' }}>Shariah-compliant separated wedding capture. Modern cinematic portfolios.</p>
-                      <span className="card-badge card-badge-distance">Mumbai • Bandra</span>
-                    </div>
-                    <div style={{ backgroundColor: 'var(--white)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '24px', boxShadow: 'var(--shadow-premium)' }}>
-                      <div style={{ fontSize: '24px', marginBottom: '8px' }}>🍲 Al-Barkat Catering</div>
-                      <p style={{ color: 'var(--text-muted)', fontSize: '13.5px', marginBottom: '12px' }}>Gourmet Mughal & Arabic cuisine. 100% halal preparation and management.</p>
-                      <span className="card-badge card-badge-distance">Delhi • Karol Bagh</span>
-                    </div>
-                    <div style={{ backgroundColor: 'var(--white)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '24px', boxShadow: 'var(--shadow-premium)' }}>
-                      <div style={{ fontSize: '24px', marginBottom: '8px' }}>🕌 Royal Shahi Venues</div>
-                      <p style={{ color: 'var(--text-muted)', fontSize: '13.5px', marginBottom: '12px' }}>Spacious elegant wedding halls with custom partition and divider facilities.</p>
-                      <span className="card-badge card-badge-distance">Bangalore • Indiranagar</span>
-                    </div>
-                  </div>
-                </div>
-              </section>
-
-              {/* Footer */}
-              <footer className="footer">
-                <div className="container">
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '40px', marginBottom: '40px' }}>
-                    <div>
-                      <div className="footer-logo">Shadi Mubarak<span>.</span></div>
-                      <p style={{ fontSize: '13.5px', color: 'rgba(247, 245, 240, 0.75)', lineHeight: '1.8' }}>
-                        Trusted Halal Matrimony. Dedicated to helping single, divorced, and high-profile Muslim candidates find compatible marriage partners.
-                      </p>
-                    </div>
-                    <div>
-                      <h4 style={{ color: 'var(--gold-accent)', fontSize: '15px', marginBottom: '20px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Quick Links</h4>
-                      <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13.5px' }}>
-                        <li><a href="#browse-profiles" style={{ opacity: 0.8 }}>Browse Candidates</a></li>
-                        <li><a href="#premium-pricing" style={{ opacity: 0.8 }}>Pricing Packages</a></li>
-                        <li><a href="#wedding-services" style={{ opacity: 0.8 }}>Wedding Vendors</a></li>
-                      </ul>
-                    </div>
-                    <div>
-                      <h4 style={{ color: 'var(--gold-accent)', fontSize: '15px', marginBottom: '20px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Safety & Privacy</h4>
-                      <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13.5px' }}>
-                        <li><span style={{ opacity: 0.8 }}>Manual Phone Verification</span></li>
-                        <li><span style={{ opacity: 0.8 }}>Photo & Number Blur protection</span></li>
-                        <li><span style={{ opacity: 0.8 }}>Shariah-Compliant guidelines</span></li>
-                      </ul>
-                    </div>
-                  </div>
-                  <div className="footer-bottom">
-                    &copy; 2026 Shadi Mubarak. All Rights Reserved. Created for premium internal launch preview.
-                  </div>
-                </div>
-              </footer>
-            </>
-          )}
-        </main>
-      ) : (
-        /* ADMIN PANEL */
-        <>
-          <div className="admin-mobile-bar">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <button
-                onClick={() => setIsAdminMobileOpen(!isAdminMobileOpen)}
-                style={{ background: 'none', border: 'none', color: 'var(--white)', fontSize: '20px', cursor: 'pointer' }}
-              >
-                ☰
-              </button>
-              <span style={{ fontWeight: 'bold', fontFamily: 'var(--font-serif)', color: 'var(--gold-accent)', fontSize: '15px' }}>
-                Shadi Mubarak Admin
-              </span>
-            </div>
-            <button
-              onClick={() => setIsAdminMode(false)}
-              className="btn btn-gold"
-              style={{ padding: '6px 12px', fontSize: '11px' }}
-            >
-              Exit Admin
-            </button>
-          </div>
-
-          {isAdminMobileOpen && (
-            <div className="admin-drawer-overlay" onClick={() => setIsAdminMobileOpen(false)} />
-          )}
-
-          <div className="admin-grid container">
-            <aside className={`admin-nav-list ${isAdminMobileOpen ? 'open' : ''}`}>
-              <h2 style={{ fontFamily: 'var(--font-serif)', color: 'var(--gold-accent)', marginBottom: '12px', paddingLeft: '12px', fontSize: '20px' }}>
-                Shadi Mubarak Admin
-              </h2>
-              
-              <div className="admin-nav-section-title">Operations</div>
-              <div
-                className={`admin-nav-link ${adminActiveTab === 'overview' ? 'active' : ''}`}
-                onClick={() => {
-                  setAdminActiveTab('overview');
-                  setIsAdminMobileOpen(false);
-                }}
-              >
-                📊 Overview
-              </div>
-              <div
-                className={`admin-nav-link ${adminActiveTab === 'verification' ? 'active' : ''}`}
-                onClick={() => {
-                  setAdminActiveTab('verification');
-                  setIsAdminMobileOpen(false);
-                }}
-              >
-                👤 Verification Queue
-              </div>
-              <div
-                className={`admin-nav-link ${adminActiveTab === 'purchases' ? 'active' : ''}`}
-                onClick={() => {
-                  setAdminActiveTab('purchases');
-                  setIsAdminMobileOpen(false);
-                }}
-              >
-                💎 Premium Packages
-              </div>
-              <div
-                className={`admin-nav-link ${adminActiveTab === 'assignments' ? 'active' : ''}`}
-                onClick={() => {
-                  setAdminActiveTab('assignments');
-                  setIsAdminMobileOpen(false);
-                }}
-              >
-                🤝 Curated Matching
-              </div>
-
-              <div className="admin-nav-section-title">Logs</div>
-              <div
-                className={`admin-nav-link ${adminActiveTab === 'logs' ? 'active' : ''}`}
-                onClick={() => {
-                  setAdminActiveTab('logs');
-                  setIsAdminMobileOpen(false);
-                }}
-              >
-                📜 Activity Logs
-              </div>
-
-              <div className="admin-nav-section-title">Future Modules</div>
-              <div className="admin-nav-link" style={{ cursor: 'not-allowed', opacity: 0.7 }}>
-                🔗 Referral System <span className="coming-soon-badge">Soon</span>
-              </div>
-              <div className="admin-nav-link" style={{ cursor: 'not-allowed', opacity: 0.7 }}>
-                🏪 Marketplace <span className="coming-soon-badge">Soon</span>
-              </div>
-
-              <div style={{ marginTop: 'auto', borderTop: '1px solid rgba(212,163,89,0.3)', paddingTop: '20px', padding: '0 12px' }}>
-                <h4 style={{ color: 'var(--gold-accent)', fontSize: '13px', marginBottom: '8px' }}>Referral Rate Control</h4>
-                <input
-                  type="range"
-                  min="20"
-                  max="23"
-                  value={referralRate}
-                  onChange={(e) => setReferralRate(parseInt(e.target.value))}
-                  style={{ width: '100%', accentColor: 'var(--gold-accent)' }}
-                />
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', marginTop: '6px' }}>
-                  <span>Commission:</span>
-                  <strong>{referralRate}%</strong>
-                </div>
-              </div>
-            </aside>
-
-            <main className="admin-view-area">
-            {adminActiveTab === 'overview' && (
-              <div>
-                <h1 style={{ fontFamily: 'var(--font-serif)', color: 'var(--gold-dark)', marginBottom: '8px' }}>
-                  Dashboard Overview
-                </h1>
-                <p style={{ color: 'var(--text-muted)', fontSize: '14.5px', marginBottom: '32px' }}>
-                  Real-time matrimonial operations, premium subscriptions, and verification statistics.
-                </p>
-
-                <div className="stats-grid">
-                  <div className="stat-card">
-                    <div>
-                      <div className="stat-card-label">Total Profiles</div>
-                      <div className="stat-card-value">{profiles.length}</div>
-                    </div>
-                    <div className="stat-card-icon">👥</div>
-                  </div>
-
-                  <div className="stat-card">
-                    <div>
-                      <div className="stat-card-label">Pending Verifications</div>
-                      <div className="stat-card-value">{adminRequests.filter(r => r.status === 'PENDING').length}</div>
-                    </div>
-                    <div className="stat-card-icon">⏳</div>
-                  </div>
-
-                  <div className="stat-card">
-                    <div>
-                      <div className="stat-card-label">Verified Profiles</div>
-                      <div className="stat-card-value">{profiles.filter(p => p.verificationStatus === 'APPROVED').length}</div>
-                    </div>
-                    <div className="stat-card-icon">✅</div>
-                  </div>
-
-                  <div className="stat-card">
-                    <div>
-                      <div className="stat-card-label">Active Monthly Members</div>
-                      <div className="stat-card-value">{adminPurchases.filter(p => p.packageType === 'STANDARD' && p.paymentStatus === 'PAID').length}</div>
-                    </div>
-                    <div className="stat-card-icon">📅</div>
-                  </div>
-
-                  <div className="stat-card">
-                    <div>
-                      <div className="stat-card-label">Premium Purchases</div>
-                      <div className="stat-card-value">{adminPurchases.length}</div>
-                    </div>
-                    <div className="stat-card-icon">💎</div>
-                  </div>
-
-                  <div className="stat-card">
-                    <div>
-                      <div className="stat-card-label">Curated Matches Cases</div>
-                      <div className="stat-card-value">{adminPurchases.filter(p => p.packageType === 'CURATED').length}</div>
-                    </div>
-                    <div className="stat-card-icon">🤝</div>
-                  </div>
-
-                  <div className="stat-card">
-                    <div>
-                      <div className="stat-card-label">Second-Marriage Cases</div>
-                      <div className="stat-card-value">{adminPurchases.filter(p => p.packageType === 'SECOND_MARRIAGE').length}</div>
-                    </div>
-                    <div className="stat-card-icon">💍</div>
-                  </div>
-
-                  <div className="stat-card">
-                    <div>
-                      <div className="stat-card-label">High-Profile Cases</div>
-                      <div className="stat-card-value">{adminPurchases.filter(p => p.packageType === 'HIGH_PROFILE').length}</div>
-                    </div>
-                    <div className="stat-card-icon">👑</div>
-                  </div>
-
-                  <div className="stat-card">
-                    <div>
-                      <div className="stat-card-label">Pending Premium Approvals</div>
-                      <div className="stat-card-value">{adminPurchases.filter(p => p.eligibilityStatus === 'PENDING').length}</div>
-                    </div>
-                    <div className="stat-card-icon">⚖️</div>
-                  </div>
-
-                  <div className="stat-card">
-                    <div>
-                      <div className="stat-card-label">Completed Matches</div>
-                      <div className="stat-card-value">{adminAssignments.filter(a => a.status === 'MARRIED').length + adminPurchases.filter(p => p.marriageConfirmation === 'CONFIRMED').length}</div>
-                    </div>
-                    <div className="stat-card-icon">❤️</div>
-                  </div>
-
-                  <div className="stat-card">
-                    <div>
-                      <div className="stat-card-label">Audit Logs</div>
-                      <div className="stat-card-value">{auditLogs.length}</div>
-                    </div>
-                    <div className="stat-card-icon">📜</div>
-                  </div>
-                </div>
-                
-                <div className="card-theme-wrapper" style={{ marginTop: '20px' }}>
-                  <div className="ornament ornament-tl"></div>
-                  <div className="ornament ornament-tr"></div>
-                  <div className="ornament ornament-bl"></div>
-                  <div className="ornament ornament-br"></div>
-                  <h3 style={{ fontFamily: 'var(--font-serif)', color: 'var(--gold-dark)', marginBottom: '12px' }}>Welcome to the Admin Portal</h3>
-                  <p style={{ fontSize: '14px', lineHeight: '1.6', color: 'var(--text-dark)' }}>
-                    This administration console is configured for <strong>Shadi Mubarak</strong> matrimonial operations. Use the sidebar menu to navigate through pending applicant validations, premium subscription checkouts, matchmaking assignments, and chronological system audit trails.
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {adminActiveTab === 'verification' && (
-              <div>
-                <h1 style={{ fontFamily: 'var(--font-serif)', color: 'var(--gold-dark)', marginBottom: '8px' }}>
-                  Verification Call Queue
-                </h1>
-                <p style={{ color: 'var(--text-muted)', fontSize: '14.5px', marginBottom: '24px' }}>
-                  Conduct manual telephone checks on newly registered members, log interview notes, and approve or reject profiles.
-                </p>
-
-                {selectedRequestForReview && selectedRequestForReview.profile && (
-                  <div className="card-theme-wrapper" style={{ marginBottom: '30px', border: '1.5px solid var(--gold-accent)' }}>
-                    <div className="ornament ornament-tl"></div>
-                    <div className="ornament ornament-tr"></div>
-                    <div className="ornament ornament-bl"></div>
-                    <div className="ornament ornament-br"></div>
-                    <h3 style={{ fontFamily: 'var(--font-serif)', color: 'var(--gold-dark)', marginBottom: '16px' }}>
-                      Reviewing: {selectedRequestForReview.profile.fullName} (ID: {selectedRequestForReview.profileId})
-                    </h3>
-                    
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', margin: '15px 0', fontSize: '13.5px', border: '1px solid var(--border-color)', padding: '20px', borderRadius: '8px', backgroundColor: '#fff' }}>
-                      <p><strong>Phone:</strong> {selectedRequestForReview.profile.phoneNumber}</p>
-                      <p><strong>Location:</strong> {selectedRequestForReview.profile.city}, {selectedRequestForReview.profile.state}</p>
-                      <p style={{ gridColumn: 'span 2' }}><strong>Bio:</strong> {selectedRequestForReview.profile.bio}</p>
-                      <p style={{ gridColumn: 'span 2' }}><strong>Family Background:</strong> {selectedRequestForReview.profile.familyInfo}</p>
-                      <p><strong>Submitted On:</strong> {new Date(selectedRequestForReview.createdAt).toLocaleString()}</p>
-                      <p>
-                        <strong>Current Status: </strong> 
-                        <span style={{ 
-                          padding: '2px 8px', 
-                          borderRadius: '4px', 
-                          fontSize: '11px', 
-                          fontWeight: 'bold',
-                          backgroundColor: selectedRequestForReview.status === 'APPROVED' ? 'rgba(18, 46, 34, 0.1)' : selectedRequestForReview.status === 'REJECTED' ? 'rgba(230, 92, 92, 0.1)' : 'rgba(240, 190, 50, 0.1)',
-                          color: selectedRequestForReview.status === 'APPROVED' ? 'green' : selectedRequestForReview.status === 'REJECTED' ? 'red' : 'orange'
-                        }}>
-                          {selectedRequestForReview.status}
-                        </span>
-                      </p>
-                    </div>
-
+              <form onSubmit={handleRegisterSubmit}>
+                {regStep === 1 && (
+                  <div>
                     <div className="form-group">
-                      <label className="form-label" style={{ fontWeight: 'bold' }}>Phone call verification notes</label>
-                      <textarea
-                        className="form-control"
-                        rows={3}
-                        value={reviewNotes}
-                        onChange={(e) => setReviewNotes(e.target.value)}
-                        placeholder="Log observations from manual telephone check (e.g. family details confirmed, match criteria verified)..."
-                      />
-                    </div>
-
-                    <div style={{ display: 'flex', gap: '10px', marginTop: '15px', flexWrap: 'wrap' }}>
-                      <button onClick={() => handleReviewSubmit('APPROVED')} className="btn btn-gold" style={{ backgroundColor: 'green', borderColor: 'green' }}>
-                        ✓ Approve Profile
-                      </button>
-                      <button onClick={() => handleReviewSubmit('REJECTED')} className="btn btn-primary" style={{ backgroundColor: 'red', borderColor: 'red' }}>
-                        ✗ Reject Profile
-                      </button>
-                      <button onClick={() => handleReviewSubmit('NEEDS_FOLLOW_UP')} className="btn btn-secondary">
-                        Needs Follow Up
-                      </button>
-                      <button onClick={() => { setSelectedRequestForReview(null); setReviewNotes(''); }} className="btn btn-secondary" style={{ marginLeft: 'auto' }}>
-                        Cancel
-                      </button>
-                    </div>
-                  </div>
-                )}
-
-                <div className="table-responsive" style={{ backgroundColor: 'var(--white)', padding: '24px', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
-                  <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '700px' }}>
-                    <thead>
-                      <tr style={{ borderBottom: '2px solid var(--border-color)', height: '40px', fontSize: '12px', textTransform: 'uppercase', color: 'var(--gold-dark)' }}>
-                        <th style={{ padding: '12px 8px' }}>Profile ID</th>
-                        <th style={{ padding: '12px 8px' }}>Candidate Name</th>
-                        <th style={{ padding: '12px 8px' }}>Phone Check Status</th>
-                        <th style={{ padding: '12px 8px' }}>Submitted Date</th>
-                        <th style={{ padding: '12px 8px' }}>Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {adminRequests.length === 0 ? (
-                        <tr>
-                          <td colSpan={5} style={{ textAlign: 'center', padding: '30px' }}>
-                            <div className="empty-state">
-                              <div className="empty-state-icon">👥</div>
-                              <h3>No Verification Requests</h3>
-                              <p>All newly registered matrimonial profiles have been verified.</p>
-                            </div>
-                          </td>
-                        </tr>
-                      ) : (
-                        adminRequests.map((req) => (
-                          <tr key={req.id} style={{ borderBottom: '1px solid var(--border-color)', height: '60px', fontSize: '13.5px' }}>
-                            <td style={{ padding: '12px 8px' }}>
-                              <code style={{ fontSize: '12.5px', color: 'var(--gold-dark)', fontWeight: 'bold' }}>{req.profileId.substring(0, 8)}...</code>
-                            </td>
-                            <td style={{ padding: '12px 8px' }}>
-                              <strong>{req.profile?.fullName || 'Incomplete Profile'}</strong>
-                              <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{req.profile?.city || 'N/A'}, {req.profile?.state || 'N/A'}</div>
-                            </td>
-                            <td style={{ padding: '12px 8px' }}>
-                              <span
-                                style={{
-                                  padding: '4px 8px',
-                                  borderRadius: '4px',
-                                  fontSize: '11px',
-                                  fontWeight: 'bold',
-                                  backgroundColor:
-                                    req.status === 'APPROVED'
-                                      ? 'rgba(18, 46, 34, 0.1)'
-                                      : req.status === 'REJECTED'
-                                      ? 'rgba(230, 92, 92, 0.1)'
-                                      : 'rgba(240, 190, 50, 0.1)',
-                                  color:
-                                    req.status === 'APPROVED'
-                                      ? 'green'
-                                      : req.status === 'REJECTED'
-                                      ? 'red'
-                                      : 'orange',
-                                }}
-                              >
-                                {req.status}
-                              </span>
-                            </td>
-                            <td style={{ padding: '12px 8px' }}>{new Date(req.createdAt).toLocaleDateString()}</td>
-                            <td style={{ padding: '12px 8px' }}>
-                              {req.profile && (
-                                <button
-                                  onClick={() => {
-                                    setSelectedRequestForReview(req);
-                                    setReviewNotes(req.notes || '');
-                                  }}
-                                  className="btn btn-gold"
-                                  style={{ padding: '6px 12px', fontSize: '11px' }}
-                                >
-                                  Review Call
-                                </button>
-                              )}
-                            </td>
-                          </tr>
-                        ))
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-
-            {adminActiveTab === 'purchases' && (
-              <div>
-                <h1 style={{ fontFamily: 'var(--font-serif)', color: 'var(--gold-dark)', marginBottom: '8px' }}>
-                  Premium Purchases & Subscriptions
-                </h1>
-                <p style={{ color: 'var(--text-muted)', fontSize: '14.5px', marginBottom: '24px' }}>
-                  Monitor standard monthly memberships and custom premium matchmaking packages, including GST logs and approval states.
-                </p>
-
-                <div className="table-responsive" style={{ backgroundColor: 'var(--white)', padding: '24px', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
-                  <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '1000px' }}>
-                    <thead>
-                      <tr style={{ borderBottom: '2px solid var(--border-color)', height: '40px', fontSize: '12px', textTransform: 'uppercase', color: 'var(--gold-dark)' }}>
-                        <th style={{ padding: '12px 8px' }}>Buyer Profile</th>
-                        <th style={{ padding: '12px 8px' }}>Package Name</th>
-                        <th style={{ padding: '12px 8px' }}>Base Price</th>
-                        <th style={{ padding: '12px 8px' }}>GST (18%)</th>
-                        <th style={{ padding: '12px 8px' }}>Total Amount</th>
-                        <th style={{ padding: '12px 8px' }}>Payment</th>
-                        <th style={{ padding: '12px 8px' }}>Purchase Date</th>
-                        <th style={{ padding: '12px 8px' }}>HP Approval</th>
-                        <th style={{ padding: '12px 8px' }}>Marriage Confirm</th>
-                        <th style={{ padding: '12px 8px' }}>Success Fee</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {adminPurchases.length === 0 ? (
-                        <tr>
-                          <td colSpan={10} style={{ textAlign: 'center', padding: '30px' }}>
-                            <div className="empty-state">
-                              <div className="empty-state-icon">💎</div>
-                              <h3>No Package Purchases</h3>
-                              <p>No premium packages or standard memberships have been purchased yet.</p>
-                            </div>
-                          </td>
-                        </tr>
-                      ) : (
-                        adminPurchases.map((purchase) => {
-                          const getPriceDetails = (pkgType: string) => {
-                            if (pkgType === 'STANDARD') return { name: 'Standard Monthly Membership', base: 300, gst: 54, total: 354 };
-                            if (pkgType === 'CURATED') return { name: 'Curated Profiles', base: 5500, gst: 990, total: 6490 };
-                            if (pkgType === 'SECOND_MARRIAGE') return { name: 'Second-Marriage Profiles', base: 11000, gst: 1980, total: 12980 };
-                            if (pkgType === 'HIGH_PROFILE') return { name: 'High-Profile Matches', base: 21000, gst: 3780, total: 24780 };
-                            return { name: pkgType, base: 0, gst: 0, total: 0 };
-                          };
-                          const details = getPriceDetails(purchase.packageType);
-                          return (
-                            <tr key={purchase.id} style={{ borderBottom: '1px solid var(--border-color)', fontSize: '13.5px' }}>
-                              <td style={{ padding: '12px 8px' }}>
-                                <strong>{purchase.profile?.fullName || 'N/A'}</strong>
-                                <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>ID: {purchase.profileId.substring(0, 8)}...</div>
-                              </td>
-                              <td style={{ padding: '12px 8px' }}>{details.name}</td>
-                              <td style={{ padding: '12px 8px' }}>₹{details.base}</td>
-                              <td style={{ padding: '12px 8px' }}>₹{details.gst}</td>
-                              <td style={{ padding: '12px 8px' }}><strong>₹{details.total}</strong></td>
-                              <td style={{ padding: '12px 8px' }}>
-                                <span style={{ 
-                                  padding: '2px 6px',
-                                  borderRadius: '4px',
-                                  fontSize: '11px',
-                                  fontWeight: 'bold',
-                                  backgroundColor: purchase.paymentStatus === 'PAID' ? 'rgba(18, 46, 34, 0.1)' : 'rgba(240, 190, 50, 0.1)',
-                                  color: purchase.paymentStatus === 'PAID' ? 'green' : 'orange'
-                                }}>
-                                  {purchase.paymentStatus}
-                                </span>
-                              </td>
-                              <td style={{ padding: '12px 8px' }}>{new Date(purchase.purchaseDate).toLocaleDateString()}</td>
-                              <td style={{ padding: '12px 8px' }}>
-                                {purchase.packageType === 'HIGH_PROFILE' ? (
-                                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                    <span style={{ fontWeight: 'bold', fontSize: '12px', color: purchase.eligibilityStatus === 'APPROVED' ? 'green' : purchase.eligibilityStatus === 'REJECTED' ? 'red' : 'orange' }}>
-                                      {purchase.eligibilityStatus}
-                                    </span>
-                                    {purchase.eligibilityStatus === 'PENDING' && (
-                                      <div style={{ display: 'flex', gap: '4px' }}>
-                                        <button onClick={() => handleUpdateHPStatus(purchase.id, 'APPROVED', 'Eligible candidate approved')} className="btn btn-secondary" style={{ padding: '2px 6px', fontSize: '10px' }}>Approve</button>
-                                        <button onClick={() => handleUpdateHPStatus(purchase.id, 'REJECTED', 'Criteria not met')} className="btn btn-primary" style={{ padding: '2px 6px', fontSize: '10px', backgroundColor: 'red', borderColor: 'red' }}>Reject</button>
-                                      </div>
-                                    )}
-                                  </div>
-                                ) : (
-                                  <span style={{ color: 'var(--text-muted)' }}>N/A</span>
-                                )}
-                              </td>
-                              <td style={{ padding: '12px 8px' }}>
-                                {['CURATED', 'HIGH_PROFILE'].includes(purchase.packageType) ? (
-                                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                    <span style={{ fontWeight: 'bold', color: purchase.marriageConfirmation === 'CONFIRMED' ? 'green' : 'var(--text-dark)' }}>{purchase.marriageConfirmation}</span>
-                                    {purchase.marriageConfirmation === 'PENDING' ? (
-                                      <button onClick={() => handleConfirmMarriage(purchase.id, true)} className="btn btn-gold" style={{ padding: '2px 6px', fontSize: '10px' }}>
-                                        Confirm Marriage
-                                      </button>
-                                    ) : (
-                                      <button onClick={() => handleConfirmMarriage(purchase.id, false)} className="btn btn-secondary" style={{ padding: '2px 6px', fontSize: '10px' }}>
-                                        Reset
-                                      </button>
-                                    )}
-                                  </div>
-                                ) : (
-                                  <span style={{ color: 'var(--text-muted)' }}>N/A</span>
-                                )}
-                              </td>
-                              <td style={{ padding: '12px 8px' }}>
-                                {['CURATED', 'HIGH_PROFILE'].includes(purchase.packageType) ? (
-                                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                    <span style={{ fontWeight: 'bold', color: purchase.successFeePaymentStatus === 'PAID' ? 'green' : 'orange' }}>{purchase.successFeePaymentStatus}</span>
-                                    {purchase.successFeePaymentStatus === 'PENDING' && (
-                                      <button onClick={() => handleUpdateSuccessFee(purchase.id, 'PAID')} className="btn btn-gold" style={{ padding: '2px 6px', fontSize: '10px' }}>
-                                        Mark Paid
-                                      </button>
-                                    )}
-                                  </div>
-                                ) : (
-                                  <span style={{ color: 'var(--text-muted)' }}>N/A</span>
-                                )}
-                              </td>
-                            </tr>
-                          );
-                        })
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-
-            {adminActiveTab === 'assignments' && (
-              <div>
-                <h1 style={{ fontFamily: 'var(--font-serif)', color: 'var(--gold-dark)', marginBottom: '8px' }}>
-                  Curated Match Lead Assigner
-                </h1>
-                <p style={{ color: 'var(--text-muted)', fontSize: '14.5px', marginBottom: '24px' }}>
-                  Assign manually verified candidate profiles to premium Curated Matches members and manage compatibility states.
-                </p>
-
-                {/* Assignment Tool Form */}
-                <div className="card-theme-wrapper" style={{ marginBottom: '30px' }}>
-                  <div className="ornament ornament-tl"></div>
-                  <div className="ornament ornament-tr"></div>
-                  <div className="ornament ornament-bl"></div>
-                  <div className="ornament ornament-br"></div>
-                  <h3 style={{ fontFamily: 'var(--font-serif)', color: 'var(--gold-dark)', marginBottom: '12px' }}>Assign New Lead</h3>
-                  <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', marginTop: '15px' }}>
-                    <div style={{ flexGrow: 1, minWidth: '200px' }}>
-                      <label className="form-label">Select Curated Buyer</label>
-                      <select className="form-control" value={assignBuyerId} onChange={(e) => setAssignBuyerId(e.target.value)}>
-                        <option value="">-- Choose Buyer --</option>
-                        {adminPurchases.filter(p => p.packageType === 'CURATED' && p.paymentStatus === 'PAID').map(p => (
-                          <option key={p.id} value={p.profileId}>{p.profile?.fullName} ({p.profile?.city})</option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div style={{ flexGrow: 1, minWidth: '200px' }}>
-                      <label className="form-label">Select Match Lead</label>
-                      <select className="form-control" value={assignLeadId} onChange={(e) => setAssignLeadId(e.target.value)}>
-                        <option value="">-- Choose Lead Profile --</option>
-                        {profiles.filter(p => p.verificationStatus === 'APPROVED').map(p => (
-                          <option key={p.id} value={p.id}>{p.fullName} ({p.gender} - {p.occupation})</option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <button onClick={handleAssignLead} className="btn btn-gold" style={{ alignSelf: 'flex-end', height: '42px' }}>
-                      Assign Lead
-                    </button>
-                  </div>
-                </div>
-
-                <div style={{ display: 'grid', gap: '30px' }}>
-                  {/* Unassigned Buyers List */}
-                  <div>
-                    <h3 style={{ fontFamily: 'var(--font-serif)', color: 'var(--gold-dark)', marginBottom: '12px', fontSize: '18px' }}>
-                      Unassigned Premium Buyers ({adminPurchases.filter(p => p.packageType === 'CURATED' && p.paymentStatus === 'PAID' && !adminAssignments.some(a => a.buyerProfileId === p.profileId)).length})
-                    </h3>
-                    <div className="grid-3" style={{ gap: '16px' }}>
-                      {adminPurchases.filter(p => p.packageType === 'CURATED' && p.paymentStatus === 'PAID' && !adminAssignments.some(a => a.buyerProfileId === p.profileId)).length === 0 ? (
-                        <div style={{ gridColumn: 'span 3', padding: '16px', backgroundColor: 'var(--white)', border: '1px solid var(--border-color)', borderRadius: '8px', fontSize: '13px', color: 'var(--text-muted)' }}>
-                          No unassigned Curated Matches buyers. All active buyers have at least one lead assigned.
-                        </div>
-                      ) : (
-                        adminPurchases.filter(p => p.packageType === 'CURATED' && p.paymentStatus === 'PAID' && !adminAssignments.some(a => a.buyerProfileId === p.profileId)).map(buyer => (
-                          <div key={buyer.id} style={{ backgroundColor: 'var(--white)', padding: '16px', borderRadius: '8px', border: '1.5px solid var(--gold-light)' }}>
-                            <strong style={{ display: 'block', fontSize: '14px' }}>{buyer.profile?.fullName || 'Buyer Name'}</strong>
-                            <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{buyer.profile?.city} • {buyer.profile?.occupation}</span>
-                            <span style={{ display: 'block', fontSize: '11px', marginTop: '6px', color: 'orange', fontWeight: 'bold' }}>⚠️ Awaiting First Lead</span>
-                          </div>
-                        ))
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Active & Completed Assignments */}
-                  <div>
-                    <h3 style={{ fontFamily: 'var(--font-serif)', color: 'var(--gold-dark)', marginBottom: '12px', fontSize: '18px' }}>
-                      Lead Assignments & Statuses ({adminAssignments.length})
-                    </h3>
-                    <div className="table-responsive" style={{ backgroundColor: 'var(--white)', padding: '24px', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
-                      <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '600px' }}>
-                        <thead>
-                          <tr style={{ borderBottom: '2px solid var(--border-color)', height: '40px', fontSize: '12px', textTransform: 'uppercase', color: 'var(--gold-dark)' }}>
-                            <th style={{ padding: '12px 8px' }}>Curated Buyer</th>
-                            <th style={{ padding: '12px 8px' }}>Assigned Match Lead</th>
-                            <th style={{ padding: '12px 8px' }}>Status</th>
-                            <th style={{ padding: '12px 8px' }}>Update Status</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {adminAssignments.length === 0 ? (
-                            <tr>
-                              <td colSpan={4} style={{ textAlign: 'center', padding: '30px' }}>
-                                <div className="empty-state">
-                                  <div className="empty-state-icon">🤝</div>
-                                  <h3>No Lead Assignments</h3>
-                                  <p>Select a buyer and a verified lead above to create a matching case.</p>
-                                </div>
-                              </td>
-                            </tr>
-                          ) : (
-                            adminAssignments.map((a) => (
-                              <tr key={a.id} style={{ borderBottom: '1px solid var(--border-color)', fontSize: '13.5px', height: '60px' }}>
-                                <td style={{ padding: '12px 8px' }}>
-                                  <strong>{a.buyerProfile?.fullName || 'N/A'}</strong>
-                                  <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{a.buyerProfile?.city || 'N/A'} • {a.buyerProfile?.gender}</div>
-                                </td>
-                                <td style={{ padding: '12px 8px' }}>
-                                  <strong>{a.leadProfile?.fullName || 'N/A'}</strong>
-                                  <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{a.leadProfile?.city || 'N/A'} • {a.leadProfile?.gender}</div>
-                                </td>
-                                <td style={{ padding: '12px 8px' }}>
-                                  <span style={{ 
-                                    padding: '4px 8px',
-                                    borderRadius: '4px',
-                                    fontSize: '11px',
-                                    fontWeight: 'bold',
-                                    backgroundColor: a.status === 'MARRIED' ? 'rgba(18, 46, 34, 0.1)' : a.status === 'DECLINED' ? 'rgba(230, 92, 92, 0.1)' : 'rgba(240, 190, 50, 0.1)',
-                                    color: a.status === 'MARRIED' ? 'green' : a.status === 'DECLINED' ? 'red' : 'var(--text-dark)'
-                                  }}>
-                                    {a.status}
-                                  </span>
-                                </td>
-                                <td style={{ padding: '12px 8px' }}>
-                                  <select
-                                    value={a.status}
-                                    onChange={(e) => handleUpdateLeadStatus(a.id, e.target.value)}
-                                    className="form-control"
-                                    style={{ padding: '6px', fontSize: '12px', width: '130px', height: '34px' }}
-                                  >
-                                    <option value="PENDING">PENDING</option>
-                                    <option value="CONTACTED">CONTACTED</option>
-                                    <option value="INTERESTED">INTERESTED</option>
-                                    <option value="DECLINED">DECLINED</option>
-                                    <option value="MARRIED">MARRIED</option>
-                                  </select>
-                                </td>
-                              </tr>
-                            ))
-                          )}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {adminActiveTab === 'logs' && (() => {
-              const actionTypes = Array.from(new Set(auditLogs.map(l => l.action)));
-              
-              const filteredLogs = auditLogs.filter(log => {
-                if (logActionFilter !== 'All' && log.action !== logActionFilter) return false;
-                if (logSearchQuery.trim()) {
-                  const q = logSearchQuery.toLowerCase();
-                  return (
-                    (log.actorUserId && log.actorUserId.toLowerCase().includes(q)) ||
-                    log.action.toLowerCase().includes(q) ||
-                    (log.targetId && log.targetId.toLowerCase().includes(q)) ||
-                    (log.metadata && log.metadata.toLowerCase().includes(q))
-                  );
-                }
-                return true;
-              });
-
-              return (
-                <div>
-                  <h1 style={{ fontFamily: 'var(--font-serif)', color: 'var(--gold-dark)', marginBottom: '8px' }}>
-                    Admin Verification Audit Logs
-                  </h1>
-                  <p style={{ color: 'var(--text-muted)', fontSize: '14.5px', marginBottom: '24px' }}>
-                    Track manual telephone verification approvals, rejections, and other administrative activities.
-                  </p>
-
-                  {/* Filter & Search Bar */}
-                  <div className="admin-filter-bar">
-                    <div className="admin-filter-item">
-                      <label className="form-label">Search Logs</label>
+                      <label className="form-label">Full Name *</label>
                       <input
                         type="text"
                         className="form-control"
-                        placeholder="Search by Actor, Action, or Target..."
-                        value={logSearchQuery}
-                        onChange={(e) => setLogSearchQuery(e.target.value)}
-                        style={{ height: '42px' }}
+                        value={formData.fullName}
+                        onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                        placeholder="Enter legal full name"
+                        required
                       />
                     </div>
-
-                    <div className="admin-filter-item">
-                      <label className="form-label">Action Type</label>
+                    <div className="form-group">
+                      <label className="form-label">Gender *</label>
                       <select
                         className="form-control"
-                        value={logActionFilter}
-                        onChange={(e) => setLogActionFilter(e.target.value)}
-                        style={{ height: '42px' }}
+                        value={formData.gender}
+                        onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
                       >
-                        <option value="All">All Actions</option>
-                        {actionTypes.map(act => (
-                          <option key={act} value={act}>{act}</option>
+                        <option value="Female">Female</option>
+                        <option value="Male">Male</option>
+                      </select>
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">Date of Birth (Eligible adults &gt;= 18) *</label>
+                      <input
+                        type="date"
+                        className="form-control"
+                        value={formData.dateOfBirth}
+                        onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
+                        required
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">Marital Status *</label>
+                      <select
+                        className="form-control"
+                        value={formData.maritalStatus}
+                        onChange={(e) => setFormData({ ...formData, maritalStatus: e.target.value })}
+                      >
+                        <option value="Single">Single</option>
+                        <option value="Divorced">Divorced</option>
+                        <option value="Widowed">Widowed</option>
+                      </select>
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">Phone Number (Call Verification Required) *</label>
+                      <input
+                        type="tel"
+                        className="form-control"
+                        value={formData.phoneNumber}
+                        onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
+                        placeholder="e.g. +91 9876543210"
+                        required
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">About Me (Bio) *</label>
+                      <textarea
+                        className="form-control"
+                        rows={3}
+                        value={formData.bio}
+                        onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
+                        placeholder="Describe your values, hobbies, and outlook on marriage..."
+                        required
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {regStep === 2 && (
+                  <div>
+                    <SearchableCombobox
+                      label="State / UT *"
+                      placeholder="Select or search state (e.g. Maharashtra)"
+                      value={formData.state}
+                      onChange={(val) => {
+                        setFormData({
+                          ...formData,
+                          state: val,
+                          district: '',
+                          city: '',
+                          locality: '',
+                          areaOrLocality: ''
+                        });
+                      }}
+                      options={Array.from(new Set(masterLocations.map(l => l.state))).map(st => ({
+                        value: st,
+                        label: st,
+                        isHighPriority: st === 'Maharashtra' || st === 'Uttar Pradesh' || st === 'Delhi' || st === 'Jammu & Kashmir'
+                      }))}
+                      required
+                    />
+
+                    <SearchableCombobox
+                      label="District / City *"
+                      placeholder="Select or search district/city"
+                      value={formData.district}
+                      onChange={(val) => {
+                        setFormData({
+                          ...formData,
+                          district: val,
+                          city: val,
+                          locality: '',
+                          areaOrLocality: val
+                        });
+                      }}
+                      options={Array.from(new Set(masterLocations.filter(l => l.state === formData.state).map(l => l.district))).map(dst => ({
+                        value: dst,
+                        label: dst,
+                        isHighPriority: dst === 'Mumbai' || dst === 'Srinagar' || dst === 'Hyderabad' || dst === 'Bengaluru' || dst === 'Lucknow'
+                      }))}
+                      required
+                    />
+
+                    <SearchableCombobox
+                      label="Locality / Area"
+                      placeholder="Select or search locality (optional)"
+                      value={formData.locality}
+                      onChange={(val) => {
+                        setFormData({
+                          ...formData,
+                          locality: val,
+                          areaOrLocality: val || formData.district
+                        });
+                      }}
+                      options={Array.from(new Set(masterLocations.filter(l => l.state === formData.state && l.district === formData.district && l.locality).map(l => l.locality!))).map(loc => ({
+                        value: loc,
+                        label: loc
+                      }))}
+                    />
+
+                    <div className="form-group">
+                      <label className="form-label">Country *</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        value={formData.country}
+                        onChange={(e) => setFormData({ ...formData, country: e.target.value })}
+                        placeholder="e.g. India"
+                        required
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {regStep === 3 && (
+                  <div>
+                    <div className="form-group">
+                      <label className="form-label">Education *</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        value={formData.education}
+                        onChange={(e) => setFormData({ ...formData, education: e.target.value })}
+                        placeholder="e.g. MBBS, M.Tech, B.Com"
+                        required
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">Occupation *</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        value={formData.occupation}
+                        onChange={(e) => setFormData({ ...formData, occupation: e.target.value })}
+                        placeholder="e.g. Pediatrician, Software Engineer"
+                        required
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">Annual Income Range *</label>
+                      <select
+                        className="form-control"
+                        value={formData.annualIncomeRange}
+                        onChange={(e) => setFormData({ ...formData, annualIncomeRange: e.target.value })}
+                      >
+                        <option value="Under ₹3 LPA">Under ₹3 LPA</option>
+                        <option value="₹3 LPA - ₹5 LPA">₹3 LPA - ₹5 LPA</option>
+                        <option value="₹5 LPA - ₹10 LPA">₹5 LPA - ₹10 LPA</option>
+                        <option value="₹10 LPA - ₹15 LPA">₹10 LPA - ₹15 LPA</option>
+                        <option value="₹15 LPA - ₹25 LPA">₹15 LPA - ₹25 LPA</option>
+                        <option value="Above ₹25 LPA">Above ₹25 LPA</option>
+                      </select>
+                    </div>
+                  </div>
+                )}
+
+                {regStep === 4 && (
+                  <div>
+                    <div className="form-group-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                      <SearchableCombobox
+                        label="Maslak / Sect"
+                        placeholder="Select or search Maslak/Sect"
+                        value={formData.maslak}
+                        onChange={(val) => setFormData({ ...formData, maslak: val })}
+                        options={masterMaslaks.map(m => ({
+                          value: m.id,
+                          label: m.label,
+                          aliases: m.aliases,
+                          isDisabled: m.isDisabled,
+                          isHighPriority: m.label.includes('Barelvi') || m.label.includes('Deobandi') || m.label === 'Sunni' || m.label === 'Shia'
+                        }))}
+                      />
+
+                      <div className="form-group">
+                        <label className="form-label">Fiqh / School of Thought</label>
+                        <select
+                          className="form-control"
+                          value={formData.fiqh}
+                          onChange={(e) => setFormData({ ...formData, fiqh: e.target.value })}
+                        >
+                          <option value="">-- No preference / Not selected --</option>
+                          {DEFAULT_FIQHS.map(f => (
+                            <option key={f} value={f}>{f}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="form-group-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginTop: '15px' }}>
+                      <SearchableCombobox
+                        label="Caste / Biradari"
+                        placeholder="Select or search Caste/Biradari"
+                        value={formData.biradari}
+                        onChange={(val) => setFormData({ ...formData, biradari: val })}
+                        options={masterCastes.map(c => ({
+                          value: c.id,
+                          label: c.label,
+                          aliases: c.aliases,
+                          isDisabled: c.isDisabled,
+                          isHighPriority: c.label === 'Sheikh / Shaikh' || c.label === 'Syed / Sayyid' || c.label === 'Ansari' || c.label === 'Pathan' || c.label === 'Khan'
+                        }))}
+                      />
+
+                      <div className="form-group">
+                        <label className="form-label">Family Origin (Ancestral City/Town)</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          value={formData.familyOrigin}
+                          onChange={(e) => setFormData({ ...formData, familyOrigin: e.target.value })}
+                          placeholder="e.g. Azamgarh, UP"
+                        />
+                      </div>
+                    </div>
+
+                    <div style={{ marginTop: '20px', borderTop: '1px solid var(--border-color)', paddingTop: '20px' }}>
+                      <label className="form-label" style={{ fontWeight: 'bold', display: 'block', marginBottom: '10px' }}>Preferred Match Locations</label>
+                      <div className="preferred-locations-checkboxes" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '8px', maxHeight: '160px', overflowY: 'auto', border: '1px solid var(--border-color)', padding: '12px', borderRadius: '8px', backgroundColor: '#fafafa' }}>
+                        {['Jammu & Kashmir', 'Ladakh', 'Lakshadweep', 'Assam', 'West Bengal', 'Kerala', 'Uttar Pradesh', 'Bihar', 'Delhi', 'Jharkhand', 'Telangana', 'Karnataka', 'Maharashtra', 'Gujarat', 'Rajasthan', 'Uttarakhand', 'Haryana', 'Madhya Pradesh'].map(stateName => {
+                          const isChecked = formData.preferredLocations.includes(stateName);
+                          return (
+                            <label key={stateName} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '13px', cursor: 'pointer' }}>
+                              <input
+                                type="checkbox"
+                                checked={isChecked}
+                                onChange={() => {
+                                  const newLocs = isChecked
+                                    ? formData.preferredLocations.filter(l => l !== stateName)
+                                    : [...formData.preferredLocations, stateName];
+                                  setFormData({ ...formData, preferredLocations: newLocs });
+                                }}
+                              />
+                              {stateName}
+                            </label>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                      <label style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', fontSize: '13.5px', cursor: 'pointer' }}>
+                        <input
+                          type="checkbox"
+                          checked={formData.sameCastePreference}
+                          onChange={(e) => setFormData({ ...formData, sameCastePreference: e.target.checked })}
+                        />
+                        <span>Prefer matchmaking within the same Caste/Biradari</span>
+                      </label>
+
+                      <label style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', fontSize: '13.5px', cursor: 'pointer' }}>
+                        <input
+                          type="checkbox"
+                          checked={formData.sameMaslakPreference}
+                          onChange={(e) => setFormData({ ...formData, sameMaslakPreference: e.target.checked })}
+                        />
+                        <span>Prefer matchmaking within the same Maslak/Sect</span>
+                      </label>
+
+                      <label style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', fontSize: '13.5px', cursor: 'pointer' }}>
+                        <input
+                          type="checkbox"
+                          checked={formData.willingToRelocate}
+                          onChange={(e) => setFormData({ ...formData, willingToRelocate: e.target.checked })}
+                        />
+                        <span>Open / willing to relocate to other regions or states</span>
+                      </label>
+                    </div>
+                  </div>
+                )}
+
+                {regStep === 5 && (
+                  <div>
+                    <div className="form-group">
+                      <label className="form-label">Family Details (Parents, Siblings background) *</label>
+                      <textarea
+                        className="form-control"
+                        rows={4}
+                        value={formData.familyInfo}
+                        onChange={(e) => setFormData({ ...formData, familyInfo: e.target.value })}
+                        placeholder="Provide family background, parents occupation, number of siblings etc..."
+                        required
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">Partner Preferences Summary</label>
+                      <textarea
+                        className="form-control"
+                        rows={3}
+                        value={formData.partnerPref}
+                        onChange={(e) => setFormData({ ...formData, partnerPref: e.target.value })}
+                        placeholder="Preferred age, education, and religiosity..."
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {regStep === 6 && (
+                  <div>
+                    <div className="form-group">
+                      <label className="form-label">Assigned Profile Theme *</label>
+                      <select
+                        className="form-control"
+                        value={formData.themeColor}
+                        onChange={(e) => setFormData({ ...formData, themeColor: e.target.value })}
+                      >
+                        {THEME_COLORS.map((tc) => (
+                          <option key={tc.value} value={tc.value}>
+                            {tc.name}
+                          </option>
                         ))}
                       </select>
                     </div>
 
-                    <div className="admin-filter-item">
-                      <label className="form-label">Date Range (UI Placeholders)</label>
-                      <div style={{ display: 'flex', gap: '8px' }}>
-                        <input type="date" className="form-control" style={{ height: '42px', padding: '6px 12px' }} disabled />
-                        <input type="date" className="form-control" style={{ height: '42px', padding: '6px 12px' }} disabled />
-                      </div>
+                    <div className="form-group" style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', margin: '20px 0' }}>
+                      <input
+                        type="checkbox"
+                        style={{ marginTop: '4px' }}
+                        checked={formData.consent}
+                        onChange={(e) => setFormData({ ...formData, consent: e.target.checked })}
+                        required
+                      />
+                      <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
+                        I consent to manual phone verification call from Shadi Mubarak Admin team to confirm these profile details.
+                      </span>
                     </div>
 
-                    <div className="admin-filter-item button-item">
-                      <button
-                        className="btn btn-secondary"
-                        onClick={() => {
-                          setLogSearchQuery('');
-                          setLogActionFilter('All');
-                        }}
-                        style={{ height: '42px', whiteSpace: 'nowrap' }}
-                      >
-                        Clear Filters
-                      </button>
+                    <div className="form-group" style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', margin: '20px 0' }}>
+                      <input
+                        type="checkbox"
+                        style={{ marginTop: '4px' }}
+                        checked={formData.terms}
+                        onChange={(e) => setFormData({ ...formData, terms: e.target.checked })}
+                        required
+                      />
+                      <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
+                        I accept the Shadi Mubarak Terms of Service and Shariah-compliant match guidelines.
+                      </span>
                     </div>
                   </div>
+                )}
 
-                  <div className="table-responsive" style={{ backgroundColor: 'var(--white)', padding: '24px', borderRadius: '12px', border: '1px solid var(--border-color)', overflowX: 'auto' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '700px' }}>
-                      <thead>
-                        <tr style={{ borderBottom: '2px solid var(--border-color)', height: '40px', fontSize: '12px', textTransform: 'uppercase', color: 'var(--gold-dark)' }}>
-                          <th style={{ padding: '12px 8px' }}>Timestamp</th>
-                          <th style={{ padding: '12px 8px' }}>Action By</th>
-                          <th style={{ padding: '12px 8px' }}>Action</th>
-                          <th style={{ padding: '12px 8px' }}>Target ID</th>
-                          <th style={{ padding: '12px 8px' }}>Metadata</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {filteredLogs.length === 0 ? (
-                          <tr>
-                            <td colSpan={5} style={{ textAlign: 'center', padding: '30px' }}>
-                              <div className="empty-state">
-                                <div className="empty-state-icon">📜</div>
-                                <h3>No Audit Logs Found</h3>
-                                <p>No events matched your current filters or no actions have occurred yet.</p>
-                              </div>
-                            </td>
-                          </tr>
-                        ) : (
-                          filteredLogs.map((log) => (
-                            <tr key={log.id} style={{ borderBottom: '1px solid var(--border-color)', height: '50px', fontSize: '13.5px' }}>
-                              <td style={{ padding: '12px 8px' }}>{new Date(log.createdAt).toLocaleString()}</td>
-                              <td style={{ padding: '12px 8px' }}>
-                                <strong>{log.actorUserId || 'System'}</strong>
-                              </td>
-                              <td style={{ padding: '12px 8px' }}>
-                                <span style={{
-                                  padding: '2px 6px',
-                                  borderRadius: '4px',
-                                  fontSize: '11px',
-                                  fontWeight: 'bold',
-                                  backgroundColor: log.action.includes('APPROVE') ? 'rgba(18, 46, 34, 0.1)' : log.action.includes('REJECT') ? 'rgba(230, 92, 92, 0.1)' : 'rgba(212,163,89,0.15)',
-                                  color: log.action.includes('APPROVE') ? 'green' : log.action.includes('REJECT') ? 'red' : 'var(--gold-dark)'
-                                }}>
-                                  {log.action}
-                                </span>
-                              </td>
-                              <td style={{ padding: '12px 8px' }}>
-                                <code style={{ fontSize: '12.5px', color: 'var(--text-muted)' }}>{log.targetId ? log.targetId.substring(0, 8) + '...' : 'N/A'}</code>
-                              </td>
-                              <td style={{ padding: '12px 8px', color: 'var(--text-muted)', fontSize: '12.5px' }}>
-                                {log.metadata || '—'}
-                              </td>
-                            </tr>
-                          ))
-                        )}
-                      </tbody>
-                    </table>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '30px' }}>
+                  {regStep > 1 && (
+                    <button type="button" onClick={handlePrevStep} className="btn btn-secondary">
+                      Back
+                    </button>
+                  )}
+                  {regStep < 6 ? (
+                    <button type="button" onClick={handleNextStep} className="btn btn-primary" style={{ marginLeft: 'auto' }}>
+                      Next Step
+                    </button>
+                  ) : (
+                    <button type="submit" className="btn btn-gold" style={{ marginLeft: 'auto' }}>
+                      Save Profile
+                    </button>
+                  )}
+                </div>
+
+              </form>
+            </div>
+          </section>
+        ) : (
+          /* Main Homepage */
+          <>
+            <BismillahCalligraphy />
+            <HeroSection />
+
+            {/* Smart Search Quick Action Bar */}
+            <div className="container" style={{ position: 'relative', zIndex: '20', marginTop: '-30px' }}>
+              <div className="search-panel" style={{ backgroundColor: 'var(--white)', border: '1.5px solid var(--border-color)', borderRadius: 'var(--border-radius-lg)', padding: '24px 36px', boxShadow: 'var(--shadow-premium)' }}>
+                <span className="script-accent" style={{ fontSize: '2rem', display: 'block', marginBottom: '8px' }}>Refined Search</span>
+                <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '20px', color: 'var(--deep-maroon)', fontWeight: 'bold', marginBottom: '18px' }}>
+                  Quick Match Search
+                </h3>
+                <div className="search-panel-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr)) 160px', gap: '20px', alignItems: 'flex-end' }}>
+                  <div>
+                    <label className="form-label">Looking For</label>
+                    <select className="form-control" style={{ backgroundColor: 'var(--warm-ivory)' }}>
+                      <option>Bride (Female)</option>
+                      <option>Groom (Male)</option>
+                    </select>
                   </div>
+                  <div>
+                    <label className="form-label">Age Range</label>
+                    <select className="form-control" style={{ backgroundColor: 'var(--warm-ivory)' }}>
+                      <option>18 - 25 Yrs</option>
+                      <option>26 - 32 Yrs</option>
+                      <option>33 - 40 Yrs</option>
+                      <option>40+ Yrs</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="form-label">City Location</label>
+                    <select className="form-control" style={{ backgroundColor: 'var(--warm-ivory)' }}>
+                      <option>All India</option>
+                      <option>Mumbai Only</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="form-label">Caste / Community</label>
+                    <select className="form-control" style={{ backgroundColor: 'var(--warm-ivory)' }}>
+                      <option>All Communities</option>
+                      <option>Sunni</option>
+                      <option>Syed</option>
+                      <option>Hanafi</option>
+                      <option>Sheikh</option>
+                    </select>
+                  </div>
+                  <button onClick={() => router.push('/search')} className="btn btn-primary" style={{ width: '100%' }}>
+                    Search Now
+                  </button>
+                </div>
+              </div>
+            </div>
 
-                  {/* Pagination Section Placeholder */}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '20px', fontSize: '13px', color: 'var(--text-muted)' }}>
-                    <span>Showing {filteredLogs.length} of {auditLogs.length} entries</span>
-                    <div style={{ display: 'flex', gap: '8px' }}>
-                      <button className="btn btn-secondary" style={{ padding: '6px 12px', fontSize: '12px' }} disabled>Previous</button>
-                      <button className="btn btn-secondary" style={{ padding: '6px 12px', fontSize: '12px' }} disabled>Next</button>
+            <QuranVerseBlock />
+
+            {/* Featured Candidates Preview */}
+            <section style={{ backgroundColor: 'var(--soft-cream)', padding: '80px 0' }}>
+              <div className="container">
+                <SectionHeading
+                  title="Featured Candidates"
+                  subtitle="Explore recently verified matrimonial profiles. Activate a standard package to unlock details."
+                  scriptText="Nikah Matches"
+                />
+
+                <div className="grid-3" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '32px' }}>
+                  {profiles.slice(0, 3).map((profile, index) => (
+                    <ProfileCard
+                      key={profile.id}
+                      profile={profile}
+                      index={index}
+                      isLoggedIn={isLoggedIn}
+                      hasPaid300={hasPaid300}
+                      simulatedPackages={simulatedPackages}
+                      simulatedHighProfileApproved={simulatedHighProfileApproved}
+                      savedProfiles={savedProfiles}
+                      onToggleSave={toggleSaveProfile}
+                      onViewDetails={setSelectedProfileForDetails}
+                      onShowLogin={() => setShowLoginModal(true)}
+                      getProfileImage={getProfileImage}
+                      getThemeClass={getThemeClass}
+                    />
+                  ))}
+                </div>
+
+                <div style={{ textAlign: 'center', marginTop: '48px' }}>
+                  <button onClick={() => router.push('/search')} className="btn btn-gold" style={{ padding: '12px 36px' }}>
+                    Explore More Profiles
+                  </button>
+                </div>
+              </div>
+            </section>
+
+            {/* Timeline process */}
+            <section style={{ backgroundColor: 'var(--warm-ivory)', padding: '80px 0' }}>
+              <div className="container">
+                <SectionHeading
+                  title="How Shadi Mubarak Works"
+                  subtitle="Designed from the ground up for pure, respectful, and family-approved matches."
+                  scriptText="Begin Your Journey"
+                />
+
+                <div className="timeline-container">
+                  <div className="timeline-line" style={{ top: '50px' }}></div>
+                  <div className="timeline-grid">
+                    <div className="timeline-step">
+                      <div className="timeline-number">1</div>
+                      <h3>Create Your Profile</h3>
+                      <p>Fill in details about your career, education, and family background, and customize your biodata card accent.</p>
+                    </div>
+                    <div className="timeline-step">
+                      <div className="timeline-number">2</div>
+                      <h3>Phone Verification</h3>
+                      <p>Our dedicated admin desk contacts you by phone to verify credentials and ensure serious intentions.</p>
+                    </div>
+                    <div className="timeline-step">
+                      <div className="timeline-number">3</div>
+                      <h3>Connect and Propose</h3>
+                      <p>Once verified and approved, browse compatible matches, request contact shares, and involve family members.</p>
                     </div>
                   </div>
                 </div>
-              );
-            })()}
-          </main>
-        </div>
-      </>
-      )}
+              </div>
+            </section>
+
+            {/* Trust & Family Safety Preview */}
+            <section style={{ backgroundColor: 'var(--soft-cream)', padding: '80px 0' }}>
+              <div className="container">
+                <SectionHeading
+                  title="Trust & Family Safety"
+                  subtitle="Rest assured that candidate verification and member privacy are our top priorities."
+                  scriptText="Halal & Secure"
+                />
+
+                <div className="safety-wrapper" style={{ display: 'grid', gridTemplateColumns: '0.9fr 1.1fr', gap: '48px', alignItems: 'center' }}>
+                  <div>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=600&h=450"
+                      alt="Trust Security verification illustration"
+                      style={{ width: '100%', borderRadius: 'var(--border-radius-lg)', border: '1.5px solid var(--gold-accent)', boxShadow: 'var(--shadow-premium)' }}
+                    />
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                    <SafetyFeatureCard
+                      icon="✓"
+                      title="100% Manual Phone Screening"
+                      desc="We check all users by telephone, confirming details and family preferences before any search publication."
+                    />
+                    <SafetyFeatureCard
+                      icon="✓"
+                      title="Contact & Photo Masking"
+                      desc="Photos and mobile numbers remain blurred to protect candidate integrity until you authorize sharing."
+                    />
+                    <SafetyFeatureCard
+                      icon="✓"
+                      title="Family Inclusion Encouraged"
+                      desc="We encourage candidates to involve parents or guardians in match check calls and meetings."
+                    />
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* Success Stories Preview */}
+            <section style={{ backgroundColor: 'var(--warm-ivory)', padding: '80px 0' }}>
+              <div className="container">
+                <SectionHeading
+                  title="Blessed Success Stories"
+                  subtitle="Alhamdulillah! Here are matching stories of couples who found their partners on Shadi Mubarak."
+                  scriptText="Success Stories"
+                />
+
+                <div className="grid-3" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '32px' }}>
+                  <SuccessStoryCard
+                    names="Dr. Sarah & Tariq"
+                    location="Mumbai • Married 2025"
+                    story="Shadi Mubarak made the search simple and extremely respectful. The manual verification check gave my parents peace of mind, and we connected securely."
+                    imageIndex={0}
+                  />
+                  <SuccessStoryCard
+                    names="Aisha & Khalid"
+                    location="Delhi • Married 2026"
+                    story="Alhamdulillah, the Curated Matchmaking package was worth every rupee. Our dedicated advisor sent compatible matches directly, and we tied the knot within months."
+                    imageIndex={1}
+                  />
+                  <SuccessStoryCard
+                    names="Adnan & Yasmin"
+                    location="Bangalore • Married 2024"
+                    story="I loved the privacy features. My photo remained blurred to general visitors, and I had control over who could view my details. We are very happy."
+                    imageIndex={2}
+                  />
+                </div>
+              </div>
+            </section>
+
+            {/* Premium Teaser Section */}
+            <section style={{ backgroundColor: 'var(--soft-cream)', padding: '80px 0' }}>
+              <div className="container">
+                <SectionHeading
+                  title="Tailored Membership Packages"
+                  subtitle="Activate standard view permissions or request curated 1-on-1 matches. Transparent fees with dynamic GST billing."
+                  scriptText="Choose Your Plan"
+                />
+
+                <div className="grid-4">
+                  <PremiumPlanCard
+                    title="Standard Monthly"
+                    price={300}
+                    gstRate={0.18}
+                    billingText="per month"
+                    features={['View unblurred candidate photos', 'Reveal call-verified phone numbers', 'Advanced profile filters', 'Save matching biodatas']}
+                    isActive={hasPaid300 || simulatedPackages.includes('STANDARD')}
+                    ctaText="Activate Plan"
+                    onActivate={() => handleRazorpayCheckout('STANDARD', 300, 'Standard Monthly Membership')}
+                    isPopular
+                  />
+                  <PremiumPlanCard
+                    title="Curated Matches"
+                    price={5500}
+                    gstRate={0.18}
+                    billingText="one-time base"
+                    features={['Personal match assistant support', 'Handpicked matches via email/WA', 'Leads provided until marriage', '₹21,000 Success fee on Nikah']}
+                    isActive={simulatedPackages.includes('CURATED')}
+                    ctaText="Choose Curated"
+                    onActivate={() => handleRazorpayCheckout('CURATED', 5500, 'Curated Matches Package')}
+                  />
+                  <PremiumPlanCard
+                    title="Second-Marriage"
+                    price={11000}
+                    gstRate={0.18}
+                    billingText="one-time fee"
+                    features={['Private separated directory listing', 'Highly confidential biodata share', '1-on-1 advisor counseling checks', 'No success fee matches']}
+                    isActive={simulatedPackages.includes('SECOND_MARRIAGE')}
+                    ctaText="Choose Second Marriage"
+                    onActivate={() => handleRazorpayCheckout('SECOND_MARRIAGE', 11000, 'Second-Marriage Package')}
+                  />
+                  <PremiumPlanCard
+                    title="High-Profile"
+                    price={21000}
+                    gstRate={0.18}
+                    billingText="one-time base"
+                    features={['For doctors, Masters, business owners', 'Exclusive verified list', 'Dedicated matchmaking desk', '₹25,000 Success fee on Nikah']}
+                    isActive={simulatedPackages.includes('HIGH_PROFILE')}
+                    ctaText="Choose High Profile"
+                    onActivate={() => handleRazorpayCheckout('HIGH_PROFILE', 21000, 'High-Profile Matches Package')}
+                  />
+                </div>
+              </div>
+            </section>
+
+            <FinalCTA
+              onRegister={() => {
+                if (!isLoggedIn) {
+                  setShowLoginModal(true);
+                } else {
+                  setIsRegistering(true);
+                  setRegStep(1);
+                }
+              }}
+              onBrowse={() => router.push('/search')}
+              isLoggedIn={isLoggedIn}
+              hasProfile={!!userProfile}
+            />
+          </>
+        )}
+      </main>
+
+      <PremiumFooter onNavigate={handleNavigate} />
 
       {/* Google Login Simulator Modal */}
       {showLoginModal && (
-        <div className="modal-overlay">
+        <div className="modal-overlay font-sans">
           <div className="card-theme-wrapper" style={{ maxWidth: '400px', width: '90%', margin: '20px' }}>
-            <div className="ornament ornament-tl"></div>
-            <div className="ornament ornament-tr"></div>
-            <div className="ornament ornament-bl"></div>
-            <div className="ornament ornament-br"></div>
+            <FloralCorner position="tl" color="var(--gold-accent)" />
+            <FloralCorner position="tr" color="var(--gold-accent)" />
+            <FloralCorner position="bl" color="var(--gold-accent)" />
+            <FloralCorner position="br" color="var(--gold-accent)" />
 
             <div style={{ textAlign: 'center', padding: '10px 0' }}>
-              <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '22px', color: 'var(--gold-dark)', marginBottom: '12px' }}>
+              <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '24px', color: 'var(--deep-maroon)', marginBottom: '12px', fontWeight: 'bold' }}>
                 Join Shadi Mubarak
               </h3>
-              <p style={{ fontSize: '13.5px', color: 'var(--text-muted)', marginBottom: '24px' }}>
+              <p style={{ fontSize: '14px', color: 'var(--text-muted)', marginBottom: '24px', lineHeight: '1.5' }}>
                 Create a profile or log in securely using your Google account to get verified.
               </p>
 
@@ -2896,125 +876,6 @@ export default function Home() {
           </div>
         </div>
       )}
-
-      {/* Candidate Profile Details Modal */}
-      {selectedProfileForDetails && (() => {
-        const isSecMarriage = selectedProfileForDetails.maritalStatus !== 'Single';
-        const isHighProf = 
-          selectedProfileForDetails.occupation.toLowerCase().includes('doctor') ||
-          selectedProfileForDetails.occupation.toLowerCase().includes('engineer') ||
-          selectedProfileForDetails.occupation.toLowerCase().includes('business') ||
-          selectedProfileForDetails.annualIncomeRange.includes('₹10 LPA') ||
-          selectedProfileForDetails.annualIncomeRange.includes('₹15 LPA') ||
-          selectedProfileForDetails.annualIncomeRange.includes('Above');
-
-        const hasSecMarriageAccess = simulatedPackages.includes('SECOND_MARRIAGE');
-        const hasHighProfAccess = simulatedPackages.includes('HIGH_PROFILE') && simulatedHighProfileApproved;
-
-        let modalBlur = !isLoggedIn;
-        let modalLockReason = '';
-        let modalUnlockText = 'Unlock Standard (₹300)';
-
-        if (!isLoggedIn) {
-          modalBlur = true;
-          modalLockReason = 'Log in using your secure account to view photos and contact';
-          modalUnlockText = 'Log In';
-        } else if (isSecMarriage && !hasSecMarriageAccess) {
-          modalBlur = true;
-          modalLockReason = 'Second-Marriage Candidate (Locked). Access requires Second-Marriage package.';
-          modalUnlockText = 'Unlock Second-Marriage (₹11,000)';
-        } else if (isHighProf && !hasHighProfAccess) {
-          modalBlur = true;
-          modalLockReason = 'High-Profile Match (Locked). Requires High-Profile package & Admin eligibility approval.';
-          modalUnlockText = 'Unlock High-Profile (₹21,000)';
-        } else if (!hasPaid300 && !simulatedPackages.includes('STANDARD')) {
-          modalBlur = true;
-          modalLockReason = 'Activate standard membership to view photos and contact';
-          modalUnlockText = 'Unlock Standard (₹300)';
-        }
-
-        return (
-          <div className="modal-overlay" onClick={() => setSelectedProfileForDetails(null)}>
-            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-              <div className="modal-header">
-                <span className="modal-title">Biodata Preview</span>
-                <button className="modal-close-btn" onClick={() => setSelectedProfileForDetails(null)}>×</button>
-              </div>
-              <div className="modal-body">
-                <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', marginBottom: '20px' }}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={getProfileImage(selectedProfileForDetails.gender, 0)}
-                    alt={selectedProfileForDetails.fullName}
-                    style={{
-                      width: '120px',
-                      height: '120px',
-                      objectFit: 'cover',
-                      borderRadius: '8px',
-                      border: '1.5px solid var(--gold-accent)',
-                      filter: modalBlur ? 'blur(10px)' : 'none'
-                    }}
-                  />
-                  <div>
-                    <h3 style={{ fontFamily: 'var(--font-serif)', color: 'var(--gold-dark)', fontSize: '20px' }}>
-                      {modalBlur ? 'Profile Details Blurred' : selectedProfileForDetails.fullName}
-                    </h3>
-                    <p style={{ fontSize: '13.5px', color: 'var(--text-muted)', marginTop: '4px' }}>
-                      {selectedProfileForDetails.gender} • {2026 - new Date(selectedProfileForDetails.dateOfBirth).getFullYear()} years old
-                    </p>
-                    <span style={{ display: 'inline-block', marginTop: '10px' }} className="card-badge card-badge-verified">
-                      {selectedProfileForDetails.verificationStatus} Verification
-                    </span>
-                  </div>
-                </div>
-
-                <div className="modal-details-grid">
-                  <div style={{ gridColumn: 'span 2', borderTop: '1px solid var(--border-color)', paddingTop: '12px' }}>
-                    <strong>Personal Bio</strong>
-                    <p style={{ color: 'var(--text-dark)', marginTop: '4px', lineHeight: '1.6' }}>
-                      {modalBlur ? `Details Protected: ${modalLockReason}` : selectedProfileForDetails.bio}
-                    </p>
-                  </div>
-                  <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '12px' }}>
-                    <strong>Education & Occupation</strong>
-                    <p style={{ color: 'var(--text-dark)', marginTop: '4px' }}>
-                      {modalBlur ? 'Hidden' : `${selectedProfileForDetails.education} • ${selectedProfileForDetails.occupation}`}
-                    </p>
-                  </div>
-                  <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '12px' }}>
-                    <strong>Income Range</strong>
-                    <p style={{ color: 'var(--text-dark)', marginTop: '4px' }}>
-                      {modalBlur ? 'Hidden' : selectedProfileForDetails.annualIncomeRange}
-                    </p>
-                  </div>
-                  <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '12px', gridColumn: 'span 2' }}>
-                    <strong>Family Background</strong>
-                    <p style={{ color: 'var(--text-dark)', marginTop: '4px', lineHeight: '1.6' }}>
-                      {modalBlur ? 'Hidden' : selectedProfileForDetails.familyInfo}
-                    </p>
-                  </div>
-                  <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '12px', gridColumn: 'span 2' }}>
-                    <strong>Phone / Contact Information</strong>
-                    <p style={{ color: 'var(--text-dark)', marginTop: '4px', fontWeight: 'bold' }}>
-                      {modalBlur ? '+91-XXXXX-XXXXX' : selectedProfileForDetails.phoneNumber}
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div style={{ padding: '16px 24px', borderTop: '1px solid var(--border-color)', backgroundColor: 'var(--cream-card)', display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
-                {modalBlur && (
-                  <a href="#premium-pricing" onClick={() => setSelectedProfileForDetails(null)} className="btn btn-gold" style={{ padding: '8px 16px', fontSize: '12px' }}>
-                    {modalUnlockText}
-                  </a>
-                )}
-                <button className="btn btn-secondary" onClick={() => setSelectedProfileForDetails(null)} style={{ padding: '8px 16px', fontSize: '12px' }}>
-                  Close
-                </button>
-              </div>
-            </div>
-          </div>
-        );
-      })()}
     </>
   );
 }
