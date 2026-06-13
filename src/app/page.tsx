@@ -127,9 +127,12 @@ export default function Home() {
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
   const [adminPurchases, setAdminPurchases] = useState<PackagePurchase[]>([]);
   const [adminAssignments, setAdminAssignments] = useState<CuratedLeadAssignment[]>([]);
-  const [adminActiveTab, setAdminActiveTab] = useState<'verification' | 'logs' | 'purchases' | 'assignments'>('verification');
+  const [adminActiveTab, setAdminActiveTab] = useState<'overview' | 'verification' | 'purchases' | 'assignments' | 'logs'>('overview');
   const [selectedRequestForReview, setSelectedRequestForReview] = useState<VerificationRequest | null>(null);
   const [reviewNotes, setReviewNotes] = useState('');
+  const [isAdminMobileOpen, setIsAdminMobileOpen] = useState(false);
+  const [logSearchQuery, setLogSearchQuery] = useState('');
+  const [logActionFilter, setLogActionFilter] = useState('All');
 
   // --- Curated Assignment Tool Fields ---
   const [assignBuyerId, setAssignBuyerId] = useState('');
@@ -391,7 +394,7 @@ export default function Home() {
         key: keyId,
         amount: amount,
         currency: currency,
-        name: 'MOM Matrimonial',
+        name: 'Shadi Mubarak',
         description: `${planName} (₹${amountInRupees} + 18% GST)`,
         image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=100&h=100',
         order_id: orderId,
@@ -644,7 +647,7 @@ export default function Home() {
     <>
       {/* Demo Simulator Quick Bar */}
       <div className="demo-bar">
-        <span className="demo-bar-label">🔒 DEMO MODE — For Internal Preview Only</span>
+        <span className="demo-bar-label">DEMO MODE — For Internal Preview Only</span>
         <div className="demo-bar-controls">
           <label className="demo-bar-checkbox">
             <input
@@ -763,7 +766,7 @@ export default function Home() {
               setIsRegistering(false);
             }}
           >
-            MOM<span>.</span>
+            Shadi Mubarak<span>.</span>
           </a>
 
           {/* Hamburger Menu Trigger */}
@@ -900,7 +903,7 @@ export default function Home() {
             onClick={(e) => e.stopPropagation()}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span className="logo">MOM<span>.</span></span>
+              <span className="logo">Shadi Mubarak<span>.</span></span>
               <button className="modal-close-btn" onClick={() => setIsMobileMenuOpen(false)}>×</button>
             </div>
             <hr style={{ borderColor: 'var(--border-color)' }} />
@@ -1253,7 +1256,7 @@ export default function Home() {
                           required
                         />
                         <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
-                          I consent to manual phone verification call from MOM Admin team to confirm these profile details.
+                          I consent to manual phone verification call from Shadi Mubarak Admin team to confirm these profile details.
                         </span>
                       </div>
 
@@ -1266,7 +1269,7 @@ export default function Home() {
                           required
                         />
                         <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
-                          I accept the MOM Matrimonial Terms of Service and Shariah-compliant match guidelines.
+                          I accept the Shadi Mubarak Terms of Service and Shariah-compliant match guidelines.
                         </span>
                       </div>
                     </div>
@@ -1300,7 +1303,7 @@ export default function Home() {
                   <div className="hero-subtitle">Halal & Secure Matrimony</div>
                   <h1 className="hero-title">Where meaningful matches begin.</h1>
                   <p className="hero-description">
-                    Built for serious Nikah journeys, trusted by families. Welcome to MOM — a premium, Shariah-compliant Muslim matchmaking platform offering verified candidates, absolute privacy, and dedicated marriage-focused match assistance.
+                    Built for serious Nikah journeys, trusted by families. Welcome to Shadi Mubarak — a premium, Shariah-compliant Muslim matchmaking platform offering verified candidates, absolute privacy, and dedicated marriage-focused match assistance.
                   </p>
                   <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
                     <a href="#browse-profiles" className="btn btn-gold" id="hero-browse-btn">
@@ -1420,7 +1423,7 @@ export default function Home() {
               <section style={{ backgroundColor: 'var(--cream-card)', borderBottom: '1px solid var(--border-color)' }}>
                 <div className="container">
                   <div className="section-header">
-                    <h2>How MOM Works</h2>
+                    <h2>How Shadi Mubarak Works</h2>
                     <p>Designed for pure, respectful, and Shariah-compliant introductions</p>
                   </div>
                   
@@ -1917,7 +1920,7 @@ export default function Home() {
               <section style={{ backgroundColor: 'var(--cream-card)', borderBottom: '1px solid var(--border-color)' }}>
                 <div className="container">
                   <div className="section-header">
-                    <h2>MOM Referral Program</h2>
+                    <h2>Shadi Mubarak Referral Program</h2>
                     <p>Earn commissions by helping others find their matches</p>
                   </div>
                   <div className="grid-3" style={{ marginTop: '30px' }}>
@@ -1930,13 +1933,13 @@ export default function Home() {
                         Invite Friends & Family
                       </h3>
                       <p style={{ color: 'var(--text-dark)', fontSize: '14.5px', marginBottom: '20px' }}>
-                        Invite eligible candidates to register on MOM Matrimonial. Whenever your referred candidate unlocks standard membership, you earn a <strong>{referralRate}%</strong> referral commission directly.
+                        Invite eligible candidates to register on Shadi Mubarak. Whenever your referred candidate unlocks standard membership, you earn a <strong>{referralRate}%</strong> referral commission directly.
                       </p>
                       {isLoggedIn ? (
                         <div style={{ backgroundColor: 'var(--white)', padding: '16px', borderRadius: '8px', border: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
                           <span style={{ fontSize: '13px', fontWeight: 'bold' }}>YOUR REFERRAL LINK:</span>
                           <code style={{ fontSize: '14px', color: 'var(--gold-dark)', fontWeight: 'bold' }}>
-                            https://mom-matrimonial.com/join?ref=simulated_u123
+                            https://shadimubarak.in/join?ref=simulated_u123
                           </code>
                           <button
                             onClick={() => alert('Referral link copied to clipboard!')}
@@ -1976,7 +1979,7 @@ export default function Home() {
                   <div className="grid-3" style={{ marginTop: '40px' }}>
                     <div className="testimonial-card">
                       <p className="testimonial-text">
-                        &ldquo;MOM made the search simple and extremely respectful. The manual call verification gave my family peace of mind. We found our match within two months of joining!&rdquo;
+                        &ldquo;Shadi Mubarak made the search simple and extremely respectful. The manual call verification gave my family peace of mind. We found our match within two months of joining!&rdquo;
                       </p>
                       <div className="testimonial-author">— Dr. Sarah & Brother Tariq (Mumbai)</div>
                     </div>
@@ -2028,7 +2031,7 @@ export default function Home() {
                 <div className="container">
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '40px', marginBottom: '40px' }}>
                     <div>
-                      <div className="footer-logo">MOM<span>.</span></div>
+                      <div className="footer-logo">Shadi Mubarak<span>.</span></div>
                       <p style={{ fontSize: '13.5px', color: 'rgba(247, 245, 240, 0.75)', lineHeight: '1.8' }}>
                         Trusted Halal Matrimony. Dedicated to helping single, divorced, and high-profile Muslim candidates find compatible marriage partners.
                       </p>
@@ -2051,7 +2054,7 @@ export default function Home() {
                     </div>
                   </div>
                   <div className="footer-bottom">
-                    &copy; 2026 MOM Matrimonial Site. All Rights Reserved. Created for premium internal launch preview.
+                    &copy; 2026 Shadi Mubarak. All Rights Reserved. Created for premium internal launch preview.
                   </div>
                 </div>
               </footer>
@@ -2060,94 +2063,287 @@ export default function Home() {
         </main>
       ) : (
         /* ADMIN PANEL */
-        <div className="admin-grid container">
-          <aside className="admin-nav-list">
-            <h2 style={{ fontFamily: 'var(--font-serif)', color: 'var(--gold-accent)', marginBottom: '20px', paddingLeft: '16px' }}>MOM Admin</h2>
-            <div
-              className={`admin-nav-link ${adminActiveTab === 'verification' ? 'active' : ''}`}
-              onClick={() => setAdminActiveTab('verification')}
-            >
-              👤 Verification Queue
+        <>
+          <div className="admin-mobile-bar">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <button
+                onClick={() => setIsAdminMobileOpen(!isAdminMobileOpen)}
+                style={{ background: 'none', border: 'none', color: 'var(--white)', fontSize: '20px', cursor: 'pointer' }}
+              >
+                ☰
+              </button>
+              <span style={{ fontWeight: 'bold', fontFamily: 'var(--font-serif)', color: 'var(--gold-accent)', fontSize: '15px' }}>
+                Shadi Mubarak Admin
+              </span>
             </div>
-            <div
-              className={`admin-nav-link ${adminActiveTab === 'purchases' ? 'active' : ''}`}
-              onClick={() => setAdminActiveTab('purchases')}
+            <button
+              onClick={() => setIsAdminMode(false)}
+              className="btn btn-gold"
+              style={{ padding: '6px 12px', fontSize: '11px' }}
             >
-              💎 Premium Purchases
-            </div>
-            <div
-              className={`admin-nav-link ${adminActiveTab === 'assignments' ? 'active' : ''}`}
-              onClick={() => setAdminActiveTab('assignments')}
-            >
-              🤝 Curated Lead Assigner
-            </div>
-            <div
-              className={`admin-nav-link ${adminActiveTab === 'logs' ? 'active' : ''}`}
-              onClick={() => setAdminActiveTab('logs')}
-            >
-              📜 Audit Logs
-            </div>
+              Exit Admin
+            </button>
+          </div>
 
-            <div style={{ marginTop: '50px', borderTop: '1px solid rgba(212,163,89,0.3)', paddingTop: '20px', padding: '0 16px' }}>
-              <h4 style={{ color: 'var(--gold-accent)', fontSize: '14px', marginBottom: '12px' }}>Referral Rate Control</h4>
-              <input
-                type="range"
-                min="20"
-                max="23"
-                value={referralRate}
-                onChange={(e) => setReferralRate(parseInt(e.target.value))}
-                style={{ width: '100%', accentColor: 'var(--gold-accent)' }}
-              />
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginTop: '6px' }}>
-                <span>Commission:</span>
-                <strong>{referralRate}%</strong>
+          {isAdminMobileOpen && (
+            <div className="admin-drawer-overlay" onClick={() => setIsAdminMobileOpen(false)} />
+          )}
+
+          <div className="admin-grid container">
+            <aside className={`admin-nav-list ${isAdminMobileOpen ? 'open' : ''}`}>
+              <h2 style={{ fontFamily: 'var(--font-serif)', color: 'var(--gold-accent)', marginBottom: '12px', paddingLeft: '12px', fontSize: '20px' }}>
+                Shadi Mubarak Admin
+              </h2>
+              
+              <div className="admin-nav-section-title">Operations</div>
+              <div
+                className={`admin-nav-link ${adminActiveTab === 'overview' ? 'active' : ''}`}
+                onClick={() => {
+                  setAdminActiveTab('overview');
+                  setIsAdminMobileOpen(false);
+                }}
+              >
+                📊 Overview
               </div>
-            </div>
-          </aside>
+              <div
+                className={`admin-nav-link ${adminActiveTab === 'verification' ? 'active' : ''}`}
+                onClick={() => {
+                  setAdminActiveTab('verification');
+                  setIsAdminMobileOpen(false);
+                }}
+              >
+                👤 Verification Queue
+              </div>
+              <div
+                className={`admin-nav-link ${adminActiveTab === 'purchases' ? 'active' : ''}`}
+                onClick={() => {
+                  setAdminActiveTab('purchases');
+                  setIsAdminMobileOpen(false);
+                }}
+              >
+                💎 Premium Packages
+              </div>
+              <div
+                className={`admin-nav-link ${adminActiveTab === 'assignments' ? 'active' : ''}`}
+                onClick={() => {
+                  setAdminActiveTab('assignments');
+                  setIsAdminMobileOpen(false);
+                }}
+              >
+                🤝 Curated Matching
+              </div>
 
-          <main className="admin-view-area">
+              <div className="admin-nav-section-title">Logs</div>
+              <div
+                className={`admin-nav-link ${adminActiveTab === 'logs' ? 'active' : ''}`}
+                onClick={() => {
+                  setAdminActiveTab('logs');
+                  setIsAdminMobileOpen(false);
+                }}
+              >
+                📜 Activity Logs
+              </div>
+
+              <div className="admin-nav-section-title">Future Modules</div>
+              <div className="admin-nav-link" style={{ cursor: 'not-allowed', opacity: 0.7 }}>
+                🔗 Referral System <span className="coming-soon-badge">Soon</span>
+              </div>
+              <div className="admin-nav-link" style={{ cursor: 'not-allowed', opacity: 0.7 }}>
+                🏪 Marketplace <span className="coming-soon-badge">Soon</span>
+              </div>
+
+              <div style={{ marginTop: 'auto', borderTop: '1px solid rgba(212,163,89,0.3)', paddingTop: '20px', padding: '0 12px' }}>
+                <h4 style={{ color: 'var(--gold-accent)', fontSize: '13px', marginBottom: '8px' }}>Referral Rate Control</h4>
+                <input
+                  type="range"
+                  min="20"
+                  max="23"
+                  value={referralRate}
+                  onChange={(e) => setReferralRate(parseInt(e.target.value))}
+                  style={{ width: '100%', accentColor: 'var(--gold-accent)' }}
+                />
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', marginTop: '6px' }}>
+                  <span>Commission:</span>
+                  <strong>{referralRate}%</strong>
+                </div>
+              </div>
+            </aside>
+
+            <main className="admin-view-area">
+            {adminActiveTab === 'overview' && (
+              <div>
+                <h1 style={{ fontFamily: 'var(--font-serif)', color: 'var(--gold-dark)', marginBottom: '8px' }}>
+                  Dashboard Overview
+                </h1>
+                <p style={{ color: 'var(--text-muted)', fontSize: '14.5px', marginBottom: '32px' }}>
+                  Real-time matrimonial operations, premium subscriptions, and verification statistics.
+                </p>
+
+                <div className="stats-grid">
+                  <div className="stat-card">
+                    <div>
+                      <div className="stat-card-label">Total Profiles</div>
+                      <div className="stat-card-value">{profiles.length}</div>
+                    </div>
+                    <div className="stat-card-icon">👥</div>
+                  </div>
+
+                  <div className="stat-card">
+                    <div>
+                      <div className="stat-card-label">Pending Verifications</div>
+                      <div className="stat-card-value">{adminRequests.filter(r => r.status === 'PENDING').length}</div>
+                    </div>
+                    <div className="stat-card-icon">⏳</div>
+                  </div>
+
+                  <div className="stat-card">
+                    <div>
+                      <div className="stat-card-label">Verified Profiles</div>
+                      <div className="stat-card-value">{profiles.filter(p => p.verificationStatus === 'APPROVED').length}</div>
+                    </div>
+                    <div className="stat-card-icon">✅</div>
+                  </div>
+
+                  <div className="stat-card">
+                    <div>
+                      <div className="stat-card-label">Active Monthly Members</div>
+                      <div className="stat-card-value">{adminPurchases.filter(p => p.packageType === 'STANDARD' && p.paymentStatus === 'PAID').length}</div>
+                    </div>
+                    <div className="stat-card-icon">📅</div>
+                  </div>
+
+                  <div className="stat-card">
+                    <div>
+                      <div className="stat-card-label">Premium Purchases</div>
+                      <div className="stat-card-value">{adminPurchases.length}</div>
+                    </div>
+                    <div className="stat-card-icon">💎</div>
+                  </div>
+
+                  <div className="stat-card">
+                    <div>
+                      <div className="stat-card-label">Curated Matches Cases</div>
+                      <div className="stat-card-value">{adminPurchases.filter(p => p.packageType === 'CURATED').length}</div>
+                    </div>
+                    <div className="stat-card-icon">🤝</div>
+                  </div>
+
+                  <div className="stat-card">
+                    <div>
+                      <div className="stat-card-label">Second-Marriage Cases</div>
+                      <div className="stat-card-value">{adminPurchases.filter(p => p.packageType === 'SECOND_MARRIAGE').length}</div>
+                    </div>
+                    <div className="stat-card-icon">💍</div>
+                  </div>
+
+                  <div className="stat-card">
+                    <div>
+                      <div className="stat-card-label">High-Profile Cases</div>
+                      <div className="stat-card-value">{adminPurchases.filter(p => p.packageType === 'HIGH_PROFILE').length}</div>
+                    </div>
+                    <div className="stat-card-icon">👑</div>
+                  </div>
+
+                  <div className="stat-card">
+                    <div>
+                      <div className="stat-card-label">Pending Premium Approvals</div>
+                      <div className="stat-card-value">{adminPurchases.filter(p => p.eligibilityStatus === 'PENDING').length}</div>
+                    </div>
+                    <div className="stat-card-icon">⚖️</div>
+                  </div>
+
+                  <div className="stat-card">
+                    <div>
+                      <div className="stat-card-label">Completed Matches</div>
+                      <div className="stat-card-value">{adminAssignments.filter(a => a.status === 'MARRIED').length + adminPurchases.filter(p => p.marriageConfirmation === 'CONFIRMED').length}</div>
+                    </div>
+                    <div className="stat-card-icon">❤️</div>
+                  </div>
+
+                  <div className="stat-card">
+                    <div>
+                      <div className="stat-card-label">Audit Logs</div>
+                      <div className="stat-card-value">{auditLogs.length}</div>
+                    </div>
+                    <div className="stat-card-icon">📜</div>
+                  </div>
+                </div>
+                
+                <div className="card-theme-wrapper" style={{ marginTop: '20px' }}>
+                  <div className="ornament ornament-tl"></div>
+                  <div className="ornament ornament-tr"></div>
+                  <div className="ornament ornament-bl"></div>
+                  <div className="ornament ornament-br"></div>
+                  <h3 style={{ fontFamily: 'var(--font-serif)', color: 'var(--gold-dark)', marginBottom: '12px' }}>Welcome to the Admin Portal</h3>
+                  <p style={{ fontSize: '14px', lineHeight: '1.6', color: 'var(--text-dark)' }}>
+                    This administration console is configured for <strong>Shadi Mubarak</strong> matrimonial operations. Use the sidebar menu to navigate through pending applicant validations, premium subscription checkouts, matchmaking assignments, and chronological system audit trails.
+                  </p>
+                </div>
+              </div>
+            )}
+
             {adminActiveTab === 'verification' && (
               <div>
-                <h1 style={{ fontFamily: 'var(--font-serif)', color: 'var(--gold-dark)', marginBottom: '24px' }}>
+                <h1 style={{ fontFamily: 'var(--font-serif)', color: 'var(--gold-dark)', marginBottom: '8px' }}>
                   Verification Call Queue
                 </h1>
+                <p style={{ color: 'var(--text-muted)', fontSize: '14.5px', marginBottom: '24px' }}>
+                  Conduct manual telephone checks on newly registered members, log interview notes, and approve or reject profiles.
+                </p>
 
                 {selectedRequestForReview && selectedRequestForReview.profile && (
-                  <div className="card-theme-wrapper" style={{ marginBottom: '30px' }}>
+                  <div className="card-theme-wrapper" style={{ marginBottom: '30px', border: '1.5px solid var(--gold-accent)' }}>
                     <div className="ornament ornament-tl"></div>
                     <div className="ornament ornament-tr"></div>
                     <div className="ornament ornament-bl"></div>
                     <div className="ornament ornament-br"></div>
-                    <h3>Review Application: {selectedRequestForReview.profile.fullName}</h3>
-                    <div style={{ margin: '15px 0', fontSize: '13.5px', border: '1px solid var(--border-color)', padding: '15px', borderRadius: '8px', backgroundColor: '#fff' }}>
-                      <p style={{ marginBottom: '6px' }}><strong>Phone:</strong> {selectedRequestForReview.profile.phoneNumber}</p>
-                      <p style={{ marginBottom: '6px' }}><strong>Location:</strong> {selectedRequestForReview.profile.city}, {selectedRequestForReview.profile.state}</p>
-                      <p style={{ marginBottom: '6px' }}><strong>Bio:</strong> {selectedRequestForReview.profile.bio}</p>
-                      <p><strong>Family:</strong> {selectedRequestForReview.profile.familyInfo}</p>
+                    <h3 style={{ fontFamily: 'var(--font-serif)', color: 'var(--gold-dark)', marginBottom: '16px' }}>
+                      Reviewing: {selectedRequestForReview.profile.fullName} (ID: {selectedRequestForReview.profileId})
+                    </h3>
+                    
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', margin: '15px 0', fontSize: '13.5px', border: '1px solid var(--border-color)', padding: '20px', borderRadius: '8px', backgroundColor: '#fff' }}>
+                      <p><strong>Phone:</strong> {selectedRequestForReview.profile.phoneNumber}</p>
+                      <p><strong>Location:</strong> {selectedRequestForReview.profile.city}, {selectedRequestForReview.profile.state}</p>
+                      <p style={{ gridColumn: 'span 2' }}><strong>Bio:</strong> {selectedRequestForReview.profile.bio}</p>
+                      <p style={{ gridColumn: 'span 2' }}><strong>Family Background:</strong> {selectedRequestForReview.profile.familyInfo}</p>
+                      <p><strong>Submitted On:</strong> {new Date(selectedRequestForReview.createdAt).toLocaleString()}</p>
+                      <p>
+                        <strong>Current Status: </strong> 
+                        <span style={{ 
+                          padding: '2px 8px', 
+                          borderRadius: '4px', 
+                          fontSize: '11px', 
+                          fontWeight: 'bold',
+                          backgroundColor: selectedRequestForReview.status === 'APPROVED' ? 'rgba(18, 46, 34, 0.1)' : selectedRequestForReview.status === 'REJECTED' ? 'rgba(230, 92, 92, 0.1)' : 'rgba(240, 190, 50, 0.1)',
+                          color: selectedRequestForReview.status === 'APPROVED' ? 'green' : selectedRequestForReview.status === 'REJECTED' ? 'red' : 'orange'
+                        }}>
+                          {selectedRequestForReview.status}
+                        </span>
+                      </p>
                     </div>
 
                     <div className="form-group">
-                      <label className="form-label">Phone call verification notes</label>
+                      <label className="form-label" style={{ fontWeight: 'bold' }}>Phone call verification notes</label>
                       <textarea
                         className="form-control"
                         rows={3}
                         value={reviewNotes}
                         onChange={(e) => setReviewNotes(e.target.value)}
-                        placeholder="Write details from phone call verification here..."
+                        placeholder="Log observations from manual telephone check (e.g. family details confirmed, match criteria verified)..."
                       />
                     </div>
 
                     <div style={{ display: 'flex', gap: '10px', marginTop: '15px', flexWrap: 'wrap' }}>
-                      <button onClick={() => handleReviewSubmit('APPROVED')} className="btn btn-gold">
-                        Approve Candidate
+                      <button onClick={() => handleReviewSubmit('APPROVED')} className="btn btn-gold" style={{ backgroundColor: 'green', borderColor: 'green' }}>
+                        ✓ Approve Profile
                       </button>
-                      <button onClick={() => handleReviewSubmit('REJECTED')} className="btn btn-primary">
-                        Reject Profile
+                      <button onClick={() => handleReviewSubmit('REJECTED')} className="btn btn-primary" style={{ backgroundColor: 'red', borderColor: 'red' }}>
+                        ✗ Reject Profile
                       </button>
                       <button onClick={() => handleReviewSubmit('NEEDS_FOLLOW_UP')} className="btn btn-secondary">
                         Needs Follow Up
                       </button>
-                      <button onClick={() => setSelectedRequestForReview(null)} className="btn btn-secondary" style={{ marginLeft: 'auto' }}>
+                      <button onClick={() => { setSelectedRequestForReview(null); setReviewNotes(''); }} className="btn btn-secondary" style={{ marginLeft: 'auto' }}>
                         Cancel
                       </button>
                     </div>
@@ -2155,64 +2351,79 @@ export default function Home() {
                 )}
 
                 <div className="table-responsive" style={{ backgroundColor: 'var(--white)', padding: '24px', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
-                  <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '500px' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '700px' }}>
                     <thead>
-                      <tr style={{ borderBottom: '2px solid var(--border-color)', height: '40px', fontSize: '13px', textTransform: 'uppercase', color: 'var(--gold-dark)' }}>
-                        <th style={{ padding: '8px' }}>Candidate</th>
-                        <th style={{ padding: '8px' }}>Phone</th>
-                        <th style={{ padding: '8px' }}>Location</th>
-                        <th style={{ padding: '8px' }}>Status</th>
-                        <th style={{ padding: '8px' }}>Actions</th>
+                      <tr style={{ borderBottom: '2px solid var(--border-color)', height: '40px', fontSize: '12px', textTransform: 'uppercase', color: 'var(--gold-dark)' }}>
+                        <th style={{ padding: '12px 8px' }}>Profile ID</th>
+                        <th style={{ padding: '12px 8px' }}>Candidate Name</th>
+                        <th style={{ padding: '12px 8px' }}>Phone Check Status</th>
+                        <th style={{ padding: '12px 8px' }}>Submitted Date</th>
+                        <th style={{ padding: '12px 8px' }}>Actions</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {adminRequests.map((req) => (
-                        <tr key={req.id} style={{ borderBottom: '1px solid var(--border-color)', height: '60px', fontSize: '14px' }}>
-                          <td style={{ padding: '8px' }}>
-                            <strong>{req.profile?.fullName || 'Incomplete Profile'}</strong>
-                          </td>
-                          <td style={{ padding: '8px' }}>{req.profile?.phoneNumber || 'N/A'}</td>
-                          <td style={{ padding: '8px' }}>{req.profile?.city || 'N/A'}</td>
-                          <td style={{ padding: '8px' }}>
-                            <span
-                              style={{
-                                padding: '4px 8px',
-                                borderRadius: '4px',
-                                fontSize: '11px',
-                                fontWeight: 'bold',
-                                backgroundColor:
-                                  req.status === 'APPROVED'
-                                    ? 'rgba(18, 46, 34, 0.1)'
-                                    : req.status === 'REJECTED'
-                                    ? 'rgba(230, 92, 92, 0.1)'
-                                    : 'rgba(240, 190, 50, 0.1)',
-                                color:
-                                  req.status === 'APPROVED'
-                                    ? 'green'
-                                    : req.status === 'REJECTED'
-                                    ? 'red'
-                                    : 'orange',
-                              }}
-                            >
-                              {req.status}
-                            </span>
-                          </td>
-                          <td style={{ padding: '8px' }}>
-                            {req.profile && (
-                              <button
-                                onClick={() => {
-                                  setSelectedRequestForReview(req);
-                                  setReviewNotes(req.notes || '');
-                                }}
-                                className="btn btn-gold"
-                                style={{ padding: '6px 12px', fontSize: '11px' }}
-                              >
-                                Review Call
-                              </button>
-                            )}
+                      {adminRequests.length === 0 ? (
+                        <tr>
+                          <td colSpan={5} style={{ textAlign: 'center', padding: '30px' }}>
+                            <div className="empty-state">
+                              <div className="empty-state-icon">👥</div>
+                              <h3>No Verification Requests</h3>
+                              <p>All newly registered matrimonial profiles have been verified.</p>
+                            </div>
                           </td>
                         </tr>
-                      ))}
+                      ) : (
+                        adminRequests.map((req) => (
+                          <tr key={req.id} style={{ borderBottom: '1px solid var(--border-color)', height: '60px', fontSize: '13.5px' }}>
+                            <td style={{ padding: '12px 8px' }}>
+                              <code style={{ fontSize: '12.5px', color: 'var(--gold-dark)', fontWeight: 'bold' }}>{req.profileId.substring(0, 8)}...</code>
+                            </td>
+                            <td style={{ padding: '12px 8px' }}>
+                              <strong>{req.profile?.fullName || 'Incomplete Profile'}</strong>
+                              <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{req.profile?.city || 'N/A'}, {req.profile?.state || 'N/A'}</div>
+                            </td>
+                            <td style={{ padding: '12px 8px' }}>
+                              <span
+                                style={{
+                                  padding: '4px 8px',
+                                  borderRadius: '4px',
+                                  fontSize: '11px',
+                                  fontWeight: 'bold',
+                                  backgroundColor:
+                                    req.status === 'APPROVED'
+                                      ? 'rgba(18, 46, 34, 0.1)'
+                                      : req.status === 'REJECTED'
+                                      ? 'rgba(230, 92, 92, 0.1)'
+                                      : 'rgba(240, 190, 50, 0.1)',
+                                  color:
+                                    req.status === 'APPROVED'
+                                      ? 'green'
+                                      : req.status === 'REJECTED'
+                                      ? 'red'
+                                      : 'orange',
+                                }}
+                              >
+                                {req.status}
+                              </span>
+                            </td>
+                            <td style={{ padding: '12px 8px' }}>{new Date(req.createdAt).toLocaleDateString()}</td>
+                            <td style={{ padding: '12px 8px' }}>
+                              {req.profile && (
+                                <button
+                                  onClick={() => {
+                                    setSelectedRequestForReview(req);
+                                    setReviewNotes(req.notes || '');
+                                  }}
+                                  className="btn btn-gold"
+                                  style={{ padding: '6px 12px', fontSize: '11px' }}
+                                >
+                                  Review Call
+                                </button>
+                              )}
+                            </td>
+                          </tr>
+                        ))
+                      )}
                     </tbody>
                   </table>
                 </div>
@@ -2221,87 +2432,126 @@ export default function Home() {
 
             {adminActiveTab === 'purchases' && (
               <div>
-                <h1 style={{ fontFamily: 'var(--font-serif)', color: 'var(--gold-dark)', marginBottom: '24px' }}>
-                  Premium Package Purchases
+                <h1 style={{ fontFamily: 'var(--font-serif)', color: 'var(--gold-dark)', marginBottom: '8px' }}>
+                  Premium Purchases & Subscriptions
                 </h1>
+                <p style={{ color: 'var(--text-muted)', fontSize: '14.5px', marginBottom: '24px' }}>
+                  Monitor standard monthly memberships and custom premium matchmaking packages, including GST logs and approval states.
+                </p>
 
                 <div className="table-responsive" style={{ backgroundColor: 'var(--white)', padding: '24px', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
-                  <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '800px' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '1000px' }}>
                     <thead>
-                      <tr style={{ borderBottom: '2px solid var(--border-color)', height: '40px', fontSize: '13px', textTransform: 'uppercase', color: 'var(--gold-dark)' }}>
-                        <th style={{ padding: '8px' }}>Candidate Name</th>
-                        <th style={{ padding: '8px' }}>Package Type</th>
-                        <th style={{ padding: '8px' }}>Price + GST</th>
-                        <th style={{ padding: '8px' }}>Payment Status</th>
-                        <th style={{ padding: '8px' }}>HP Eligibility</th>
-                        <th style={{ padding: '8px' }}>Marriage Confirm</th>
-                        <th style={{ padding: '8px' }}>Success Fee</th>
+                      <tr style={{ borderBottom: '2px solid var(--border-color)', height: '40px', fontSize: '12px', textTransform: 'uppercase', color: 'var(--gold-dark)' }}>
+                        <th style={{ padding: '12px 8px' }}>Buyer Profile</th>
+                        <th style={{ padding: '12px 8px' }}>Package Name</th>
+                        <th style={{ padding: '12px 8px' }}>Base Price</th>
+                        <th style={{ padding: '12px 8px' }}>GST (18%)</th>
+                        <th style={{ padding: '12px 8px' }}>Total Amount</th>
+                        <th style={{ padding: '12px 8px' }}>Payment</th>
+                        <th style={{ padding: '12px 8px' }}>Purchase Date</th>
+                        <th style={{ padding: '12px 8px' }}>HP Approval</th>
+                        <th style={{ padding: '12px 8px' }}>Marriage Confirm</th>
+                        <th style={{ padding: '12px 8px' }}>Success Fee</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {adminPurchases.map((purchase) => (
-                        <tr key={purchase.id} style={{ borderBottom: '1px solid var(--border-color)', fontSize: '13.5px' }}>
-                          <td style={{ padding: '12px 8px' }}>
-                            <strong>{purchase.profile?.fullName || 'N/A'}</strong>
-                          </td>
-                          <td style={{ padding: '12px 8px' }}>{purchase.packageType}</td>
-                          <td style={{ padding: '12px 8px' }}>₹{purchase.totalAmount}</td>
-                          <td style={{ padding: '12px 8px' }}>
-                            <span style={{ color: purchase.paymentStatus === 'PAID' ? 'green' : 'orange', fontWeight: 'bold' }}>
-                              {purchase.paymentStatus}
-                            </span>
-                          </td>
-                          <td style={{ padding: '12px 8px' }}>
-                            {purchase.packageType === 'HIGH_PROFILE' ? (
-                              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                <span style={{ fontWeight: 'bold', color: purchase.eligibilityStatus === 'APPROVED' ? 'green' : purchase.eligibilityStatus === 'REJECTED' ? 'red' : 'orange' }}>
-                                  {purchase.eligibilityStatus}
-                                </span>
-                                {purchase.eligibilityStatus === 'PENDING' && (
-                                  <div style={{ display: 'flex', gap: '4px' }}>
-                                    <button onClick={() => handleUpdateHPStatus(purchase.id, 'APPROVED', 'Eligible candidate approved')} className="btn btn-secondary" style={{ padding: '2px 6px', fontSize: '10px' }}>Approve</button>
-                                    <button onClick={() => handleUpdateHPStatus(purchase.id, 'REJECTED', 'Criteria not met')} className="btn btn-primary" style={{ padding: '2px 6px', fontSize: '10px' }}>Reject</button>
-                                  </div>
-                                )}
-                              </div>
-                            ) : (
-                              <span>N/A</span>
-                            )}
-                          </td>
-                          <td style={{ padding: '12px 8px' }}>
-                            {['CURATED', 'HIGH_PROFILE'].includes(purchase.packageType) ? (
-                              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                <span>{purchase.marriageConfirmation}</span>
-                                {purchase.marriageConfirmation === 'PENDING' ? (
-                                  <button onClick={() => handleConfirmMarriage(purchase.id, true)} className="btn btn-gold" style={{ padding: '2px 6px', fontSize: '10px' }}>
-                                    Confirm Marriage
-                                  </button>
-                                ) : (
-                                  <button onClick={() => handleConfirmMarriage(purchase.id, false)} className="btn btn-secondary" style={{ padding: '2px 6px', fontSize: '10px' }}>
-                                    Reset
-                                  </button>
-                                )}
-                              </div>
-                            ) : (
-                              <span>N/A</span>
-                            )}
-                          </td>
-                          <td style={{ padding: '12px 8px' }}>
-                            {['CURATED', 'HIGH_PROFILE'].includes(purchase.packageType) ? (
-                              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                <span>Status: {purchase.successFeePaymentStatus}</span>
-                                {purchase.successFeePaymentStatus === 'PENDING' && (
-                                  <button onClick={() => handleUpdateSuccessFee(purchase.id, 'PAID')} className="btn btn-gold" style={{ padding: '2px 6px', fontSize: '10px' }}>
-                                    Mark Paid
-                                  </button>
-                                )}
-                              </div>
-                            ) : (
-                              <span>N/A</span>
-                            )}
+                      {adminPurchases.length === 0 ? (
+                        <tr>
+                          <td colSpan={10} style={{ textAlign: 'center', padding: '30px' }}>
+                            <div className="empty-state">
+                              <div className="empty-state-icon">💎</div>
+                              <h3>No Package Purchases</h3>
+                              <p>No premium packages or standard memberships have been purchased yet.</p>
+                            </div>
                           </td>
                         </tr>
-                      ))}
+                      ) : (
+                        adminPurchases.map((purchase) => {
+                          const getPriceDetails = (pkgType: string) => {
+                            if (pkgType === 'STANDARD') return { name: 'Standard Monthly Membership', base: 300, gst: 54, total: 354 };
+                            if (pkgType === 'CURATED') return { name: 'Curated Profiles', base: 5500, gst: 990, total: 6490 };
+                            if (pkgType === 'SECOND_MARRIAGE') return { name: 'Second-Marriage Profiles', base: 11000, gst: 1980, total: 12980 };
+                            if (pkgType === 'HIGH_PROFILE') return { name: 'High-Profile Matches', base: 21000, gst: 3780, total: 24780 };
+                            return { name: pkgType, base: 0, gst: 0, total: 0 };
+                          };
+                          const details = getPriceDetails(purchase.packageType);
+                          return (
+                            <tr key={purchase.id} style={{ borderBottom: '1px solid var(--border-color)', fontSize: '13.5px' }}>
+                              <td style={{ padding: '12px 8px' }}>
+                                <strong>{purchase.profile?.fullName || 'N/A'}</strong>
+                                <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>ID: {purchase.profileId.substring(0, 8)}...</div>
+                              </td>
+                              <td style={{ padding: '12px 8px' }}>{details.name}</td>
+                              <td style={{ padding: '12px 8px' }}>₹{details.base}</td>
+                              <td style={{ padding: '12px 8px' }}>₹{details.gst}</td>
+                              <td style={{ padding: '12px 8px' }}><strong>₹{details.total}</strong></td>
+                              <td style={{ padding: '12px 8px' }}>
+                                <span style={{ 
+                                  padding: '2px 6px',
+                                  borderRadius: '4px',
+                                  fontSize: '11px',
+                                  fontWeight: 'bold',
+                                  backgroundColor: purchase.paymentStatus === 'PAID' ? 'rgba(18, 46, 34, 0.1)' : 'rgba(240, 190, 50, 0.1)',
+                                  color: purchase.paymentStatus === 'PAID' ? 'green' : 'orange'
+                                }}>
+                                  {purchase.paymentStatus}
+                                </span>
+                              </td>
+                              <td style={{ padding: '12px 8px' }}>{new Date(purchase.purchaseDate).toLocaleDateString()}</td>
+                              <td style={{ padding: '12px 8px' }}>
+                                {purchase.packageType === 'HIGH_PROFILE' ? (
+                                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                    <span style={{ fontWeight: 'bold', fontSize: '12px', color: purchase.eligibilityStatus === 'APPROVED' ? 'green' : purchase.eligibilityStatus === 'REJECTED' ? 'red' : 'orange' }}>
+                                      {purchase.eligibilityStatus}
+                                    </span>
+                                    {purchase.eligibilityStatus === 'PENDING' && (
+                                      <div style={{ display: 'flex', gap: '4px' }}>
+                                        <button onClick={() => handleUpdateHPStatus(purchase.id, 'APPROVED', 'Eligible candidate approved')} className="btn btn-secondary" style={{ padding: '2px 6px', fontSize: '10px' }}>Approve</button>
+                                        <button onClick={() => handleUpdateHPStatus(purchase.id, 'REJECTED', 'Criteria not met')} className="btn btn-primary" style={{ padding: '2px 6px', fontSize: '10px', backgroundColor: 'red', borderColor: 'red' }}>Reject</button>
+                                      </div>
+                                    )}
+                                  </div>
+                                ) : (
+                                  <span style={{ color: 'var(--text-muted)' }}>N/A</span>
+                                )}
+                              </td>
+                              <td style={{ padding: '12px 8px' }}>
+                                {['CURATED', 'HIGH_PROFILE'].includes(purchase.packageType) ? (
+                                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                    <span style={{ fontWeight: 'bold', color: purchase.marriageConfirmation === 'CONFIRMED' ? 'green' : 'var(--text-dark)' }}>{purchase.marriageConfirmation}</span>
+                                    {purchase.marriageConfirmation === 'PENDING' ? (
+                                      <button onClick={() => handleConfirmMarriage(purchase.id, true)} className="btn btn-gold" style={{ padding: '2px 6px', fontSize: '10px' }}>
+                                        Confirm Marriage
+                                      </button>
+                                    ) : (
+                                      <button onClick={() => handleConfirmMarriage(purchase.id, false)} className="btn btn-secondary" style={{ padding: '2px 6px', fontSize: '10px' }}>
+                                        Reset
+                                      </button>
+                                    )}
+                                  </div>
+                                ) : (
+                                  <span style={{ color: 'var(--text-muted)' }}>N/A</span>
+                                )}
+                              </td>
+                              <td style={{ padding: '12px 8px' }}>
+                                {['CURATED', 'HIGH_PROFILE'].includes(purchase.packageType) ? (
+                                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                    <span style={{ fontWeight: 'bold', color: purchase.successFeePaymentStatus === 'PAID' ? 'green' : 'orange' }}>{purchase.successFeePaymentStatus}</span>
+                                    {purchase.successFeePaymentStatus === 'PENDING' && (
+                                      <button onClick={() => handleUpdateSuccessFee(purchase.id, 'PAID')} className="btn btn-gold" style={{ padding: '2px 6px', fontSize: '10px' }}>
+                                        Mark Paid
+                                      </button>
+                                    )}
+                                  </div>
+                                ) : (
+                                  <span style={{ color: 'var(--text-muted)' }}>N/A</span>
+                                )}
+                              </td>
+                            </tr>
+                          );
+                        })
+                      )}
                     </tbody>
                   </table>
                 </div>
@@ -2310,13 +2560,20 @@ export default function Home() {
 
             {adminActiveTab === 'assignments' && (
               <div>
-                <h1 style={{ fontFamily: 'var(--font-serif)', color: 'var(--gold-dark)', marginBottom: '24px' }}>
+                <h1 style={{ fontFamily: 'var(--font-serif)', color: 'var(--gold-dark)', marginBottom: '8px' }}>
                   Curated Match Lead Assigner
                 </h1>
+                <p style={{ color: 'var(--text-muted)', fontSize: '14.5px', marginBottom: '24px' }}>
+                  Assign manually verified candidate profiles to premium Curated Matches members and manage compatibility states.
+                </p>
 
                 {/* Assignment Tool Form */}
                 <div className="card-theme-wrapper" style={{ marginBottom: '30px' }}>
-                  <h3>Assign New Lead</h3>
+                  <div className="ornament ornament-tl"></div>
+                  <div className="ornament ornament-tr"></div>
+                  <div className="ornament ornament-bl"></div>
+                  <div className="ornament ornament-br"></div>
+                  <h3 style={{ fontFamily: 'var(--font-serif)', color: 'var(--gold-dark)', marginBottom: '12px' }}>Assign New Lead</h3>
                   <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', marginTop: '15px' }}>
                     <div style={{ flexGrow: 1, minWidth: '200px' }}>
                       <label className="form-label">Select Curated Buyer</label>
@@ -2344,78 +2601,248 @@ export default function Home() {
                   </div>
                 </div>
 
-                <div className="table-responsive" style={{ backgroundColor: 'var(--white)', padding: '24px', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
-                  <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '600px' }}>
-                    <thead>
-                      <tr style={{ borderBottom: '2px solid var(--border-color)', height: '40px', fontSize: '13px', textTransform: 'uppercase', color: 'var(--gold-dark)' }}>
-                        <th style={{ padding: '8px' }}>Curated Buyer</th>
-                        <th style={{ padding: '8px' }}>Assigned Lead</th>
-                        <th style={{ padding: '8px' }}>Lead Status</th>
-                        <th style={{ padding: '8px' }}>Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {adminAssignments.map((a) => (
-                        <tr key={a.id} style={{ borderBottom: '1px solid var(--border-color)', fontSize: '13.5px', height: '50px' }}>
-                          <td style={{ padding: '8px' }}><strong>{a.buyerProfile?.fullName || 'N/A'}</strong></td>
-                          <td style={{ padding: '8px' }}>{a.leadProfile?.fullName || 'N/A'}</td>
-                          <td style={{ padding: '8px' }}>
-                            <span style={{ fontWeight: 'bold', color: a.status === 'MARRIED' ? 'green' : 'var(--text-dark)' }}>{a.status}</span>
-                          </td>
-                          <td style={{ padding: '8px' }}>
-                            <select
-                              value={a.status}
-                              onChange={(e) => handleUpdateLeadStatus(a.id, e.target.value)}
-                              className="form-control"
-                              style={{ padding: '4px', fontSize: '12px', width: '130px' }}
-                            >
-                              <option value="PENDING">PENDING</option>
-                              <option value="CONTACTED">CONTACTED</option>
-                              <option value="INTERESTED">INTERESTED</option>
-                              <option value="DECLINED">DECLINED</option>
-                              <option value="MARRIED">MARRIED</option>
-                            </select>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                <div style={{ display: 'grid', gap: '30px' }}>
+                  {/* Unassigned Buyers List */}
+                  <div>
+                    <h3 style={{ fontFamily: 'var(--font-serif)', color: 'var(--gold-dark)', marginBottom: '12px', fontSize: '18px' }}>
+                      Unassigned Premium Buyers ({adminPurchases.filter(p => p.packageType === 'CURATED' && p.paymentStatus === 'PAID' && !adminAssignments.some(a => a.buyerProfileId === p.profileId)).length})
+                    </h3>
+                    <div className="grid-3" style={{ gap: '16px' }}>
+                      {adminPurchases.filter(p => p.packageType === 'CURATED' && p.paymentStatus === 'PAID' && !adminAssignments.some(a => a.buyerProfileId === p.profileId)).length === 0 ? (
+                        <div style={{ gridColumn: 'span 3', padding: '16px', backgroundColor: 'var(--white)', border: '1px solid var(--border-color)', borderRadius: '8px', fontSize: '13px', color: 'var(--text-muted)' }}>
+                          No unassigned Curated Matches buyers. All active buyers have at least one lead assigned.
+                        </div>
+                      ) : (
+                        adminPurchases.filter(p => p.packageType === 'CURATED' && p.paymentStatus === 'PAID' && !adminAssignments.some(a => a.buyerProfileId === p.profileId)).map(buyer => (
+                          <div key={buyer.id} style={{ backgroundColor: 'var(--white)', padding: '16px', borderRadius: '8px', border: '1.5px solid var(--gold-light)' }}>
+                            <strong style={{ display: 'block', fontSize: '14px' }}>{buyer.profile?.fullName || 'Buyer Name'}</strong>
+                            <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{buyer.profile?.city} • {buyer.profile?.occupation}</span>
+                            <span style={{ display: 'block', fontSize: '11px', marginTop: '6px', color: 'orange', fontWeight: 'bold' }}>⚠️ Awaiting First Lead</span>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Active & Completed Assignments */}
+                  <div>
+                    <h3 style={{ fontFamily: 'var(--font-serif)', color: 'var(--gold-dark)', marginBottom: '12px', fontSize: '18px' }}>
+                      Lead Assignments & Statuses ({adminAssignments.length})
+                    </h3>
+                    <div className="table-responsive" style={{ backgroundColor: 'var(--white)', padding: '24px', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
+                      <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '600px' }}>
+                        <thead>
+                          <tr style={{ borderBottom: '2px solid var(--border-color)', height: '40px', fontSize: '12px', textTransform: 'uppercase', color: 'var(--gold-dark)' }}>
+                            <th style={{ padding: '12px 8px' }}>Curated Buyer</th>
+                            <th style={{ padding: '12px 8px' }}>Assigned Match Lead</th>
+                            <th style={{ padding: '12px 8px' }}>Status</th>
+                            <th style={{ padding: '12px 8px' }}>Update Status</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {adminAssignments.length === 0 ? (
+                            <tr>
+                              <td colSpan={4} style={{ textAlign: 'center', padding: '30px' }}>
+                                <div className="empty-state">
+                                  <div className="empty-state-icon">🤝</div>
+                                  <h3>No Lead Assignments</h3>
+                                  <p>Select a buyer and a verified lead above to create a matching case.</p>
+                                </div>
+                              </td>
+                            </tr>
+                          ) : (
+                            adminAssignments.map((a) => (
+                              <tr key={a.id} style={{ borderBottom: '1px solid var(--border-color)', fontSize: '13.5px', height: '60px' }}>
+                                <td style={{ padding: '12px 8px' }}>
+                                  <strong>{a.buyerProfile?.fullName || 'N/A'}</strong>
+                                  <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{a.buyerProfile?.city || 'N/A'} • {a.buyerProfile?.gender}</div>
+                                </td>
+                                <td style={{ padding: '12px 8px' }}>
+                                  <strong>{a.leadProfile?.fullName || 'N/A'}</strong>
+                                  <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{a.leadProfile?.city || 'N/A'} • {a.leadProfile?.gender}</div>
+                                </td>
+                                <td style={{ padding: '12px 8px' }}>
+                                  <span style={{ 
+                                    padding: '4px 8px',
+                                    borderRadius: '4px',
+                                    fontSize: '11px',
+                                    fontWeight: 'bold',
+                                    backgroundColor: a.status === 'MARRIED' ? 'rgba(18, 46, 34, 0.1)' : a.status === 'DECLINED' ? 'rgba(230, 92, 92, 0.1)' : 'rgba(240, 190, 50, 0.1)',
+                                    color: a.status === 'MARRIED' ? 'green' : a.status === 'DECLINED' ? 'red' : 'var(--text-dark)'
+                                  }}>
+                                    {a.status}
+                                  </span>
+                                </td>
+                                <td style={{ padding: '12px 8px' }}>
+                                  <select
+                                    value={a.status}
+                                    onChange={(e) => handleUpdateLeadStatus(a.id, e.target.value)}
+                                    className="form-control"
+                                    style={{ padding: '6px', fontSize: '12px', width: '130px', height: '34px' }}
+                                  >
+                                    <option value="PENDING">PENDING</option>
+                                    <option value="CONTACTED">CONTACTED</option>
+                                    <option value="INTERESTED">INTERESTED</option>
+                                    <option value="DECLINED">DECLINED</option>
+                                    <option value="MARRIED">MARRIED</option>
+                                  </select>
+                                </td>
+                              </tr>
+                            ))
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
 
-            {adminActiveTab === 'logs' && (
-              <div>
-                <h1 style={{ fontFamily: 'var(--font-serif)', color: 'var(--gold-dark)', marginBottom: '24px' }}>
-                  Admin Verification Audit Logs
-                </h1>
+            {adminActiveTab === 'logs' && (() => {
+              const actionTypes = Array.from(new Set(auditLogs.map(l => l.action)));
+              
+              const filteredLogs = auditLogs.filter(log => {
+                if (logActionFilter !== 'All' && log.action !== logActionFilter) return false;
+                if (logSearchQuery.trim()) {
+                  const q = logSearchQuery.toLowerCase();
+                  return (
+                    (log.actorUserId && log.actorUserId.toLowerCase().includes(q)) ||
+                    log.action.toLowerCase().includes(q) ||
+                    (log.targetId && log.targetId.toLowerCase().includes(q)) ||
+                    (log.metadata && log.metadata.toLowerCase().includes(q))
+                  );
+                }
+                return true;
+              });
 
-                <div style={{ backgroundColor: 'var(--white)', padding: '24px', borderRadius: '12px', border: '1px solid var(--border-color)', overflowX: 'auto' }}>
-                  <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '500px' }}>
-                    <thead>
-                      <tr style={{ borderBottom: '2px solid var(--border-color)', height: '40px', fontSize: '13px', textTransform: 'uppercase', color: 'var(--gold-dark)' }}>
-                        <th style={{ padding: '8px' }}>Timestamp</th>
-                        <th style={{ padding: '8px' }}>Action By</th>
-                        <th style={{ padding: '8px' }}>Action</th>
-                        <th style={{ padding: '8px' }}>Target ID</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {auditLogs.map((log) => (
-                        <tr key={log.id} style={{ borderBottom: '1px solid var(--border-color)', height: '50px', fontSize: '13.5px' }}>
-                          <td style={{ padding: '8px' }}>{new Date(log.createdAt).toLocaleString()}</td>
-                          <td style={{ padding: '8px' }}>{log.actorUserId}</td>
-                          <td style={{ padding: '8px' }}>{log.action}</td>
-                          <td style={{ padding: '8px' }}>{log.targetId}</td>
+              return (
+                <div>
+                  <h1 style={{ fontFamily: 'var(--font-serif)', color: 'var(--gold-dark)', marginBottom: '8px' }}>
+                    Admin Verification Audit Logs
+                  </h1>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '14.5px', marginBottom: '24px' }}>
+                    Track manual telephone verification approvals, rejections, and other administrative activities.
+                  </p>
+
+                  {/* Filter & Search Bar */}
+                  <div className="admin-filter-bar">
+                    <div className="admin-filter-item">
+                      <label className="form-label">Search Logs</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        placeholder="Search by Actor, Action, or Target..."
+                        value={logSearchQuery}
+                        onChange={(e) => setLogSearchQuery(e.target.value)}
+                        style={{ height: '42px' }}
+                      />
+                    </div>
+
+                    <div className="admin-filter-item">
+                      <label className="form-label">Action Type</label>
+                      <select
+                        className="form-control"
+                        value={logActionFilter}
+                        onChange={(e) => setLogActionFilter(e.target.value)}
+                        style={{ height: '42px' }}
+                      >
+                        <option value="All">All Actions</option>
+                        {actionTypes.map(act => (
+                          <option key={act} value={act}>{act}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="admin-filter-item">
+                      <label className="form-label">Date Range (UI Placeholders)</label>
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <input type="date" className="form-control" style={{ height: '42px', padding: '6px 12px' }} disabled />
+                        <input type="date" className="form-control" style={{ height: '42px', padding: '6px 12px' }} disabled />
+                      </div>
+                    </div>
+
+                    <div className="admin-filter-item button-item">
+                      <button
+                        className="btn btn-secondary"
+                        onClick={() => {
+                          setLogSearchQuery('');
+                          setLogActionFilter('All');
+                        }}
+                        style={{ height: '42px', whiteSpace: 'nowrap' }}
+                      >
+                        Clear Filters
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="table-responsive" style={{ backgroundColor: 'var(--white)', padding: '24px', borderRadius: '12px', border: '1px solid var(--border-color)', overflowX: 'auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '700px' }}>
+                      <thead>
+                        <tr style={{ borderBottom: '2px solid var(--border-color)', height: '40px', fontSize: '12px', textTransform: 'uppercase', color: 'var(--gold-dark)' }}>
+                          <th style={{ padding: '12px 8px' }}>Timestamp</th>
+                          <th style={{ padding: '12px 8px' }}>Action By</th>
+                          <th style={{ padding: '12px 8px' }}>Action</th>
+                          <th style={{ padding: '12px 8px' }}>Target ID</th>
+                          <th style={{ padding: '12px 8px' }}>Metadata</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody>
+                        {filteredLogs.length === 0 ? (
+                          <tr>
+                            <td colSpan={5} style={{ textAlign: 'center', padding: '30px' }}>
+                              <div className="empty-state">
+                                <div className="empty-state-icon">📜</div>
+                                <h3>No Audit Logs Found</h3>
+                                <p>No events matched your current filters or no actions have occurred yet.</p>
+                              </div>
+                            </td>
+                          </tr>
+                        ) : (
+                          filteredLogs.map((log) => (
+                            <tr key={log.id} style={{ borderBottom: '1px solid var(--border-color)', height: '50px', fontSize: '13.5px' }}>
+                              <td style={{ padding: '12px 8px' }}>{new Date(log.createdAt).toLocaleString()}</td>
+                              <td style={{ padding: '12px 8px' }}>
+                                <strong>{log.actorUserId || 'System'}</strong>
+                              </td>
+                              <td style={{ padding: '12px 8px' }}>
+                                <span style={{
+                                  padding: '2px 6px',
+                                  borderRadius: '4px',
+                                  fontSize: '11px',
+                                  fontWeight: 'bold',
+                                  backgroundColor: log.action.includes('APPROVE') ? 'rgba(18, 46, 34, 0.1)' : log.action.includes('REJECT') ? 'rgba(230, 92, 92, 0.1)' : 'rgba(212,163,89,0.15)',
+                                  color: log.action.includes('APPROVE') ? 'green' : log.action.includes('REJECT') ? 'red' : 'var(--gold-dark)'
+                                }}>
+                                  {log.action}
+                                </span>
+                              </td>
+                              <td style={{ padding: '12px 8px' }}>
+                                <code style={{ fontSize: '12.5px', color: 'var(--text-muted)' }}>{log.targetId ? log.targetId.substring(0, 8) + '...' : 'N/A'}</code>
+                              </td>
+                              <td style={{ padding: '12px 8px', color: 'var(--text-muted)', fontSize: '12.5px' }}>
+                                {log.metadata || '—'}
+                              </td>
+                            </tr>
+                          ))
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* Pagination Section Placeholder */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '20px', fontSize: '13px', color: 'var(--text-muted)' }}>
+                    <span>Showing {filteredLogs.length} of {auditLogs.length} entries</span>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <button className="btn btn-secondary" style={{ padding: '6px 12px', fontSize: '12px' }} disabled>Previous</button>
+                      <button className="btn btn-secondary" style={{ padding: '6px 12px', fontSize: '12px' }} disabled>Next</button>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            )}
+              );
+            })()}
           </main>
         </div>
+      </>
       )}
 
       {/* Google Login Simulator Modal */}
@@ -2429,7 +2856,7 @@ export default function Home() {
 
             <div style={{ textAlign: 'center', padding: '10px 0' }}>
               <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '22px', color: 'var(--gold-dark)', marginBottom: '12px' }}>
-                Join MOM Matrimonial
+                Join Shadi Mubarak
               </h3>
               <p style={{ fontSize: '13.5px', color: 'var(--text-muted)', marginBottom: '24px' }}>
                 Create a profile or log in securely using your Google account to get verified.

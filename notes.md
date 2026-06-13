@@ -1,4 +1,4 @@
-# MOM — Matrimonial Site Notes & Mind Map
+# Shadi Mubarak — Matrimonial Site Notes & Mind Map
 
 This file contains the mind map of the project, details of the folder structure, and key development notes.
 
@@ -6,7 +6,7 @@ This file contains the mind map of the project, details of the folder structure,
 
 ## 1. Project Mind Map
 
-The mind map below visualizes the architectural components, core integrations, user flows, and database relations of the MOM Matrimonial Site.
+The mind map below visualizes the architectural components, core integrations, user flows, and database relations of the Shadi Mubarak Matrimonial Site.
 
 ```mermaid
 graph TD
@@ -16,7 +16,7 @@ graph TD
     classDef external fill:#fbf2ea,stroke:#e67e22,stroke-width:2px,color:#2c3e50;
     
     %% Main Architecture
-    App[MOM Web Application]:::main
+    App[Shadi Mubarak Web Application]:::main
     Database[(MongoDB Atlas Database)]:::database
     Auth[NextAuth Google Login]:::external
     Razorpay[Razorpay Payments]:::external

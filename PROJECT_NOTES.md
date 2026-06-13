@@ -1,11 +1,11 @@
-# MOM — Matrimonial Site Project Notes
+# Shadi Mubarak — Matrimonial Site Project Notes
 
-This file tracks the approved decisions, architecture, system design, business rules, and phase progress for the MOM Matrimonial Site.
+This file tracks the approved decisions, architecture, system design, business rules, and phase progress for the Shadi Mubarak Matrimonial Site.
 
 ---
 
 ## 1. Project Overview & Target Audience
-* **Project Name**: MOM — Matrimonial Site
+* **Project Name**: Shadi Mubarak
 * **Core Value Proposition**: A secure, trusted, Shariah-compliant Muslim matrimonial platform with manual verification, privacy controls, and premium personalized match-making packages.
 * **Key Targets**: Muslim community looking for marriage, with dedicated options for general, second-marriages, and high-profile individuals.
 
@@ -44,7 +44,7 @@ graph TD
     classDef external fill:#fbf2ea,stroke:#e67e22,stroke-width:2px,color:#2c3e50;
     
     %% Main Architecture
-    App[MOM Web Application]:::main
+    App[Shadi Mubarak Web Application]:::main
     Database[(MongoDB Atlas Database)]:::database
     Auth[NextAuth Google Login]:::external
     Razorpay[Razorpay Payments]:::external
