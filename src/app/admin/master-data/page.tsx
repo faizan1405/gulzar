@@ -273,26 +273,32 @@ export default function MasterDataAdminPage() {
   };
 
   // Filter options lists
-  const filteredMaslaks = masterMaslaks.filter(
+  const filteredMaslaks = [...masterMaslaks.filter(
     (m) =>
       m.label.toLowerCase().includes(maslakSearch.toLowerCase()) ||
       m.aliases?.some((a: string) => a.toLowerCase().includes(maslakSearch.toLowerCase()))
-  );
+  )].sort((a, b) => a.label.localeCompare(b.label));
 
-  const filteredCastes = masterCastes.filter(
+  const filteredCastes = [...masterCastes.filter(
     (c) =>
       c.label.toLowerCase().includes(casteSearch.toLowerCase()) ||
       c.aliases?.some((a: string) => a.toLowerCase().includes(casteSearch.toLowerCase()))
-  );
+  )].sort((a, b) => a.label.localeCompare(b.label));
 
   // Group locations for filter drop down
   const uniqueStates = Array.from(new Set(masterLocations.map((l) => l.state))).sort();
 
-  const filteredLocations = masterLocations.filter((l) => {
+  const filteredLocations = [...masterLocations.filter((l) => {
     const matchesState = !locationStateFilter || l.state === locationStateFilter;
     const searchString = `${l.district} ${l.locality || ''}`.toLowerCase();
     const matchesSearch = !locationSearch || searchString.includes(locationSearch.toLowerCase());
     return matchesState && matchesSearch;
+  })].sort((a, b) => {
+    const stateCompare = a.state.localeCompare(b.state);
+    if (stateCompare !== 0) return stateCompare;
+    const districtCompare = a.district.localeCompare(b.district);
+    if (districtCompare !== 0) return districtCompare;
+    return (a.locality || '').localeCompare(b.locality || '');
   });
 
   return (
@@ -801,8 +807,8 @@ export default function MasterDataAdminPage() {
                   style={{ width: '100%' }}
                 >
                   <option value="">-- Choose Caste --</option>
-                  {masterCastes
-                    .filter((c) => !c.isDisabled)
+                  {[...masterCastes.filter((c) => !c.isDisabled)]
+                    .sort((a, b) => a.label.localeCompare(b.label))
                     .map((c) => (
                       <option key={c.id} value={c.label}>
                         {c.label}
@@ -823,8 +829,8 @@ export default function MasterDataAdminPage() {
                   style={{ width: '100%' }}
                 >
                   <option value="">-- Choose Caste --</option>
-                  {masterCastes
-                    .filter((c) => !c.isDisabled && c.label !== casteMergeSource)
+                  {[...masterCastes.filter((c) => !c.isDisabled && c.label !== casteMergeSource)]
+                    .sort((a, b) => a.label.localeCompare(b.label))
                     .map((c) => (
                       <option key={c.id} value={c.label}>
                         {c.label}
@@ -865,8 +871,12 @@ export default function MasterDataAdminPage() {
                   style={{ width: '100%' }}
                 >
                   <option value="">-- Choose Location --</option>
-                  {masterLocations
-                    .filter((l) => !l.isDisabled)
+                  {[...masterLocations.filter((l) => !l.isDisabled)]
+                    .sort((a, b) => {
+                      const labelA = `${a.locality ? `${a.locality}, ` : ''}${a.district}, ${a.state}`;
+                      const labelB = `${b.locality ? `${b.locality}, ` : ''}${b.district}, ${b.state}`;
+                      return labelA.localeCompare(labelB);
+                    })
                     .map((l) => (
                       <option key={l.id} value={l.id}>
                         {l.locality ? `${l.locality}, ` : ''}{l.district}, {l.state}
@@ -887,8 +897,12 @@ export default function MasterDataAdminPage() {
                   style={{ width: '100%' }}
                 >
                   <option value="">-- Choose Location --</option>
-                  {masterLocations
-                    .filter((l) => !l.isDisabled && l.id !== locMergeSourceId)
+                  {[...masterLocations.filter((l) => !l.isDisabled && l.id !== locMergeSourceId)]
+                    .sort((a, b) => {
+                      const labelA = `${a.locality ? `${a.locality}, ` : ''}${a.district}, ${a.state}`;
+                      const labelB = `${b.locality ? `${b.locality}, ` : ''}${b.district}, ${b.state}`;
+                      return labelA.localeCompare(labelB);
+                    })
                     .map((l) => (
                       <option key={l.id} value={l.id}>
                         {l.locality ? `${l.locality}, ` : ''}{l.district}, {l.state}

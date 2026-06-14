@@ -98,16 +98,16 @@ export const ProfileFilters: React.FC<ProfileFiltersProps> = ({
     setMaxAge('Any');
   };
 
-  const activeMaslaks = masterMaslaks.filter(m => !m.isDisabled);
-  const activeCastes = masterCastes.filter(c => !c.isDisabled);
+  const activeMaslaks = [...masterMaslaks.filter(m => !m.isDisabled)].sort((a, b) => a.label.localeCompare(b.label));
+  const activeCastes = [...masterCastes.filter(c => !c.isDisabled)].sort((a, b) => a.label.localeCompare(b.label));
   const activeLocations = masterLocations.filter(l => !l.isDisabled);
 
-  const states = Array.from(new Set(activeLocations.map(l => l.state)));
+  const states = Array.from(new Set(activeLocations.map(l => l.state))).sort((a, b) => a.localeCompare(b));
   const districts = selectedState !== 'All' 
-    ? Array.from(new Set(activeLocations.filter(l => l.state === selectedState).map(l => l.district)))
+    ? Array.from(new Set(activeLocations.filter(l => l.state === selectedState).map(l => l.district))).sort((a, b) => a.localeCompare(b))
     : [];
   const localities = (selectedState !== 'All' && selectedDistrict !== 'All')
-    ? Array.from(new Set(activeLocations.filter(l => l.state === selectedState && l.district === selectedDistrict && l.locality).map(l => l.locality!)))
+    ? Array.from(new Set(activeLocations.filter(l => l.state === selectedState && l.district === selectedDistrict && l.locality).map(l => l.locality!))).sort((a, b) => a.localeCompare(b))
     : [];
 
   const ageOptions = Array.from({ length: 53 }, (_, i) => 18 + i);
@@ -229,7 +229,7 @@ export const ProfileFilters: React.FC<ProfileFiltersProps> = ({
               className="form-control"
             >
               <option value="All">All Fiqhs</option>
-              {DEFAULT_FIQHS.map(f => (
+              {[...DEFAULT_FIQHS].sort((a, b) => a.localeCompare(b)).map(f => (
                 <option key={f} value={f}>{f}</option>
               ))}
             </select>

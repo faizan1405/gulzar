@@ -161,9 +161,11 @@ export default function PremiumPackagesPage() {
             <label className="form-label">Select Curated Buyer</label>
             <select className="form-control" value={assignBuyerId} onChange={(e) => setAssignBuyerId(e.target.value)}>
               <option value="">-- Choose Buyer --</option>
-              {adminPurchases.filter(p => p.packageType === 'good_profile_package' && p.paymentStatus === 'PAID').map(p => (
-                <option key={p.id} value={p.profileId}>{p.profile?.fullName} ({p.profile?.city})</option>
-              ))}
+              {[...adminPurchases.filter(p => p.packageType === 'good_profile_package' && p.paymentStatus === 'PAID')]
+                .sort((a, b) => (a.profile?.fullName || '').localeCompare(b.profile?.fullName || ''))
+                .map(p => (
+                  <option key={p.id} value={p.profileId}>{p.profile?.fullName} ({p.profile?.city})</option>
+                ))}
             </select>
           </div>
 
@@ -171,9 +173,11 @@ export default function PremiumPackagesPage() {
             <label className="form-label">Select Match Lead</label>
             <select className="form-control" value={assignLeadId} onChange={(e) => setAssignLeadId(e.target.value)}>
               <option value="">-- Choose Lead Profile --</option>
-              {profiles.filter(p => p.verificationStatus === 'APPROVED').map(p => (
-                <option key={p.id} value={p.id}>{p.fullName} ({p.gender} - {p.occupation})</option>
-              ))}
+              {[...profiles.filter(p => p.verificationStatus === 'APPROVED')]
+                .sort((a, b) => a.fullName.localeCompare(b.fullName))
+                .map(p => (
+                  <option key={p.id} value={p.id}>{p.fullName} ({p.gender} - {p.occupation})</option>
+                ))}
             </select>
           </div>
 

@@ -8,7 +8,7 @@ export default function VerificationLogsPage() {
   const [logSearchQuery, setLogSearchQuery] = useState('');
   const [logActionFilter, setLogActionFilter] = useState('All');
 
-  const actionTypes = Array.from(new Set(auditLogs.map((l) => l.action)));
+  const actionTypes = Array.from(new Set(auditLogs.map((l) => l.action))).sort((a, b) => a.localeCompare(b));
 
   const filteredLogs = auditLogs.filter((log) => {
     if (logActionFilter !== 'All' && log.action !== logActionFilter) return false;

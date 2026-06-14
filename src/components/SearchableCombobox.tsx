@@ -72,8 +72,8 @@ export const SearchableCombobox: React.FC<SearchableComboboxProps> = ({
   });
 
   // Group high-priority (popular) options vs other options
-  const popularOptions = filtered.filter(opt => opt.isHighPriority);
-  const regularOptions = filtered.filter(opt => !opt.isHighPriority);
+  const popularOptions = [...filtered.filter(opt => opt.isHighPriority)].sort((a, b) => a.label.localeCompare(b.label));
+  const regularOptions = [...filtered.filter(opt => !opt.isHighPriority)].sort((a, b) => a.label.localeCompare(b.label));
 
   const handleSelect = (val: string) => {
     onChange(val);

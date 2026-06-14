@@ -202,8 +202,8 @@ export default function Home() {
                         value={formData.maritalStatus}
                         onChange={(e) => setFormData({ ...formData, maritalStatus: e.target.value })}
                       >
-                        <option value="Single">Single</option>
                         <option value="Divorced">Divorced</option>
+                        <option value="Single">Single</option>
                         <option value="Widowed">Widowed</option>
                       </select>
                     </div>
@@ -412,7 +412,12 @@ export default function Home() {
                     <div style={{ marginTop: '20px', borderTop: '1px solid var(--border-color)', paddingTop: '20px' }}>
                       <label className="form-label" style={{ fontWeight: 'bold', display: 'block', marginBottom: '10px' }}>Preferred Match Locations</label>
                       <div className="preferred-locations-checkboxes" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '8px', maxHeight: '160px', overflowY: 'auto', border: '1px solid var(--border-color)', padding: '12px', borderRadius: '8px', backgroundColor: '#fafafa' }}>
-                        {['Jammu & Kashmir', 'Ladakh', 'Lakshadweep', 'Assam', 'West Bengal', 'Kerala', 'Uttar Pradesh', 'Bihar', 'Delhi', 'Jharkhand', 'Telangana', 'Karnataka', 'Maharashtra', 'Gujarat', 'Rajasthan', 'Uttarakhand', 'Haryana', 'Madhya Pradesh'].map(stateName => {
+                        {[
+                          'Jammu & Kashmir', 'Ladakh', 'Lakshadweep', 'Assam', 'West Bengal',
+                          'Kerala', 'Uttar Pradesh', 'Bihar', 'Delhi', 'Jharkhand',
+                          'Telangana', 'Karnataka', 'Maharashtra', 'Gujarat', 'Rajasthan',
+                          'Uttarakhand', 'Haryana', 'Madhya Pradesh'
+                        ].sort((a, b) => a.localeCompare(b)).map(stateName => {
                           const isChecked = formData.preferredLocations.includes(stateName);
                           return (
                             <label key={stateName} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '13px', cursor: 'pointer' }}>
@@ -596,10 +601,10 @@ export default function Home() {
                     <label className="form-label">Caste / Community</label>
                     <select className="form-control" style={{ backgroundColor: 'var(--warm-ivory)' }}>
                       <option>All Communities</option>
-                      <option>Sunni</option>
-                      <option>Syed</option>
                       <option>Hanafi</option>
                       <option>Sheikh</option>
+                      <option>Sunni</option>
+                      <option>Syed</option>
                     </select>
                   </div>
                   <button onClick={() => router.push('/search')} className="btn btn-primary" style={{ width: '100%' }}>
