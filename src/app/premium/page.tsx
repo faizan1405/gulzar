@@ -29,27 +29,17 @@ export default function PremiumPage() {
             scriptText="Premium Services"
           />
 
-          <div className="grid-4" style={{ marginBottom: '60px' }}>
-            <PremiumPlanCard
-              title="Monthly Membership"
-              price={300}
-              gstRate={0.18}
-              billingText="per month"
-              features={['View unblurred normal profiles', 'Reveal call-verified phone numbers', 'Advanced directory search filters', 'Save matching biodatas']}
-              isActive={hasPaid300 || simulatedPackages.includes('monthly_membership')}
-              ctaText="Activate Membership"
-              onActivate={() => handleRazorpayCheckout('monthly_membership', 300, 'Monthly Membership')}
-              isPopular
-            />
+          <div className="grid-3" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '32px', marginBottom: '60px' }}>
             <PremiumPlanCard
               title="Good Profile Package"
               price={5500}
               gstRate={0.18}
               billingText="one-time base"
-              features={['For handsome & beautiful profile matches', 'Leads provided until marriage', '₹21,000 payable after marriage confirmation', 'Requires active ₹300 Monthly Membership']}
+              features={['For handsome & beautiful profile matches', 'Leads provided until marriage', '₹21,000 payable after marriage confirmation']}
               isActive={simulatedPackages.includes('good_profile_package')}
               ctaText="Buy Good Profile Package"
               onActivate={() => handleRazorpayCheckout('good_profile_package', 5500, 'Good Profile Package')}
+              isPopular
             />
             <PremiumPlanCard
               title="Second Marriage Package"
@@ -81,7 +71,6 @@ export default function PremiumPage() {
                 <thead>
                   <tr style={{ borderBottom: '2px solid var(--border-color)', height: '40px', color: 'var(--deep-maroon)', fontWeight: 'bold' }}>
                     <th style={{ textAlign: 'left', padding: '12px' }}>Feature Benefits</th>
-                    <th>Monthly Membership</th>
                     <th>Good Profile</th>
                     <th>Second Marriage</th>
                     <th>High Profile</th>
@@ -93,25 +82,21 @@ export default function PremiumPage() {
                     <td>✓</td>
                     <td>✓</td>
                     <td>✓</td>
-                    <td>✓</td>
                   </tr>
                   <tr style={{ borderBottom: '1px solid var(--border-color)', height: '48px' }}>
                     <td style={{ textAlign: 'left', padding: '12px' }}>Unblurred Normal Profiles</td>
                     <td>✓</td>
                     <td>✓</td>
                     <td>✓</td>
-                    <td>✓</td>
                   </tr>
                   <tr style={{ borderBottom: '1px solid var(--border-color)', height: '48px' }}>
                     <td style={{ textAlign: 'left', padding: '12px' }}>Good Profile Unlock</td>
-                    <td>—</td>
                     <td>✓</td>
                     <td>—</td>
                     <td>—</td>
                   </tr>
                   <tr style={{ borderBottom: '1px solid var(--border-color)', height: '48px' }}>
                     <td style={{ textAlign: 'left', padding: '12px' }}>Leads Provided Until Marriage</td>
-                    <td>—</td>
                     <td>✓</td>
                     <td>✓</td>
                     <td>✓</td>
@@ -119,13 +104,11 @@ export default function PremiumPage() {
                   <tr style={{ borderBottom: '1px solid var(--border-color)', height: '48px' }}>
                     <td style={{ textAlign: 'left', padding: '12px' }}>Segregated Second Marriage Directory</td>
                     <td>—</td>
-                    <td>—</td>
                     <td>✓</td>
                     <td>—</td>
                   </tr>
                   <tr style={{ borderBottom: '1px solid var(--border-color)', height: '48px' }}>
                     <td style={{ textAlign: 'left', padding: '12px' }}>Earning ₹10 Lakh+ annually Directory</td>
-                    <td>—</td>
                     <td>—</td>
                     <td>—</td>
                     <td>✓</td>
