@@ -170,6 +170,11 @@ export const SimulatorProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   // Headers generator
   const getSimulatorHeaders = useCallback(() => {
+    const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
+    if (!isDemoMode) {
+      return { 'Content-Type': 'application/json' } as Record<string, string>;
+    }
+    
     return {
       'Content-Type': 'application/json',
       'x-simulator-user-id': 'simulated-user-123',
@@ -179,7 +184,7 @@ export const SimulatorProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       'x-simulator-admin-id': 'simulated-admin-999',
       'x-simulator-packages': simulatedPackages.join(','),
       'x-simulator-high-profile-approved': simulatedHighProfileApproved ? 'true' : 'false',
-    };
+    } as Record<string, string>;
   }, [isLoggedIn, hasPaid300, simulatedPackages, simulatedHighProfileApproved]);
 
   // Fetch all data
@@ -242,34 +247,47 @@ export const SimulatorProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           setIsRegistering(false);
         }
 
-        // 2. Fetch admin requests & mapped profiles
+        // 2a. Fetch public profiles
+        const resProfiles = await fetch('/api/profiles', { headers: simulatorHeaders });
+        const dataProfiles = await resProfiles.json();
+        if (dataProfiles.profiles) {
+          setProfiles(dataProfiles.profiles);
+        }
+
+        // 2b. Fetch admin requests
         const resReq = await fetch('/api/admin/verification', { headers: simulatorHeaders });
-        const dataReq = await resReq.json();
-        if (dataReq.requests) {
-          setAdminRequests(dataReq.requests);
-          const mappedProfiles = dataReq.requests.map((r: VerificationRequest) => r.profile).filter(Boolean) as Profile[];
-          setProfiles(mappedProfiles);
+        if (resReq.ok) {
+          const dataReq = await resReq.json();
+          if (dataReq.requests) {
+            setAdminRequests(dataReq.requests);
+          }
         }
 
         // 3. Fetch audit logs
         const resLogs = await fetch('/api/admin/verification?mode=audit', { headers: simulatorHeaders });
-        const dataLogs = await resLogs.json();
-        if (dataLogs.logs) {
-          setAuditLogs(dataLogs.logs);
+        if (resLogs.ok) {
+          const dataLogs = await resLogs.json();
+          if (dataLogs.logs) {
+            setAuditLogs(dataLogs.logs);
+          }
         }
 
         // 4. Fetch premium purchases
         const resPurchases = await fetch('/api/admin/packages', { headers: simulatorHeaders });
-        const dataPurchases = await resPurchases.json();
-        if (dataPurchases.purchases) {
-          setAdminPurchases(dataPurchases.purchases);
+        if (resPurchases.ok) {
+          const dataPurchases = await resPurchases.json();
+          if (dataPurchases.purchases) {
+            setAdminPurchases(dataPurchases.purchases);
+          }
         }
 
         // 5. Fetch curated assignments
         const resAssignments = await fetch('/api/admin/packages?mode=assignments', { headers: simulatorHeaders });
-        const dataAssignments = await resAssignments.json();
-        if (dataAssignments.assignments) {
-          setAdminAssignments(dataAssignments.assignments);
+        if (resAssignments.ok) {
+          const dataAssignments = await resAssignments.json();
+          if (dataAssignments.assignments) {
+            setAdminAssignments(dataAssignments.assignments);
+          }
         }
 
         // 6. Fetch master data options

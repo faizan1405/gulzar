@@ -29,11 +29,17 @@ export interface Profile {
   district: string | null;
   locality: string | null;
   preferredLocations: string[];
-  sameCastePreference: boolean;
-  sameMaslakPreference: boolean;
-  noCastePreference: boolean;
-  noMaslakPreference: boolean;
-  willingToRelocate: boolean;
+  sameCastePreference?: boolean;
+  sameMaslakPreference?: boolean;
+  noCastePreference?: boolean;
+  noMaslakPreference?: boolean;
+  willingToRelocate?: boolean;
+  familyOrigin?: string; // e.g. "UP / Bihar", "Hyderabad", etc.
+
+  // Media
+  profileImageUrl?: string;
+  profileImagePublicId?: string;
+  profileImageStatus?: 'PENDING' | 'APPROVED' | 'REJECTED';
   category?: string | null;
 }
 

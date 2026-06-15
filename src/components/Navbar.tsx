@@ -22,9 +22,7 @@ export const Navbar: React.FC = () => {
   } = useSimulator();
 
   const handleEditProfile = () => {
-    setIsRegistering(true);
-    setRegStep(1);
-    router.push('/');
+    router.push('/my-account');
   };
 
   const handleRegisterFree = () => {
@@ -97,13 +95,13 @@ export const Navbar: React.FC = () => {
             </li>
             <li>
               {isLoggedIn && (
-                <button
-                  onClick={handleEditProfile}
+                <Link
+                  href="/my-account"
                   className="btn btn-secondary"
                   style={{ padding: '8px 16px', fontSize: '13px' }}
                 >
-                  Edit Profile
-                </button>
+                  My Account
+                </Link>
               )}
             </li>
             <li>
@@ -214,16 +212,14 @@ export const Navbar: React.FC = () => {
             </Link>
 
             {isLoggedIn && (
-              <button
-                onClick={() => {
-                  handleEditProfile();
-                  setIsMobileMenuOpen(false);
-                }}
+              <Link
+                href="/my-account"
+                onClick={() => setIsMobileMenuOpen(false)}
                 className="btn btn-secondary"
-                style={{ width: '100%' }}
+                style={{ width: '100%', textAlign: 'center', display: 'block' }}
               >
-                Edit Profile
-              </button>
+                My Account
+              </Link>
             )}
 
             <Link

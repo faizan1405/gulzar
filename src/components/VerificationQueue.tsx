@@ -24,6 +24,20 @@ export const VerificationQueue: React.FC = () => {
             Reviewing: {selectedRequest.profile.fullName} (ID: {selectedRequest.profileId})
           </h3>
           
+          {selectedRequest.profile.profileImageUrl && (
+            <div style={{ marginBottom: '15px', textAlign: 'center' }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img 
+                src={selectedRequest.profile.profileImageUrl} 
+                alt="Uploaded Profile Photo" 
+                style={{ width: '150px', height: '150px', objectFit: 'cover', borderRadius: '12px', border: '2px solid var(--border-color)' }}
+              />
+              <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '8px' }}>
+                Image Status: <strong>{selectedRequest.profile.profileImageStatus || 'PENDING'}</strong>
+              </p>
+            </div>
+          )}
+
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', margin: '15px 0', fontSize: '13.5px', border: '1px solid var(--border-color)', padding: '20px', borderRadius: '8px', backgroundColor: '#fff' }}>
             <p><strong>Phone:</strong> {selectedRequest.profile.phoneNumber}</p>
             <p><strong>Location:</strong> {selectedRequest.profile.city}, {selectedRequest.profile.state}</p>

@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { getProfileByUserId, upsertProfile, getUserPurchases, testDbConnection, getValidObjectId } from '@/lib/profileStore';
 import { prisma } from '@/lib/db';
+import { redactProfile } from '@/lib/profilePrivacy';
+import { notifyRegistration, notifyAdminNewProfile } from '@/lib/notifications';
 
 // Get user profile
 export async function GET(req: NextRequest) {
@@ -76,10 +78,15 @@ export async function GET(req: NextRequest) {
     }
 
     // Enforce privacy constraints
-    const isAuthorizedForSecondMarriage = isOwner || isAdmin || hasSecondMarriagePkg;
-    const isAuthorizedForHighProfile = isOwner || isAdmin || hasHighProfilePkg;
-    const isAuthorizedForStandard = isOwner || isAdmin || hasStandardPkg;
-    const isAuthorizedForGoodProfile = isOwner || isAdmin || (hasStandardPkg && hasGoodProfilePkg);
+    const redactedProfile = redactProfile(
+      profile as any,
+      hasStandardPkg,
+      hasSecondMarriagePkg,
+      hasHighProfilePkg,
+      hasGoodProfilePkg,
+      isOwner,
+      isAdmin
+    );
 
     // Log access where appropriate
     if (viewerId) {
@@ -93,136 +100,14 @@ export async function GET(req: NextRequest) {
               action: actionMsg,
               targetType: 'MatrimonialProfile',
               targetId: targetUserId,
-              metadata: JSON.stringify({ isSecondMarriage, isHighProfile, isGoodProfile, authorized: isAuthorizedForStandard }),
+              metadata: JSON.stringify({ isOwner, isAdmin }),
             }
           });
         } catch {}
       }
     }
 
-    if (isGoodProfile && !isAuthorizedForGoodProfile) {
-      return NextResponse.json({
-        profile: {
-          id: profile.id,
-          fullName: 'Good Profile Candidate (Locked)',
-          gender: profile.gender,
-          dateOfBirth: new Date(1900, 0, 1),
-          maritalStatus: profile.maritalStatus,
-          city: profile.city,
-          state: profile.state,
-          country: profile.country,
-          education: 'Hidden (Good Profile Package Required)',
-          occupation: 'Hidden',
-          annualIncomeRange: 'Hidden',
-          bio: 'Buy Good Profile Package for ₹5,500 to view these profiles.',
-          themeColor: profile.themeColor,
-          verificationStatus: profile.verificationStatus,
-          profileCompletionStatus: profile.profileCompletionStatus,
-          createdAt: profile.createdAt,
-          phoneNumber: '+91-XXXXX-XXXXX',
-          latitude: null,
-          longitude: null,
-          isLockedCategory: 'good_profile_package'
-        }
-      });
-    }
-
-    if (isSecondMarriage && !isAuthorizedForSecondMarriage) {
-      return NextResponse.json({
-        profile: {
-          id: profile.id,
-          fullName: 'Second-Marriage Candidate (Locked)',
-          gender: profile.gender,
-          dateOfBirth: new Date(1900, 0, 1),
-          maritalStatus: profile.maritalStatus,
-          city: profile.city,
-          state: profile.state,
-          country: profile.country,
-          education: 'Hidden (Second-Marriage Plan Required)',
-          occupation: 'Hidden',
-          annualIncomeRange: 'Hidden',
-          bio: 'This profile is in the private second-marriage category. Purchase the Second-Marriage Package to unlock full access.',
-          themeColor: profile.themeColor,
-          verificationStatus: profile.verificationStatus,
-          profileCompletionStatus: profile.profileCompletionStatus,
-          createdAt: profile.createdAt,
-          phoneNumber: '+91-XXXXX-XXXXX',
-          latitude: null,
-          longitude: null,
-          isLockedCategory: 'second_marriage_package'
-        }
-      });
-    }
-
-    if (isHighProfile && !isAuthorizedForHighProfile) {
-      return NextResponse.json({
-        profile: {
-          id: profile.id,
-          fullName: 'High-Profile Candidate (Locked)',
-          gender: profile.gender,
-          dateOfBirth: new Date(1900, 0, 1),
-          maritalStatus: profile.maritalStatus,
-          city: profile.city,
-          state: profile.state,
-          country: profile.country,
-          education: 'Hidden (High-Profile Plan & Approval Required)',
-          occupation: 'Hidden',
-          annualIncomeRange: 'Hidden',
-          bio: 'This profile is in the private high-profile category. Purchase the High-Profile Match Package and complete eligibility review to unlock.',
-          themeColor: profile.themeColor,
-          verificationStatus: profile.verificationStatus,
-          profileCompletionStatus: profile.profileCompletionStatus,
-          createdAt: profile.createdAt,
-          phoneNumber: '+91-XXXXX-XXXXX',
-          latitude: null,
-          longitude: null,
-          isLockedCategory: 'high_profile_package'
-        }
-      });
-    }
-
-    if (!isAuthorizedForStandard) {
-      // Return redacted profile
-      return NextResponse.json({
-        profile: {
-          id: profile.id,
-          fullName: 'Profile Locked',
-          gender: profile.gender,
-          dateOfBirth: new Date(1900, 0, 1), // Redacted
-          maritalStatus: profile.maritalStatus,
-          city: profile.city,
-          areaOrLocality: profile.areaOrLocality,
-          state: profile.state,
-          country: profile.country,
-          education: profile.education,
-          occupation: profile.occupation,
-          annualIncomeRange: profile.annualIncomeRange,
-          bio: 'Unlock this profile by subscribing to our monthly membership.',
-          themeColor: profile.themeColor,
-          verificationStatus: profile.verificationStatus,
-          profileCompletionStatus: profile.profileCompletionStatus,
-          createdAt: profile.createdAt,
-          phoneNumber: '+91-XXXXX-XXXXX',
-          latitude: null,
-          longitude: null,
-
-          // Matrimonial identity fields
-          maslak: profile.maslak,
-          fiqh: profile.fiqh,
-          biradari: profile.biradari,
-          district: profile.district,
-          locality: profile.locality,
-          preferredLocations: profile.preferredLocations || [],
-          sameCastePreference: profile.sameCastePreference,
-          sameMaslakPreference: profile.sameMaslakPreference,
-          noCastePreference: profile.noCastePreference,
-          noMaslakPreference: profile.noMaslakPreference,
-          willingToRelocate: profile.willingToRelocate,
-        }
-      });
-    }
-
-    return NextResponse.json({ profile });
+    return NextResponse.json({ profile: redactedProfile });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Internal Server Error';
     return NextResponse.json({ error: errorMessage }, { status: 500 });
@@ -283,6 +168,16 @@ export async function POST(req: NextRequest) {
 
     // 3. Save profile
     const profile = await upsertProfile(activeUserId, body);
+
+    // 4. Send Notifications (fire-and-forget)
+    try {
+      const userEmail = session?.user?.email || null;
+      notifyRegistration(userEmail, profile.phoneNumber, profile.fullName);
+      notifyAdminNewProfile(profile);
+    } catch (e) {
+      console.error('Registration notifications failed to fire:', e);
+    }
+
     return NextResponse.json({ success: true, profile });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Internal Server Error';

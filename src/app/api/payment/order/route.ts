@@ -36,6 +36,7 @@ export async function POST(req: NextRequest) {
     const keySecret = process.env.RAZORPAY_KEY_SECRET;
 
     if (!keyId || !keySecret || keyId.includes('dummy') || keySecret.includes('dummy')) {
+      console.warn('⚠️ [SIMULATOR MODE] Real Razorpay keys missing. Using Simulator Payment for testing only. Not real Razorpay payment.');
       // Create pending purchase in simulator mode
       await createPackagePurchase({
         profileId: profile.id,

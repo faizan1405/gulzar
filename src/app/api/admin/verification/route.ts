@@ -1,12 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { getVerificationRequests, updateVerificationStatus, getAuditLogs } from '@/lib/profileStore';
+import { prisma } from '@/lib/db';
+import { notifyVerificationStatus } from '@/lib/notifications';
 import { VerificationStatus } from '@prisma/client';
 
 // Helper to check if admin
 async function isAdmin(req: NextRequest) {
   const session = await auth();
-  const simulatedAdmin = req.headers.get('x-simulator-admin') === 'true';
+  const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
+  const simulatedAdmin = isDemoMode && req.headers.get('x-simulator-admin') === 'true';
   return session?.user?.role === 'ADMIN' || simulatedAdmin;
 }
 
@@ -57,6 +60,19 @@ export async function POST(req: NextRequest) {
     }
 
     await updateVerificationStatus(profileId, status as VerificationStatus, notes || '', adminUserId);
+
+    try {
+      const profile = await prisma.matrimonialProfile.findUnique({
+        where: { id: profileId },
+        include: { user: true }
+      });
+      if (profile) {
+        const userEmail = profile.user?.email || null;
+        notifyVerificationStatus(userEmail, profile.phoneNumber, profile.fullName, status);
+      }
+    } catch (e) {
+      console.error('Failed to notify verification status', e);
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {

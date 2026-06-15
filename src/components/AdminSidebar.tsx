@@ -49,13 +49,20 @@ export const AdminSidebar: React.FC = () => {
         🛠️ Master Data
       </Link>
 
-      <div className="admin-nav-section-title">Logs</div>
+      <div className="admin-nav-section-title">Logs & Settings</div>
       <Link
         href="/admin/logs"
         className={`admin-nav-link ${pathname === '/admin/logs' ? 'active' : ''}`}
         onClick={handleLinkClick}
       >
         📜 Activity Logs
+      </Link>
+      <Link
+        href="/admin/settings"
+        className={`admin-nav-link ${pathname === '/admin/settings' ? 'active' : ''}`}
+        onClick={handleLinkClick}
+      >
+        ⚙️ Settings
       </Link>
 
       <div style={{ marginTop: 'auto', borderTop: '1px solid rgba(212,163,89,0.3)', paddingTop: '20px', padding: '0 12px' }}>

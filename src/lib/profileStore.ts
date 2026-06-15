@@ -1450,3 +1450,40 @@ export async function mergeLocations(sourceId: string, targetId: string) {
   return true;
 }
 
+export async function updateProfileImage(userId: string, imageUrl: string, publicId: string | null) {
+  const isDb = await testDbConnection();
+  if (isDb) {
+    try {
+      const dbUserId = getValidObjectId(userId);
+      return await prisma.matrimonialProfile.update({
+        where: { userId: dbUserId },
+        data: {
+          profileImageUrl: imageUrl,
+          profileImagePublicId: publicId,
+          profileImageStatus: 'PENDING',
+          uploadedAt: new Date(),
+        },
+      });
+    } catch (e) {
+      const msg = sanitizeErrorMessage(e instanceof Error ? e.message : String(e));
+      if (!isFallbackAllowed()) {
+        throw new Error(`Database write failed: ${msg}`);
+      }
+      console.error('Database write failed, using fallback', msg);
+    }
+  } else if (!isFallbackAllowed()) {
+    throw new Error('Database is offline or not configured.');
+  }
+
+  // Fallback
+  const profile = globalStore.inMemoryProfiles?.find((p) => p.userId === userId);
+  if (profile) {
+    (profile as any).profileImageUrl = imageUrl;
+    (profile as any).profileImagePublicId = publicId;
+    (profile as any).profileImageStatus = 'PENDING';
+    (profile as any).uploadedAt = new Date();
+  }
+  return profile || null;
+}
+
+

@@ -123,6 +123,12 @@ model MatrimonialProfile {
   willingToRelocate       Boolean                 @default(false)
   category                String                  @default("normal")
 
+  // Profile Media
+  profileImageUrl         String?
+  profileImagePublicId    String?
+  profileImageStatus      ApprovalStatus          @default(PENDING)
+  uploadedAt              DateTime?
+
   verificationRequests    VerificationRequest[]
   purchases               PackagePurchase[]
   buyerLeads              CuratedLeadAssignment[] @relation("BuyerLeads")
@@ -241,4 +247,23 @@ model AuditLog {
   targetId    String?
   metadata    String?  // Safe stringified JSON metadata
   createdAt   DateTime @default(now())
+}
+
+model NotificationLog {
+  id               String   @id @default(auto()) @map("_id") @db.ObjectId
+  type             String   // e.g., "REGISTRATION_USER_EMAIL", "ADMIN_NEW_PROFILE_ALERT"
+  channel          String   // e.g., "EMAIL", "SMS"
+  recipientMasked  String   // e.g., "j***@gmail.com" or "+91 98****1234"
+  status           String   // "SUCCESS", "FAILED"
+  providerResponse String?  // Optional provider response ID or error message
+  createdAt        DateTime @default(now())
+}
+
+model GlobalSettings {
+  id                 String   @id @default(auto()) @map("_id") @db.ObjectId
+  adminEmail         String?
+  adminPhone         String?
+  emailAlertsEnabled Boolean  @default(true)
+  smsAlertsEnabled   Boolean  @default(false)
+  updatedAt          DateTime @updatedAt
 }

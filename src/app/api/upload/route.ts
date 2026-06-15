@@ -1,62 +1,67 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/auth';
 import { put } from '@vercel/blob';
+import { auth } from '@/auth';
+import { updateProfileImage } from '@/lib/profileStore';
 
-/**
- * SECURE UPLOAD PLAN FOR PROFILE PHOTOS AND DOCUMENT VERIFICATION
- * 
- * 1. Authorization: Only logged-in users with a complete matrimonial registration can upload.
- * 2. Privacy: Files are uploaded to Vercel Blob with `{ access: 'private' }` configuration.
- * 3. Security: We do not expose direct public URLs.
- * 4. Serving Files: Files will be requested via a proxy route (e.g. `/api/media/[fileId]`) 
- *    which verifies the requester's subscription status before generating a time-limited read-only token or pipe.
- */
-export async function POST(req: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
     const session = await auth();
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const simulatedUserId = request.headers.get('x-simulator-user-id');
+    const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
+    
+    const activeUserId = session?.user?.id || (isDemoMode ? simulatedUserId : null);
+
+    if (!activeUserId) {
+      return NextResponse.json({ error: 'Unauthorized. Please log in.' }, { status: 401 });
     }
 
-    const formData = await req.formData();
+    const formData = await request.formData();
     const file = formData.get('file') as File;
 
     if (!file) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 });
     }
 
-    // Check file type (e.g., only allow images)
-    if (!file.type.startsWith('image/')) {
-      return NextResponse.json({ error: 'Only images are allowed' }, { status: 400 });
+    // 1. Validate MIME type
+    const validMimeTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
+    if (!validMimeTypes.includes(file.type)) {
+      return NextResponse.json({ error: 'Invalid file type. Only JPG, PNG, and WebP are allowed.' }, { status: 400 });
     }
 
-    // Check file size (e.g. max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      return NextResponse.json({ error: 'File size exceeds 5MB limit' }, { status: 400 });
+    // 2. Validate file size (e.g., 4MB limit)
+    const MAX_SIZE_MB = 4;
+    if (file.size > MAX_SIZE_MB * 1024 * 1024) {
+      return NextResponse.json({ error: `File size exceeds the ${MAX_SIZE_MB}MB limit.` }, { status: 400 });
     }
 
-    // Check if Blob token is configured
-    if (!process.env.BLOB_READ_WRITE_TOKEN || process.env.BLOB_READ_WRITE_TOKEN.includes('dummy')) {
-      // Return a simulated success path for local testing
-      return NextResponse.json({
-        success: true,
-        message: 'Mock upload successful (BLOB_READ_WRITE_TOKEN is using local dummy placeholder)',
-        url: `https://mock-blob.vercel-storage.com/${session.user.id}-${Date.now()}-${file.name}`,
-      });
+    // 2.5 Verify Token exists
+    const blobToken = process.env.BLOB_READ_WRITE_TOKEN;
+    if (!blobToken || blobToken === 'blob_token' || blobToken === 'REAL_VERCEL_BLOB_READ_WRITE_TOKEN_HERE') {
+      return NextResponse.json({ error: 'Upload storage is not configured. Please set BLOB_READ_WRITE_TOKEN.' }, { status: 500 });
     }
 
-    // Upload to Vercel Blob with private access
+    // 3. Upload to Vercel Blob
     const blob = await put(file.name, file, {
-      access: 'private', // Keeps file private by default
-      addRandomSuffix: true,
+      access: 'public',
+      token: process.env.BLOB_READ_WRITE_TOKEN, // Ensure this handles missing token if possible
     });
 
-    return NextResponse.json({
-      success: true,
+    // 4. Save the blob URL to the user's MatrimonialProfile
+    const updatedProfile = await updateProfileImage(activeUserId, blob.url, null);
+
+    if (!updatedProfile) {
+       return NextResponse.json({ error: 'User profile not found. Please complete profile registration first.' }, { status: 404 });
+    }
+
+    return NextResponse.json({ 
+      success: true, 
       url: blob.url,
+      message: 'Profile photo uploaded successfully. Pending admin approval.' 
     });
+
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Internal Server Error';
+    console.error('Upload error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Upload failed';
     return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }

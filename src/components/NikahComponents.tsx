@@ -328,7 +328,7 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
       }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src={getProfileImage(profile.gender, index)}
+          src={profile.profileImageUrl || getProfileImage(profile.gender, index)}
           alt={profile.fullName}
           className={`profile-img ${shouldBlur ? 'blurred-media' : ''}`}
           style={{

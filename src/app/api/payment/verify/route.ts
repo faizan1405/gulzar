@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { verifyPackagePurchase } from '@/lib/profileStore';
+import { prisma } from '@/lib/db';
+import { notifyMembership } from '@/lib/notifications';
 import crypto from 'crypto';
 
 export async function POST(req: NextRequest) {
@@ -20,10 +22,27 @@ export async function POST(req: NextRequest) {
     }
 
     if (isSimulated || orderId.startsWith('order_sim_')) {
+      console.warn('⚠️ [SIMULATOR MODE] Verifying Mock Payment. This is for testing only. Not real Razorpay payment.');
       const purchase = await verifyPackagePurchase(orderId, paymentId);
+      
+      try {
+        if (purchase) {
+          const dbPurchase = await prisma.packagePurchase.findUnique({
+            where: { id: purchase.id },
+            include: { profile: { include: { user: true } } }
+          });
+          if (dbPurchase && dbPurchase.profile) {
+            const userEmail = dbPurchase.profile.user?.email || null;
+            notifyMembership(userEmail, dbPurchase.profile.phoneNumber, dbPurchase.profile.fullName, dbPurchase.packageType);
+          }
+        }
+      } catch (e) {
+        console.error('Membership notification failed', e);
+      }
+
       return NextResponse.json({
         success: true,
-        message: 'Mock payment verified successfully!',
+        message: 'Mock payment verified successfully (for testing only. Not real Razorpay payment).',
         purchase,
       });
     }
@@ -45,6 +64,21 @@ export async function POST(req: NextRequest) {
     }
 
     const purchase = await verifyPackagePurchase(orderId, paymentId);
+
+    try {
+      if (purchase) {
+        const dbPurchase = await prisma.packagePurchase.findUnique({
+          where: { id: purchase.id },
+          include: { profile: { include: { user: true } } }
+        });
+        if (dbPurchase && dbPurchase.profile) {
+          const userEmail = dbPurchase.profile.user?.email || null;
+          notifyMembership(userEmail, dbPurchase.profile.phoneNumber, dbPurchase.profile.fullName, dbPurchase.packageType);
+        }
+      }
+    } catch (e) {
+      console.error('Membership notification failed', e);
+    }
 
     return NextResponse.json({
       success: true,
