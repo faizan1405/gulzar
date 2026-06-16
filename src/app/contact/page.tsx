@@ -32,7 +32,9 @@ export default function ContactPage() {
               <div style={{ padding: '32px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '20px', color: 'var(--deep-maroon)' }}>Contact Details</h3>
                 <p style={{ fontSize: '14px', color: 'var(--text-muted)' }}>📍 Shadi Mubarak Office, Bandra West, Mumbai, MH</p>
-                <p style={{ fontSize: '14px', color: 'var(--text-muted)' }}>📞 Support Desk: +91 98765 43210 (10 AM - 6 PM)</p>
+                <p style={{ fontSize: '14px', color: 'var(--text-muted)' }}>
+                  📞 Call us: <a href="tel:+919557006617" style={{ color: 'var(--deep-maroon)', fontWeight: 'bold', textDecoration: 'underline' }}>+91 95570 06617</a> (10 AM - 6 PM)
+                </p>
                 <p style={{ fontSize: '14px', color: 'var(--text-muted)' }}>✉️ Verification Dept: support@shadimubarak.in</p>
                 <hr style={{ borderColor: 'var(--border-color)' }} />
                 <span style={{ fontSize: '12.5px', color: 'var(--gold-accent)', fontWeight: 600 }}>We usually call back within 24 hours of submission.</span>

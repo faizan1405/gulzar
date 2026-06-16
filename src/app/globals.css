@@ -2210,5 +2210,69 @@ input[type="checkbox"] {
   }
 }
 
+/* Floating Call Button Styling */
+.call-button-container {
+  position: fixed;
+  bottom: 24px;
+  left: 24px;
+  z-index: 9999;
+}
+
+.call-button-trigger {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: var(--white);
+  border: 1.5px solid var(--gold-accent);
+  border-radius: 50px;
+  padding: 10px 20px;
+  box-shadow: 0 8px 32px rgba(111, 29, 53, 0.1);
+  cursor: pointer;
+  transition: var(--transition-smooth);
+  text-decoration: none;
+}
+
+.call-button-trigger:hover {
+  transform: translateY(-3px) scale(1.02);
+  border-color: var(--deep-maroon);
+  box-shadow: 0 12px 40px rgba(111, 29, 53, 0.18);
+}
+
+.call-button-icon {
+  color: var(--gold-accent);
+  transition: var(--transition-smooth);
+}
+
+.call-button-trigger:hover .call-button-icon {
+  color: var(--deep-maroon);
+}
+
+.call-button-text {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--deep-maroon);
+  letter-spacing: 0.2px;
+}
+
+/* Mobile responsive media query for call button */
+@media (max-width: 480px) {
+  .call-button-container {
+    bottom: 16px;
+    left: 16px;
+  }
+  .call-button-text {
+    display: none;
+  }
+  .call-button-trigger {
+    padding: 10px;
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    justify-content: center;
+  }
+}
+
+
 
 
