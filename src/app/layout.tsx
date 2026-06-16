@@ -3,6 +3,7 @@ import "./globals.css";
 import { SimulatorProvider } from "../context/SimulatorContext";
 import DemoSimulatorBar from "../components/DemoSimulatorBar";
 import ProfileDetails from "../components/ProfileDetails";
+import ChatbotWidget from "../components/ChatbotWidget";
 
 export const metadata: Metadata = {
   title: "Shadi Mubarak — Trusted Muslim Matrimonial Platform",
@@ -21,10 +22,12 @@ export default function RootLayout({
           <DemoSimulatorBar />
           <ProfileDetails />
           {children}
+          <ChatbotWidget />
         </SimulatorProvider>
       </body>
     </html>
   );
 }
+
 
 
