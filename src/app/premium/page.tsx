@@ -1,11 +1,12 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSimulator } from '../../context/SimulatorContext';
 import Navbar from '../../components/Navbar';
 import Image from 'next/image';
-import { SectionHeading, PremiumPlanCard, PremiumFooter } from '../../components/NikahComponents';
+import { SectionHeading, PremiumPlanCard, PremiumFooter, FloralCorner } from '../../components/NikahComponents';
+import PackageInquiryForm from '../../components/PackageInquiryForm';
 
 export default function PremiumPage() {
   const router = useRouter();
@@ -14,6 +15,8 @@ export default function PremiumPage() {
     simulatedPackages,
     handleRazorpayCheckout
   } = useSimulator();
+
+  const [inquiryPackage, setInquiryPackage] = useState<string | null>(null);
 
   const handleNavigate = (view: string) => {
     router.push('/' + (view === 'home' ? '' : view));
@@ -65,6 +68,7 @@ export default function PremiumPage() {
               isActive={simulatedPackages.includes('good_profile_package')}
               ctaText="Buy Good Profile Package"
               onActivate={() => handleRazorpayCheckout('good_profile_package', 5500, 'Good Profile Package')}
+              onInquire={() => setInquiryPackage('₹5,500 Good Profiles Package')}
               isPopular
             />
             <PremiumPlanCard
@@ -76,6 +80,7 @@ export default function PremiumPage() {
               isActive={simulatedPackages.includes('second_marriage_package')}
               ctaText="Buy Second Marriage Package"
               onActivate={() => handleRazorpayCheckout('second_marriage_package', 11000, 'Second Marriage Package')}
+              onInquire={() => setInquiryPackage('₹11,000 Second Marriage Package')}
             />
             <PremiumPlanCard
               title="High Profile Package"
@@ -86,11 +91,12 @@ export default function PremiumPage() {
               isActive={simulatedPackages.includes('high_profile_package')}
               ctaText="Buy High Profile Package"
               onActivate={() => handleRazorpayCheckout('high_profile_package', 21000, 'High Profile Package')}
+              onInquire={() => setInquiryPackage('₹21,000 High Profile Package')}
             />
           </div>
 
           {/* Features Comparison Grid */}
-          <div className="card-theme-wrapper" style={{ padding: '36px' }}>
+          <div className="card-theme-wrapper" style={{ padding: '36px', marginBottom: '40px' }}>
             <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '22px', color: 'var(--deep-maroon)', marginBottom: '24px', textAlign: 'center' }}>Package Comparison Matrix</h3>
             <div className="table-responsive">
               <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'center', fontSize: '14px' }}>
@@ -145,7 +151,42 @@ export default function PremiumPage() {
           </div>
         </div>
       </main>
+
+      {/* Package Inquiry Modal overlay */}
+      {inquiryPackage && (
+        <div className="modal-overlay font-sans" onClick={() => setInquiryPackage(null)}>
+          <div className="card-theme-wrapper" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '500px', width: '90%', margin: '20px', border: '2px solid var(--gold-accent)', padding: '32px', position: 'relative' }}>
+            <FloralCorner position="tl" color="var(--gold-accent)" />
+            <FloralCorner position="tr" color="var(--gold-accent)" />
+            <button
+              onClick={() => setInquiryPackage(null)}
+              style={{
+                position: 'absolute',
+                top: '16px',
+                right: '16px',
+                fontSize: '24px',
+                background: 'none',
+                border: 'none',
+                color: 'var(--text-muted)',
+                cursor: 'pointer'
+              }}
+            >
+              ×
+            </button>
+            <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '22px', color: 'var(--deep-maroon)', marginBottom: '16px', textAlign: 'center' }}>
+              Package Inquiry & Callback
+            </h3>
+            <PackageInquiryForm
+              defaultPackage={inquiryPackage}
+              onSuccess={() => setInquiryPackage(null)}
+              onCancel={() => setInquiryPackage(null)}
+            />
+          </div>
+        </div>
+      )}
+
       <PremiumFooter onNavigate={handleNavigate} />
     </>
   );
 }
+

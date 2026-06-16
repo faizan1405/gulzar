@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Navbar from '../../components/Navbar';
 import Image from 'next/image';
 import { SectionHeading, FloralCorner, PremiumFooter } from '../../components/NikahComponents';
+import LeadForm from '../../components/LeadForm';
 
 export default function ContactPage() {
   const router = useRouter();
@@ -45,25 +46,12 @@ export default function ContactPage() {
               <FloralCorner position="tl" color="var(--gold-accent)" />
               <FloralCorner position="tr" color="var(--gold-accent)" />
               <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '20px', color: 'var(--deep-maroon)', marginBottom: '16px' }}>Send Support Message</h3>
-              <form onSubmit={(e) => { e.preventDefault(); alert('Alhamdulillah! Message received. We will get back shortly.'); }}>
-                <div className="form-group">
-                  <label className="form-label">Full Name</label>
-                  <input type="text" className="form-control" placeholder="Enter your name" required />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Registered Phone Number</label>
-                  <input type="tel" className="form-control" placeholder="e.g. +91 9999999999" required />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Message details</label>
-                  <textarea className="form-control" rows={4} placeholder="Describe your query..." required />
-                </div>
-                <button type="submit" className="btn btn-gold" style={{ width: '100%' }}>Send Message</button>
-              </form>
+              <LeadForm defaultInquiryType="General Inquiry" />
             </div>
           </div>
         </div>
       </main>
+
       <PremiumFooter onNavigate={handleNavigate} />
     </>
   );

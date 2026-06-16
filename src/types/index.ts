@@ -129,3 +129,22 @@ export interface LocationOption {
   createdAt?: string;
   updatedAt?: string;
 }
+
+export interface Lead {
+  id: string;
+  fullName: string;
+  phone: string;
+  email: string | null;
+  city: string;
+  message: string | null;
+  inquiryType: string;
+  interestedPackage: string | null;
+  interestedProfileId: string | null;
+  sourcePage: string | null;
+  status: string;
+  priority: string;
+  adminNotes: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+

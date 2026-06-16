@@ -211,6 +211,7 @@ const globalStore = globalThis as unknown as {
   inMemoryLogs: typeof MOCK_AUDIT_LOGS | undefined;
   inMemoryPurchases: typeof MOCK_PURCHASES | undefined;
   inMemoryCuratedLeads: typeof MOCK_CURATED_LEADS | undefined;
+  inMemoryLeads: any[] | undefined;
   isDbConnected: boolean | undefined;
 };
 
@@ -219,6 +220,45 @@ if (!globalStore.inMemoryRequests) globalStore.inMemoryRequests = [...MOCK_VERIF
 if (!globalStore.inMemoryLogs) globalStore.inMemoryLogs = [...MOCK_AUDIT_LOGS];
 if (!globalStore.inMemoryPurchases) globalStore.inMemoryPurchases = [...MOCK_PURCHASES];
 if (!globalStore.inMemoryCuratedLeads) globalStore.inMemoryCuratedLeads = [...MOCK_CURATED_LEADS];
+if (!globalStore.inMemoryLeads) {
+  globalStore.inMemoryLeads = [
+    {
+      id: "lead_mock_1",
+      fullName: "Arsalan Khan",
+      phone: "+91 98765 43210",
+      email: "arsalan.khan@example.com",
+      city: "Mumbai",
+      message: "Interested in high profile package, need details on success fee details.",
+      inquiryType: "Package Inquiry",
+      interestedPackage: "₹21,000 High Profile Package",
+      interestedProfileId: null,
+      sourcePage: "/premium",
+      status: "new",
+      priority: "high",
+      adminNotes: "Needs urgent callback.",
+      createdAt: new Date(Date.now() - 1000 * 60 * 60 * 3), // 3 hours ago
+      updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 3),
+    },
+    {
+      id: "lead_mock_2",
+      fullName: "Yasmin Shaikh",
+      phone: "+91 87654 32109",
+      email: "yasmin.s@example.com",
+      city: "Pune",
+      message: "Request details for verification requirements.",
+      inquiryType: "Verification Help",
+      interestedPackage: null,
+      interestedProfileId: null,
+      sourcePage: "/contact",
+      status: "contacted",
+      priority: "normal",
+      adminNotes: "Sent document checklist.",
+      createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24), // 1 day ago
+      updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 20),
+    }
+  ];
+}
+
 
 // Safely sanitize credentials in connection string from error logs
 export function sanitizeErrorMessage(msg: string): string {
@@ -1405,5 +1445,154 @@ export async function updateProfileImage(userId: string, imageUrl: string, publi
   }
   return profile || null;
 }
+
+export async function createLead(data: {
+  fullName: string;
+  phone: string;
+  email?: string | null;
+  city: string;
+  message?: string | null;
+  inquiryType: string;
+  interestedPackage?: string | null;
+  interestedProfileId?: string | null;
+  sourcePage?: string | null;
+}) {
+  const isDb = await testDbConnection();
+  if (isDb) {
+    try {
+      return await prisma.lead.create({
+        data: {
+          fullName: data.fullName,
+          phone: data.phone,
+          email: data.email || null,
+          city: data.city,
+          message: data.message || null,
+          inquiryType: data.inquiryType,
+          interestedPackage: data.interestedPackage || null,
+          interestedProfileId: data.interestedProfileId || null,
+          sourcePage: data.sourcePage || null,
+          status: "new",
+          priority: "normal",
+          adminNotes: ""
+        }
+      });
+    } catch (e) {
+      const msg = sanitizeErrorMessage(e instanceof Error ? e.message : String(e));
+      if (!isFallbackAllowed()) {
+        throw new Error(`Database write failed: ${msg}`);
+      }
+      console.error('Database write failed, using fallback', msg);
+    }
+  } else if (!isFallbackAllowed()) {
+    throw new Error('Database is offline or not configured.');
+  }
+
+  // Fallback
+  const newLead = {
+    id: `lead_${Date.now()}`,
+    fullName: data.fullName,
+    phone: data.phone,
+    email: data.email || null,
+    city: data.city,
+    message: data.message || null,
+    inquiryType: data.inquiryType,
+    interestedPackage: data.interestedPackage || null,
+    interestedProfileId: data.interestedProfileId || null,
+    sourcePage: data.sourcePage || null,
+    status: "new",
+    priority: "normal",
+    adminNotes: "",
+    createdAt: new Date(),
+    updatedAt: new Date()
+  };
+  globalStore.inMemoryLeads?.unshift(newLead);
+  return newLead;
+}
+
+export async function getAllLeads() {
+  const isDb = await testDbConnection();
+  if (isDb) {
+    try {
+      return await prisma.lead.findMany({
+        orderBy: { createdAt: 'desc' }
+      });
+    } catch (e) {
+      const msg = sanitizeErrorMessage(e instanceof Error ? e.message : String(e));
+      if (!isFallbackAllowed()) {
+        throw new Error(`Database query failed: ${msg}`);
+      }
+      console.error('Database query failed, using fallback', msg);
+    }
+  } else if (!isFallbackAllowed()) {
+    throw new Error('Database is offline or not configured.');
+  }
+
+  return globalStore.inMemoryLeads || [];
+}
+
+export async function updateLead(id: string, data: {
+  status?: string;
+  priority?: string;
+  adminNotes?: string | null;
+}) {
+  const isDb = await testDbConnection();
+  if (isDb) {
+    try {
+      const dbId = getValidObjectId(id);
+      return await prisma.lead.update({
+        where: { id: dbId },
+        data
+      });
+    } catch (e) {
+      const msg = sanitizeErrorMessage(e instanceof Error ? e.message : String(e));
+      if (!isFallbackAllowed()) {
+        throw new Error(`Database write failed: ${msg}`);
+      }
+      console.error('Database write failed, using fallback', msg);
+    }
+  } else if (!isFallbackAllowed()) {
+    throw new Error('Database is offline or not configured.');
+  }
+
+  // Fallback
+  const lead = globalStore.inMemoryLeads?.find((l) => l.id === id);
+  if (lead) {
+    if (data.status !== undefined) lead.status = data.status;
+    if (data.priority !== undefined) lead.priority = data.priority;
+    if (data.adminNotes !== undefined) lead.adminNotes = data.adminNotes;
+    lead.updatedAt = new Date();
+  }
+  return lead || null;
+}
+
+export async function deleteLead(id: string) {
+  const isDb = await testDbConnection();
+  if (isDb) {
+    try {
+      const dbId = getValidObjectId(id);
+      await prisma.lead.delete({
+        where: { id: dbId }
+      });
+      return true;
+    } catch (e) {
+      const msg = sanitizeErrorMessage(e instanceof Error ? e.message : String(e));
+      if (!isFallbackAllowed()) {
+        throw new Error(`Database write failed: ${msg}`);
+      }
+      console.error('Database write failed, using fallback', msg);
+    }
+  } else if (!isFallbackAllowed()) {
+    throw new Error('Database is offline or not configured.');
+  }
+
+  // Fallback
+  const index = globalStore.inMemoryLeads?.findIndex((l) => l.id === id) ?? -1;
+  if (index > -1 && globalStore.inMemoryLeads) {
+    globalStore.inMemoryLeads.splice(index, 1);
+    return true;
+  }
+  return false;
+}
+
 
 

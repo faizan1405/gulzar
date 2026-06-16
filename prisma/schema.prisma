@@ -267,3 +267,22 @@ model GlobalSettings {
   smsAlertsEnabled   Boolean  @default(false)
   updatedAt          DateTime @updatedAt
 }
+
+model Lead {
+  id                  String   @id @default(auto()) @map("_id") @db.ObjectId
+  fullName            String
+  phone               String
+  email               String?
+  city                String
+  message             String?
+  inquiryType         String   // "general", "package", "profile_help", "verification_help", "callback", "other"
+  interestedPackage   String?
+  interestedProfileId String?
+  sourcePage          String?
+  status              String   @default("new") // "new", "contacted", "follow_up", "converted", "closed", "spam"
+  priority            String   @default("normal") // "low", "normal", "high"
+  adminNotes          String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+

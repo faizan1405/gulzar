@@ -42,6 +42,13 @@ export const AdminSidebar: React.FC = () => {
         💎 Premium Packages
       </Link>
       <Link
+        href="/admin/leads"
+        className={`admin-nav-link ${pathname === '/admin/leads' ? 'active' : ''}`}
+        onClick={handleLinkClick}
+      >
+        📥 Leads & Inquiries
+      </Link>
+      <Link
         href="/admin/master-data"
         className={`admin-nav-link ${pathname === '/admin/master-data' ? 'active' : ''}`}
         onClick={handleLinkClick}

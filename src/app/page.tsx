@@ -21,6 +21,8 @@ import {
   PremiumFooter,
   PremiumPlanCard
 } from '../components/NikahComponents';
+import PackageInquiryForm from '../components/PackageInquiryForm';
+
 
 // Theme options matching original config
 const THEME_COLORS = [
@@ -36,6 +38,7 @@ const THEME_COLORS = [
 
 export default function Home() {
   const router = useRouter();
+  const [inquiryPackage, setInquiryPackage] = React.useState<string | null>(null);
   const {
     isLoggedIn,
     hasPaid300,
@@ -775,6 +778,7 @@ export default function Home() {
                     isActive={simulatedPackages.includes('good_profile_package')}
                     ctaText="Buy Good Profile Package"
                     onActivate={() => handleRazorpayCheckout('good_profile_package', 5500, 'Good Profile Package')}
+                    onInquire={() => setInquiryPackage('₹5,500 Good Profiles Package')}
                     isPopular
                   />
                   <PremiumPlanCard
@@ -786,6 +790,7 @@ export default function Home() {
                     isActive={simulatedPackages.includes('second_marriage_package')}
                     ctaText="Buy Second Marriage Package"
                     onActivate={() => handleRazorpayCheckout('second_marriage_package', 11000, 'Second Marriage Package')}
+                    onInquire={() => setInquiryPackage('₹11,000 Second Marriage Package')}
                   />
                   <PremiumPlanCard
                     title="High Profile Package"
@@ -796,6 +801,7 @@ export default function Home() {
                     isActive={simulatedPackages.includes('high_profile_package')}
                     ctaText="Buy High Profile Package"
                     onActivate={() => handleRazorpayCheckout('high_profile_package', 21000, 'High Profile Package')}
+                    onInquire={() => setInquiryPackage('₹21,000 High Profile Package')}
                   />
                 </div>
               </div>
@@ -868,6 +874,39 @@ export default function Home() {
                 Cancel
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Package Inquiry Modal overlay */}
+      {inquiryPackage && (
+        <div className="modal-overlay font-sans" onClick={() => setInquiryPackage(null)}>
+          <div className="card-theme-wrapper" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '500px', width: '90%', margin: '20px', border: '2px solid var(--gold-accent)', padding: '32px', position: 'relative' }}>
+            <FloralCorner position="tl" color="var(--gold-accent)" />
+            <FloralCorner position="tr" color="var(--gold-accent)" />
+            <button
+              onClick={() => setInquiryPackage(null)}
+              style={{
+                position: 'absolute',
+                top: '16px',
+                right: '16px',
+                fontSize: '24px',
+                background: 'none',
+                border: 'none',
+                color: 'var(--text-muted)',
+                cursor: 'pointer'
+              }}
+            >
+              ×
+            </button>
+            <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '22px', color: 'var(--deep-maroon)', marginBottom: '16px', textAlign: 'center' }}>
+              Package Inquiry & Callback
+            </h3>
+            <PackageInquiryForm
+              defaultPackage={inquiryPackage}
+              onSuccess={() => setInquiryPackage(null)}
+              onCancel={() => setInquiryPackage(null)}
+            />
           </div>
         </div>
       )}

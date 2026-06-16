@@ -441,6 +441,7 @@ interface PremiumPlanCardProps {
   isActive: boolean;
   onActivate: () => void;
   ctaText: string;
+  onInquire?: () => void;
 }
 
 export const PremiumPlanCard: React.FC<PremiumPlanCardProps> = ({
@@ -452,7 +453,8 @@ export const PremiumPlanCard: React.FC<PremiumPlanCardProps> = ({
   isPopular = false,
   isActive,
   onActivate,
-  ctaText
+  ctaText,
+  onInquire
 }) => {
   const gstAmount = Math.floor(price * gstRate);
   const totalAmount = price + gstAmount;
@@ -507,17 +509,30 @@ export const PremiumPlanCard: React.FC<PremiumPlanCardProps> = ({
         ))}
       </ul>
 
-      <button
-        onClick={onActivate}
-        className={`btn ${isPopular || isActive ? 'btn-gold' : 'btn-primary'}`}
-        style={{ marginTop: 'auto', width: '100%' }}
-        disabled={isActive}
-      >
-        {isActive ? 'Active Package' : ctaText}
-      </button>
+      <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        <button
+          onClick={onActivate}
+          className={`btn ${isPopular || isActive ? 'btn-gold' : 'btn-primary'}`}
+          style={{ width: '100%' }}
+          disabled={isActive}
+        >
+          {isActive ? 'Active Package' : ctaText}
+        </button>
+        {onInquire && !isActive && (
+          <button
+            onClick={onInquire}
+            type="button"
+            className="btn btn-secondary"
+            style={{ width: '100%', fontSize: '12.5px', padding: '8px 12px' }}
+          >
+            Inquire & Request Callback
+          </button>
+        )}
+      </div>
     </div>
   );
 };
+
 
 // 10. Success Story Card
 interface SuccessStoryCardProps {

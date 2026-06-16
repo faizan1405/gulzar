@@ -161,3 +161,22 @@ export async function notifyMembership(userEmail: string | null, userPhone: stri
     }
   });
 }
+
+export async function notifyAdminNewLead(leadDetails: any) {
+  setImmediate(async () => {
+    try {
+      const settings = await prisma.globalSettings.findFirst();
+      if (!settings || !settings.emailAlertsEnabled || !settings.adminEmail) return;
+
+      const res = await sendEmail(
+        settings.adminEmail,
+        `New ${leadDetails.inquiryType} Inquiry Received`,
+        emailTemplates.adminNewLeadAlert(leadDetails)
+      );
+      await logNotification('ADMIN_NEW_LEAD_ALERT', 'EMAIL', settings.adminEmail, 'SUCCESS', res?.id);
+    } catch (err: any) {
+      console.error('Admin new lead notification failed', err);
+    }
+  });
+}
+

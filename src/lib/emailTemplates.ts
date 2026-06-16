@@ -69,5 +69,26 @@ export const emailTemplates = {
       <br />
       <p>Regards,<br/>The Shadi Mubarak Team</p>
     </div>
+  `,
+
+  adminNewLeadAlert: (leadDetails: any) => `
+    <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 8px;">
+      <h2 style="color: #6f1d35;">New Inquiry / Lead Received</h2>
+      <p>A new customer inquiry has been captured on the Shadi Mubarak platform.</p>
+      <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+        <tr><td style="padding: 8px; border-bottom: 1px solid #eee; width: 150px;"><strong>Name:</strong></td><td style="padding: 8px; border-bottom: 1px solid #eee;">${leadDetails.fullName}</td></tr>
+        <tr><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Phone:</strong></td><td style="padding: 8px; border-bottom: 1px solid #eee;">${leadDetails.phone}</td></tr>
+        <tr><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Email:</strong></td><td style="padding: 8px; border-bottom: 1px solid #eee;">${leadDetails.email || 'N/A'}</td></tr>
+        <tr><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>City:</strong></td><td style="padding: 8px; border-bottom: 1px solid #eee;">${leadDetails.city}</td></tr>
+        <tr><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Inquiry Type:</strong></td><td style="padding: 8px; border-bottom: 1px solid #eee;">${leadDetails.inquiryType}</td></tr>
+        ${leadDetails.interestedPackage ? `<tr><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Package:</strong></td><td style="padding: 8px; border-bottom: 1px solid #eee;">${leadDetails.interestedPackage}</td></tr>` : ''}
+        ${leadDetails.interestedProfileId ? `<tr><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Profile ID:</strong></td><td style="padding: 8px; border-bottom: 1px solid #eee;">${leadDetails.interestedProfileId}</td></tr>` : ''}
+        ${leadDetails.sourcePage ? `<tr><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Source Page:</strong></td><td style="padding: 8px; border-bottom: 1px solid #eee;">${leadDetails.sourcePage}</td></tr>` : ''}
+        ${leadDetails.message ? `<tr><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Message:</strong></td><td style="padding: 8px; border-bottom: 1px solid #eee;">${leadDetails.message}</td></tr>` : ''}
+      </table>
+      <br />
+      <p>Log in to the Admin Dashboard under "Leads & Inquiries" to update status, prioritize, or log notes.</p>
+    </div>
   `
 };
+
