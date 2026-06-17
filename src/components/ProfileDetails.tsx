@@ -232,7 +232,7 @@ export const ProfileDetails: React.FC = () => {
         {!showInterestForm && (
           <div style={{ padding: '16px 24px', borderTop: '1px solid var(--border-color)', backgroundColor: 'var(--soft-cream)', display: 'flex', justifyContent: 'flex-end', flexWrap: 'wrap', gap: '12px' }}>
             <a
-              href={`https://wa.me/919557006617?text=${encodeURIComponent(
+              href={`https://wa.me/919675483125?text=${encodeURIComponent(
                 modalBlur
                   ? 'Assalamu Alaikum, I am interested in this Shadi Mubarak profile. Please guide me.'
                   : `Assalamu Alaikum, I am interested in this Shadi Mubarak profile (Name: ${selectedProfileForDetails.fullName}, ID: ${selectedProfileForDetails.id}). Please guide me.`

@@ -532,7 +532,7 @@ export const PremiumPlanCard: React.FC<PremiumPlanCardProps> = ({
         )}
         {whatsappMessage && !isActive && (
           <a
-            href={`https://wa.me/919557006617?text=${encodeURIComponent(whatsappMessage)}`}
+            href={`https://wa.me/919675483125?text=${encodeURIComponent(whatsappMessage)}`}
             target="_blank"
             rel="noopener noreferrer"
             className="btn"
@@ -873,7 +873,7 @@ export const PremiumFooter: React.FC<PremiumFooterProps> = ({ onNavigate }) => {
             )}
             <div style={{ fontSize: '13px', color: 'rgba(248, 241, 231, 0.9)', marginBottom: '18px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
               <div>📍 {location ? location.address : 'Shadi Mubarak Office, Bandra West, Mumbai, MH'}</div>
-              <div>📞 Call: <a href={`tel:${location ? location.phoneRaw : '+919557006617'}`} style={{ color: 'var(--gold-accent)', fontWeight: 'bold', textDecoration: 'underline' }}>{location ? location.phone : '+91 95570 06617'}</a></div>
+              <div>📞 Call: <a href={`tel:${location ? location.phoneRaw : '+919675483125'}`} style={{ color: 'var(--gold-accent)', fontWeight: 'bold', textDecoration: 'underline' }}>{location ? location.phone : '+91 96754 83125'}</a></div>
               {(!location || location.mapOpenUrl) && (
                 <div>
                   🗺️ <a href={location ? location.mapOpenUrl : 'https://www.google.com/maps/search/?api=1&query=Bandra+West%2C+Mumbai%2C+Maharashtra'} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--gold-light)', textDecoration: 'underline' }}>Open in Google Maps</a>

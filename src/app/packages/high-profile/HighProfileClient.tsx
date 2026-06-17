@@ -108,7 +108,7 @@ export default function HighProfileClient() {
                     Inquire & Ask Call back
                   </button>
                   <a
-                    href={`https://wa.me/919557006617?text=${encodeURIComponent("Assalamu Alaikum, I am interested in the ₹21,000 High Profile Package on Shadi Mubarak. Please guide me.")}`}
+                    href={`https://wa.me/919675483125?text=${encodeURIComponent("Assalamu Alaikum, I am interested in the ₹21,000 High Profile Package on Shadi Mubarak. Please guide me.")}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="btn"

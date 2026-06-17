@@ -12,18 +12,10 @@ export default function SearchClient() {
   const { profiles, isLoggedIn, userProfile } = useSimulator();
   
   // Standard and advanced filters
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedDistance, setSelectedDistance] = useState('All');
   const [selectedCaste, setSelectedCaste] = useState('All');
-  const [verificationFilter, setVerificationFilter] = useState('All');
-  const [selectedMaslak, setSelectedMaslak] = useState('All');
-  const [selectedFiqh, setSelectedFiqh] = useState('All');
+  const [selectedCommunity, setSelectedCommunity] = useState('All');
   const [selectedState, setSelectedState] = useState('All');
-  const [selectedDistrict, setSelectedDistrict] = useState('All');
-  const [selectedLocality, setSelectedLocality] = useState('All');
-  const [willingToRelocateFilter, setWillingToRelocateFilter] = useState(false);
-  const [sameCasteFilter, setSameCasteFilter] = useState(false);
-  const [sameMaslakFilter, setSameMaslakFilter] = useState(false);
+  const [selectedCity, setSelectedCity] = useState('All');
 
   // New Gender and Age filters
   const [selectedGender, setSelectedGender] = useState('No preference');
@@ -63,7 +55,7 @@ export default function SearchClient() {
 
     // 0b. Age range filter (hard filter)
     if (isAgeRangeInvalid) {
-      return false;
+      return false; // Return empty results if range is invalid
     }
     const age = getProfileAge(p);
     if (parsedMin !== null) {
@@ -73,52 +65,19 @@ export default function SearchClient() {
       if (age === null || age > parsedMax) return false;
     }
 
-    // 1. Keyword search (name, occupation, education, city, state, bio)
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
-      const nameMatch = p.fullName.toLowerCase().includes(q);
-      const occupationMatch = p.occupation.toLowerCase().includes(q);
-      const educationMatch = p.education.toLowerCase().includes(q);
-      const cityMatch = p.city ? p.city.toLowerCase().includes(q) : false;
-      const stateMatch = p.state ? p.state.toLowerCase().includes(q) : false;
-      const bioMatch = p.bio.toLowerCase().includes(q);
-      if (!nameMatch && !occupationMatch && !educationMatch && !cityMatch && !stateMatch && !bioMatch) {
-        return false;
-      }
+    // 1. Sect / Maslak / Community filter
+    if (selectedCommunity !== 'All') {
+      if (p.maslak !== selectedCommunity) return false;
     }
 
-    // 2. City distance simulation
-    if (selectedDistance !== 'All') {
-      if (selectedDistance === '50' && p.city !== 'Mumbai') return false;
-      if (selectedDistance === '100' && p.city === 'Delhi') return false;
-    }
-
-    // 3. Sect / Maslak filter
-    if (selectedMaslak !== 'All') {
-      if (p.maslak !== selectedMaslak) return false;
-    }
-
-    // 4. Fiqh filter
-    if (selectedFiqh !== 'All') {
-      if (p.fiqh !== selectedFiqh) return false;
-    }
-
-    // 5. Caste / Biradari filter
+    // 2. Caste / Biradari filter
     if (selectedCaste !== 'All') {
       if (p.biradari !== selectedCaste) return false;
     }
 
-    // 6. Location hierarchies
+    // 3. Location hierarchies
     if (selectedState !== 'All' && p.state !== selectedState) return false;
-    if (selectedDistrict !== 'All' && p.district !== selectedDistrict) return false;
-    if (selectedLocality !== 'All' && p.locality !== selectedLocality) return false;
-
-    // 7. Verification Status
-    if (verificationFilter === 'Verified' && p.verificationStatus !== 'APPROVED') return false;
-    if (verificationFilter === 'Unverified' && p.verificationStatus === 'APPROVED') return false;
-
-    // 8. Relocation Openness
-    if (willingToRelocateFilter && !p.willingToRelocate) return false;
+    if (selectedCity !== 'All' && p.district !== selectedCity) return false;
 
     return true;
   });
@@ -131,7 +90,7 @@ export default function SearchClient() {
       // Maslak / Sect matching
       const isMaslakMatch = p.maslak && userProfile.maslak && p.maslak === userProfile.maslak;
       if (isMaslakMatch) {
-        if (sameMaslakFilter || userProfile.sameMaslakPreference) {
+        if (userProfile.sameMaslakPreference) {
           score += 25; // Higher priority
         } else {
           score += 12;
@@ -143,7 +102,7 @@ export default function SearchClient() {
       // Caste / Biradari matching
       const isCasteMatch = p.biradari && userProfile.biradari && p.biradari === userProfile.biradari;
       if (isCasteMatch) {
-        if (sameCasteFilter || userProfile.sameCastePreference) {
+        if (userProfile.sameCastePreference) {
           score += 25;
         } else {
           score += 12;
@@ -224,38 +183,20 @@ export default function SearchClient() {
           )}
 
           <ProfileFilters
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-            selectedDistance={selectedDistance}
-            setSelectedDistance={setSelectedDistance}
-            selectedCaste={selectedCaste}
-            setSelectedCaste={setSelectedCaste}
-            verificationFilter={verificationFilter}
-            setVerificationFilter={setVerificationFilter}
-            
-            selectedMaslak={selectedMaslak}
-            setSelectedMaslak={setSelectedMaslak}
-            selectedFiqh={selectedFiqh}
-            setSelectedFiqh={setSelectedFiqh}
-            selectedState={selectedState}
-            setSelectedState={setSelectedState}
-            selectedDistrict={selectedDistrict}
-            setSelectedDistrict={setSelectedDistrict}
-            selectedLocality={selectedLocality}
-            setSelectedLocality={setSelectedLocality}
-            willingToRelocateFilter={willingToRelocateFilter}
-            setWillingToRelocateFilter={setWillingToRelocateFilter}
-            sameCasteFilter={sameCasteFilter}
-            setSameCasteFilter={setSameCasteFilter}
-            sameMaslakFilter={sameMaslakFilter}
-            setSameMaslakFilter={setSameMaslakFilter}
-
             selectedGender={selectedGender}
             setSelectedGender={setSelectedGender}
             minAge={minAge}
             setMinAge={setMinAge}
             maxAge={maxAge}
             setMaxAge={setMaxAge}
+            selectedState={selectedState}
+            setSelectedState={setSelectedState}
+            selectedCity={selectedCity}
+            setSelectedCity={setSelectedCity}
+            selectedCommunity={selectedCommunity}
+            setSelectedCommunity={setSelectedCommunity}
+            selectedCaste={selectedCaste}
+            setSelectedCaste={setSelectedCaste}
 
             totalResults={rankedProfiles.length}
           />

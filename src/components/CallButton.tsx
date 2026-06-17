@@ -14,7 +14,7 @@ export default function CallButton() {
   return (
     <div className="call-button-container font-sans">
       <a
-        href="tel:+919557006617"
+        href="tel:+919675483125"
         className="call-button-trigger"
         aria-label="Call Shadi Mubarak support"
       >

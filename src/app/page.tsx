@@ -68,7 +68,7 @@ export default function Home() {
     "logo": "https://shadimubarak.in/images/nikah-1.jpeg",
     "contactPoint": {
       "@type": "ContactPoint",
-      "telephone": "+91-95570-06617",
+      "telephone": "+91-96754-83125",
       "contactType": "customer support"
     },
     "sameAs": [

@@ -99,7 +99,7 @@ export default function GoodProfilesClient() {
                     Inquire & Ask Call back
                   </button>
                   <a
-                    href={`https://wa.me/919557006617?text=${encodeURIComponent("Assalamu Alaikum, I am interested in the ₹5,500 Good Profiles Package on Shadi Mubarak. Please guide me.")}`}
+                    href={`https://wa.me/919675483125?text=${encodeURIComponent("Assalamu Alaikum, I am interested in the ₹5,500 Good Profiles Package on Shadi Mubarak. Please guide me.")}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="btn"

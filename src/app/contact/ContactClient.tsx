@@ -60,7 +60,7 @@ export default function ContactClient() {
                   📞 Call us: <a href={`tel:${location.phoneRaw}`} style={{ color: 'var(--deep-maroon)', fontWeight: 'bold', textDecoration: 'underline' }}>{location.phone}</a> (10 AM - 6 PM)
                 </p>
                 <div style={{ fontSize: '14px', color: 'var(--text-muted)', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                  <span>💬 WhatsApp: <strong style={{ color: 'var(--deep-maroon)' }}>+91 95570 06617</strong></span>
+                  <span>💬 WhatsApp: <strong style={{ color: 'var(--deep-maroon)' }}>+91 96754 83125</strong></span>
                   <a
                     href={getSupportWhatsAppLink('Assalamu Alaikum, I need support regarding Shadi Mubarak.')}
                     target="_blank"
