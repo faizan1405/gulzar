@@ -72,7 +72,7 @@ export default function PremiumPackagesPage() {
                     <td style={{ padding: '12px 8px' }}>
                       <strong>{purchase.profile?.fullName || 'N/A'}</strong>
                       <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
-                        {purchase.profile?.phoneNumber || 'No phone'} | {purchase.profile?.user?.email || 'No email'}
+                        {purchase.profile?.phoneNumber || 'No phone'} | {(purchase.profile as any)?.user?.email || 'No email'}
                       </div>
                       <div style={{ fontSize: '10px', color: 'var(--text-muted)' }}>ID: {purchase.profileId.substring(0, 8)}...</div>
                     </td>
