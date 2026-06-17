@@ -252,6 +252,18 @@ export const SimulatorProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         const dataProfiles = await resProfiles.json();
         if (dataProfiles.profiles) {
           setProfiles(dataProfiles.profiles);
+          
+          // Check query parameters to open profile details automatically if a profile id is provided
+          if (typeof window !== 'undefined') {
+            const searchParams = new URLSearchParams(window.location.search);
+            const profileId = searchParams.get('profile');
+            if (profileId) {
+              const matched = dataProfiles.profiles.find((p: any) => p.id === profileId);
+              if (matched) {
+                setSelectedProfileForDetails(matched);
+              }
+            }
+          }
         }
 
         // 2b. Fetch admin requests

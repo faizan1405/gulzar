@@ -260,15 +260,21 @@ model NotificationLog {
 }
 
 model GlobalSettings {
-  id                 String   @id @default(auto()) @map("_id") @db.ObjectId
-  adminEmail         String?
-  adminPhone         String?
-  emailAlertsEnabled Boolean  @default(true)
-  smsAlertsEnabled   Boolean  @default(false)
-  officeAddress      String?
-  mapEmbedUrl        String?
-  mapOpenUrl         String?
-  updatedAt          DateTime @updatedAt
+  id                  String   @id @default(auto()) @map("_id") @db.ObjectId
+  adminEmail          String?
+  adminPhone          String?
+  emailAlertsEnabled  Boolean  @default(true)
+  smsAlertsEnabled    Boolean  @default(false)
+  officeAddress       String?
+  mapEmbedUrl         String?
+  mapOpenUrl          String?
+  facebookUrl         String?
+  instagramUrl        String?
+  youtubeUrl          String?
+  linkedinUrl         String?
+  twitterUrl          String?
+  defaultPreviewImage String?
+  updatedAt           DateTime @updatedAt
 }
 
 model Lead {

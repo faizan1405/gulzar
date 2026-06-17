@@ -10,7 +10,13 @@ export default function AdminSettingsPage() {
     smsAlertsEnabled: false,
     officeAddress: '',
     mapEmbedUrl: '',
-    mapOpenUrl: ''
+    mapOpenUrl: '',
+    facebookUrl: '',
+    instagramUrl: '',
+    youtubeUrl: '',
+    linkedinUrl: '',
+    twitterUrl: '',
+    defaultPreviewImage: ''
   });
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -28,7 +34,13 @@ export default function AdminSettingsPage() {
             smsAlertsEnabled: data.settings.smsAlertsEnabled,
             officeAddress: data.settings.officeAddress || '',
             mapEmbedUrl: data.settings.mapEmbedUrl || '',
-            mapOpenUrl: data.settings.mapOpenUrl || ''
+            mapOpenUrl: data.settings.mapOpenUrl || '',
+            facebookUrl: data.settings.facebookUrl || '',
+            instagramUrl: data.settings.instagramUrl || '',
+            youtubeUrl: data.settings.youtubeUrl || '',
+            linkedinUrl: data.settings.linkedinUrl || '',
+            twitterUrl: data.settings.twitterUrl || '',
+            defaultPreviewImage: data.settings.defaultPreviewImage || ''
           });
         }
         setIsLoading(false);
@@ -134,6 +146,72 @@ export default function AdminSettingsPage() {
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-emerald-500 focus:border-emerald-500"
           />
           <p className="text-xs text-gray-500 mt-1">The external link used for the "Open in Google Maps" buttons.</p>
+        </div>
+
+        <div className="pt-4 border-t border-gray-100">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Social Media & Social Preview Settings</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Facebook URL</label>
+              <input 
+                type="url" 
+                value={settings.facebookUrl}
+                onChange={e => setSettings({...settings, facebookUrl: e.target.value})}
+                placeholder="https://facebook.com/yourpage"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-emerald-500 focus:border-emerald-500 text-sm"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Instagram URL</label>
+              <input 
+                type="url" 
+                value={settings.instagramUrl}
+                onChange={e => setSettings({...settings, instagramUrl: e.target.value})}
+                placeholder="https://instagram.com/yourhandle"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-emerald-500 focus:border-emerald-500 text-sm"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">YouTube URL</label>
+              <input 
+                type="url" 
+                value={settings.youtubeUrl}
+                onChange={e => setSettings({...settings, youtubeUrl: e.target.value})}
+                placeholder="https://youtube.com/yourchannel"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-emerald-500 focus:border-emerald-500 text-sm"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">LinkedIn URL</label>
+              <input 
+                type="url" 
+                value={settings.linkedinUrl}
+                onChange={e => setSettings({...settings, linkedinUrl: e.target.value})}
+                placeholder="https://linkedin.com/company/yourcompany"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-emerald-500 focus:border-emerald-500 text-sm"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">X / Twitter URL</label>
+              <input 
+                type="url" 
+                value={settings.twitterUrl}
+                onChange={e => setSettings({...settings, twitterUrl: e.target.value})}
+                placeholder="https://x.com/yourhandle"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-emerald-500 focus:border-emerald-500 text-sm"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Default Social Preview Image URL</label>
+              <input 
+                type="url" 
+                value={settings.defaultPreviewImage}
+                onChange={e => setSettings({...settings, defaultPreviewImage: e.target.value})}
+                placeholder="https://shadimubarak.in/images/og-default.jpg"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-emerald-500 focus:border-emerald-500 text-sm"
+              />
+            </div>
+          </div>
         </div>
 
         <div className="flex items-center space-x-3 pt-4 border-t border-gray-100">

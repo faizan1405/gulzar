@@ -46,7 +46,13 @@ export async function POST(req: NextRequest) {
       smsAlertsEnabled,
       officeAddress,
       mapEmbedUrl,
-      mapOpenUrl 
+      mapOpenUrl,
+      facebookUrl,
+      instagramUrl,
+      youtubeUrl,
+      linkedinUrl,
+      twitterUrl,
+      defaultPreviewImage
     } = body;
 
     let settings = await prisma.globalSettings.findFirst();
@@ -61,7 +67,13 @@ export async function POST(req: NextRequest) {
           smsAlertsEnabled: !!smsAlertsEnabled,
           officeAddress,
           mapEmbedUrl,
-          mapOpenUrl
+          mapOpenUrl,
+          facebookUrl,
+          instagramUrl,
+          youtubeUrl,
+          linkedinUrl,
+          twitterUrl,
+          defaultPreviewImage
         }
       });
     } else {
@@ -73,7 +85,13 @@ export async function POST(req: NextRequest) {
           smsAlertsEnabled: !!smsAlertsEnabled,
           officeAddress,
           mapEmbedUrl,
-          mapOpenUrl
+          mapOpenUrl,
+          facebookUrl,
+          instagramUrl,
+          youtubeUrl,
+          linkedinUrl,
+          twitterUrl,
+          defaultPreviewImage
         }
       });
     }
