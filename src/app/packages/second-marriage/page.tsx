@@ -1,6 +1,7 @@
 import SecondMarriageClient from './SecondMarriageClient';
 import { Metadata } from 'next';
 import { prisma } from '@/lib/db';
+import JsonLd from '@/components/JsonLd';
 
 export async function generateMetadata(): Promise<Metadata> {
   let settings = null;
@@ -12,7 +13,7 @@ export async function generateMetadata(): Promise<Metadata> {
   
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://shadimubarak.in';
   const title = "Second Marriage Matrimonial Directory — Shadi Mubarak";
-  const description = "Browse verified second-marriage matches. Tailored private matrimonial directory for divorced, widowed, and serious candidates seeking life partners.";
+  const description = "Browse verified second-marriage matches on Shadi Mubarak. Tailored private matrimonial directory for divorced, widowed, and serious candidates seeking life partners.";
   const previewImage = settings?.defaultPreviewImage || "/images/nikah-2.jpeg";
   const imageUrl = previewImage.startsWith('http') ? previewImage : `${siteUrl}${previewImage}`;
 
@@ -20,6 +21,13 @@ export async function generateMetadata(): Promise<Metadata> {
     title,
     description,
     metadataBase: new URL(siteUrl),
+    keywords: [
+      "Muslim second marriage profiles",
+      "Divorced Muslim matrimonial",
+      "Widowed Muslim matrimonial",
+      "Second marriage marriage bureau",
+      "Shadi Mubarak Second Marriage"
+    ],
     alternates: {
       canonical: '/packages/second-marriage',
     },
@@ -48,5 +56,35 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function SecondMarriagePage() {
-  return <SecondMarriageClient />;
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://shadimubarak.in"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Premium Packages",
+        "item": "https://shadimubarak.in/premium"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "Second Marriage Matches",
+        "item": "https://shadimubarak.in/packages/second-marriage"
+      }
+    ]
+  };
+
+  return (
+    <>
+      <JsonLd schema={breadcrumbSchema} />
+      <SecondMarriageClient />
+    </>
+  );
 }

@@ -31,6 +31,7 @@ export default function PremiumClient() {
             title="Premium Matrimonial Packages"
             subtitle="Choose a package that fits your matchmaking needs. Keep your monthly membership active to access our search directory."
             scriptText="Premium Services"
+            as="h1"
           />
 
           <div style={{ marginBottom: '40px', borderRadius: 'var(--border-radius-xl)', overflow: 'hidden', boxShadow: 'var(--shadow-premium)', position: 'relative', height: '300px' }}>

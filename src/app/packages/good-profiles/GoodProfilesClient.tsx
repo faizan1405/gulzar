@@ -38,6 +38,7 @@ export default function GoodProfilesClient() {
             title="Good Profile Matches"
             subtitle="Browse handsome and beautiful profile matches. Unlock access with the Good Profile Package."
             scriptText="Handsome & Beautiful Profiles"
+            as="h1"
           />
 
           <div style={{

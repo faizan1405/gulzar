@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import Navbar from '../../components/Navbar';
 import Image from 'next/image';
 import { SectionHeading, FloralCorner, PremiumFooter } from '../../components/NikahComponents';
@@ -22,6 +23,7 @@ export default function AboutClient() {
             title="About Shadi Mubarak"
             subtitle="Dedicated to enabling serious, respectful, and Shariah-compliant matrimonial connections."
             scriptText="Our Values"
+            as="h1"
           />
 
           <div style={{ maxWidth: '800px', margin: '0 auto 40px auto', borderRadius: 'var(--border-radius-xl)', overflow: 'hidden', height: '300px', position: 'relative', boxShadow: 'var(--shadow-premium)' }}>
@@ -51,7 +53,7 @@ export default function AboutClient() {
                 Unlike generic SaaS matrimonial sites, we treat your profile biodata like a physical wedding invitation card—designed with elegance, respect, and utmost discretion.
               </p>
               <p>
-                Every single profile on Shadi Mubarak undergoes a manual telephone verification check. Photos and active phone numbers are fully masked until premium access rules are met and candidates consent to share details.
+                Every single profile on Shadi Mubarak undergoes a manual <Link href="/how-it-works" style={{ textDecoration: 'underline', color: 'var(--deep-maroon)', fontWeight: 'bold' }}>telephone verification check</Link>. Photos and active phone numbers are fully masked until <Link href="/premium" style={{ textDecoration: 'underline', color: 'var(--deep-maroon)', fontWeight: 'bold' }}>premium access rules</Link> are met and candidates consent to share details.
               </p>
               <p>
                 We pray that Allah blesses your matchmaking journey and grants you a compatible, righteous life partner.

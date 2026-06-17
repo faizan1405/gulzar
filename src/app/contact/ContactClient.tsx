@@ -43,6 +43,7 @@ export default function ContactClient() {
             title="Contact Customer Support"
             subtitle="Have questions about verification or payment? Drop us a message."
             scriptText="Get in Touch"
+            as="h1"
           />
 
           <div className="grid-3" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '32px', maxWidth: '1000px', margin: '0 auto' }}>

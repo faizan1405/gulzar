@@ -1,6 +1,7 @@
 import PremiumClient from './PremiumClient';
 import { Metadata } from 'next';
 import { prisma } from '@/lib/db';
+import JsonLd from '@/components/JsonLd';
 
 export async function generateMetadata(): Promise<Metadata> {
   let settings = null;
@@ -20,6 +21,14 @@ export async function generateMetadata(): Promise<Metadata> {
     title,
     description,
     metadataBase: new URL(siteUrl),
+    keywords: [
+      "Muslim matrimonial packages",
+      "Muslim marriage bureau rates",
+      "Shadi Mubarak pricing",
+      "Premium Muslim matchmaking services",
+      "Second marriage matrimonial packages",
+      "High profile Muslim matchmaking cost"
+    ],
     alternates: {
       canonical: '/premium',
     },
@@ -48,5 +57,29 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function PremiumPage() {
-  return <PremiumClient />;
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://shadimubarak.in"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Premium Packages",
+        "item": "https://shadimubarak.in/premium"
+      }
+    ]
+  };
+
+  return (
+    <>
+      <JsonLd schema={breadcrumbSchema} />
+      <PremiumClient />
+    </>
+  );
 }

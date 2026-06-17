@@ -1,6 +1,7 @@
 import AboutClient from './AboutClient';
 import { Metadata } from 'next';
 import { prisma } from '@/lib/db';
+import JsonLd from '@/components/JsonLd';
 
 export async function generateMetadata(): Promise<Metadata> {
   let settings = null;
@@ -11,8 +12,8 @@ export async function generateMetadata(): Promise<Metadata> {
   }
   
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://shadimubarak.in';
-  const title = "About Us — Shadi Mubarak";
-  const description = "Dedicated to enabling serious, respectful, and Shariah-compliant Muslim matrimonial connections. Read our values.";
+  const title = "About Us — Shadi Mubarak Muslim Matrimonial Platform";
+  const description = "Learn about Shadi Mubarak, India's trusted Muslim matrimonial platform & marriage bureau enabling serious, call-verified, and Shariah-compliant Muslim matchmaking.";
   const previewImage = settings?.defaultPreviewImage || "/images/nikah-1.jpeg";
   const imageUrl = previewImage.startsWith('http') ? previewImage : `${siteUrl}${previewImage}`;
 
@@ -20,6 +21,14 @@ export async function generateMetadata(): Promise<Metadata> {
     title,
     description,
     metadataBase: new URL(siteUrl),
+    keywords: [
+      "Muslim matrimonial website",
+      "Muslim marriage bureau",
+      "Shadi Mubarak About Us",
+      "Islamic matrimonial platform",
+      "Verified Muslim profiles",
+      "Halal Muslim matchmaking"
+    ],
     alternates: {
       canonical: '/about',
     },
@@ -33,7 +42,7 @@ export async function generateMetadata(): Promise<Metadata> {
           url: imageUrl,
           width: 1200,
           height: 630,
-          alt: "Shadi Mubarak Matrimonial",
+          alt: "About Shadi Mubarak Matrimonial",
         }
       ],
       type: "website",
@@ -48,5 +57,29 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function AboutPage() {
-  return <AboutClient />;
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://shadimubarak.in"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "About Us",
+        "item": "https://shadimubarak.in/about"
+      }
+    ]
+  };
+
+  return (
+    <>
+      <JsonLd schema={breadcrumbSchema} />
+      <AboutClient />
+    </>
+  );
 }

@@ -47,6 +47,7 @@ export default function HighProfileClient() {
             title="High Profile Matches"
             subtitle="Browse premium candidates earning ₹10 Lakh+ annually (Doctors, Engineers, Business Owners & Premium Families)."
             scriptText="Exclusive Premium Directory"
+            as="h1"
           />
 
           <div style={{

@@ -22,6 +22,7 @@ export default function HowItWorksClient() {
             title="How Shadi Mubarak Works"
             subtitle="Discover how our platform ensures family safety, Shariah compatibility, and verified introductions."
             scriptText="Step-by-Step Guide"
+            as="h1"
           />
 
           <div style={{ maxWidth: '900px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '32px' }}>

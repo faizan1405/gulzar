@@ -1,6 +1,7 @@
 import ContactClient from './ContactClient';
 import { Metadata } from 'next';
 import { prisma } from '@/lib/db';
+import JsonLd from '@/components/JsonLd';
 
 export async function generateMetadata(): Promise<Metadata> {
   let settings = null;
@@ -11,8 +12,8 @@ export async function generateMetadata(): Promise<Metadata> {
   }
   
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://shadimubarak.in';
-  const title = "Contact Customer Support — Shadi Mubarak";
-  const description = "Get in touch with Shadi Mubarak customer support. Find our office address, verified phone numbers, support hours, and social media channels.";
+  const title = "Contact Customer Support — Shadi Mubarak Marriage Bureau";
+  const description = "Get in touch with Shadi Mubarak customer support. Find our Bandra office address, verified phone number +91-95570-06617, and email details.";
   const previewImage = settings?.defaultPreviewImage || "/images/nikah-1.jpeg";
   const imageUrl = previewImage.startsWith('http') ? previewImage : `${siteUrl}${previewImage}`;
 
@@ -20,6 +21,13 @@ export async function generateMetadata(): Promise<Metadata> {
     title,
     description,
     metadataBase: new URL(siteUrl),
+    keywords: [
+      "Contact Shadi Mubarak",
+      "Muslim marriage bureau phone number",
+      "Muslim matrimonial support",
+      "Shadi Mubarak support",
+      "Shadi Mubarak address"
+    ],
     alternates: {
       canonical: '/contact',
     },
@@ -48,5 +56,62 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function ContactPage() {
-  return <ContactClient />;
+  const localBusinessSchema = {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "name": "Shadi Mubarak",
+    "image": "https://shadimubarak.in/images/nikah-1.jpeg",
+    "telePhone": "+91-95570-06617",
+    "email": "support@shadimubarak.in",
+    "url": "https://shadimubarak.in",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "Bandra West",
+      "addressLocality": "Mumbai",
+      "addressRegion": "Maharashtra",
+      "postalCode": "400050",
+      "addressCountry": "IN"
+    },
+    "priceRange": "$$",
+    "openingHoursSpecification": {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday"
+      ],
+      "opens": "10:00",
+      "closes": "18:00"
+    }
+  };
+
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://shadimubarak.in"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Contact Support",
+        "item": "https://shadimubarak.in/contact"
+      }
+    ]
+  };
+
+  return (
+    <>
+      <JsonLd schema={localBusinessSchema} />
+      <JsonLd schema={breadcrumbSchema} />
+      <ContactClient />
+    </>
+  );
 }

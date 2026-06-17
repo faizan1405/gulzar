@@ -1,6 +1,7 @@
 import GoodProfilesClient from './GoodProfilesClient';
 import { Metadata } from 'next';
 import { prisma } from '@/lib/db';
+import JsonLd from '@/components/JsonLd';
 
 export async function generateMetadata(): Promise<Metadata> {
   let settings = null;
@@ -11,8 +12,8 @@ export async function generateMetadata(): Promise<Metadata> {
   }
   
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://shadimubarak.in';
-  const title = "Good Profile Matches — Shadi Mubarak";
-  const description = "Explore verified good profile matrimonial matches. Designed for serious candidates seeking handsome and beautiful matrimonial matches with manual phone check verification.";
+  const title = "Good Profile Matches — Shadi Mubarak Muslim Matrimonial";
+  const description = "Explore verified good profile matrimonial matches on Shadi Mubarak. Designed for serious candidates seeking handsome and beautiful matrimonial matches with manual phone check verification.";
   const previewImage = settings?.defaultPreviewImage || "/images/nikah-1.jpeg";
   const imageUrl = previewImage.startsWith('http') ? previewImage : `${siteUrl}${previewImage}`;
 
@@ -20,6 +21,13 @@ export async function generateMetadata(): Promise<Metadata> {
     title,
     description,
     metadataBase: new URL(siteUrl),
+    keywords: [
+      "Verified Muslim profiles",
+      "Muslim matrimonial website",
+      "Shadi Mubarak Good Profiles",
+      "Handsome Muslim groom profiles",
+      "Beautiful Muslim bride profiles"
+    ],
     alternates: {
       canonical: '/packages/good-profiles',
     },
@@ -48,5 +56,35 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function GoodProfilesPage() {
-  return <GoodProfilesClient />;
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://shadimubarak.in"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Premium Packages",
+        "item": "https://shadimubarak.in/premium"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "Good Profiles Match",
+        "item": "https://shadimubarak.in/packages/good-profiles"
+      }
+    ]
+  };
+
+  return (
+    <>
+      <JsonLd schema={breadcrumbSchema} />
+      <GoodProfilesClient />
+    </>
+  );
 }

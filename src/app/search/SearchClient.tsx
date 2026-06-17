@@ -198,6 +198,7 @@ export default function SearchClient() {
               title="Matrimonial Candidate Directory"
               scriptText="Browse Profiles"
               subtitle="Browse call-verified brides and grooms. Use filters to narrow down compatibility matches."
+              as="h1"
             />
           </div>
         </div>

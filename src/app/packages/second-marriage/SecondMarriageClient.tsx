@@ -38,6 +38,7 @@ export default function SecondMarriageClient() {
             title="Second Marriage Directory"
             subtitle="Browse matching divorcee/widow/widower profiles. Unlock access with the Second Marriage Package."
             scriptText="Second Marriage Matches"
+            as="h1"
           />
 
           <div style={{

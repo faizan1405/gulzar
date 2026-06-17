@@ -80,7 +80,9 @@ export const SectionHeading: React.FC<{
   title: string;
   subtitle?: string;
   scriptText?: string;
-}> = ({ title, subtitle, scriptText }) => {
+  as?: 'h1' | 'h2';
+}> = ({ title, subtitle, scriptText, as = 'h2' }) => {
+  const HeadingTag = as;
   return (
     <div className="section-header text-center" style={{ maxWidth: '700px', margin: '0 auto 48px auto', textAlign: 'center' }}>
       {scriptText && (
@@ -88,9 +90,9 @@ export const SectionHeading: React.FC<{
           {scriptText}
         </span>
       )}
-      <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '38px', color: 'var(--primary-brand)', fontWeight: 700, letterSpacing: '0.5px' }}>
+      <HeadingTag style={{ fontFamily: 'var(--font-serif)', fontSize: '38px', color: 'var(--primary-brand)', fontWeight: 700, letterSpacing: '0.5px' }}>
         {title}
-      </h2>
+      </HeadingTag>
       {subtitle && (
         <p style={{ color: 'var(--text-muted)', fontSize: '15.5px', marginTop: '10px', fontFamily: 'var(--font-sans)' }}>
           {subtitle}
@@ -646,7 +648,7 @@ export const SuccessStoryCard: React.FC<SuccessStoryCardProps> = ({
       
       <div>
         <div style={{ width: '100%', height: '180px', borderRadius: '12px', overflow: 'hidden', border: '1px solid var(--gold-light)', marginBottom: '20px' }}>
-          <img src={placeholderIllustration} alt="Matched Couple Illustration" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          <img src={placeholderIllustration} alt={`Matched Muslim couple success story - ${names} on Shadi Mubarak`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} loading="lazy" />
         </div>
         <p style={{ fontStyle: 'italic', fontSize: '14px', color: 'var(--text-dark)', lineHeight: '1.7', marginBottom: '20px', position: 'relative', zIndex: 2 }}>
           &ldquo;{story}&rdquo;

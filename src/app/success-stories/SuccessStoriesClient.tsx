@@ -37,6 +37,7 @@ export default function SuccessStoriesClient() {
             title="Blessed Success Stories"
             subtitle="Alhamdulillah! Read inspiring stories of marriage from blessed couples."
             scriptText="Nikah Testimonials"
+            as="h1"
           />
 
           <div className="grid-3" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '32px' }}>
