@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import Image from 'next/image';
 import { useSimulator } from '../../context/SimulatorContext';
 import Navbar from '../../components/Navbar';
 import { SectionHeading, PremiumFooter, DecorativeArch } from '../../components/NikahComponents';
@@ -157,7 +158,7 @@ export default function MyAccountPage() {
                   border: '2px dashed var(--border-color)'
                 }}>
                   {userProfile.profileImageUrl ? (
-                    <img src={userProfile.profileImageUrl} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <Image src={userProfile.profileImageUrl} alt="Profile" width={120} height={120} style={{ objectFit: 'cover' }} />
                   ) : (
                     <span style={{ fontSize: '32px', color: 'var(--text-muted)' }}>📷</span>
                   )}

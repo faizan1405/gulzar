@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useSimulator } from '../context/SimulatorContext';
 import { getProfileImage, getThemeClass } from '../lib/helpers';
@@ -698,14 +699,16 @@ export default function HomeClient() {
                 />
 
                 <div className="safety-wrapper" style={{ display: 'grid', gridTemplateColumns: '0.9fr 1.1fr', gap: '48px', alignItems: 'center' }}>
-                  <div>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=600&h=450"
-                      alt="Verified Muslim profiles and matchmaking safety - Shadi Mubarak"
-                      style={{ width: '100%', borderRadius: 'var(--border-radius-lg)', border: '1.5px solid var(--gold-accent)', boxShadow: 'var(--shadow-premium)' }}
-                      loading="lazy"
-                    />
+                  <div style={{ width: '100%' }}>
+                    <div style={{ position: 'relative', width: '100%', paddingBottom: '75%', borderRadius: 'var(--border-radius-lg)', border: '1.5px solid var(--gold-accent)', boxShadow: 'var(--shadow-premium)', overflow: 'hidden' }}>
+                      <Image
+                        src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=600&h=450"
+                        alt="Verified Muslim profiles and matchmaking safety - Shadi Mubarak"
+                        fill
+                        sizes="(max-width: 768px) 100vw, 500px"
+                        style={{ objectFit: 'cover' }}
+                      />
+                    </div>
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                     <SafetyFeatureCard
@@ -873,11 +876,11 @@ export default function HomeClient() {
                   border: '1px solid #ddd',
                 }}
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+                <Image
                   src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg"
                   alt="Google logo"
-                  style={{ width: '20px', height: '20px' }}
+                  width={20}
+                  height={20}
                 />
                 Continue with Google
               </button>

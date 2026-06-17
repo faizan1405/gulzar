@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { useSimulator } from '../context/SimulatorContext';
 import { getProfileImage } from '../lib/helpers';
 import { VerifiedBadge, FloralCorner } from './NikahComponents';
@@ -116,13 +117,12 @@ export const ProfileDetails: React.FC = () => {
           ) : (
             <>
               <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', marginBottom: '24px', alignItems: 'center' }}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+                <Image
                   src={getProfileImage(selectedProfileForDetails.gender, 0)}
                   alt={selectedProfileForDetails.fullName}
+                  width={120}
+                  height={120}
                   style={{
-                    width: '120px',
-                    height: '120px',
                     objectFit: 'cover',
                     borderRadius: '12px',
                     border: '1.5px solid var(--gold-accent)',

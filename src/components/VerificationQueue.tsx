@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { useSimulator } from '../context/SimulatorContext';
 import { VerificationRequest } from '../types';
 
@@ -26,11 +27,12 @@ export const VerificationQueue: React.FC = () => {
           
           {selectedRequest.profile.profileImageUrl && (
             <div style={{ marginBottom: '15px', textAlign: 'center' }}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img 
+              <Image 
                 src={selectedRequest.profile.profileImageUrl} 
                 alt="Uploaded Profile Photo" 
-                style={{ width: '150px', height: '150px', objectFit: 'cover', borderRadius: '12px', border: '2px solid var(--border-color)' }}
+                width={150}
+                height={150}
+                style={{ objectFit: 'cover', borderRadius: '12px', border: '2px solid var(--border-color)' }}
               />
               <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '8px' }}>
                 Image Status: <strong>{selectedRequest.profile.profileImageStatus || 'PENDING'}</strong>

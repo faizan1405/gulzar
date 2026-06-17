@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 
 // Color types matching schema & UI
 import { Profile } from '../types';
@@ -328,17 +329,14 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
         backgroundColor: 'var(--soft-cream)',
         overflow: 'hidden'
       }}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+        <Image
           src={profile.profileImageUrl || getProfileImage(profile.gender, index)}
           alt={profile.fullName}
           className={`profile-img ${shouldBlur ? 'blurred-media' : ''}`}
+          fill
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          priority={index < 3}
           style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
             objectFit: 'cover'
           }}
         />
@@ -647,8 +645,8 @@ export const SuccessStoryCard: React.FC<SuccessStoryCardProps> = ({
       <FloralCorner position="br" color="var(--gold-light)" />
       
       <div>
-        <div style={{ width: '100%', height: '180px', borderRadius: '12px', overflow: 'hidden', border: '1px solid var(--gold-light)', marginBottom: '20px' }}>
-          <img src={placeholderIllustration} alt={`Matched Muslim couple success story - ${names} on Shadi Mubarak`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} loading="lazy" />
+        <div style={{ position: 'relative', width: '100%', height: '180px', borderRadius: '12px', overflow: 'hidden', border: '1px solid var(--gold-light)', marginBottom: '20px' }}>
+          <Image src={placeholderIllustration} alt={`Matched Muslim couple success story - ${names} on Shadi Mubarak`} fill sizes="(max-width: 768px) 100vw, 300px" style={{ objectFit: 'cover' }} />
         </div>
         <p style={{ fontStyle: 'italic', fontSize: '14px', color: 'var(--text-dark)', lineHeight: '1.7', marginBottom: '20px', position: 'relative', zIndex: 2 }}>
           &ldquo;{story}&rdquo;

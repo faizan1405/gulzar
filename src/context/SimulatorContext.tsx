@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import { DEFAULT_MASLAKS, DEFAULT_CASTES, DEFAULT_LOCATIONS } from '../lib/masterData';
 import {
   Profile,
   VerificationRequest,
@@ -162,9 +163,22 @@ export const SimulatorProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [isAdminMobileOpen, setIsAdminMobileOpen] = useState(false);
 
   // Master Data Options
-  const [masterMaslaks, setMasterMaslaks] = useState<MaslakOption[]>([]);
-  const [masterCastes, setMasterCastes] = useState<CasteOption[]>([]);
-  const [masterLocations, setMasterLocations] = useState<LocationOption[]>([]);
+  const [masterMaslaks, setMasterMaslaks] = useState<MaslakOption[]>(() =>
+    DEFAULT_MASLAKS.map((m, idx) => ({ id: `maslak-${idx}`, label: m.label, aliases: m.aliases, isDisabled: false }))
+  );
+  const [masterCastes, setMasterCastes] = useState<CasteOption[]>(() =>
+    DEFAULT_CASTES.map((c, idx) => ({ id: `caste-${idx}`, label: c.label, aliases: c.aliases, isDisabled: false }))
+  );
+  const [masterLocations, setMasterLocations] = useState<LocationOption[]>(() =>
+    DEFAULT_LOCATIONS.map((l, idx) => ({
+      id: `loc-${idx}`,
+      state: l.state,
+      district: l.district,
+      locality: l.locality || null,
+      isHighPriority: l.isHighPriority || false,
+      isDisabled: false
+    }))
+  );
 
   const [formData, setFormData] = useState(initialFormData);
 
@@ -266,49 +280,52 @@ export const SimulatorProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           }
         }
 
-        // 2b. Fetch admin requests
-        const resReq = await fetch('/api/admin/verification', { headers: simulatorHeaders });
-        if (resReq.ok) {
-          const dataReq = await resReq.json();
-          if (dataReq.requests) {
-            setAdminRequests(dataReq.requests);
+        // Only fetch admin dashboards and options if user is in admin mode
+        if (isAdminMode) {
+          // 2b. Fetch admin requests
+          const resReq = await fetch('/api/admin/verification', { headers: simulatorHeaders });
+          if (resReq.ok) {
+            const dataReq = await resReq.json();
+            if (dataReq.requests) {
+              setAdminRequests(dataReq.requests);
+            }
           }
-        }
 
-        // 3. Fetch audit logs
-        const resLogs = await fetch('/api/admin/verification?mode=audit', { headers: simulatorHeaders });
-        if (resLogs.ok) {
-          const dataLogs = await resLogs.json();
-          if (dataLogs.logs) {
-            setAuditLogs(dataLogs.logs);
+          // 3. Fetch audit logs
+          const resLogs = await fetch('/api/admin/verification?mode=audit', { headers: simulatorHeaders });
+          if (resLogs.ok) {
+            const dataLogs = await resLogs.json();
+            if (dataLogs.logs) {
+              setAuditLogs(dataLogs.logs);
+            }
           }
-        }
 
-        // 4. Fetch premium purchases
-        const resPurchases = await fetch('/api/admin/packages', { headers: simulatorHeaders });
-        if (resPurchases.ok) {
-          const dataPurchases = await resPurchases.json();
-          if (dataPurchases.purchases) {
-            setAdminPurchases(dataPurchases.purchases);
+          // 4. Fetch premium purchases
+          const resPurchases = await fetch('/api/admin/packages', { headers: simulatorHeaders });
+          if (resPurchases.ok) {
+            const dataPurchases = await resPurchases.json();
+            if (dataPurchases.purchases) {
+              setAdminPurchases(dataPurchases.purchases);
+            }
           }
-        }
 
-        // 5. Fetch curated assignments
-        const resAssignments = await fetch('/api/admin/packages?mode=assignments', { headers: simulatorHeaders });
-        if (resAssignments.ok) {
-          const dataAssignments = await resAssignments.json();
-          if (dataAssignments.assignments) {
-            setAdminAssignments(dataAssignments.assignments);
+          // 5. Fetch curated assignments
+          const resAssignments = await fetch('/api/admin/packages?mode=assignments', { headers: simulatorHeaders });
+          if (resAssignments.ok) {
+            const dataAssignments = await resAssignments.json();
+            if (dataAssignments.assignments) {
+              setAdminAssignments(dataAssignments.assignments);
+            }
           }
-        }
 
-        // 6. Fetch master data options
-        const resMaster = await fetch('/api/admin/master-data', { headers: simulatorHeaders });
-        if (resMaster.ok) {
-          const dataMaster = await resMaster.json();
-          setMasterMaslaks(dataMaster.maslaks || []);
-          setMasterCastes(dataMaster.castes || []);
-          setMasterLocations(dataMaster.locations || []);
+          // 6. Fetch master data options
+          const resMaster = await fetch('/api/admin/master-data', { headers: simulatorHeaders });
+          if (resMaster.ok) {
+            const dataMaster = await resMaster.json();
+            setMasterMaslaks(dataMaster.maslaks || []);
+            setMasterCastes(dataMaster.castes || []);
+            setMasterLocations(dataMaster.locations || []);
+          }
         }
       } catch (err) {
         console.error('Failed fetching database state', err);
@@ -319,7 +336,7 @@ export const SimulatorProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
 
     loadAllData();
-  }, [isLoggedIn, hasPaid300, simulatedPackages, simulatedHighProfileApproved, reloadTrigger, getSimulatorHeaders]);
+  }, [isLoggedIn, hasPaid300, simulatedPackages, simulatedHighProfileApproved, reloadTrigger, getSimulatorHeaders, isAdminMode]);
 
   const handleGoogleLogin = () => {
     setIsLoggedIn(true);

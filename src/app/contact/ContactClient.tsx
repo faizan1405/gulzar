@@ -6,9 +6,11 @@ import Navbar from '../../components/Navbar';
 import Image from 'next/image';
 import { SectionHeading, FloralCorner, PremiumFooter } from '../../components/NikahComponents';
 import LeadForm from '../../components/LeadForm';
-import { GoogleMapSection } from '../../components/GoogleMapSection';
+import dynamic from 'next/dynamic';
 import { BusinessLocation, defaultBusinessLocation } from '../../lib/businessLocation';
 import { getSupportWhatsAppLink } from '../../lib/whatsapp';
+
+const GoogleMapSection = dynamic(() => import('../../components/GoogleMapSection').then(mod => mod.GoogleMapSection), { ssr: false });
 
 export default function ContactClient() {
   const router = useRouter();
