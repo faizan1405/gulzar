@@ -51,11 +51,11 @@ export const HeroSection: React.FC = () => {
           Halal & Safe Matrimonial Invitations
         </div>
         
-        <h1 className="hero-title font-serif" style={{ fontSize: '56px', color: 'var(--deep-maroon)', lineHeight: '1.2', fontWeight: 'bold', margin: '0 0 24px 0' }}>
+        <h1 className="hero-title font-serif" style={{ color: 'var(--deep-maroon)', lineHeight: '1.2', fontWeight: 'bold', margin: '0 0 24px 0' }}>
           A Beautiful Beginning Starts With the Right Match
         </h1>
         
-        <p className="hero-description" style={{ fontSize: '18px', color: 'var(--text-dark)', opacity: 0.85, lineHeight: '1.7', marginBottom: '40px', maxWidth: '700px', marginLeft: 'auto', marginRight: 'auto' }}>
+        <p className="hero-description" style={{ color: 'var(--text-dark)', opacity: 0.85, lineHeight: '1.7', marginBottom: '40px', maxWidth: '700px', marginLeft: 'auto', marginRight: 'auto' }}>
           Discover verified matrimonial profiles through a respectful, family-friendly platform designed to help you begin your Nikah journey with confidence.
         </p>
         
