@@ -8,6 +8,7 @@ import { SectionHeading, FloralCorner, PremiumFooter } from '../../components/Ni
 import LeadForm from '../../components/LeadForm';
 import { GoogleMapSection } from '../../components/GoogleMapSection';
 import { BusinessLocation, defaultBusinessLocation } from '../../lib/businessLocation';
+import { getSupportWhatsAppLink } from '../../lib/whatsapp';
 
 export default function ContactPage() {
   const router = useRouter();
@@ -55,6 +56,34 @@ export default function ContactPage() {
                 <p style={{ fontSize: '14px', color: 'var(--text-muted)' }}>
                   📞 Call us: <a href={`tel:${location.phoneRaw}`} style={{ color: 'var(--deep-maroon)', fontWeight: 'bold', textDecoration: 'underline' }}>{location.phone}</a> (10 AM - 6 PM)
                 </p>
+                <div style={{ fontSize: '14px', color: 'var(--text-muted)', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  <span>💬 WhatsApp: <strong style={{ color: 'var(--deep-maroon)' }}>+91 95570 06617</strong></span>
+                  <a
+                    href={getSupportWhatsAppLink('Assalamu Alaikum, I need support regarding Shadi Mubarak.')}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn"
+                    style={{
+                      backgroundColor: '#25D366',
+                      color: '#ffffff',
+                      border: 'none',
+                      fontSize: '12.5px',
+                      fontWeight: 'bold',
+                      padding: '8px 16px',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '8px',
+                      textDecoration: 'none',
+                      borderRadius: '8px',
+                      transition: 'var(--transition-smooth)',
+                      width: 'fit-content',
+                      marginTop: '2px'
+                    }}
+                  >
+                    Chat on WhatsApp
+                  </a>
+                </div>
                 <p style={{ fontSize: '14px', color: 'var(--text-muted)' }}>✉️ Verification Dept: support@shadimubarak.in</p>
                 <hr style={{ borderColor: 'var(--border-color)' }} />
                 <span style={{ fontSize: '12.5px', color: 'var(--gold-accent)', fontWeight: 600 }}>We usually call back within 24 hours of submission.</span>

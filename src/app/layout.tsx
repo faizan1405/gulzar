@@ -5,6 +5,7 @@ import DemoSimulatorBar from "../components/DemoSimulatorBar";
 import ProfileDetails from "../components/ProfileDetails";
 import ChatbotWidget from "../components/ChatbotWidget";
 import CallButton from "../components/CallButton";
+import WhatsAppButton from "../components/WhatsAppButton";
 
 export const metadata: Metadata = {
   title: "Shadi Mubarak — Trusted Muslim Matrimonial Platform",
@@ -25,6 +26,7 @@ export default function RootLayout({
           {children}
           <ChatbotWidget />
           <CallButton />
+          <WhatsAppButton />
         </SimulatorProvider>
       </body>
     </html>

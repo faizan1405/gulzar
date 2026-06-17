@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSimulator } from '../../../context/SimulatorContext';
 import { Lead } from '../../../types';
+import { getWhatsAppLink } from '../../../lib/whatsapp';
 import { SectionHeading, FloralCorner } from '../../../components/NikahComponents';
 
 export default function AdminLeadsPage() {
@@ -278,7 +279,7 @@ export default function AdminLeadsPage() {
                       </span>
                     </td>
                     <td style={{ padding: '12px', textAlign: 'center' }}>
-                      <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                      <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', alignItems: 'center' }}>
                         <button
                           className="btn btn-primary"
                           style={{ padding: '4px 10px', fontSize: '11px' }}
@@ -286,6 +287,30 @@ export default function AdminLeadsPage() {
                         >
                           View Details
                         </button>
+                        {lead.phone && (
+                          <a
+                            href={getWhatsAppLink(lead.phone, `Assalamu Alaikum ${lead.fullName}, this is Shadi Mubarak support. We received your inquiry and would like to guide you further.`)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="btn"
+                            style={{
+                              padding: '4px 8px',
+                              fontSize: '11px',
+                              backgroundColor: '#25D366',
+                              color: '#ffffff',
+                              border: 'none',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              borderRadius: '4px',
+                              textDecoration: 'none',
+                              fontWeight: 600
+                            }}
+                            title="Chat on WhatsApp"
+                          >
+                            💬 WA
+                          </a>
+                        )}
                         <button
                           className="btn btn-secondary"
                           style={{ padding: '4px 8px', fontSize: '11px', color: 'var(--deep-maroon)' }}
@@ -397,7 +422,7 @@ export default function AdminLeadsPage() {
                 📞 Call Client
               </a>
               <a
-                href={`https://wa.me/${selectedLead.phone.replace(/\s+/g, '').replace(/[-+()]/g, '')}`}
+                href={getWhatsAppLink(selectedLead.phone, `Assalamu Alaikum ${selectedLead.fullName}, this is Shadi Mubarak support. We received your inquiry and would like to guide you further.`)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn btn-primary"

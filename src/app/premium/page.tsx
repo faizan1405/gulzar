@@ -58,7 +58,19 @@ export default function PremiumPage() {
             </div>
           </div>
 
-          <div className="grid-3" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '32px', marginBottom: '60px' }}>
+          <div className="grid-4" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '32px', marginBottom: '60px' }}>
+            <PremiumPlanCard
+              title="Monthly Membership"
+              price={300}
+              gstRate={0.18}
+              billingText="monthly"
+              features={['Browse normal verified profiles', 'Unblur matrimonial photos', 'Access candidate mobile numbers']}
+              isActive={hasPaid300}
+              ctaText="Buy Monthly Membership"
+              onActivate={() => handleRazorpayCheckout('monthly_membership', 300, 'Standard Monthly Membership')}
+              onInquire={() => setInquiryPackage('₹300 Monthly Membership')}
+              whatsappMessage="Assalamu Alaikum, I want to know more about the ₹300 monthly membership on Shadi Mubarak."
+            />
             <PremiumPlanCard
               title="Good Profile Package"
               price={5500}
@@ -69,6 +81,7 @@ export default function PremiumPage() {
               ctaText="Buy Good Profile Package"
               onActivate={() => handleRazorpayCheckout('good_profile_package', 5500, 'Good Profile Package')}
               onInquire={() => setInquiryPackage('₹5,500 Good Profiles Package')}
+              whatsappMessage="Assalamu Alaikum, I am interested in the ₹5,500 Good Profiles Package on Shadi Mubarak. Please guide me."
               isPopular
             />
             <PremiumPlanCard
@@ -81,6 +94,7 @@ export default function PremiumPage() {
               ctaText="Buy Second Marriage Package"
               onActivate={() => handleRazorpayCheckout('second_marriage_package', 11000, 'Second Marriage Package')}
               onInquire={() => setInquiryPackage('₹11,000 Second Marriage Package')}
+              whatsappMessage="Assalamu Alaikum, I am interested in the ₹11,000 Second Marriage Package on Shadi Mubarak. Please guide me."
             />
             <PremiumPlanCard
               title="High Profile Package"
@@ -92,6 +106,7 @@ export default function PremiumPage() {
               ctaText="Buy High Profile Package"
               onActivate={() => handleRazorpayCheckout('high_profile_package', 21000, 'High Profile Package')}
               onInquire={() => setInquiryPackage('₹21,000 High Profile Package')}
+              whatsappMessage="Assalamu Alaikum, I am interested in the ₹21,000 High Profile Package on Shadi Mubarak. Please guide me."
             />
           </div>
 
