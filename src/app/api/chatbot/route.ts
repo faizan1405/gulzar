@@ -57,6 +57,16 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    if (history && Array.isArray(history)) {
+      const lastUserMsg = [...history].reverse().find((h: any) => h.role === 'user');
+      if (lastUserMsg && lastUserMsg.content.trim() === message.trim()) {
+        return NextResponse.json(
+          { error: 'Please avoid sending the exact same message repeatedly.' },
+          { status: 400 }
+        );
+      }
+    }
+
     // 3. Load Environment Settings
     const apiKey = process.env.AI_CHATBOT_API_KEY;
     const provider = (process.env.AI_CHATBOT_PROVIDER || 'gemini').toLowerCase();

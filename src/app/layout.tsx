@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { SimulatorProvider } from "../context/SimulatorContext";
 import { Cormorant_Garamond, Poppins, Great_Vibes, Amiri } from "next/font/google";
-import dynamic from "next/dynamic";
 
 const cormorantGaramond = Cormorant_Garamond({
   subsets: ["latin"],
@@ -34,11 +33,13 @@ const amiri = Amiri({
   display: "swap",
 });
 
-const DemoSimulatorBar = dynamic(() => import("../components/DemoSimulatorBar"), { ssr: false });
-const ProfileDetails = dynamic(() => import("../components/ProfileDetails"), { ssr: false });
-const ChatbotWidget = dynamic(() => import("../components/ChatbotWidget"), { ssr: false });
-const CallButton = dynamic(() => import("../components/CallButton"), { ssr: false });
-const WhatsAppButton = dynamic(() => import("../components/WhatsAppButton"), { ssr: false });
+import {
+  DemoSimulatorBar,
+  ProfileDetails,
+  ChatbotWidget,
+  CallButton,
+  WhatsAppButton
+} from "../components/ClientDynamicWrappers";
 
 export const metadata: Metadata = {
   title: "Shadi Mubarak — Trusted Muslim Matrimonial Platform",

@@ -834,7 +834,9 @@ export async function getAllPurchases() {
     try {
       return await prisma.packagePurchase.findMany({
         include: {
-          profile: true,
+          profile: {
+            include: { user: true }
+          }
         },
         orderBy: { purchaseDate: 'desc' },
       });

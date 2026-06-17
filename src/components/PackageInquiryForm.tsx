@@ -22,6 +22,7 @@ export const PackageInquiryForm: React.FC<PackageInquiryFormProps> = ({
   const [city, setCity] = useState('');
   const [interestedPackage, setInterestedPackage] = useState(defaultPackage);
   const [message, setMessage] = useState('');
+  const [honey, setHoney] = useState('');
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
@@ -60,7 +61,8 @@ export const PackageInquiryForm: React.FC<PackageInquiryFormProps> = ({
           message: message || undefined,
           inquiryType: 'Package Inquiry',
           interestedPackage,
-          sourcePage
+          sourcePage,
+          _honey: honey
         })
       });
 
@@ -146,6 +148,11 @@ export const PackageInquiryForm: React.FC<PackageInquiryFormProps> = ({
               ⚠️ {errorMsg}
             </div>
           )}
+
+          <div className="form-group" style={{ display: 'none' }}>
+            <label htmlFor="_honey">Do not fill this out if you are human:</label>
+            <input type="text" id="_honey" name="_honey" value={honey} onChange={(e) => setHoney(e.target.value)} tabIndex={-1} autoComplete="off" />
+          </div>
 
           <div className="form-group">
             <label className="form-label" htmlFor="pkgFullName">Full Name *</label>

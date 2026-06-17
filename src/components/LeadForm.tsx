@@ -21,6 +21,7 @@ export const LeadForm: React.FC<LeadFormProps> = ({
   const [inquiryType, setInquiryType] = useState(defaultInquiryType);
   const [message, setMessage] = useState('');
   const [preferredTime, setPreferredTime] = useState('');
+  const [honey, setHoney] = useState('');
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
@@ -66,7 +67,8 @@ export const LeadForm: React.FC<LeadFormProps> = ({
           city,
           message: finalMessage || undefined,
           inquiryType,
-          sourcePage
+          sourcePage,
+          _honey: honey
         })
       });
 
@@ -158,6 +160,11 @@ export const LeadForm: React.FC<LeadFormProps> = ({
               ⚠️ {errorMsg}
             </div>
           )}
+
+          <div className="form-group" style={{ display: 'none' }}>
+            <label htmlFor="_honey">Do not fill this out if you are human:</label>
+            <input type="text" id="_honey" name="_honey" value={honey} onChange={(e) => setHoney(e.target.value)} tabIndex={-1} autoComplete="off" />
+          </div>
 
           <div className="form-group">
             <label className="form-label" htmlFor="fullName">Full Name <span style={{ color: 'var(--deep-maroon)' }}>*</span></label>

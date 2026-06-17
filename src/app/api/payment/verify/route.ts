@@ -21,6 +21,18 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Missing payment details' }, { status: 400 });
     }
 
+    const existingPurchase = await prisma.packagePurchase.findFirst({
+      where: { razorpayOrderId: orderId }
+    });
+    
+    if (existingPurchase && existingPurchase.paymentStatus === 'PAID') {
+      return NextResponse.json({
+        success: true,
+        message: 'Payment already verified.',
+        purchase: existingPurchase
+      });
+    }
+
     if (isSimulated || orderId.startsWith('order_sim_')) {
       console.warn('⚠️ [SIMULATOR MODE] Verifying Mock Payment. This is for testing only. Not real Razorpay payment.');
       const purchase = await verifyPackagePurchase(orderId, paymentId);

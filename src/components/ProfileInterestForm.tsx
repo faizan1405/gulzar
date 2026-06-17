@@ -26,6 +26,7 @@ export const ProfileInterestForm: React.FC<ProfileInterestFormProps> = ({
   const [city, setCity] = useState('');
   const [message, setMessage] = useState('');
   const [packageInterest, setPackageInterest] = useState('');
+  const [honey, setHoney] = useState('');
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
@@ -76,7 +77,8 @@ export const ProfileInterestForm: React.FC<ProfileInterestFormProps> = ({
           inquiryType: 'Profile Help',
           interestedPackage: packageInterest || undefined,
           interestedProfileId: profileId,
-          sourcePage
+          sourcePage,
+          _honey: honey
         })
       });
 
@@ -149,6 +151,11 @@ export const ProfileInterestForm: React.FC<ProfileInterestFormProps> = ({
               ⚠️ {errorMsg}
             </div>
           )}
+
+          <div className="form-group" style={{ display: 'none' }}>
+            <label htmlFor="_honey">Do not fill this out if you are human:</label>
+            <input type="text" id="_honey" name="_honey" value={honey} onChange={(e) => setHoney(e.target.value)} tabIndex={-1} autoComplete="off" />
+          </div>
 
           <div className="form-group">
             <label className="form-label" htmlFor="interestFullName">Your Full Name *</label>

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createLead, getAllLeads } from '@/lib/profileStore';
 import { notifyAdminNewLead } from '@/lib/notifications';
+import { checkRateLimit } from '@/lib/rateLimit';
 
 // Basic phone validation helper
 function isValidPhone(phone: string): boolean {
@@ -18,6 +19,14 @@ function sanitizeText(str: string): string {
 
 export async function POST(req: NextRequest) {
   try {
+    const ip = (req as any).ip || req.headers.get('x-forwarded-for') || 'anonymous';
+    if (checkRateLimit(ip, 5, 60 * 1000)) {
+      return NextResponse.json(
+        { error: 'Too many requests. Please try again later.' },
+        { status: 429 }
+      );
+    }
+
     const body = await req.json();
     const {
       fullName,
@@ -28,8 +37,17 @@ export async function POST(req: NextRequest) {
       inquiryType,
       interestedPackage,
       interestedProfileId,
-      sourcePage
+      sourcePage,
+      _honey
     } = body;
+
+    if (_honey) {
+      // Silently accept but do nothing for bots
+      return NextResponse.json({
+        success: true,
+        message: 'Alhamdulillah! Your inquiry has been received. We will contact you soon.'
+      });
+    }
 
     // 1. Required fields verification
     if (!fullName || !phone || !city || !inquiryType) {

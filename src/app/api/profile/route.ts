@@ -4,6 +4,7 @@ import { getProfileByUserId, upsertProfile, getUserPurchases, testDbConnection, 
 import { prisma } from '@/lib/db';
 import { redactProfile } from '@/lib/profilePrivacy';
 import { notifyRegistration, notifyAdminNewProfile } from '@/lib/notifications';
+import { checkRateLimit } from '@/lib/rateLimit';
 
 // Get user profile
 export async function GET(req: NextRequest) {
@@ -117,6 +118,12 @@ export async function GET(req: NextRequest) {
 // Create or update matrimonial profile
 export async function POST(req: NextRequest) {
   try {
+    const ip = (req as any).ip || req.headers.get('x-forwarded-for') || 'anonymous';
+    // Max 10 profile updates per minute per IP
+    if (checkRateLimit(ip, 10, 60 * 1000)) {
+      return NextResponse.json({ error: 'Too many requests. Please try again later.' }, { status: 429 });
+    }
+
     const session = await auth();
     
     // Support simulated login as well for easy testing
@@ -128,6 +135,11 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
+
+    if (body._honey) {
+      // Honeypot check for bots pretending to be authenticated
+      return NextResponse.json({ success: true });
+    }
 
     // 1. Server-side validation
     const requiredFields = [

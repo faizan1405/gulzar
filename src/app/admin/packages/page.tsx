@@ -36,22 +36,20 @@ export default function PremiumPackagesPage() {
         <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '1000px' }}>
           <thead>
             <tr style={{ borderBottom: '2px solid var(--border-color)', height: '40px', fontSize: '12px', textTransform: 'uppercase', color: 'var(--gold-dark)' }}>
-              <th style={{ padding: '12px 8px' }}>Buyer Profile</th>
-              <th style={{ padding: '12px 8px' }}>Package Name</th>
-              <th style={{ padding: '12px 8px' }}>Base Price</th>
-              <th style={{ padding: '12px 8px' }}>GST (18%)</th>
-              <th style={{ padding: '12px 8px' }}>Total Amount</th>
+              <th style={{ padding: '12px 8px' }}>Customer / Profile</th>
+              <th style={{ padding: '12px 8px' }}>Package Details</th>
+              <th style={{ padding: '12px 8px' }}>Amount</th>
               <th style={{ padding: '12px 8px' }}>Payment</th>
-              <th style={{ padding: '12px 8px' }}>Purchase Date</th>
-              <th style={{ padding: '12px 8px' }}>HP Approval</th>
-              <th style={{ padding: '12px 8px' }}>Marriage Confirm</th>
-              <th style={{ padding: '12px 8px' }}>Success Fee</th>
+              <th style={{ padding: '12px 8px' }}>Transaction IDs</th>
+              <th style={{ padding: '12px 8px' }}>Mode</th>
+              <th style={{ padding: '12px 8px' }}>Date</th>
+              <th style={{ padding: '12px 8px' }}>Actions (HP & Success)</th>
             </tr>
           </thead>
           <tbody>
             {adminPurchases.length === 0 ? (
               <tr>
-                <td colSpan={10} style={{ textAlign: 'center', padding: '30px' }}>
+                <td colSpan={8} style={{ textAlign: 'center', padding: '30px' }}>
                   <div className="empty-state">
                     <h3>No Package Purchases</h3>
                   </div>
@@ -67,77 +65,93 @@ export default function PremiumPackagesPage() {
                   return { name: pkgType, base: 0, gst: 0, total: 0 };
                 };
                 const details = getPriceDetails(purchase.packageType);
+                const isDemo = purchase.razorpayOrderId?.startsWith('order_sim_');
+
                 return (
                   <tr key={purchase.id} style={{ borderBottom: '1px solid var(--border-color)', fontSize: '13.5px' }}>
                     <td style={{ padding: '12px 8px' }}>
                       <strong>{purchase.profile?.fullName || 'N/A'}</strong>
-                      <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>ID: {purchase.profileId.substring(0, 8)}...</div>
+                      <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+                        {purchase.profile?.phoneNumber || 'No phone'} | {purchase.profile?.user?.email || 'No email'}
+                      </div>
+                      <div style={{ fontSize: '10px', color: 'var(--text-muted)' }}>ID: {purchase.profileId.substring(0, 8)}...</div>
                     </td>
-                    <td style={{ padding: '12px 8px' }}>{details.name}</td>
-                    <td style={{ padding: '12px 8px' }}>₹{details.base}</td>
-                    <td style={{ padding: '12px 8px' }}>₹{details.gst}</td>
-                    <td style={{ padding: '12px 8px' }}><strong>₹{details.total}</strong></td>
+                    <td style={{ padding: '12px 8px' }}>
+                      <strong>{details.name}</strong>
+                    </td>
+                    <td style={{ padding: '12px 8px' }}>
+                      <strong>₹{details.total}</strong>
+                      <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>(Base: ₹{details.base} + GST: ₹{details.gst})</div>
+                    </td>
                     <td style={{ padding: '12px 8px' }}>
                       <span style={{ 
                         padding: '2px 6px',
                         borderRadius: '4px',
                         fontSize: '11px',
                         fontWeight: 'bold',
-                        backgroundColor: purchase.paymentStatus === 'PAID' ? 'rgba(18, 46, 34, 0.1)' : 'rgba(240, 190, 50, 0.1)',
-                        color: purchase.paymentStatus === 'PAID' ? 'green' : 'orange'
+                        backgroundColor: purchase.paymentStatus === 'PAID' ? 'rgba(18, 46, 34, 0.1)' : purchase.paymentStatus === 'FAILED' ? 'rgba(230, 92, 92, 0.1)' : 'rgba(240, 190, 50, 0.1)',
+                        color: purchase.paymentStatus === 'PAID' ? 'green' : purchase.paymentStatus === 'FAILED' ? 'red' : 'orange'
                       }}>
                         {purchase.paymentStatus}
                       </span>
                     </td>
+                    <td style={{ padding: '12px 8px' }}>
+                      <div style={{ fontSize: '11px', fontFamily: 'monospace' }}>
+                        Ord: {purchase.razorpayOrderId || 'N/A'}
+                        <br />
+                        Pay: {purchase.razorpayPaymentId || 'N/A'}
+                      </div>
+                    </td>
+                    <td style={{ padding: '12px 8px' }}>
+                      <span style={{
+                        padding: '2px 6px',
+                        borderRadius: '4px',
+                        fontSize: '11px',
+                        fontWeight: 'bold',
+                        backgroundColor: isDemo ? 'rgba(150, 150, 150, 0.1)' : 'rgba(0, 100, 255, 0.1)',
+                        color: isDemo ? '#666' : '#0055ff'
+                      }}>
+                        {isDemo ? 'Demo (Simulator)' : 'Razorpay'}
+                      </span>
+                    </td>
                     <td style={{ padding: '12px 8px' }}>{new Date(purchase.purchaseDate).toLocaleDateString()}</td>
                     <td style={{ padding: '12px 8px' }}>
-                      {purchase.packageType === 'high_profile_package' ? (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                          <span style={{ fontWeight: 'bold', fontSize: '12px', color: purchase.eligibilityStatus === 'APPROVED' ? 'green' : purchase.eligibilityStatus === 'REJECTED' ? 'red' : 'orange' }}>
-                            {purchase.eligibilityStatus}
-                          </span>
-                          {purchase.eligibilityStatus === 'PENDING' && (
-                            <div style={{ display: 'flex', gap: '4px' }}>
-                              <button onClick={() => handleUpdateHPStatus(purchase.id, 'APPROVED', 'Eligible candidate approved')} className="btn btn-secondary" style={{ padding: '2px 6px', fontSize: '10px' }}>Approve</button>
-                              <button onClick={() => handleUpdateHPStatus(purchase.id, 'REJECTED', 'Criteria not met')} className="btn btn-primary" style={{ padding: '2px 6px', fontSize: '10px', backgroundColor: 'red', borderColor: 'red' }}>Reject</button>
-                            </div>
-                          )}
-                        </div>
-                      ) : (
-                        <span style={{ color: 'var(--text-muted)' }}>N/A</span>
-                      )}
-                    </td>
-                    <td style={{ padding: '12px 8px' }}>
-                      {['good_profile_package', 'high_profile_package'].includes(purchase.packageType) ? (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                          <span style={{ fontWeight: 'bold', color: purchase.marriageConfirmation === 'CONFIRMED' ? 'green' : 'var(--text-dark)' }}>{purchase.marriageConfirmation}</span>
-                          {purchase.marriageConfirmation === 'PENDING' ? (
-                            <button onClick={() => handleConfirmMarriage(purchase.id, true)} className="btn btn-gold" style={{ padding: '2px 6px', fontSize: '10px' }}>
-                              Confirm Marriage
-                            </button>
-                          ) : (
-                            <button onClick={() => handleConfirmMarriage(purchase.id, false)} className="btn btn-secondary" style={{ padding: '2px 6px', fontSize: '10px' }}>
-                              Reset
-                            </button>
-                          )}
-                        </div>
-                      ) : (
-                        <span style={{ color: 'var(--text-muted)' }}>N/A</span>
-                      )}
-                    </td>
-                    <td style={{ padding: '12px 8px' }}>
-                      {['good_profile_package', 'high_profile_package'].includes(purchase.packageType) ? (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                          <span style={{ fontWeight: 'bold', color: purchase.successFeePaymentStatus === 'PAID' ? 'green' : 'orange' }}>{purchase.successFeePaymentStatus}</span>
-                          {purchase.successFeePaymentStatus === 'PENDING' && (
-                            <button onClick={() => handleUpdateSuccessFee(purchase.id, 'PAID')} className="btn btn-gold" style={{ padding: '2px 6px', fontSize: '10px' }}>
-                              Mark Paid
-                            </button>
-                          )}
-                        </div>
-                      ) : (
-                        <span style={{ color: 'var(--text-muted)' }}>N/A</span>
-                      )}
+                      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', maxWidth: '250px' }}>
+                        {purchase.packageType === 'high_profile_package' && (
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', padding: '4px', border: '1px solid #eee', borderRadius: '4px' }}>
+                            <span style={{ fontSize: '10px', color: '#666' }}>HP Eligibility:</span>
+                            <span style={{ fontWeight: 'bold', fontSize: '11px', color: purchase.eligibilityStatus === 'APPROVED' ? 'green' : purchase.eligibilityStatus === 'REJECTED' ? 'red' : 'orange' }}>
+                              {purchase.eligibilityStatus}
+                            </span>
+                            {purchase.eligibilityStatus === 'PENDING' && (
+                              <div style={{ display: 'flex', gap: '4px' }}>
+                                <button onClick={() => handleUpdateHPStatus(purchase.id, 'APPROVED', 'Eligible candidate approved')} className="btn btn-secondary" style={{ padding: '2px 6px', fontSize: '10px' }}>Approve</button>
+                                <button onClick={() => handleUpdateHPStatus(purchase.id, 'REJECTED', 'Criteria not met')} className="btn btn-primary" style={{ padding: '2px 6px', fontSize: '10px', backgroundColor: 'red', borderColor: 'red' }}>Reject</button>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                        {['good_profile_package', 'high_profile_package'].includes(purchase.packageType) && (
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', padding: '4px', border: '1px solid #eee', borderRadius: '4px' }}>
+                            <span style={{ fontSize: '10px', color: '#666' }}>Marriage Confirmed:</span>
+                            <span style={{ fontWeight: 'bold', fontSize: '11px', color: purchase.marriageConfirmation === 'CONFIRMED' ? 'green' : 'var(--text-dark)' }}>{purchase.marriageConfirmation}</span>
+                            {purchase.marriageConfirmation === 'PENDING' ? (
+                              <button onClick={() => handleConfirmMarriage(purchase.id, true)} className="btn btn-gold" style={{ padding: '2px 6px', fontSize: '10px' }}>Confirm</button>
+                            ) : (
+                              <button onClick={() => handleConfirmMarriage(purchase.id, false)} className="btn btn-secondary" style={{ padding: '2px 6px', fontSize: '10px' }}>Reset</button>
+                            )}
+                          </div>
+                        )}
+                        {['good_profile_package', 'high_profile_package'].includes(purchase.packageType) && (
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', padding: '4px', border: '1px solid #eee', borderRadius: '4px' }}>
+                            <span style={{ fontSize: '10px', color: '#666' }}>Success Fee:</span>
+                            <span style={{ fontWeight: 'bold', fontSize: '11px', color: purchase.successFeePaymentStatus === 'PAID' ? 'green' : 'orange' }}>{purchase.successFeePaymentStatus}</span>
+                            {purchase.successFeePaymentStatus === 'PENDING' && (
+                              <button onClick={() => handleUpdateSuccessFee(purchase.id, 'PAID')} className="btn btn-gold" style={{ padding: '2px 6px', fontSize: '10px' }}>Mark Paid</button>
+                            )}
+                          </div>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 );
