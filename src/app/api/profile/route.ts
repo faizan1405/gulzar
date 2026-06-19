@@ -142,6 +142,10 @@ export async function POST(req: NextRequest) {
     }
 
     // 1. Server-side validation
+    if (body.termsAccepted !== true) {
+      return NextResponse.json({ error: 'Please accept the Terms & Conditions before submitting.' }, { status: 400 });
+    }
+
     const requiredFields = [
       'fullName',
       'gender',

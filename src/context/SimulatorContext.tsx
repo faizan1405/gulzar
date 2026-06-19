@@ -113,6 +113,7 @@ const initialFormData = {
   themeColor: 'emerald',
   consent: false,
   terms: false,
+  termsAccepted: false,
 
   // New Matrimonial Identity Fields
   maslak: '',
@@ -236,6 +237,7 @@ export const SimulatorProvider: React.FC<{ children: React.ReactNode }> = ({ chi
               themeColor: data.profile.themeColor || 'emerald',
               consent: true,
               terms: true,
+              termsAccepted: true,
               maslak: data.profile.maslak || '',
               fiqh: data.profile.fiqh || '',
               biradari: data.profile.biradari || '',
@@ -351,6 +353,10 @@ export const SimulatorProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   const handleRegisterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!formData.termsAccepted) {
+      setRegistrationError('Please accept the Terms & Conditions before submitting.');
+      return;
+    }
     if (!formData.consent || !formData.terms) {
       setRegistrationError('You must accept the terms and provide consent.');
       return;

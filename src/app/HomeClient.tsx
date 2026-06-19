@@ -545,6 +545,20 @@ export default function HomeClient() {
                   </div>
                 )}
 
+                {regStep === 6 && (
+                  <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', marginBottom: '15px' }}>
+                    <input
+                      type="checkbox"
+                      style={{ marginTop: '4px' }}
+                      checked={formData.termsAccepted}
+                      onChange={(e) => setFormData({ ...formData, termsAccepted: e.target.checked })}
+                    />
+                    <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
+                      I agree to the <a href="/terms" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--primary-brand)', textDecoration: 'underline' }}>Terms &amp; Conditions</a> and <a href="/privacy" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--primary-brand)', textDecoration: 'underline' }}>Privacy Policy</a>.
+                    </span>
+                  </div>
+                )}
+
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '30px' }}>
                   {regStep > 1 && (
                     <button type="button" onClick={handlePrevStep} className="btn btn-secondary">
