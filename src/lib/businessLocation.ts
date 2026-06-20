@@ -16,7 +16,6 @@ export interface BusinessLocation {
 export const defaultBusinessLocation: BusinessLocation = {
   name: "Shadi Mubarak",
   address: "Innov8 44 Regal Building, 2nd Floor, Property No. 44, Above Madame Tussauds, Regal Building, Connaught Place, New Delhi - 110001",
-  email: "support@shadimubarak.com",
   phone: "+91 96754 83125",
   phoneRaw: "+919675483125",
   mapEmbedUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3501.9863412351234!2d77.2155!3d28.6315!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390cfd37e28329a5%3A0xcabf3ea44e830e26!2sInnov8%20Connaught%20Place!5e0!3m2!1sen!2sin!4v1718500000000!5m2!1sen!2sin",
