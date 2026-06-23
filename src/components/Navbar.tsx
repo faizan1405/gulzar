@@ -200,42 +200,102 @@ export const Navbar: React.FC = () => {
             <Link
               href="/"
               onClick={() => setIsMobileMenuOpen(false)}
-              style={{ padding: '10px 0', fontWeight: '500', fontSize: '15px', color: 'inherit', textDecoration: 'none' }}
+              style={{
+                padding: '10px 16px',
+                fontWeight: '700',
+                fontSize: '15px',
+                color: pathname === '/' ? 'var(--deep-maroon)' : 'var(--text-dark)',
+                backgroundColor: pathname === '/' ? 'var(--soft-cream)' : 'transparent',
+                borderRadius: '8px',
+                borderLeft: pathname === '/' ? '4px solid var(--gold-accent)' : '4px solid transparent',
+                textDecoration: 'none',
+                transition: 'var(--transition-smooth)'
+              }}
             >
               Home
             </Link>
             <Link
               href="/search"
               onClick={() => setIsMobileMenuOpen(false)}
-              style={{ padding: '10px 0', fontWeight: '500', fontSize: '15px', color: 'inherit', textDecoration: 'none' }}
+              style={{
+                padding: '10px 16px',
+                fontWeight: '700',
+                fontSize: '15px',
+                color: pathname === '/search' ? 'var(--deep-maroon)' : 'var(--text-dark)',
+                backgroundColor: pathname === '/search' ? 'var(--soft-cream)' : 'transparent',
+                borderRadius: '8px',
+                borderLeft: pathname === '/search' ? '4px solid var(--gold-accent)' : '4px solid transparent',
+                textDecoration: 'none',
+                transition: 'var(--transition-smooth)'
+              }}
             >
               Browse Profiles
             </Link>
             <Link
               href="/how-it-works"
               onClick={() => setIsMobileMenuOpen(false)}
-              style={{ padding: '10px 0', fontWeight: '500', fontSize: '15px', color: 'inherit', textDecoration: 'none' }}
+              style={{
+                padding: '10px 16px',
+                fontWeight: '700',
+                fontSize: '15px',
+                color: pathname === '/how-it-works' ? 'var(--deep-maroon)' : 'var(--text-dark)',
+                backgroundColor: pathname === '/how-it-works' ? 'var(--soft-cream)' : 'transparent',
+                borderRadius: '8px',
+                borderLeft: pathname === '/how-it-works' ? '4px solid var(--gold-accent)' : '4px solid transparent',
+                textDecoration: 'none',
+                transition: 'var(--transition-smooth)'
+              }}
             >
               How It Works
             </Link>
             <Link
               href="/premium"
               onClick={() => setIsMobileMenuOpen(false)}
-              style={{ padding: '10px 0', fontWeight: '500', fontSize: '15px', color: 'inherit', textDecoration: 'none' }}
+              style={{
+                padding: '10px 16px',
+                fontWeight: '700',
+                fontSize: '15px',
+                color: pathname === '/premium' ? 'var(--deep-maroon)' : 'var(--text-dark)',
+                backgroundColor: pathname === '/premium' ? 'var(--soft-cream)' : 'transparent',
+                borderRadius: '8px',
+                borderLeft: pathname === '/premium' ? '4px solid var(--gold-accent)' : '4px solid transparent',
+                textDecoration: 'none',
+                transition: 'var(--transition-smooth)'
+              }}
             >
               Pricing & Packages
             </Link>
             <Link
               href="/safety"
               onClick={() => setIsMobileMenuOpen(false)}
-              style={{ padding: '10px 0', fontWeight: '500', fontSize: '15px', color: 'inherit', textDecoration: 'none' }}
+              style={{
+                padding: '10px 16px',
+                fontWeight: '700',
+                fontSize: '15px',
+                color: pathname === '/safety' ? 'var(--deep-maroon)' : 'var(--text-dark)',
+                backgroundColor: pathname === '/safety' ? 'var(--soft-cream)' : 'transparent',
+                borderRadius: '8px',
+                borderLeft: pathname === '/safety' ? '4px solid var(--gold-accent)' : '4px solid transparent',
+                textDecoration: 'none',
+                transition: 'var(--transition-smooth)'
+              }}
             >
               Safety Guidelines
             </Link>
             <Link
               href="/zaicha"
               onClick={() => setIsMobileMenuOpen(false)}
-              style={{ padding: '10px 0', fontWeight: '500', fontSize: '15px', color: 'inherit', textDecoration: 'none' }}
+              style={{
+                padding: '10px 16px',
+                fontWeight: '700',
+                fontSize: '15px',
+                color: pathname === '/zaicha' ? 'var(--deep-maroon)' : 'var(--text-dark)',
+                backgroundColor: pathname === '/zaicha' ? 'var(--soft-cream)' : 'transparent',
+                borderRadius: '8px',
+                borderLeft: pathname === '/zaicha' ? '4px solid var(--gold-accent)' : '4px solid transparent',
+                textDecoration: 'none',
+                transition: 'var(--transition-smooth)'
+              }}
             >
               Zaicha Guidance
             </Link>

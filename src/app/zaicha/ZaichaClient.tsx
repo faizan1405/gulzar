@@ -78,21 +78,21 @@ export default function ZaichaClient() {
           </div>
 
           {/* Central Service Messaging Block */}
-          <div className="card-theme-wrapper" style={{ maxWidth: '800px', margin: '0 auto 40px auto', padding: '40px', border: '2px solid var(--gold-accent)' }}>
+          <div className="card-theme-wrapper" style={{ maxWidth: '800px', margin: '0 auto 40px auto', padding: '40px', border: '2.5px solid var(--gold-accent)', boxShadow: 'var(--gold-glow-shadow)' }}>
             <FloralCorner position="tl" color="var(--gold-accent)" />
             <FloralCorner position="tr" color="var(--gold-accent)" />
             
-            <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '22px', color: 'var(--deep-maroon)', marginBottom: '20px', textAlign: 'center' }}>
+            <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '24px', color: 'var(--deep-maroon)', marginBottom: '20px', textAlign: 'center', fontWeight: 800 }}>
               We Also Help With Zaicha
             </h3>
             
-            <p style={{ fontSize: '15px', color: 'var(--text-dark)', lineHeight: '1.8', textAlign: 'center', marginBottom: '20px', fontWeight: '500' }}>
+            <p style={{ fontSize: '15.5px', color: 'var(--text-dark)', lineHeight: '1.8', textAlign: 'center', marginBottom: '20px', fontWeight: '600' }}>
               “We also assist families with Zaicha guidance for marriage compatibility. Zaicha is used by many families as a traditional way to understand compatibility, timing, and family concerns before proceeding with a proposal.”
             </p>
 
-            <div style={{ height: '1px', background: 'linear-gradient(90deg, transparent, var(--gold-light) 50%, transparent)', margin: '20px 0' }} />
+            <div style={{ height: '1.5px', background: 'linear-gradient(90deg, transparent, var(--gold-accent) 50%, transparent)', margin: '24px 0' }} />
 
-            <p style={{ fontSize: '14.5px', color: 'var(--text-muted)', lineHeight: '1.7', textAlign: 'center', fontStyle: 'italic' }}>
+            <p style={{ fontSize: '15px', color: 'var(--text-muted)', lineHeight: '1.75', textAlign: 'center', fontStyle: 'italic', fontWeight: 500 }}>
               “At Rishte Forever, we present Zaicha as supportive guidance only. Final marriage decisions should always be based on deen, character, family understanding, mutual consent, and proper communication. We do not treat Zaicha as a guarantee or final decision-maker, but as an additional support for families who value this process.”
             </p>
           </div>

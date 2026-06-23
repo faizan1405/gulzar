@@ -274,22 +274,24 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
         display: 'flex',
         flexDirection: 'column',
         backgroundColor: 'var(--white)',
-        borderRadius: '18px',
-        boxShadow: '0 2px 12px rgba(111,29,53,0.06), 0 8px 32px rgba(111,29,53,0.04)',
-        border: '1px solid rgba(184,146,74,0.14)',
+        borderRadius: 'var(--border-radius-xl)',
+        boxShadow: 'var(--shadow-premium)',
+        border: '1.5px solid rgba(184, 146, 74, 0.22)',
         overflow: 'hidden',
-        transition: 'transform 0.25s ease, box-shadow 0.25s ease',
+        transition: 'var(--transition-smooth)',
         height: '100%',
       }}
       onMouseEnter={e => {
         const el = e.currentTarget as HTMLElement;
-        el.style.transform = 'translateY(-4px)';
-        el.style.boxShadow = '0 8px 32px rgba(111,29,53,0.12), 0 20px 48px rgba(111,29,53,0.08)';
+        el.style.transform = 'translateY(-8px) scale(1.01)';
+        el.style.boxShadow = 'var(--shadow-hover)';
+        el.style.borderColor = 'var(--gold-accent)';
       }}
       onMouseLeave={e => {
         const el = e.currentTarget as HTMLElement;
-        el.style.transform = 'translateY(0)';
-        el.style.boxShadow = '0 2px 12px rgba(111,29,53,0.06), 0 8px 32px rgba(111,29,53,0.04)';
+        el.style.transform = 'translateY(0) scale(1)';
+        el.style.boxShadow = 'var(--shadow-premium)';
+        el.style.borderColor = 'rgba(184, 146, 74, 0.22)';
       }}
     >
       {/* Accent top gradient bar */}
@@ -500,11 +502,11 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
         {/* Name */}
         <h3 style={{
           fontFamily: 'var(--font-serif)',
-          fontSize: '19px',
-          fontWeight: 700,
+          fontSize: '21px',
+          fontWeight: 800,
           color: isServerLocked ? 'var(--text-muted)' : 'var(--deep-maroon)',
           marginBottom: '8px',
-          letterSpacing: '-0.2px',
+          letterSpacing: '-0.3px',
           lineHeight: 1.3,
         }}>
           {displayName}
@@ -760,31 +762,33 @@ export const PremiumPlanCard: React.FC<PremiumPlanCardProps> = ({
   return (
     <div className={`pkg-card ${isPopular ? 'pkg-card-popular' : ''}`} style={{
       backgroundColor: 'var(--white)',
-      border: isPopular ? '2px solid var(--gold-accent)' : '1px solid var(--border-color)',
+      border: isPopular ? '2.5px solid var(--gold-accent)' : '1.5px solid var(--border-color)',
       borderRadius: 'var(--border-radius-xl)',
       padding: '48px 30px',
       textAlign: 'center',
       position: 'relative',
       display: 'flex',
       flexDirection: 'column',
-      boxShadow: 'var(--shadow-premium)',
+      boxShadow: isPopular ? 'var(--gold-glow-shadow)' : 'var(--shadow-premium)',
       transition: 'var(--transition-smooth)',
       overflow: 'hidden'
     }}>
       {isPopular && <div className="pkg-badge" style={{
         position: 'absolute',
-        top: '-13px',
-        left: '50%',
-        transform: 'translateX(-50%)',
-        backgroundColor: 'var(--gold-accent)',
+        top: '12px',
+        right: '12px',
+        left: 'auto',
+        transform: 'none',
+        background: 'var(--gold-gradient)',
         color: 'var(--white)',
-        padding: '4px 16px',
-        borderRadius: '20px',
-        fontSize: '10.5px',
-        fontWeight: 'bold',
+        padding: '6px 14px',
+        borderRadius: '30px',
+        fontSize: '11px',
+        fontWeight: 800,
         textTransform: 'uppercase',
-        letterSpacing: '0.8px',
-        zIndex: 10
+        letterSpacing: '1px',
+        zIndex: 10,
+        boxShadow: 'var(--gold-glow-shadow)'
       }}>Recommended</div>}
 
       {imageUrl && (
@@ -812,14 +816,14 @@ export const PremiumPlanCard: React.FC<PremiumPlanCardProps> = ({
       {!imageUrl && <FloralCorner position="tl" color="var(--gold-light)" />}
       {!imageUrl && <FloralCorner position="tr" color="var(--gold-light)" />}
 
-      <h3 className="pkg-title" style={{ fontFamily: 'var(--font-serif)', fontSize: '24px', color: 'var(--primary-brand)', fontWeight: 700, marginBottom: '20px' }}>
+      <h3 className="pkg-title" style={{ fontFamily: 'var(--font-serif)', fontSize: '26px', color: 'var(--primary-brand)', fontWeight: 800, marginBottom: '20px' }}>
         {title}
       </h3>
       
-      <div className="pkg-price" style={{ fontSize: '38px', fontWeight: 'bold', color: 'var(--text-dark)', marginBottom: '28px' }}>
+      <div className="pkg-price" style={{ fontSize: '42px', fontWeight: '800', color: 'var(--deep-maroon)', marginBottom: '28px', fontFamily: 'var(--font-serif)' }}>
         ₹{price.toLocaleString()}
-        <span style={{ fontSize: '12px', fontWeight: 'normal', color: 'var(--text-muted)', display: 'block', marginTop: '6px' }}>
-          + 18% GST (₹{gstAmount.toLocaleString()}) = <strong>₹{totalAmount.toLocaleString()}</strong> {billingText}
+        <span style={{ fontSize: '12.5px', fontWeight: 'normal', color: 'var(--text-muted)', display: 'block', marginTop: '6px', fontFamily: 'var(--font-sans)' }}>
+          + 18% GST (₹{gstAmount.toLocaleString()}) = <strong style={{ color: 'var(--gold-dark)', fontSize: '14px' }}>₹{totalAmount.toLocaleString()}</strong> {billingText}
         </span>
       </div>
 
@@ -952,7 +956,7 @@ export const SuccessStoryCard: React.FC<SuccessStoryCardProps> = ({
   return (
     <div className="testimonial-card" style={{
       backgroundColor: 'var(--white)',
-      border: '1px solid var(--border-color)',
+      border: '1.5px solid var(--border-color)',
       borderRadius: 'var(--border-radius-xl)',
       padding: '28px',
       boxShadow: 'var(--shadow-premium)',
@@ -974,9 +978,9 @@ export const SuccessStoryCard: React.FC<SuccessStoryCardProps> = ({
       </div>
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border-color)', paddingTop: '14px', marginTop: '14px' }}>
-        <div className="testimonial-author" style={{ fontWeight: 'bold', color: 'var(--deep-maroon)', fontFamily: 'var(--font-serif)', fontSize: '15px' }}>
+        <div className="testimonial-author" style={{ fontWeight: '800', color: 'var(--deep-maroon)', fontFamily: 'var(--font-serif)', fontSize: '16px' }}>
           {names}
-          <div style={{ fontSize: '12px', fontWeight: 'normal', color: 'var(--text-muted)', marginTop: '2px' }}>
+          <div style={{ fontSize: '12.5px', fontWeight: 'normal', color: 'var(--text-muted)', marginTop: '2px' }}>
             {location} {weddingDate && `• Married ${weddingDate}`}
           </div>
         </div>
@@ -1034,10 +1038,24 @@ export const SafetyFeatureCard: React.FC<SafetyFeatureCardProps> = ({ title, des
       alignItems: 'flex-start',
       backgroundColor: 'var(--warm-ivory)',
       padding: '24px',
-      borderRadius: '16px',
-      border: '1.5px solid var(--border-color)',
-      boxShadow: 'var(--shadow-sm)'
-    }}>
+      borderRadius: 'var(--border-radius-lg)',
+      border: '1.5px solid rgba(184, 146, 74, 0.25)',
+      boxShadow: 'var(--shadow-sm)',
+      transition: 'var(--transition-smooth)'
+    }}
+    onMouseEnter={e => {
+      const el = e.currentTarget as HTMLElement;
+      el.style.transform = 'translateY(-3px)';
+      el.style.boxShadow = 'var(--shadow-premium)';
+      el.style.borderColor = 'var(--gold-accent)';
+    }}
+    onMouseLeave={e => {
+      const el = e.currentTarget as HTMLElement;
+      el.style.transform = 'translateY(0)';
+      el.style.boxShadow = 'var(--shadow-sm)';
+      el.style.borderColor = 'rgba(184, 146, 74, 0.25)';
+    }}
+    >
       <div className="safety-icon" style={{
         width: '36px',
         height: '36px',

@@ -63,12 +63,12 @@ export default function GoodProfilesClient() {
               <ProfileGrid filteredProfiles={goodProfiles} />
             </div>
 
-            <div className="card-theme-wrapper" style={{ padding: '24px', position: 'sticky', top: '100px' }}>
-              <h3 style={{ fontFamily: 'var(--font-serif)', color: 'var(--deep-maroon)', fontSize: '20px', marginBottom: '16px' }}>
+            <div className="card-theme-wrapper" style={{ padding: '24px', position: 'sticky', top: '100px', border: '2.5px solid var(--gold-accent)', boxShadow: 'var(--gold-glow-shadow)' }}>
+              <h3 style={{ fontFamily: 'var(--font-serif)', color: 'var(--deep-maroon)', fontSize: '22px', marginBottom: '16px', fontWeight: 800 }}>
                 Good Profile Package
               </h3>
-              <div style={{ fontSize: '32px', fontWeight: 'bold', color: 'var(--deep-maroon)', marginBottom: '8px' }}>
-                ₹5,500 <span style={{ fontSize: '14px', color: 'var(--text-muted)' }}>+ 18% GST</span>
+              <div style={{ fontSize: '36px', fontWeight: '800', color: 'var(--deep-maroon)', marginBottom: '8px', fontFamily: 'var(--font-serif)' }}>
+                ₹5,500 <span style={{ fontSize: '14px', color: 'var(--text-muted)', fontFamily: 'var(--font-sans)', fontWeight: 'normal' }}>+ 18% GST</span>
               </div>
               <p style={{ fontSize: '14px', color: 'var(--text-muted)', marginBottom: '20px' }}>
                 Unlock access to verified premium candidates characterized by handsome & beautiful appearances.
