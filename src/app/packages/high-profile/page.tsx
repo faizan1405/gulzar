@@ -14,7 +14,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://rishteforever.in';
   const title = "High Profile Matrimonial Matches — Rishte Forever";
   const description = "Browse verified high-profile Muslim matrimonial candidates earning ₹10 Lakh+ annually (Doctors, Engineers, Business Owners, and Premium Families) on Rishte Forever.";
-  const previewImage = settings?.defaultPreviewImage || "/images/nikah-3.jpeg";
+  const previewImage = settings?.defaultPreviewImage || "/images/commitment.png";
   const imageUrl = previewImage.startsWith('http') ? previewImage : `${siteUrl}${previewImage}`;
 
   return {

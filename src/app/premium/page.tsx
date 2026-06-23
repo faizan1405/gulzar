@@ -14,7 +14,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://rishteforever.in';
   const title = "Premium Matrimonial Packages — Rishte Forever";
   const description = "Select from our standard monthly membership, curated good profiles, second-marriage directory, or exclusive high-profile matrimonial matching options.";
-  const previewImage = settings?.defaultPreviewImage || "/images/nikah-3.jpeg";
+  const previewImage = settings?.defaultPreviewImage || "/images/commitment.png";
   const imageUrl = previewImage.startsWith('http') ? previewImage : `${siteUrl}${previewImage}`;
 
   return {

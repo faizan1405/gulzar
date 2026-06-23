@@ -36,7 +36,7 @@ export default function PremiumClient() {
 
           <div style={{ marginBottom: '40px', borderRadius: 'var(--border-radius-xl)', overflow: 'hidden', boxShadow: 'var(--shadow-premium)', position: 'relative', height: '300px' }}>
             <Image
-              src="/images/nikah-3.jpeg"
+              src="/images/commitment.png"
               alt="Premium Matrimonial Journey"
               fill
               style={{ objectFit: 'cover', objectPosition: 'center 40%' }}
