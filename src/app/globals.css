@@ -113,6 +113,17 @@
   --theme-btn-hover: #7b3d1c;
 }
 
+/* How It Works — full-image cards */
+.hiw-card {
+  height: 400px;
+}
+
+@media (max-width: 640px) {
+  .hiw-card {
+    height: 300px;
+  }
+}
+
 /* Reset & Base Elements */
 * {
   box-sizing: border-box;

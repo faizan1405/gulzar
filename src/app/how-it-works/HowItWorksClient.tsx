@@ -31,7 +31,7 @@ const steps: Step[] = [
   },
   {
     num: 3,
-    title: 'Privacy blur and Unlock matches',
+    title: 'Privacy Blur and Unlock Matches',
     desc: 'Photos and phone numbers remain securely blurred to visitors. Activate the standard monthly membership to unblur photos, explore candidates, and access call details.',
     img: '/images/nikah-3.jpeg',
     alt: 'Find Suitable Match',
@@ -44,25 +44,6 @@ const steps: Step[] = [
     alt: 'Family Discussion Nikah Journey',
   },
 ];
-
-// Shared image-area styling reused by every step card (single source of truth).
-const imageBoxStyle: React.CSSProperties = {
-  flex: 1,
-  minWidth: '280px',
-  alignSelf: 'stretch',
-  minHeight: '220px',
-  position: 'relative',
-  borderRadius: 'var(--border-radius-md)',
-  overflow: 'hidden',
-  border: '2px solid var(--gold-accent)',
-};
-
-const imageStyle: React.CSSProperties = {
-  width: '100%',
-  height: '100%',
-  objectFit: 'cover',
-  objectPosition: 'center',
-};
 
 export default function HowItWorksClient() {
   const router = useRouter();
@@ -83,31 +64,99 @@ export default function HowItWorksClient() {
             as="h1"
           />
 
-          <div style={{ maxWidth: '900px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '32px' }}>
-            {steps.map((step, idx) => (
+          <div style={{ maxWidth: '900px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '28px' }}>
+            {steps.map((step) => (
               <div
                 key={step.num}
-                className="card-theme-wrapper"
+                className="hiw-card"
                 style={{
-                  display: 'flex',
-                  gap: '24px',
-                  alignItems: 'center',
-                  padding: '30px',
-                  flexWrap: 'wrap',
-                  flexDirection: idx % 2 === 1 ? 'row-reverse' : 'row',
+                  position: 'relative',
+                  borderRadius: 'var(--border-radius-lg)',
+                  overflow: 'hidden',
+                  boxShadow: '0 20px 60px -12px rgba(111, 29, 53, 0.25)',
+                  border: '1px solid rgba(184, 146, 74, 0.35)',
                 }}
               >
-                <div style={{ flex: 1, minWidth: '300px', display: 'flex', gap: '20px', alignItems: 'flex-start' }}>
-                  <div style={{ backgroundColor: 'var(--deep-maroon)', color: '#fff', width: '36px', height: '36px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '18px', flexShrink: 0 }}>{step.num}</div>
-                  <div>
-                    <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '20px', color: 'var(--deep-maroon)', marginBottom: '8px' }}>{step.title}</h3>
-                    <p style={{ color: 'var(--text-muted)', fontSize: '14.5px', lineHeight: '1.6' }}>
-                      {step.desc}
-                    </p>
-                  </div>
+                {/* Full-cover background image */}
+                <Image
+                  src={step.img}
+                  alt={step.alt}
+                  fill
+                  sizes="(max-width: 640px) 100vw, 900px"
+                  style={{ objectFit: 'cover', objectPosition: 'center' }}
+                  priority={step.num <= 2}
+                />
+
+                {/* Gradient overlay — dark at bottom for text legibility */}
+                <div
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    background:
+                      'linear-gradient(to top, rgba(111,29,53,0.93) 0%, rgba(111,29,53,0.55) 42%, rgba(0,0,0,0.06) 100%)',
+                    pointerEvents: 'none',
+                  }}
+                />
+
+                {/* Step number badge — top-left */}
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: '24px',
+                    left: '28px',
+                    width: '44px',
+                    height: '44px',
+                    borderRadius: '50%',
+                    border: '2px solid var(--antique-gold)',
+                    backgroundColor: 'rgba(184, 146, 74, 0.22)',
+                    backdropFilter: 'blur(6px)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#F5D78C',
+                    fontWeight: '700',
+                    fontSize: '17px',
+                    zIndex: 2,
+                  }}
+                >
+                  {step.num}
                 </div>
-                <div style={imageBoxStyle}>
-                  <Image src={step.img} alt={step.alt} fill sizes="(max-width: 768px) 100vw, 50vw" style={imageStyle} />
+
+                {/* Text overlay — bottom */}
+                <div
+                  style={{
+                    position: 'absolute',
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    padding: '28px 32px 32px',
+                    zIndex: 2,
+                  }}
+                >
+                  <h3
+                    style={{
+                      fontFamily: 'var(--font-serif)',
+                      fontSize: '22px',
+                      color: '#ffffff',
+                      marginBottom: '8px',
+                      fontWeight: '600',
+                      letterSpacing: '0.01em',
+                      textShadow: '0 2px 10px rgba(0,0,0,0.35)',
+                    }}
+                  >
+                    {step.title}
+                  </h3>
+                  <p
+                    style={{
+                      color: 'rgba(255, 255, 255, 0.88)',
+                      fontSize: '14.5px',
+                      lineHeight: '1.65',
+                      textShadow: '0 1px 4px rgba(0,0,0,0.45)',
+                      maxWidth: '620px',
+                    }}
+                  >
+                    {step.desc}
+                  </p>
                 </div>
               </div>
             ))}
