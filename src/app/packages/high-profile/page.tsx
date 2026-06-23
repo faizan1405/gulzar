@@ -11,9 +11,9 @@ export async function generateMetadata(): Promise<Metadata> {
     console.error("Failed to load settings in metadata", e);
   }
   
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://shadimubarak.in';
-  const title = "High Profile Matrimonial Matches — Shadi Mubarak";
-  const description = "Browse verified high-profile Muslim matrimonial candidates earning ₹10 Lakh+ annually (Doctors, Engineers, Business Owners, and Premium Families) on Shadi Mubarak.";
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://rishteforever.in';
+  const title = "High Profile Matrimonial Matches — Rishte Forever";
+  const description = "Browse verified high-profile Muslim matrimonial candidates earning ₹10 Lakh+ annually (Doctors, Engineers, Business Owners, and Premium Families) on Rishte Forever.";
   const previewImage = settings?.defaultPreviewImage || "/images/nikah-3.jpeg";
   const imageUrl = previewImage.startsWith('http') ? previewImage : `${siteUrl}${previewImage}`;
 
@@ -26,7 +26,7 @@ export async function generateMetadata(): Promise<Metadata> {
       "Premium Muslim matchmaking services",
       "Doctors matrimonial Muslim",
       "Engineers matrimonial Muslim",
-      "Shadi Mubarak High Profile"
+      "Rishte Forever High Profile"
     ],
     alternates: {
       canonical: '/packages/high-profile',
@@ -35,13 +35,13 @@ export async function generateMetadata(): Promise<Metadata> {
       title,
       description,
       url: '/packages/high-profile',
-      siteName: "Shadi Mubarak",
+      siteName: "Rishte Forever",
       images: [
         {
           url: imageUrl,
           width: 1200,
           height: 630,
-          alt: "Shadi Mubarak High Profile Package",
+          alt: "Rishte Forever High Profile Package",
         }
       ],
       type: "website",
@@ -64,19 +64,19 @@ export default function HighProfilePage() {
         "@type": "ListItem",
         "position": 1,
         "name": "Home",
-        "item": "https://shadimubarak.in"
+        "item": "https://rishteforever.in"
       },
       {
         "@type": "ListItem",
         "position": 2,
         "name": "Premium Packages",
-        "item": "https://shadimubarak.in/premium"
+        "item": "https://rishteforever.in/premium"
       },
       {
         "@type": "ListItem",
         "position": 3,
         "name": "High Profile Matches",
-        "item": "https://shadimubarak.in/packages/high-profile"
+        "item": "https://rishteforever.in/packages/high-profile"
       }
     ]
   };

@@ -15,7 +15,7 @@ export default function ChatbotWindow({ onClose }: ChatbotWindowProps) {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      content: 'Assalamu Alaikum! I’m here to help you understand Shadi Mubarak packages, profile privacy, verification, and how the platform works. How can I help you?'
+      content: 'Assalamu Alaikum! I’m here to help you understand Rishte Forever packages, profile privacy, verification, and how the platform works. How can I help you?'
     }
   ]);
   const [input, setInput] = useState('');
@@ -96,7 +96,7 @@ export default function ChatbotWindow({ onClose }: ChatbotWindowProps) {
     setMessages([
       {
         role: 'assistant',
-        content: 'Assalamu Alaikum! I’m here to help you understand Shadi Mubarak packages, profile privacy, verification, and how the platform works. How can I help you?'
+        content: 'Assalamu Alaikum! I’m here to help you understand Rishte Forever packages, profile privacy, verification, and how the platform works. How can I help you?'
       }
     ]);
     setErrorMsg(null);
@@ -109,7 +109,7 @@ export default function ChatbotWindow({ onClose }: ChatbotWindowProps) {
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <div className="chatbot-header-avatar">❀</div>
           <div>
-            <h4 className="chatbot-header-title">Shadi Mubarak Assistant</h4>
+            <h4 className="chatbot-header-title">Rishte Forever Assistant</h4>
             <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
               <span className="chatbot-status-indicator"></span>
               <span className="chatbot-status-text">

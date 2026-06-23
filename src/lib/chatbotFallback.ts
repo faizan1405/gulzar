@@ -14,7 +14,7 @@ export function getFallbackResponse(message: string): string {
     msg.includes('quran') ||
     msg.includes('hadith')
   ) {
-    return "For religious rulings, please consult a qualified scholar. I can only explain how Shadi Mubarak works as a matrimonial platform.";
+    return "For religious rulings, please consult a qualified scholar. I can only explain how Rishte Forever works as a matrimonial platform.";
   }
 
   // 2. Photo / Phone blur / Privacy check
@@ -55,7 +55,7 @@ export function getFallbackResponse(message: string): string {
     msg.includes('rupees') ||
     msg.includes('charge')
   ) {
-    return "Assalamu Alaikum! Shadi Mubarak offers 4 matrimonial packages (inclusive of 18% GST):\n\n" +
+    return "Assalamu Alaikum! Rishte Forever offers 4 matrimonial packages (inclusive of 18% GST):\n\n" +
       "1. **Standard Monthly Membership**: ₹300/month (₹354 with GST). Allows searching matches, filtering, and unblurring photos/phone numbers on normal profiles.\n" +
       "2. **Good Profiles Package**: ₹5,500 one-time (₹6,490 with GST). Gives access to curated, hand-selected attractive profiles + ₹21,000 success fee after marriage confirmation.\n" +
       "3. **Second Marriage Package**: ₹11,000 one-time (₹12,980 with GST). Separate private matchmaking category with unlimited leads until marriage. No success fee.\n" +
@@ -73,7 +73,7 @@ export function getFallbackResponse(message: string): string {
     msg.includes('approve') ||
     msg.includes('status')
   ) {
-    return "Every profile on Shadi Mubarak is manually reviewed. An admin will call you on your registered phone number to verify your identity and intent. Once approved, your profile status will change to APPROVED, making you visible in the match directory.";
+    return "Every profile on Rishte Forever is manually reviewed. An admin will call you on your registered phone number to verify your identity and intent. Once approved, your profile status will change to APPROVED, making you visible in the match directory.";
   }
 
   // 5. Registration check
@@ -113,11 +113,11 @@ export function getFallbackResponse(message: string): string {
     msg.includes('admin') ||
     msg.includes('reach')
   ) {
-    return "You can contact Shadi Mubarak support by navigating to the Contact page or by emailing support@shadimubarak.com. Our support team is active Monday to Saturday, 9:00 AM to 6:00 PM.";
+    return "You can contact Rishte Forever support by navigating to the Contact page or by emailing support@rishteforever.in. Our support team is active Monday to Saturday, 9:00 AM to 6:00 PM.";
   }
 
   // 8. General greeting/unknown fallback response
-  return "Assalamu Alaikum! I'm the Shadi Mubarak support assistant (demo mode).\n\n" +
+  return "Assalamu Alaikum! I'm the Rishte Forever support assistant (demo mode).\n\n" +
     "I can answer your questions about:\n" +
     "• **Packages & Pricing** (₹300/₹5.5k/₹11k/₹21k)\n" +
     "• **Photo & Contact Privacy** (Blurring details)\n" +

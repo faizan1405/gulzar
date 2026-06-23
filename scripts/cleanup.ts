@@ -9,8 +9,8 @@ async function main() {
     const demoUsers = await prisma.user.findMany({
       where: {
         OR: [
-          { email: { endsWith: '@shadimubarak.demo' } },
-          { email: 'demo_admin@shadimubarak.demo' },
+          { email: { endsWith: '@rishteforever.demo' } },
+          { email: 'demo_admin@rishteforever.demo' },
         ],
       },
       include: {

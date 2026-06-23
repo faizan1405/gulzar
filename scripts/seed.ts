@@ -8,7 +8,7 @@ const profilesToSeed = [
   // ==================== 1. GOOD PROFILES PACKAGE (₹5,500) ====================
   // Criteria: Single, First Marriage, decent job (no doctor/engineer/business/professional), income < 10 LPA
   {
-    email: 'demo_adnan_siddiqui@shadimubarak.demo',
+    email: 'demo_adnan_siddiqui@rishteforever.demo',
     name: 'Demo: Adnan Siddiqui',
     gender: 'Male',
     dob: new Date(1997, 2, 5),
@@ -35,7 +35,7 @@ const profilesToSeed = [
     biradari: 'Siddiqui',
   },
   {
-    email: 'demo_zainab_ahmed@shadimubarak.demo',
+    email: 'demo_zainab_ahmed@rishteforever.demo',
     name: 'Demo: Zainab Ahmed',
     gender: 'Female',
     dob: new Date(2002, 1, 14),
@@ -62,7 +62,7 @@ const profilesToSeed = [
     biradari: 'Sheikh / Shaikh',
   },
   {
-    email: 'demo_yasmin_alvi@shadimubarak.demo',
+    email: 'demo_yasmin_alvi@rishteforever.demo',
     name: 'Demo: Yasmin Alvi',
     gender: 'Female',
     dob: new Date(1998, 11, 3),
@@ -89,7 +89,7 @@ const profilesToSeed = [
     biradari: 'Alvi',
   },
   {
-    email: 'demo_sameer_deshmukh@shadimubarak.demo',
+    email: 'demo_sameer_deshmukh@rishteforever.demo',
     name: 'Demo: Sameer Deshmukh',
     gender: 'Male',
     dob: new Date(1998, 7, 22),
@@ -116,7 +116,7 @@ const profilesToSeed = [
     biradari: 'Khan',
   },
   {
-    email: 'demo_tarannum_jehan@shadimubarak.demo',
+    email: 'demo_tarannum_jehan@rishteforever.demo',
     name: 'Demo: Tarannum Jehan',
     gender: 'Female',
     dob: new Date(2000, 9, 29),
@@ -143,7 +143,7 @@ const profilesToSeed = [
     biradari: 'Sheikh / Shaikh',
   },
   {
-    email: 'demo_raza_murad@shadimubarak.demo',
+    email: 'demo_raza_murad@rishteforever.demo',
     name: 'Demo: Raza Murad',
     gender: 'Male',
     dob: new Date(2001, 1, 5),
@@ -170,7 +170,7 @@ const profilesToSeed = [
     biradari: 'Qureshi',
   },
   {
-    email: 'demo_farah_sheikh@shadimubarak.demo',
+    email: 'demo_farah_sheikh@rishteforever.demo',
     name: 'Demo: Farah Sheikh',
     gender: 'Female',
     dob: new Date(1999, 4, 15),
@@ -197,7 +197,7 @@ const profilesToSeed = [
     biradari: 'Sheikh / Shaikh',
   },
   {
-    email: 'demo_arshad_warsi@shadimubarak.demo',
+    email: 'demo_arshad_warsi@rishteforever.demo',
     name: 'Demo: Arshad Warsi',
     gender: 'Male',
     dob: new Date(1999, 10, 25),
@@ -224,7 +224,7 @@ const profilesToSeed = [
     biradari: 'Mughal',
   },
   {
-    email: 'demo_sobia_qureshi@shadimubarak.demo',
+    email: 'demo_sobia_qureshi@rishteforever.demo',
     name: 'Demo: Sobia Qureshi',
     gender: 'Female',
     dob: new Date(2001, 8, 12),
@@ -251,7 +251,7 @@ const profilesToSeed = [
     biradari: 'Qureshi',
   },
   {
-    email: 'demo_imran_mansuri@shadimubarak.demo',
+    email: 'demo_imran_mansuri@rishteforever.demo',
     name: 'Demo: Imran Mansuri',
     gender: 'Male',
     dob: new Date(1996, 5, 24),
@@ -281,7 +281,7 @@ const profilesToSeed = [
   // ==================== 2. SECOND MARRIAGE PACKAGE (₹11,000) ====================
   // Criteria: Divorced/Widowed, mix male/female, under 10LPA income, occupations avoiding high profile keywords
   {
-    email: 'demo_aisha_rahman@shadimubarak.demo',
+    email: 'demo_aisha_rahman@rishteforever.demo',
     name: 'Demo: Aisha Rahman',
     gender: 'Female',
     dob: new Date(1995, 8, 20),
@@ -308,7 +308,7 @@ const profilesToSeed = [
     biradari: 'Ansari',
   },
   {
-    email: 'demo_farhan_syed@shadimubarak.demo',
+    email: 'demo_farhan_syed@rishteforever.demo',
     name: 'Demo: Farhan Syed',
     gender: 'Male',
     dob: new Date(1991, 3, 10),
@@ -335,7 +335,7 @@ const profilesToSeed = [
     biradari: 'Syed / Sayyid',
   },
   {
-    email: 'demo_mariam_fatimah@shadimubarak.demo',
+    email: 'demo_mariam_fatimah@rishteforever.demo',
     name: 'Demo: Mariam Fatimah',
     gender: 'Female',
     dob: new Date(1992, 5, 18),
@@ -362,7 +362,7 @@ const profilesToSeed = [
     biradari: 'Pathan',
   },
   {
-    email: 'demo_shabana_bano@shadimubarak.demo',
+    email: 'demo_shabana_bano@rishteforever.demo',
     name: 'Demo: Shabana Bano',
     gender: 'Female',
     dob: new Date(1986, 2, 14),
@@ -389,7 +389,7 @@ const profilesToSeed = [
     biradari: 'Ansari',
   },
   {
-    email: 'demo_imran_malik@shadimubarak.demo',
+    email: 'demo_imran_malik@rishteforever.demo',
     name: 'Demo: Imran Malik',
     gender: 'Male',
     dob: new Date(1984, 8, 30),
@@ -416,7 +416,7 @@ const profilesToSeed = [
     biradari: 'Malik',
   },
   {
-    email: 'demo_hina_shaheen@shadimubarak.demo',
+    email: 'demo_hina_shaheen@rishteforever.demo',
     name: 'Demo: Hina Shaheen',
     gender: 'Female',
     dob: new Date(1995, 10, 15),
@@ -443,7 +443,7 @@ const profilesToSeed = [
     biradari: 'Pathan',
   },
   {
-    email: 'demo_javed_jaffrey@shadimubarak.demo',
+    email: 'demo_javed_jaffrey@rishteforever.demo',
     name: 'Demo: Javed Jaffrey',
     gender: 'Male',
     dob: new Date(1995, 0, 15),
@@ -470,7 +470,7 @@ const profilesToSeed = [
     biradari: 'Sheikh / Shaikh',
   },
   {
-    email: 'demo_rehana_parveen@shadimubarak.demo',
+    email: 'demo_rehana_parveen@rishteforever.demo',
     name: 'Demo: Rehana Parveen',
     gender: 'Female',
     dob: new Date(1996, 3, 20),
@@ -497,7 +497,7 @@ const profilesToSeed = [
     biradari: 'Sheikh / Shaikh',
   },
   {
-    email: 'demo_salman_baig@shadimubarak.demo',
+    email: 'demo_salman_baig@rishteforever.demo',
     name: 'Demo: Salman Baig',
     gender: 'Male',
     dob: new Date(1990, 1, 15),
@@ -524,7 +524,7 @@ const profilesToSeed = [
     biradari: 'Mughal',
   },
   {
-    email: 'demo_nisar_sheikh@shadimubarak.demo',
+    email: 'demo_nisar_sheikh@rishteforever.demo',
     name: 'Demo: Nisar Sheikh',
     gender: 'Male',
     dob: new Date(1988, 5, 12),
@@ -554,7 +554,7 @@ const profilesToSeed = [
   // ==================== 3. HIGH PROFILE PACKAGE (₹21,000) ====================
   // Criteria: Single, First Marriage, Doctor/Engineer/Business/Corporate Professional, Income ₹10 LPA+
   {
-    email: 'demo_sarah_khan@shadimubarak.demo',
+    email: 'demo_sarah_khan@rishteforever.demo',
     name: 'Demo: Dr. Sarah Khan',
     gender: 'Female',
     dob: new Date(1999, 4, 12),
@@ -581,7 +581,7 @@ const profilesToSeed = [
     biradari: 'Khan',
   },
   {
-    email: 'demo_nida_fatma@shadimubarak.demo',
+    email: 'demo_nida_fatma@rishteforever.demo',
     name: 'Demo: Nida Fatma',
     gender: 'Female',
     dob: new Date(1997, 8, 9),
@@ -608,7 +608,7 @@ const profilesToSeed = [
     biradari: 'Syed / Sayyid',
   },
   {
-    email: 'demo_mansoor_ali@shadimubarak.demo',
+    email: 'demo_mansoor_ali@rishteforever.demo',
     name: 'Demo: Mansoor Ali',
     gender: 'Male',
     dob: new Date(1997, 8, 20),
@@ -635,7 +635,7 @@ const profilesToSeed = [
     biradari: 'Ansari',
   },
   {
-    email: 'demo_tariq_anwar@shadimubarak.demo',
+    email: 'demo_tariq_anwar@rishteforever.demo',
     name: 'Demo: Tariq Anwar',
     gender: 'Male',
     dob: new Date(1994, 5, 15),
@@ -662,7 +662,7 @@ const profilesToSeed = [
     biradari: 'Siddiqui',
   },
   {
-    email: 'demo_khalid_masood@shadimubarak.demo',
+    email: 'demo_khalid_masood@rishteforever.demo',
     name: 'Demo: Khalid Masood',
     gender: 'Male',
     dob: new Date(1992, 10, 18),
@@ -689,7 +689,7 @@ const profilesToSeed = [
     biradari: 'Sheikh / Shaikh',
   },
   {
-    email: 'demo_faisal_qureshi@shadimubarak.demo',
+    email: 'demo_faisal_qureshi@rishteforever.demo',
     name: 'Demo: Faisal Qureshi',
     gender: 'Male',
     dob: new Date(1994, 6, 25),
@@ -716,7 +716,7 @@ const profilesToSeed = [
     biradari: 'Qureshi',
   },
   {
-    email: 'demo_asma_siddiqui@shadimubarak.demo',
+    email: 'demo_asma_siddiqui@rishteforever.demo',
     name: 'Demo: Asma Siddiqui',
     gender: 'Female',
     dob: new Date(1998, 1, 10),
@@ -743,7 +743,7 @@ const profilesToSeed = [
     biradari: 'Siddiqui',
   },
   {
-    email: 'demo_riaz_ahmed@shadimubarak.demo',
+    email: 'demo_riaz_ahmed@rishteforever.demo',
     name: 'Demo: Riaz Ahmed',
     gender: 'Male',
     dob: new Date(1993, 2, 28),
@@ -770,7 +770,7 @@ const profilesToSeed = [
     biradari: 'Syed / Sayyid',
   },
   {
-    email: 'demo_zainab_malik@shadimubarak.demo',
+    email: 'demo_zainab_malik@rishteforever.demo',
     name: 'Demo: Zainab Malik',
     gender: 'Female',
     dob: new Date(1996, 7, 15),
@@ -797,7 +797,7 @@ const profilesToSeed = [
     biradari: 'Malik',
   },
   {
-    email: 'demo_kamran_surgeon@shadimubarak.demo',
+    email: 'demo_kamran_surgeon@rishteforever.demo',
     name: 'Demo: Dr. Kamran Khan',
     gender: 'Male',
     dob: new Date(1991, 11, 20),
@@ -827,7 +827,7 @@ const profilesToSeed = [
   // ==================== 4. STANDARD/MONTHLY MEMBERSHIP PROFILES (₹300) ====================
   // Criteria: Single, First Marriage, normal job (no doctor/engineer/business/professional), income < 10 LPA
   {
-    email: 'demo_bilal_chishti@shadimubarak.demo',
+    email: 'demo_bilal_chishti@rishteforever.demo',
     name: 'Demo: Bilal Chishti',
     gender: 'Male',
     dob: new Date(2000, 5, 12),
@@ -854,7 +854,7 @@ const profilesToSeed = [
     biradari: 'Syed / Sayyid',
   },
   {
-    email: 'demo_sana_parveen@shadimubarak.demo',
+    email: 'demo_sana_parveen@rishteforever.demo',
     name: 'Demo: Sana Parveen',
     gender: 'Female',
     dob: new Date(2001, 2, 28),
@@ -881,7 +881,7 @@ const profilesToSeed = [
     biradari: 'Ansari',
   },
   {
-    email: 'demo_kamran_ansari@shadimubarak.demo',
+    email: 'demo_kamran_ansari@rishteforever.demo',
     name: 'Demo: Kamran Ansari',
     gender: 'Male',
     dob: new Date(1998, 11, 1),
@@ -908,7 +908,7 @@ const profilesToSeed = [
     biradari: 'Ansari',
   },
   {
-    email: 'demo_sameera_begum@shadimubarak.demo',
+    email: 'demo_sameera_begum@rishteforever.demo',
     name: 'Demo: Sameera Begum',
     gender: 'Female',
     dob: new Date(2000, 3, 20),
@@ -935,7 +935,7 @@ const profilesToSeed = [
     biradari: 'Sheikh / Shaikh',
   },
   {
-    email: 'demo_farooq_sheikh@shadimubarak.demo',
+    email: 'demo_farooq_sheikh@rishteforever.demo',
     name: 'Demo: Farooq Sheikh',
     gender: 'Male',
     dob: new Date(1996, 6, 12),
@@ -962,7 +962,7 @@ const profilesToSeed = [
     biradari: 'Sheikh / Shaikh',
   },
   {
-    email: 'demo_humaira_qureshi@shadimubarak.demo',
+    email: 'demo_humaira_qureshi@rishteforever.demo',
     name: 'Demo: Humaira Qureshi',
     gender: 'Female',
     dob: new Date(2001, 5, 23),
@@ -989,7 +989,7 @@ const profilesToSeed = [
     biradari: 'Qureshi',
   },
   {
-    email: 'demo_majid_malik@shadimubarak.demo',
+    email: 'demo_majid_malik@rishteforever.demo',
     name: 'Demo: Majid Malik',
     gender: 'Male',
     dob: new Date(1997, 8, 20),
@@ -1016,7 +1016,7 @@ const profilesToSeed = [
     biradari: 'Malik',
   },
   {
-    email: 'demo_salma_bano@shadimubarak.demo',
+    email: 'demo_salma_bano@rishteforever.demo',
     name: 'Demo: Salma Bano',
     gender: 'Female',
     dob: new Date(1998, 3, 20),
@@ -1043,7 +1043,7 @@ const profilesToSeed = [
     biradari: 'Sheikh / Shaikh',
   },
   {
-    email: 'demo_waseem_akram@shadimubarak.demo',
+    email: 'demo_waseem_akram@rishteforever.demo',
     name: 'Demo: Waseem Akram',
     gender: 'Male',
     dob: new Date(1996, 6, 15),
@@ -1070,7 +1070,7 @@ const profilesToSeed = [
     biradari: 'Sheikh / Shaikh',
   },
   {
-    email: 'demo_nida_receptionist@shadimubarak.demo',
+    email: 'demo_nida_receptionist@rishteforever.demo',
     name: 'Demo: Nida Fatima',
     gender: 'Female',
     dob: new Date(2003, 11, 1),
@@ -1100,7 +1100,7 @@ const profilesToSeed = [
   // ==================== 5. QUEUE / ADMIN SIMULATOR TEST CASES (6 Profiles) ====================
   // Criteria: verificationStatus is PENDING, REJECTED, or NEEDS_FOLLOW_UP (so they show up in admin, but not in public categories)
   {
-    email: 'demo_test_pending_1@shadimubarak.demo',
+    email: 'demo_test_pending_1@rishteforever.demo',
     name: 'Demo: Tariq Siddiqui',
     gender: 'Male',
     dob: new Date(2000, 1, 10),
@@ -1125,7 +1125,7 @@ const profilesToSeed = [
     biradari: 'Siddiqui',
   },
   {
-    email: 'demo_test_pending_2@shadimubarak.demo',
+    email: 'demo_test_pending_2@rishteforever.demo',
     name: 'Demo: Saima Sheikh',
     gender: 'Female',
     dob: new Date(2002, 6, 17),
@@ -1150,7 +1150,7 @@ const profilesToSeed = [
     biradari: 'Sheikh / Shaikh',
   },
   {
-    email: 'demo_test_rejected_1@shadimubarak.demo',
+    email: 'demo_test_rejected_1@rishteforever.demo',
     name: 'Demo: Gauhar Khan',
     gender: 'Female',
     dob: new Date(1999, 5, 23),
@@ -1175,7 +1175,7 @@ const profilesToSeed = [
     biradari: 'Khan',
   },
   {
-    email: 'demo_test_rejected_2@shadimubarak.demo',
+    email: 'demo_test_rejected_2@rishteforever.demo',
     name: 'Demo: Sajid Qureshi',
     gender: 'Male',
     dob: new Date(1995, 6, 12),
@@ -1200,7 +1200,7 @@ const profilesToSeed = [
     biradari: 'Qureshi',
   },
   {
-    email: 'demo_test_follow_1@shadimubarak.demo',
+    email: 'demo_test_follow_1@rishteforever.demo',
     name: 'Demo: Zeenat Masood',
     gender: 'Female',
     dob: new Date(1998, 8, 20),
@@ -1225,7 +1225,7 @@ const profilesToSeed = [
     biradari: 'Sheikh / Shaikh',
   },
   {
-    email: 'demo_test_follow_2@shadimubarak.demo',
+    email: 'demo_test_follow_2@rishteforever.demo',
     name: 'Demo: Sohail Hashmi',
     gender: 'Male',
     dob: new Date(1997, 8, 20),
@@ -1289,13 +1289,13 @@ async function main() {
 
     // 1. Create or Find Demo Admin User
     let admin = await prisma.user.findUnique({
-      where: { email: 'demo_admin@shadimubarak.demo' },
+      where: { email: 'demo_admin@rishteforever.demo' },
     });
     if (!admin) {
       admin = await prisma.user.create({
         data: {
           name: 'Demo Admin',
-          email: 'demo_admin@shadimubarak.demo',
+          email: 'demo_admin@rishteforever.demo',
           role: Role.ADMIN,
           accountStatus: AccountStatus.ACTIVE,
         },
@@ -1449,27 +1449,27 @@ async function main() {
     // 3. Seed Curated Lead Assignments
     console.log('Seeding curated leads...');
     const adnan = await prisma.user.findFirst({
-      where: { email: 'demo_adnan_siddiqui@shadimubarak.demo' },
+      where: { email: 'demo_adnan_siddiqui@rishteforever.demo' },
       include: { profile: true },
     });
     const sarah = await prisma.user.findFirst({
-      where: { email: 'demo_sarah_khan@shadimubarak.demo' },
+      where: { email: 'demo_sarah_khan@rishteforever.demo' },
       include: { profile: true },
     });
     const farhan = await prisma.user.findFirst({
-      where: { email: 'demo_farhan_syed@shadimubarak.demo' },
+      where: { email: 'demo_farhan_syed@rishteforever.demo' },
       include: { profile: true },
     });
     const mariam = await prisma.user.findFirst({
-      where: { email: 'demo_mariam_fatimah@shadimubarak.demo' },
+      where: { email: 'demo_mariam_fatimah@rishteforever.demo' },
       include: { profile: true },
     });
     const mansoor = await prisma.user.findFirst({
-      where: { email: 'demo_mansoor_ali@shadimubarak.demo' },
+      where: { email: 'demo_mansoor_ali@rishteforever.demo' },
       include: { profile: true },
     });
     const aisha = await prisma.user.findFirst({
-      where: { email: 'demo_aisha_rahman@shadimubarak.demo' },
+      where: { email: 'demo_aisha_rahman@rishteforever.demo' },
       include: { profile: true },
     });
 

@@ -1,4 +1,4 @@
-// Shared Demo Profiles for Shadi Mubarak
+// Shared Demo Profiles for Rishte Forever
 
 export interface RawDemoProfile {
   id: string;
@@ -39,7 +39,7 @@ export const rawDemoProfiles: RawDemoProfile[] = [
   {
     id: '60d5ecb86f67a213e4b7b263',
     userId: '60d5ecb86f67a213e4b7b253',
-    email: 'demo_adnan_siddiqui@shadimubarak.demo',
+    email: 'demo_adnan_siddiqui@rishteforever.demo',
     fullName: 'Demo: Adnan Siddiqui',
     gender: 'Male',
     dateOfBirth: '1997-03-05',
@@ -69,7 +69,7 @@ export const rawDemoProfiles: RawDemoProfile[] = [
   {
     id: '60d5ecb86f67a213e4b7b301',
     userId: '60d5ecb86f67a213e4b7b311',
-    email: 'demo_zainab_ahmed@shadimubarak.demo',
+    email: 'demo_zainab_ahmed@rishteforever.demo',
     fullName: 'Demo: Zainab Ahmed',
     gender: 'Female',
     dateOfBirth: '2002-02-14',
@@ -99,7 +99,7 @@ export const rawDemoProfiles: RawDemoProfile[] = [
   {
     id: '60d5ecb86f67a213e4b7b302',
     userId: '60d5ecb86f67a213e4b7b312',
-    email: 'demo_yasmin_alvi@shadimubarak.demo',
+    email: 'demo_yasmin_alvi@rishteforever.demo',
     fullName: 'Demo: Yasmin Alvi',
     gender: 'Female',
     dateOfBirth: '1998-12-03',
@@ -129,7 +129,7 @@ export const rawDemoProfiles: RawDemoProfile[] = [
   {
     id: '60d5ecb86f67a213e4b7b303',
     userId: '60d5ecb86f67a213e4b7b313',
-    email: 'demo_sameer_deshmukh@shadimubarak.demo',
+    email: 'demo_sameer_deshmukh@rishteforever.demo',
     fullName: 'Demo: Sameer Deshmukh',
     gender: 'Male',
     dateOfBirth: '1998-08-22',
@@ -159,7 +159,7 @@ export const rawDemoProfiles: RawDemoProfile[] = [
   {
     id: '60d5ecb86f67a213e4b7b304',
     userId: '60d5ecb86f67a213e4b7b314',
-    email: 'demo_tarannum_jehan@shadimubarak.demo',
+    email: 'demo_tarannum_jehan@rishteforever.demo',
     fullName: 'Demo: Tarannum Jehan',
     gender: 'Female',
     dateOfBirth: '2000-10-29',
@@ -189,7 +189,7 @@ export const rawDemoProfiles: RawDemoProfile[] = [
   {
     id: '60d5ecb86f67a213e4b7b305',
     userId: '60d5ecb86f67a213e4b7b315',
-    email: 'demo_raza_murad@shadimubarak.demo',
+    email: 'demo_raza_murad@rishteforever.demo',
     fullName: 'Demo: Raza Murad',
     gender: 'Male',
     dateOfBirth: '2001-02-05',
@@ -219,7 +219,7 @@ export const rawDemoProfiles: RawDemoProfile[] = [
   {
     id: '60d5ecb86f67a213e4b7b306',
     userId: '60d5ecb86f67a213e4b7b316',
-    email: 'demo_farah_sheikh@shadimubarak.demo',
+    email: 'demo_farah_sheikh@rishteforever.demo',
     fullName: 'Demo: Farah Sheikh',
     gender: 'Female',
     dateOfBirth: '1999-05-15',
@@ -249,7 +249,7 @@ export const rawDemoProfiles: RawDemoProfile[] = [
   {
     id: '60d5ecb86f67a213e4b7b307',
     userId: '60d5ecb86f67a213e4b7b317',
-    email: 'demo_arshad_warsi@shadimubarak.demo',
+    email: 'demo_arshad_warsi@rishteforever.demo',
     fullName: 'Demo: Arshad Warsi',
     gender: 'Male',
     dateOfBirth: '1999-11-25',
@@ -279,7 +279,7 @@ export const rawDemoProfiles: RawDemoProfile[] = [
   {
     id: '60d5ecb86f67a213e4b7b308',
     userId: '60d5ecb86f67a213e4b7b318',
-    email: 'demo_sobia_qureshi@shadimubarak.demo',
+    email: 'demo_sobia_qureshi@rishteforever.demo',
     fullName: 'Demo: Sobia Qureshi',
     gender: 'Female',
     dateOfBirth: '2001-09-12',
@@ -309,7 +309,7 @@ export const rawDemoProfiles: RawDemoProfile[] = [
   {
     id: '60d5ecb86f67a213e4b7b309',
     userId: '60d5ecb86f67a213e4b7b319',
-    email: 'demo_imran_mansuri@shadimubarak.demo',
+    email: 'demo_imran_mansuri@rishteforever.demo',
     fullName: 'Demo: Imran Mansuri',
     gender: 'Male',
     dateOfBirth: '1996-06-24',
@@ -342,7 +342,7 @@ export const rawDemoProfiles: RawDemoProfile[] = [
   {
     id: '60d5ecb86f67a213e4b7b262',
     userId: '60d5ecb86f67a213e4b7b252',
-    email: 'demo_aisha_rahman@shadimubarak.demo',
+    email: 'demo_aisha_rahman@rishteforever.demo',
     fullName: 'Demo: Aisha Rahman',
     gender: 'Female',
     dateOfBirth: '1995-09-20',
@@ -372,7 +372,7 @@ export const rawDemoProfiles: RawDemoProfile[] = [
   {
     id: '60d5ecb86f67a213e4b7b267',
     userId: '60d5ecb86f67a213e4b7b257',
-    email: 'demo_farhan_syed@shadimubarak.demo',
+    email: 'demo_farhan_syed@rishteforever.demo',
     fullName: 'Demo: Farhan Syed',
     gender: 'Male',
     dateOfBirth: '1991-04-10',
@@ -402,7 +402,7 @@ export const rawDemoProfiles: RawDemoProfile[] = [
   {
     id: '60d5ecb86f67a213e4b7b268',
     userId: '60d5ecb86f67a213e4b7b258',
-    email: 'demo_mariam_fatimah@shadimubarak.demo',
+    email: 'demo_mariam_fatimah@rishteforever.demo',
     fullName: 'Demo: Mariam Fatimah',
     gender: 'Female',
     dateOfBirth: '1992-06-18',
@@ -432,7 +432,7 @@ export const rawDemoProfiles: RawDemoProfile[] = [
   {
     id: '60d5ecb86f67a213e4b7b321',
     userId: '60d5ecb86f67a213e4b7b331',
-    email: 'demo_shabana_bano@shadimubarak.demo',
+    email: 'demo_shabana_bano@rishteforever.demo',
     fullName: 'Demo: Shabana Bano',
     gender: 'Female',
     dateOfBirth: '1986-03-14',
@@ -462,7 +462,7 @@ export const rawDemoProfiles: RawDemoProfile[] = [
   {
     id: '60d5ecb86f67a213e4b7b322',
     userId: '60d5ecb86f67a213e4b7b332',
-    email: 'demo_imran_malik@shadimubarak.demo',
+    email: 'demo_imran_malik@rishteforever.demo',
     fullName: 'Demo: Imran Malik',
     gender: 'Male',
     dateOfBirth: '1984-09-30',
@@ -492,7 +492,7 @@ export const rawDemoProfiles: RawDemoProfile[] = [
   {
     id: '60d5ecb86f67a213e4b7b323',
     userId: '60d5ecb86f67a213e4b7b333',
-    email: 'demo_hina_shaheen@shadimubarak.demo',
+    email: 'demo_hina_shaheen@rishteforever.demo',
     fullName: 'Demo: Hina Shaheen',
     gender: 'Female',
     dateOfBirth: '1995-11-15',
@@ -522,7 +522,7 @@ export const rawDemoProfiles: RawDemoProfile[] = [
   {
     id: '60d5ecb86f67a213e4b7b324',
     userId: '60d5ecb86f67a213e4b7b334',
-    email: 'demo_javed_jaffrey@shadimubarak.demo',
+    email: 'demo_javed_jaffrey@rishteforever.demo',
     fullName: 'Demo: Javed Jaffrey',
     gender: 'Male',
     dateOfBirth: '1995-01-15',
@@ -552,7 +552,7 @@ export const rawDemoProfiles: RawDemoProfile[] = [
   {
     id: '60d5ecb86f67a213e4b7b325',
     userId: '60d5ecb86f67a213e4b7b335',
-    email: 'demo_rehana_parveen@shadimubarak.demo',
+    email: 'demo_rehana_parveen@rishteforever.demo',
     fullName: 'Demo: Rehana Parveen',
     gender: 'Female',
     dateOfBirth: '1996-04-20',
@@ -582,7 +582,7 @@ export const rawDemoProfiles: RawDemoProfile[] = [
   {
     id: '60d5ecb86f67a213e4b7b326',
     userId: '60d5ecb86f67a213e4b7b336',
-    email: 'demo_salman_baig@shadimubarak.demo',
+    email: 'demo_salman_baig@rishteforever.demo',
     fullName: 'Demo: Salman Baig',
     gender: 'Male',
     dateOfBirth: '1990-02-15',
@@ -612,7 +612,7 @@ export const rawDemoProfiles: RawDemoProfile[] = [
   {
     id: '60d5ecb86f67a213e4b7b327',
     userId: '60d5ecb86f67a213e4b7b337',
-    email: 'demo_nisar_sheikh@shadimubarak.demo',
+    email: 'demo_nisar_sheikh@rishteforever.demo',
     fullName: 'Demo: Nisar Sheikh',
     gender: 'Male',
     dateOfBirth: '1988-06-12',
@@ -645,7 +645,7 @@ export const rawDemoProfiles: RawDemoProfile[] = [
   {
     id: '60d5ecb86f67a213e4b7b261',
     userId: '60d5ecb86f67a213e4b7b251',
-    email: 'demo_sarah_khan@shadimubarak.demo',
+    email: 'demo_sarah_khan@rishteforever.demo',
     fullName: 'Demo: Dr. Sarah Khan',
     gender: 'Female',
     dateOfBirth: '1999-05-12',
@@ -675,7 +675,7 @@ export const rawDemoProfiles: RawDemoProfile[] = [
   {
     id: '60d5ecb86f67a213e4b7b278',
     userId: '60d5ecb86f67a213e4b7b288',
-    email: 'demo_nida_fatma@shadimubarak.demo',
+    email: 'demo_nida_fatma@rishteforever.demo',
     fullName: 'Demo: Nida Fatma',
     gender: 'Female',
     dateOfBirth: '1997-09-09',
@@ -705,7 +705,7 @@ export const rawDemoProfiles: RawDemoProfile[] = [
   {
     id: '60d5ecb86f67a213e4b7b297',
     userId: '60d5ecb86f67a213e4b7b298',
-    email: 'demo_mansoor_ali@shadimubarak.demo',
+    email: 'demo_mansoor_ali@rishteforever.demo',
     fullName: 'Demo: Mansoor Ali',
     gender: 'Male',
     dateOfBirth: '1997-09-20',
@@ -735,7 +735,7 @@ export const rawDemoProfiles: RawDemoProfile[] = [
   {
     id: '60d5ecb86f67a213e4b7b341',
     userId: '60d5ecb86f67a213e4b7b351',
-    email: 'demo_tariq_anwar@shadimubarak.demo',
+    email: 'demo_tariq_anwar@rishteforever.demo',
     fullName: 'Demo: Tariq Anwar',
     gender: 'Male',
     dateOfBirth: '1994-06-15',
@@ -765,7 +765,7 @@ export const rawDemoProfiles: RawDemoProfile[] = [
   {
     id: '60d5ecb86f67a213e4b7b342',
     userId: '60d5ecb86f67a213e4b7b352',
-    email: 'demo_khalid_masood@shadimubarak.demo',
+    email: 'demo_khalid_masood@rishteforever.demo',
     fullName: 'Demo: Khalid Masood',
     gender: 'Male',
     dateOfBirth: '1992-11-18',
@@ -795,7 +795,7 @@ export const rawDemoProfiles: RawDemoProfile[] = [
   {
     id: '60d5ecb86f67a213e4b7b343',
     userId: '60d5ecb86f67a213e4b7b353',
-    email: 'demo_faisal_qureshi@shadimubarak.demo',
+    email: 'demo_faisal_qureshi@rishteforever.demo',
     fullName: 'Demo: Faisal Qureshi',
     gender: 'Male',
     dateOfBirth: '1994-07-25',
@@ -825,7 +825,7 @@ export const rawDemoProfiles: RawDemoProfile[] = [
   {
     id: '60d5ecb86f67a213e4b7b344',
     userId: '60d5ecb86f67a213e4b7b354',
-    email: 'demo_asma_siddiqui@shadimubarak.demo',
+    email: 'demo_asma_siddiqui@rishteforever.demo',
     fullName: 'Demo: Asma Siddiqui',
     gender: 'Female',
     dateOfBirth: '1998-02-10',
@@ -855,7 +855,7 @@ export const rawDemoProfiles: RawDemoProfile[] = [
   {
     id: '60d5ecb86f67a213e4b7b345',
     userId: '60d5ecb86f67a213e4b7b355',
-    email: 'demo_riaz_ahmed@shadimubarak.demo',
+    email: 'demo_riaz_ahmed@rishteforever.demo',
     fullName: 'Demo: Riaz Ahmed',
     gender: 'Male',
     dateOfBirth: '1993-03-28',
@@ -885,7 +885,7 @@ export const rawDemoProfiles: RawDemoProfile[] = [
   {
     id: '60d5ecb86f67a213e4b7b346',
     userId: '60d5ecb86f67a213e4b7b356',
-    email: 'demo_zainab_malik@shadimubarak.demo',
+    email: 'demo_zainab_malik@rishteforever.demo',
     fullName: 'Demo: Zainab Malik',
     gender: 'Female',
     dateOfBirth: '1996-08-15',
@@ -915,7 +915,7 @@ export const rawDemoProfiles: RawDemoProfile[] = [
   {
     id: '60d5ecb86f67a213e4b7b347',
     userId: '60d5ecb86f67a213e4b7b357',
-    email: 'demo_kamran_surgeon@shadimubarak.demo',
+    email: 'demo_kamran_surgeon@rishteforever.demo',
     fullName: 'Demo: Dr. Kamran Khan',
     gender: 'Male',
     dateOfBirth: '1991-12-20',
@@ -948,7 +948,7 @@ export const rawDemoProfiles: RawDemoProfile[] = [
   {
     id: '60d5ecb86f67a213e4b7b361',
     userId: '60d5ecb86f67a213e4b7b371',
-    email: 'demo_bilal_chishti@shadimubarak.demo',
+    email: 'demo_bilal_chishti@rishteforever.demo',
     fullName: 'Demo: Bilal Chishti',
     gender: 'Male',
     dateOfBirth: '2000-06-12',
@@ -978,7 +978,7 @@ export const rawDemoProfiles: RawDemoProfile[] = [
   {
     id: '60d5ecb86f67a213e4b7b362',
     userId: '60d5ecb86f67a213e4b7b372',
-    email: 'demo_sana_parveen@shadimubarak.demo',
+    email: 'demo_sana_parveen@rishteforever.demo',
     fullName: 'Demo: Sana Parveen',
     gender: 'Female',
     dateOfBirth: '2001-03-28',
@@ -1008,7 +1008,7 @@ export const rawDemoProfiles: RawDemoProfile[] = [
   {
     id: '60d5ecb86f67a213e4b7b363',
     userId: '60d5ecb86f67a213e4b7b373',
-    email: 'demo_kamran_ansari@shadimubarak.demo',
+    email: 'demo_kamran_ansari@rishteforever.demo',
     fullName: 'Demo: Kamran Ansari',
     gender: 'Male',
     dateOfBirth: '1998-12-01',
@@ -1038,7 +1038,7 @@ export const rawDemoProfiles: RawDemoProfile[] = [
   {
     id: '60d5ecb86f67a213e4b7b364',
     userId: '60d5ecb86f67a213e4b7b374',
-    email: 'demo_sameera_begum@shadimubarak.demo',
+    email: 'demo_sameera_begum@rishteforever.demo',
     fullName: 'Demo: Sameera Begum',
     gender: 'Female',
     dateOfBirth: '2000-04-20',
@@ -1068,7 +1068,7 @@ export const rawDemoProfiles: RawDemoProfile[] = [
   {
     id: '60d5ecb86f67a213e4b7b365',
     userId: '60d5ecb86f67a213e4b7b375',
-    email: 'demo_farooq_sheikh@shadimubarak.demo',
+    email: 'demo_farooq_sheikh@rishteforever.demo',
     fullName: 'Demo: Farooq Sheikh',
     gender: 'Male',
     dateOfBirth: '1996-07-12',
@@ -1098,7 +1098,7 @@ export const rawDemoProfiles: RawDemoProfile[] = [
   {
     id: '60d5ecb86f67a213e4b7b366',
     userId: '60d5ecb86f67a213e4b7b376',
-    email: 'demo_humaira_qureshi@shadimubarak.demo',
+    email: 'demo_humaira_qureshi@rishteforever.demo',
     fullName: 'Demo: Humaira Qureshi',
     gender: 'Female',
     dateOfBirth: '2001-06-23',
@@ -1128,7 +1128,7 @@ export const rawDemoProfiles: RawDemoProfile[] = [
   {
     id: '60d5ecb86f67a213e4b7b367',
     userId: '60d5ecb86f67a213e4b7b377',
-    email: 'demo_majid_malik@shadimubarak.demo',
+    email: 'demo_majid_malik@rishteforever.demo',
     fullName: 'Demo: Majid Malik',
     gender: 'Male',
     dateOfBirth: '1997-09-20',
@@ -1158,7 +1158,7 @@ export const rawDemoProfiles: RawDemoProfile[] = [
   {
     id: '60d5ecb86f67a213e4b7b368',
     userId: '60d5ecb86f67a213e4b7b378',
-    email: 'demo_salma_bano@shadimubarak.demo',
+    email: 'demo_salma_bano@rishteforever.demo',
     fullName: 'Demo: Salma Bano',
     gender: 'Female',
     dateOfBirth: '1998-04-20',
@@ -1188,7 +1188,7 @@ export const rawDemoProfiles: RawDemoProfile[] = [
   {
     id: '60d5ecb86f67a213e4b7b369',
     userId: '60d5ecb86f67a213e4b7b379',
-    email: 'demo_waseem_akram@shadimubarak.demo',
+    email: 'demo_waseem_akram@rishteforever.demo',
     fullName: 'Demo: Waseem Akram',
     gender: 'Male',
     dateOfBirth: '1996-07-15',
@@ -1218,7 +1218,7 @@ export const rawDemoProfiles: RawDemoProfile[] = [
   {
     id: '60d5ecb86f67a213e4b7b370',
     userId: '60d5ecb86f67a213e4b7b380',
-    email: 'demo_nida_receptionist@shadimubarak.demo',
+    email: 'demo_nida_receptionist@rishteforever.demo',
     fullName: 'Demo: Nida Fatima',
     gender: 'Female',
     dateOfBirth: '2003-12-01',
@@ -1251,7 +1251,7 @@ export const rawDemoProfiles: RawDemoProfile[] = [
   {
     id: '60d5ecb86f67a213e4b7b401',
     userId: '60d5ecb86f67a213e4b7b411',
-    email: 'demo_test_pending_1@shadimubarak.demo',
+    email: 'demo_test_pending_1@rishteforever.demo',
     fullName: 'Demo: Tariq Siddiqui',
     gender: 'Male',
     dateOfBirth: '2000-02-10',
@@ -1279,7 +1279,7 @@ export const rawDemoProfiles: RawDemoProfile[] = [
   {
     id: '60d5ecb86f67a213e4b7b402',
     userId: '60d5ecb86f67a213e4b7b412',
-    email: 'demo_test_pending_2@shadimubarak.demo',
+    email: 'demo_test_pending_2@rishteforever.demo',
     fullName: 'Demo: Saima Sheikh',
     gender: 'Female',
     dateOfBirth: '2002-07-17',
@@ -1307,7 +1307,7 @@ export const rawDemoProfiles: RawDemoProfile[] = [
   {
     id: '60d5ecb86f67a213e4b7b403',
     userId: '60d5ecb86f67a213e4b7b413',
-    email: 'demo_test_rejected_1@shadimubarak.demo',
+    email: 'demo_test_rejected_1@rishteforever.demo',
     fullName: 'Demo: Gauhar Khan',
     gender: 'Female',
     dateOfBirth: '1999-06-23',
@@ -1335,7 +1335,7 @@ export const rawDemoProfiles: RawDemoProfile[] = [
   {
     id: '60d5ecb86f67a213e4b7b404',
     userId: '60d5ecb86f67a213e4b7b414',
-    email: 'demo_test_rejected_2@shadimubarak.demo',
+    email: 'demo_test_rejected_2@rishteforever.demo',
     fullName: 'Demo: Sajid Qureshi',
     gender: 'Male',
     dateOfBirth: '1995-07-12',
@@ -1363,7 +1363,7 @@ export const rawDemoProfiles: RawDemoProfile[] = [
   {
     id: '60d5ecb86f67a213e4b7b405',
     userId: '60d5ecb86f67a213e4b7b415',
-    email: 'demo_test_follow_1@shadimubarak.demo',
+    email: 'demo_test_follow_1@rishteforever.demo',
     fullName: 'Demo: Zeenat Masood',
     gender: 'Female',
     dateOfBirth: '1998-09-20',
@@ -1391,7 +1391,7 @@ export const rawDemoProfiles: RawDemoProfile[] = [
   {
     id: '60d5ecb86f67a213e4b7b406',
     userId: '60d5ecb86f67a213e4b7b416',
-    email: 'demo_test_follow_2@shadimubarak.demo',
+    email: 'demo_test_follow_2@rishteforever.demo',
     fullName: 'Demo: Sohail Hashmi',
     gender: 'Male',
     dateOfBirth: '1997-09-20',

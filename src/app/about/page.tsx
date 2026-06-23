@@ -11,9 +11,9 @@ export async function generateMetadata(): Promise<Metadata> {
     console.error("Failed to load settings in metadata", e);
   }
   
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://shadimubarak.in';
-  const title = "About Us — Shadi Mubarak Muslim Matrimonial Platform";
-  const description = "Learn about Shadi Mubarak, India's trusted Muslim matrimonial platform & marriage bureau enabling serious, call-verified, and Shariah-compliant Muslim matchmaking.";
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://rishteforever.in';
+  const title = "About Us — Rishte Forever Muslim Matrimonial Platform";
+  const description = "Learn about Rishte Forever, India's trusted Muslim matrimonial platform & marriage bureau enabling serious, call-verified, and Shariah-compliant Muslim matchmaking.";
   const previewImage = settings?.defaultPreviewImage || "/images/nikah-1.jpeg";
   const imageUrl = previewImage.startsWith('http') ? previewImage : `${siteUrl}${previewImage}`;
 
@@ -24,7 +24,7 @@ export async function generateMetadata(): Promise<Metadata> {
     keywords: [
       "Muslim matrimonial website",
       "Muslim marriage bureau",
-      "Shadi Mubarak About Us",
+      "Rishte Forever About Us",
       "Islamic matrimonial platform",
       "Verified Muslim profiles",
       "Halal Muslim matchmaking"
@@ -36,13 +36,13 @@ export async function generateMetadata(): Promise<Metadata> {
       title,
       description,
       url: '/about',
-      siteName: "Shadi Mubarak",
+      siteName: "Rishte Forever",
       images: [
         {
           url: imageUrl,
           width: 1200,
           height: 630,
-          alt: "About Shadi Mubarak Matrimonial",
+          alt: "About Rishte Forever Matrimonial",
         }
       ],
       type: "website",
@@ -65,13 +65,13 @@ export default function AboutPage() {
         "@type": "ListItem",
         "position": 1,
         "name": "Home",
-        "item": "https://shadimubarak.in"
+        "item": "https://rishteforever.in"
       },
       {
         "@type": "ListItem",
         "position": 2,
         "name": "About Us",
-        "item": "https://shadimubarak.in/about"
+        "item": "https://rishteforever.in/about"
       }
     ]
   };

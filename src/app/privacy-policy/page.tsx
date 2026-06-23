@@ -29,7 +29,7 @@ export default function PrivacyPolicyPage() {
             <FloralCorner position="tr" color="var(--gold-accent)" />
             
             <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '24px', color: 'var(--deep-maroon)', marginBottom: '16px' }}>1. Information We Collect</h2>
-            <p style={{ marginBottom: '24px' }}>We collect personal information such as your name, date of birth, location, education, occupation, religious preferences, and contact details when you register a profile on Shadi Mubarak.</p>
+            <p style={{ marginBottom: '24px' }}>We collect personal information such as your name, date of birth, location, education, occupation, religious preferences, and contact details when you register a profile on Rishte Forever.</p>
 
             <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '24px', color: 'var(--deep-maroon)', marginBottom: '16px' }}>2. How Profile Data is Used</h2>
             <p style={{ marginBottom: '24px' }}>Your data is used strictly for matchmaking purposes. We display your profile information to other registered, verified members to help you find a suitable Shariah-compliant match.</p>
@@ -44,7 +44,7 @@ export default function PrivacyPolicyPage() {
             <p style={{ marginBottom: '24px' }}>We do not sell, trade, or rent your personal information to third parties. Data is only shared with potential matches within the secure environment of our platform.</p>
 
             <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '24px', color: 'var(--deep-maroon)', marginBottom: '16px' }}>6. Payment Information Note</h2>
-            <p style={{ marginBottom: '24px' }}>All payment transactions are processed through secure, encrypted, third-party payment gateways. Shadi Mubarak does not store your credit card or sensitive banking details on our servers.</p>
+            <p style={{ marginBottom: '24px' }}>All payment transactions are processed through secure, encrypted, third-party payment gateways. Rishte Forever does not store your credit card or sensitive banking details on our servers.</p>
 
             <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '24px', color: 'var(--deep-maroon)', marginBottom: '16px' }}>7. Cookies & Analytics</h2>
             <p style={{ marginBottom: '24px' }}>We may use cookies to enhance your browsing experience, keep you logged in, and analyze website traffic. You can adjust your browser settings to decline cookies if preferred.</p>

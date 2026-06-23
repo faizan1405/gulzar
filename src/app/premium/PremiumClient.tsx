@@ -70,7 +70,7 @@ export default function PremiumClient() {
               ctaText="Buy Monthly Membership"
               onActivate={() => handleRazorpayCheckout('monthly_membership', 300, 'Standard Monthly Membership')}
               onInquire={() => setInquiryPackage('₹300 Monthly Membership')}
-              whatsappMessage="Assalamu Alaikum, I want to know more about the ₹300 monthly membership on Shadi Mubarak."
+              whatsappMessage="Assalamu Alaikum, I want to know more about the ₹300 monthly membership on Rishte Forever."
             />
             <PremiumPlanCard
               title="Good Profile Package"
@@ -82,7 +82,7 @@ export default function PremiumClient() {
               ctaText="Buy Good Profile Package"
               onActivate={() => handleRazorpayCheckout('good_profile_package', 5500, 'Good Profile Package')}
               onInquire={() => setInquiryPackage('₹5,500 Good Profiles Package')}
-              whatsappMessage="Assalamu Alaikum, I am interested in the ₹5,500 Good Profiles Package on Shadi Mubarak. Please guide me."
+              whatsappMessage="Assalamu Alaikum, I am interested in the ₹5,500 Good Profiles Package on Rishte Forever. Please guide me."
               isPopular
             />
             <PremiumPlanCard
@@ -95,7 +95,7 @@ export default function PremiumClient() {
               ctaText="Buy Second Marriage Package"
               onActivate={() => handleRazorpayCheckout('second_marriage_package', 11000, 'Second Marriage Package')}
               onInquire={() => setInquiryPackage('₹11,000 Second Marriage Package')}
-              whatsappMessage="Assalamu Alaikum, I am interested in the ₹11,000 Second Marriage Package on Shadi Mubarak. Please guide me."
+              whatsappMessage="Assalamu Alaikum, I am interested in the ₹11,000 Second Marriage Package on Rishte Forever. Please guide me."
             />
             <PremiumPlanCard
               title="High Profile Package"
@@ -107,7 +107,7 @@ export default function PremiumClient() {
               ctaText="Buy High Profile Package"
               onActivate={() => handleRazorpayCheckout('high_profile_package', 21000, 'High Profile Package')}
               onInquire={() => setInquiryPackage('₹21,000 High Profile Package')}
-              whatsappMessage="Assalamu Alaikum, I am interested in the ₹21,000 High Profile Package on Shadi Mubarak. Please guide me."
+              whatsappMessage="Assalamu Alaikum, I am interested in the ₹21,000 High Profile Package on Rishte Forever. Please guide me."
             />
           </div>
 

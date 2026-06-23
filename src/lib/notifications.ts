@@ -68,7 +68,7 @@ export async function notifyRegistration(userEmail: string | null, userPhone: st
     // 1. Email User
     if (userEmail) {
       try {
-        const res = await sendEmail(userEmail, 'Registration Successful - Shadi Mubarak', emailTemplates.registrationSubmitted(userName));
+        const res = await sendEmail(userEmail, 'Registration Successful - Rishte Forever', emailTemplates.registrationSubmitted(userName));
         await logNotification('REGISTRATION_USER_EMAIL', 'EMAIL', userEmail, 'SUCCESS', res?.id);
       } catch (err: any) {
         await logNotification('REGISTRATION_USER_EMAIL', 'EMAIL', userEmail, 'FAILED', err.message);
@@ -78,7 +78,7 @@ export async function notifyRegistration(userEmail: string | null, userPhone: st
     // 2. SMS User
     if (userPhone) {
       try {
-        const res = await sendSMS(userPhone, `Salaam ${userName}, your Shadi Mubarak profile is submitted and under review.`);
+        const res = await sendSMS(userPhone, `Salaam ${userName}, your Rishte Forever profile is submitted and under review.`);
         await logNotification('REGISTRATION_USER_SMS', 'SMS', userPhone, 'SUCCESS', res?.id);
       } catch (err: any) {
         await logNotification('REGISTRATION_USER_SMS', 'SMS', userPhone, 'FAILED', err.message);
@@ -115,15 +115,15 @@ export async function notifyVerificationStatus(userEmail: string | null, userPho
 
       if (status === 'APPROVED') {
         html = emailTemplates.profileApproved(userName);
-        subject = 'Profile Approved! - Shadi Mubarak';
-        smsBody = `Salaam ${userName}, your Shadi Mubarak profile is approved! You can now browse profiles.`;
+        subject = 'Profile Approved! - Rishte Forever';
+        smsBody = `Salaam ${userName}, your Rishte Forever profile is approved! You can now browse profiles.`;
       } else if (status === 'REJECTED') {
         html = emailTemplates.profileRejected(userName);
-        subject = 'Profile Update Required - Shadi Mubarak';
-        smsBody = `Salaam ${userName}, your Shadi Mubarak profile requires updates. Please check your account.`;
+        subject = 'Profile Update Required - Rishte Forever';
+        smsBody = `Salaam ${userName}, your Rishte Forever profile requires updates. Please check your account.`;
       } else if (status === 'NEEDS_FOLLOW_UP') {
         html = emailTemplates.profileNeedsFollowUp(userName);
-        subject = 'Information Needed - Shadi Mubarak';
+        subject = 'Information Needed - Rishte Forever';
         smsBody = `Salaam ${userName}, we need some extra details for your profile. We will contact you soon.`;
       } else {
         return; // Don't notify for PENDING or other
@@ -148,12 +148,12 @@ export async function notifyMembership(userEmail: string | null, userPhone: stri
   setImmediate(async () => {
     try {
       if (userEmail) {
-        const res = await sendEmail(userEmail, 'Membership Activated - Shadi Mubarak', emailTemplates.membershipActivated(userName, packageType));
+        const res = await sendEmail(userEmail, 'Membership Activated - Rishte Forever', emailTemplates.membershipActivated(userName, packageType));
         await logNotification('MEMBERSHIP_ACTIVATED', 'EMAIL', userEmail, 'SUCCESS', res?.id);
       }
       if (userPhone) {
         const pName = packageType.replace(/_/g, ' ');
-        const res = await sendSMS(userPhone, `Salaam ${userName}, your ${pName} is now active on Shadi Mubarak.`);
+        const res = await sendSMS(userPhone, `Salaam ${userName}, your ${pName} is now active on Rishte Forever.`);
         await logNotification('MEMBERSHIP_ACTIVATED', 'SMS', userPhone, 'SUCCESS', res?.id);
       }
     } catch (err: any) {

@@ -323,13 +323,26 @@ export async function getProfileByUserId(userId: string) {
   return globalStore.inMemoryProfiles?.find((p) => p.userId === userId) || null;
 }
 
+// Expose the bundled demo profiles (used as a public showcase fallback)
+export function getDemoProfiles() {
+  return MOCK_PROFILES_DB;
+}
+
 export async function getAllProfiles() {
   const isDb = await testDbConnection();
   if (isDb) {
     try {
-      return await prisma.matrimonialProfile.findMany({
+      const dbProfiles = await prisma.matrimonialProfile.findMany({
         orderBy: { createdAt: 'desc' },
       });
+      // If the database is reachable but has no profiles yet (e.g. this
+      // environment was never seeded), serve the bundled demo profiles so the
+      // public directory and featured section are never empty. Once real
+      // profiles exist this branch never runs, so nothing is duplicated.
+      if (dbProfiles.length === 0) {
+        return MOCK_PROFILES_DB;
+      }
+      return dbProfiles;
     } catch (e) {
       const msg = sanitizeErrorMessage(e instanceof Error ? e.message : String(e));
       if (!isFallbackAllowed()) {

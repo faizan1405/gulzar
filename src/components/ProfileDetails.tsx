@@ -234,8 +234,8 @@ export const ProfileDetails: React.FC = () => {
             <a
               href={`https://wa.me/919675483125?text=${encodeURIComponent(
                 modalBlur
-                  ? 'Assalamu Alaikum, I am interested in this Shadi Mubarak profile. Please guide me.'
-                  : `Assalamu Alaikum, I am interested in this Shadi Mubarak profile (Name: ${selectedProfileForDetails.fullName}, ID: ${selectedProfileForDetails.id}). Please guide me.`
+                  ? 'Assalamu Alaikum, I am interested in this Rishte Forever profile. Please guide me.'
+                  : `Assalamu Alaikum, I am interested in this Rishte Forever profile (Name: ${selectedProfileForDetails.fullName}, ID: ${selectedProfileForDetails.id}). Please guide me.`
               )}`}
               target="_blank"
               rel="noopener noreferrer"
@@ -280,10 +280,10 @@ export const ProfileDetails: React.FC = () => {
             <button
               onClick={() => {
                 const shareUrl = `${window.location.origin}/search?profile=${selectedProfileForDetails.id}`;
-                const shareText = "Check this profile on Shadi Mubarak.";
+                const shareText = "Check this profile on Rishte Forever.";
                 if (navigator.share) {
                   navigator.share({
-                    title: 'Shadi Mubarak Matrimonial Profile',
+                    title: 'Rishte Forever Matrimonial Profile',
                     text: shareText,
                     url: shareUrl
                   }).catch(() => {});
@@ -299,7 +299,7 @@ export const ProfileDetails: React.FC = () => {
               Share Profile 🔗
             </button>
             <a
-              href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`Check this profile on Shadi Mubarak: ${window.location.origin}/search?profile=${selectedProfileForDetails.id}`)}`}
+              href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`Check this profile on Rishte Forever: ${window.location.origin}/search?profile=${selectedProfileForDetails.id}`)}`}
               target="_blank"
               rel="noopener noreferrer"
               className="btn"

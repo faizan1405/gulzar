@@ -119,7 +119,7 @@ export const LeadForm: React.FC<LeadFormProps> = ({
           </p>
           <div style={{ marginTop: '20px' }}>
             <a
-              href={`https://wa.me/919675483125?text=${encodeURIComponent(`Assalamu Alaikum, I have submitted an inquiry on Shadi Mubarak. Name: ${fullName}, Phone: ${phone}, Type: ${inquiryType}. Please guide me.`)}`}
+              href={`https://wa.me/919675483125?text=${encodeURIComponent(`Assalamu Alaikum, I have submitted an inquiry on Rishte Forever. Name: ${fullName}, Phone: ${phone}, Type: ${inquiryType}. Please guide me.`)}`}
               target="_blank"
               rel="noopener noreferrer"
               className="btn"

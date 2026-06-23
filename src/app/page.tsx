@@ -11,9 +11,9 @@ export async function generateMetadata(): Promise<Metadata> {
     console.error("Failed to load settings in metadata", e);
   }
   
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://shadimubarak.in';
-  const title = "Shadi Mubarak — Trusted Muslim Matrimonial Website & Marriage Bureau";
-  const description = "Shadi Mubarak is India's premium halal Muslim matrimonial website & marriage bureau. Browse verified Muslim profiles and rishta services with manual verification and complete privacy control.";
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://rishteforever.in';
+  const title = "Rishte Forever — Trusted Muslim Matrimonial Website & Marriage Bureau";
+  const description = "Rishte Forever is India's premium halal Muslim matrimonial website & marriage bureau. Browse verified Muslim profiles and rishta services with manual verification and complete privacy control.";
   const previewImage = settings?.defaultPreviewImage || "/images/nikah-1.jpeg";
   const imageUrl = previewImage.startsWith('http') ? previewImage : `${siteUrl}${previewImage}`;
 
@@ -24,7 +24,7 @@ export async function generateMetadata(): Promise<Metadata> {
     keywords: [
       "Muslim matrimonial website",
       "Muslim marriage bureau",
-      "Shadi Mubarak",
+      "Rishte Forever",
       "Muslim rishta service",
       "Islamic matrimonial platform",
       "Verified Muslim profiles",
@@ -39,13 +39,13 @@ export async function generateMetadata(): Promise<Metadata> {
       title,
       description,
       url: '/',
-      siteName: "Shadi Mubarak",
+      siteName: "Rishte Forever",
       images: [
         {
           url: imageUrl,
           width: 1200,
           height: 630,
-          alt: "Shadi Mubarak Muslim Matrimonial Platform",
+          alt: "Rishte Forever Muslim Matrimonial Platform",
         }
       ],
       type: "website",
@@ -63,31 +63,31 @@ export default function Home() {
   const orgSchema = {
     "@context": "https://schema.org",
     "@type": "Organization",
-    "name": "Shadi Mubarak",
-    "url": "https://shadimubarak.in",
-    "logo": "https://shadimubarak.in/images/rishte-forever-logo.png",
+    "name": "Rishte Forever",
+    "url": "https://rishteforever.in",
+    "logo": "https://rishteforever.in/images/rishte-forever-logo.png",
     "contactPoint": {
       "@type": "ContactPoint",
       "telephone": "+91-96754-83125",
       "contactType": "customer support"
     },
     "sameAs": [
-      "https://www.facebook.com/shadimubarak",
-      "https://www.instagram.com/shadimubarak",
-      "https://www.youtube.com/shadimubarak",
-      "https://www.linkedin.com/company/shadimubarak",
-      "https://x.com/shadimubarak"
+      "https://www.facebook.com/rishteforever",
+      "https://www.instagram.com/rishteforever",
+      "https://www.youtube.com/rishteforever",
+      "https://www.linkedin.com/company/rishteforever",
+      "https://x.com/rishteforever"
     ]
   };
 
   const websiteSchema = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    "name": "Shadi Mubarak",
-    "url": "https://shadimubarak.in",
+    "name": "Rishte Forever",
+    "url": "https://rishteforever.in",
     "potentialAction": {
       "@type": "SearchAction",
-      "target": "https://shadimubarak.in/search?q={search_term_string}",
+      "target": "https://rishteforever.in/search?q={search_term_string}",
       "query-input": "required name=search_term_string"
     }
   };

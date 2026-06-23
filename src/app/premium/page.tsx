@@ -11,8 +11,8 @@ export async function generateMetadata(): Promise<Metadata> {
     console.error("Failed to load settings in metadata", e);
   }
   
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://shadimubarak.in';
-  const title = "Premium Matrimonial Packages — Shadi Mubarak";
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://rishteforever.in';
+  const title = "Premium Matrimonial Packages — Rishte Forever";
   const description = "Select from our standard monthly membership, curated good profiles, second-marriage directory, or exclusive high-profile matrimonial matching options.";
   const previewImage = settings?.defaultPreviewImage || "/images/nikah-3.jpeg";
   const imageUrl = previewImage.startsWith('http') ? previewImage : `${siteUrl}${previewImage}`;
@@ -24,7 +24,7 @@ export async function generateMetadata(): Promise<Metadata> {
     keywords: [
       "Muslim matrimonial packages",
       "Muslim marriage bureau rates",
-      "Shadi Mubarak pricing",
+      "Rishte Forever pricing",
       "Premium Muslim matchmaking services",
       "Second marriage matrimonial packages",
       "High profile Muslim matchmaking cost"
@@ -36,13 +36,13 @@ export async function generateMetadata(): Promise<Metadata> {
       title,
       description,
       url: '/premium',
-      siteName: "Shadi Mubarak",
+      siteName: "Rishte Forever",
       images: [
         {
           url: imageUrl,
           width: 1200,
           height: 630,
-          alt: "Shadi Mubarak Premium Packages",
+          alt: "Rishte Forever Premium Packages",
         }
       ],
       type: "website",
@@ -65,13 +65,13 @@ export default function PremiumPage() {
         "@type": "ListItem",
         "position": 1,
         "name": "Home",
-        "item": "https://shadimubarak.in"
+        "item": "https://rishteforever.in"
       },
       {
         "@type": "ListItem",
         "position": 2,
         "name": "Premium Packages",
-        "item": "https://shadimubarak.in/premium"
+        "item": "https://rishteforever.in/premium"
       }
     ]
   };

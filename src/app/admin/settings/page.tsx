@@ -90,7 +90,7 @@ export default function AdminSettingsPage() {
             type="email" 
             value={settings.adminEmail}
             onChange={e => setSettings({...settings, adminEmail: e.target.value})}
-            placeholder="admin@shadimubarak.com"
+            placeholder="admin@rishteforever.in"
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-emerald-500 focus:border-emerald-500"
           />
           <p className="text-xs text-gray-500 mt-1">Receive new profile alerts and system notifications here.</p>
@@ -179,7 +179,7 @@ export default function AdminSettingsPage() {
                 type="url" 
                 value={settings.defaultPreviewImage}
                 onChange={e => setSettings({...settings, defaultPreviewImage: e.target.value})}
-                placeholder="https://shadimubarak.in/images/og-default.jpg"
+                placeholder="https://rishteforever.in/images/og-default.jpg"
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-emerald-500 focus:border-emerald-500 text-sm"
               />
             </div>

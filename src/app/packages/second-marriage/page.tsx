@@ -11,9 +11,9 @@ export async function generateMetadata(): Promise<Metadata> {
     console.error("Failed to load settings in metadata", e);
   }
   
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://shadimubarak.in';
-  const title = "Second Marriage Matrimonial Directory — Shadi Mubarak";
-  const description = "Browse verified second-marriage matches on Shadi Mubarak. Tailored private matrimonial directory for divorced, widowed, and serious candidates seeking life partners.";
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://rishteforever.in';
+  const title = "Second Marriage Matrimonial Directory — Rishte Forever";
+  const description = "Browse verified second-marriage matches on Rishte Forever. Tailored private matrimonial directory for divorced, widowed, and serious candidates seeking life partners.";
   const previewImage = settings?.defaultPreviewImage || "/images/nikah-2.jpeg";
   const imageUrl = previewImage.startsWith('http') ? previewImage : `${siteUrl}${previewImage}`;
 
@@ -26,7 +26,7 @@ export async function generateMetadata(): Promise<Metadata> {
       "Divorced Muslim matrimonial",
       "Widowed Muslim matrimonial",
       "Second marriage marriage bureau",
-      "Shadi Mubarak Second Marriage"
+      "Rishte Forever Second Marriage"
     ],
     alternates: {
       canonical: '/packages/second-marriage',
@@ -35,13 +35,13 @@ export async function generateMetadata(): Promise<Metadata> {
       title,
       description,
       url: '/packages/second-marriage',
-      siteName: "Shadi Mubarak",
+      siteName: "Rishte Forever",
       images: [
         {
           url: imageUrl,
           width: 1200,
           height: 630,
-          alt: "Shadi Mubarak Second Marriage Package",
+          alt: "Rishte Forever Second Marriage Package",
         }
       ],
       type: "website",
@@ -64,19 +64,19 @@ export default function SecondMarriagePage() {
         "@type": "ListItem",
         "position": 1,
         "name": "Home",
-        "item": "https://shadimubarak.in"
+        "item": "https://rishteforever.in"
       },
       {
         "@type": "ListItem",
         "position": 2,
         "name": "Premium Packages",
-        "item": "https://shadimubarak.in/premium"
+        "item": "https://rishteforever.in/premium"
       },
       {
         "@type": "ListItem",
         "position": 3,
         "name": "Second Marriage Matches",
-        "item": "https://shadimubarak.in/packages/second-marriage"
+        "item": "https://rishteforever.in/packages/second-marriage"
       }
     ]
   };

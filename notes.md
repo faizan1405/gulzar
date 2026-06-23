@@ -1,4 +1,4 @@
-# Shadi Mubarak — Matrimonial Site Notes & Mind Map
+# Rishte Forever — Matrimonial Site Notes & Mind Map
 
 This file contains the mind map of the project, details of the folder structure, and key development notes.
 
@@ -6,7 +6,7 @@ This file contains the mind map of the project, details of the folder structure,
 
 ## 1. Project Mind Map
 
-The mind map below visualizes the architectural components, core integrations, user flows, and database relations of the Shadi Mubarak Matrimonial Site.
+The mind map below visualizes the architectural components, core integrations, user flows, and database relations of the Rishte Forever Matrimonial Site.
 
 ```mermaid
 graph TD
@@ -18,7 +18,7 @@ graph TD
     classDef api fill:#f5f0fb,stroke:#8e44ad,stroke-width:1.5px,color:#2c3e50;
 
     %% Primary Nodes
-    App[Shadi Mubarak Web Application]:::main
+    App[Rishte Forever Web Application]:::main
     DB[(MongoDB Atlas via Prisma)]:::database
     Auth[NextAuth v5 Google Login / Simulator]:::external
     Razorpay[Razorpay Payments / Sandbox Simulator]:::external

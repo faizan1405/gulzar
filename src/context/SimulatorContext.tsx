@@ -407,7 +407,7 @@ export const SimulatorProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         key: keyId,
         amount: amount,
         currency: currency,
-        name: 'Shadi Mubarak',
+        name: 'Rishte Forever',
         description: `${planName} (₹${amountInRupees} + 18% GST)`,
         image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=100&h=100',
         order_id: orderId,

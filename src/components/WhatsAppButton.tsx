@@ -12,7 +12,7 @@ export default function WhatsAppButton() {
     return null;
   }
 
-  const message = 'Assalamu Alaikum, I want to know more about Shadi Mubarak.';
+  const message = 'Assalamu Alaikum, I want to know more about Rishte Forever.';
   const link = getSupportWhatsAppLink(message);
 
   return (
@@ -22,7 +22,7 @@ export default function WhatsAppButton() {
         target="_blank"
         rel="noopener noreferrer"
         className="whatsapp-button-trigger"
-        aria-label="Chat on WhatsApp with Shadi Mubarak support"
+        aria-label="Chat on WhatsApp with Rishte Forever support"
       >
         <svg
           className="whatsapp-button-icon"

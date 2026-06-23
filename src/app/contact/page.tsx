@@ -11,9 +11,9 @@ export async function generateMetadata(): Promise<Metadata> {
     console.error("Failed to load settings in metadata", e);
   }
   
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://shadimubarak.in';
-  const title = "Contact Customer Support — Shadi Mubarak Marriage Bureau";
-  const description = "Get in touch with Shadi Mubarak customer support. Find our New Delhi office address, verified phone number +91-96754-83125, and email details.";
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://rishteforever.in';
+  const title = "Contact Customer Support — Rishte Forever Marriage Bureau";
+  const description = "Get in touch with Rishte Forever customer support. Find our New Delhi office address, verified phone number +91-96754-83125, and email details.";
   const previewImage = settings?.defaultPreviewImage || "/images/nikah-1.jpeg";
   const imageUrl = previewImage.startsWith('http') ? previewImage : `${siteUrl}${previewImage}`;
 
@@ -22,11 +22,11 @@ export async function generateMetadata(): Promise<Metadata> {
     description,
     metadataBase: new URL(siteUrl),
     keywords: [
-      "Contact Shadi Mubarak",
+      "Contact Rishte Forever",
       "Muslim marriage bureau phone number",
       "Muslim matrimonial support",
-      "Shadi Mubarak support",
-      "Shadi Mubarak address"
+      "Rishte Forever support",
+      "Rishte Forever address"
     ],
     alternates: {
       canonical: '/contact',
@@ -35,13 +35,13 @@ export async function generateMetadata(): Promise<Metadata> {
       title,
       description,
       url: '/contact',
-      siteName: "Shadi Mubarak",
+      siteName: "Rishte Forever",
       images: [
         {
           url: imageUrl,
           width: 1200,
           height: 630,
-          alt: "Contact Shadi Mubarak Support",
+          alt: "Contact Rishte Forever Support",
         }
       ],
       type: "website",
@@ -59,11 +59,11 @@ export default function ContactPage() {
   const localBusinessSchema = {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
-    "name": "Shadi Mubarak",
-    "image": "https://shadimubarak.in/images/nikah-1.jpeg",
+    "name": "Rishte Forever",
+    "image": "https://rishteforever.in/images/nikah-1.jpeg",
     "telePhone": "+91-96754-83125",
-    "email": "support@shadimubarak.in",
-    "url": "https://shadimubarak.in",
+    "email": "support@rishteforever.in",
+    "url": "https://rishteforever.in",
     "address": {
       "@type": "PostalAddress",
       "streetAddress": "Innov8 44 Regal Building, 2nd Floor, Property No. 44, Above Madame Tussauds, Regal Building",
@@ -96,13 +96,13 @@ export default function ContactPage() {
         "@type": "ListItem",
         "position": 1,
         "name": "Home",
-        "item": "https://shadimubarak.in"
+        "item": "https://rishteforever.in"
       },
       {
         "@type": "ListItem",
         "position": 2,
         "name": "Contact Support",
-        "item": "https://shadimubarak.in/contact"
+        "item": "https://rishteforever.in/contact"
       }
     ]
   };

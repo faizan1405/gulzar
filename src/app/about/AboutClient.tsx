@@ -20,7 +20,7 @@ export default function AboutClient() {
       <main className="flex-grow">
         <div className="container font-sans" style={{ padding: '40px 0 80px 0' }}>
           <SectionHeading
-            title="About Shadi Mubarak"
+            title="About Rishte Forever"
             subtitle="Dedicated to enabling serious, respectful, and Shariah-compliant matrimonial connections."
             scriptText="Our Values"
             as="h1"
@@ -47,13 +47,13 @@ export default function AboutClient() {
             
             <div style={{ color: 'var(--text-dark)', fontSize: '15px', lineHeight: '1.7', display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '20px' }}>
               <p>
-                Welcome to <strong>Shadi Mubarak</strong>. We created this matrimonial service to bridge the gap between superficial swipe dating apps and traditional arranged matchmaking. Our platform is built for candidates seeking life partners with dignity, family approval, and verified intentions.
+                Welcome to <strong>Rishte Forever</strong>. We created this matrimonial service to bridge the gap between superficial swipe dating apps and traditional arranged matchmaking. Our platform is built for candidates seeking life partners with dignity, family approval, and verified intentions.
               </p>
               <p>
                 Unlike generic SaaS matrimonial sites, we treat your profile biodata like a physical wedding invitation card—designed with elegance, respect, and utmost discretion.
               </p>
               <p>
-                Every single profile on Shadi Mubarak undergoes a manual <Link href="/how-it-works" style={{ textDecoration: 'underline', color: 'var(--deep-maroon)', fontWeight: 'bold' }}>telephone verification check</Link>. Photos and active phone numbers are fully masked until <Link href="/premium" style={{ textDecoration: 'underline', color: 'var(--deep-maroon)', fontWeight: 'bold' }}>premium access rules</Link> are met and candidates consent to share details.
+                Every single profile on Rishte Forever undergoes a manual <Link href="/how-it-works" style={{ textDecoration: 'underline', color: 'var(--deep-maroon)', fontWeight: 'bold' }}>telephone verification check</Link>. Photos and active phone numbers are fully masked until <Link href="/premium" style={{ textDecoration: 'underline', color: 'var(--deep-maroon)', fontWeight: 'bold' }}>premium access rules</Link> are met and candidates consent to share details.
               </p>
               <p>
                 We pray that Allah blesses your matchmaking journey and grants you a compatible, righteous life partner.

@@ -22,13 +22,13 @@ export default function ChatbotWidget() {
         <button
           onClick={() => setIsOpen(true)}
           className="chatbot-trigger"
-          title="Ask Shadi Mubarak"
+          title="Ask Rishte Forever"
           aria-label="Open matrimonial support assistant"
         >
           <div className="chatbot-trigger-icon">
             ❀
           </div>
-          <span className="chatbot-trigger-text">Ask Shadi Mubarak</span>
+          <span className="chatbot-trigger-text">Ask Rishte Forever</span>
         </button>
       )}
 

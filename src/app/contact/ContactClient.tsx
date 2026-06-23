@@ -45,7 +45,7 @@ export default function ContactClient() {
           <div className="grid-3" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '32px', maxWidth: '1000px', margin: '0 auto' }}>
             <div className="card-theme-wrapper" style={{ padding: '0', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
               <div style={{ position: 'relative', height: '160px' }}>
-                <Image src="/images/nikah-1.jpeg" fill style={{ objectFit: 'cover', objectPosition: 'center 30%' }} alt="Contact Shadi Mubarak" />
+                <Image src="/images/nikah-1.jpeg" fill style={{ objectFit: 'cover', objectPosition: 'center 30%' }} alt="Contact Rishte Forever" />
               </div>
               <div style={{ padding: '32px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '20px', color: 'var(--deep-maroon)' }}>Contact Details</h3>
@@ -56,7 +56,7 @@ export default function ContactClient() {
                 <div style={{ fontSize: '14px', color: 'var(--text-muted)', display: 'flex', flexDirection: 'column', gap: '6px' }}>
                   <span>💬 WhatsApp: <strong style={{ color: 'var(--deep-maroon)' }}>+91 96754 83125</strong></span>
                   <a
-                    href={getSupportWhatsAppLink('Assalamu Alaikum, I need support regarding Shadi Mubarak.')}
+                    href={getSupportWhatsAppLink('Assalamu Alaikum, I need support regarding Rishte Forever.')}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="btn"
@@ -81,7 +81,7 @@ export default function ContactClient() {
                     Chat on WhatsApp
                   </a>
                 </div>
-                <p style={{ fontSize: '14px', color: 'var(--text-muted)' }}>✉️ Verification Dept: support@shadimubarak.in</p>
+                <p style={{ fontSize: '14px', color: 'var(--text-muted)' }}>✉️ Verification Dept: support@rishteforever.in</p>
                 
                 {/* Social media connections */}
                 {(location.facebookUrl || location.instagramUrl || location.youtubeUrl || location.linkedinUrl || location.twitterUrl) && (
@@ -97,7 +97,7 @@ export default function ContactClient() {
                             rel="noopener noreferrer"
                             className="btn btn-secondary"
                             style={{ padding: '6px 12px', fontSize: '12px', display: 'inline-flex', alignItems: 'center', gap: '6px', border: '1px solid var(--gold-accent)' }}
-                            aria-label="Visit Shadi Mubarak on Facebook"
+                            aria-label="Visit Rishte Forever on Facebook"
                           >
                             Facebook
                           </a>
@@ -109,7 +109,7 @@ export default function ContactClient() {
                             rel="noopener noreferrer"
                             className="btn btn-secondary"
                             style={{ padding: '6px 12px', fontSize: '12px', display: 'inline-flex', alignItems: 'center', gap: '6px', border: '1px solid var(--gold-accent)' }}
-                            aria-label="Visit Shadi Mubarak on Instagram"
+                            aria-label="Visit Rishte Forever on Instagram"
                           >
                             Instagram
                           </a>
@@ -121,7 +121,7 @@ export default function ContactClient() {
                             rel="noopener noreferrer"
                             className="btn btn-secondary"
                             style={{ padding: '6px 12px', fontSize: '12px', display: 'inline-flex', alignItems: 'center', gap: '6px', border: '1px solid var(--gold-accent)' }}
-                            aria-label="Visit Shadi Mubarak on YouTube"
+                            aria-label="Visit Rishte Forever on YouTube"
                           >
                             YouTube
                           </a>
@@ -133,7 +133,7 @@ export default function ContactClient() {
                             rel="noopener noreferrer"
                             className="btn btn-secondary"
                             style={{ padding: '6px 12px', fontSize: '12px', display: 'inline-flex', alignItems: 'center', gap: '6px', border: '1px solid var(--gold-accent)' }}
-                            aria-label="Visit Shadi Mubarak on LinkedIn"
+                            aria-label="Visit Rishte Forever on LinkedIn"
                           >
                             LinkedIn
                           </a>
@@ -145,7 +145,7 @@ export default function ContactClient() {
                             rel="noopener noreferrer"
                             className="btn btn-secondary"
                             style={{ padding: '6px 12px', fontSize: '12px', display: 'inline-flex', alignItems: 'center', gap: '6px', border: '1px solid var(--gold-accent)' }}
-                            aria-label="Visit Shadi Mubarak on X"
+                            aria-label="Visit Rishte Forever on X"
                           >
                             X / Twitter
                           </a>

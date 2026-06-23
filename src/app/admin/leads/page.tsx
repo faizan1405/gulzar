@@ -289,7 +289,7 @@ export default function AdminLeadsPage() {
                         </button>
                         {lead.phone && (
                           <a
-                            href={getWhatsAppLink(lead.phone, `Assalamu Alaikum ${lead.fullName}, this is Shadi Mubarak support. We received your inquiry and would like to guide you further.`)}
+                            href={getWhatsAppLink(lead.phone, `Assalamu Alaikum ${lead.fullName}, this is Rishte Forever support. We received your inquiry and would like to guide you further.`)}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="btn"
@@ -422,7 +422,7 @@ export default function AdminLeadsPage() {
                 📞 Call Client
               </a>
               <a
-                href={getWhatsAppLink(selectedLead.phone, `Assalamu Alaikum ${selectedLead.fullName}, this is Shadi Mubarak support. We received your inquiry and would like to guide you further.`)}
+                href={getWhatsAppLink(selectedLead.phone, `Assalamu Alaikum ${selectedLead.fullName}, this is Rishte Forever support. We received your inquiry and would like to guide you further.`)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn btn-primary"

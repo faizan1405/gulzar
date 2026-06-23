@@ -568,10 +568,10 @@ export const PremiumPlanCard: React.FC<PremiumPlanCardProps> = ({
             else if (title.toLowerCase().includes('high')) path = '/packages/high-profile';
             
             const shareUrl = `${window.location.origin}${path}`;
-            const shareText = `Check out the ${title} on Shadi Mubarak matrimonial site:`;
+            const shareText = `Check out the ${title} on Rishte Forever matrimonial site:`;
             if (navigator.share) {
               navigator.share({
-                title: `Shadi Mubarak - ${title}`,
+                title: `Rishte Forever - ${title}`,
                 text: shareText,
                 url: shareUrl
               }).catch(() => {});
@@ -647,7 +647,7 @@ export const SuccessStoryCard: React.FC<SuccessStoryCardProps> = ({
       
       <div>
         <div style={{ position: 'relative', width: '100%', height: '180px', borderRadius: '12px', overflow: 'hidden', border: '1px solid var(--gold-light)', marginBottom: '20px' }}>
-          <Image src={placeholderIllustration} alt={`Matched Muslim couple success story - ${names} on Shadi Mubarak`} fill sizes="(max-width: 768px) 100vw, 300px" style={{ objectFit: 'cover' }} />
+          <Image src={placeholderIllustration} alt={`Matched Muslim couple success story - ${names} on Rishte Forever`} fill sizes="(max-width: 768px) 100vw, 300px" style={{ objectFit: 'cover' }} />
         </div>
         <p style={{ fontStyle: 'italic', fontSize: '14px', color: 'var(--text-dark)', lineHeight: '1.7', marginBottom: '20px', position: 'relative', zIndex: 2 }}>
           &ldquo;{story}&rdquo;
@@ -663,11 +663,11 @@ export const SuccessStoryCard: React.FC<SuccessStoryCardProps> = ({
         </div>
         <button
           onClick={() => {
-            const shareText = `Read the beautiful matrimonial success story of ${names} on Shadi Mubarak!`;
+            const shareText = `Read the beautiful matrimonial success story of ${names} on Rishte Forever!`;
             const shareUrl = `${window.location.origin}/success-stories`;
             if (navigator.share) {
               navigator.share({
-                title: 'Shadi Mubarak Success Story',
+                title: 'Rishte Forever Success Story',
                 text: shareText,
                 url: shareUrl
               }).catch(() => {});
@@ -841,35 +841,35 @@ export const PremiumFooter: React.FC<PremiumFooterProps> = ({ onNavigate }) => {
             {location && (location.facebookUrl || location.instagramUrl || location.youtubeUrl || location.linkedinUrl || location.twitterUrl) && (
               <div style={{ display: 'flex', gap: '14px', marginBottom: '20px', flexWrap: 'wrap' }}>
                 {location.facebookUrl && (
-                  <a href={location.facebookUrl} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--gold-accent)', transition: 'var(--transition-smooth)', display: 'flex', alignItems: 'center' }} aria-label="Visit Shadi Mubarak on Facebook">
+                  <a href={location.facebookUrl} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--gold-accent)', transition: 'var(--transition-smooth)', display: 'flex', alignItems: 'center' }} aria-label="Visit Rishte Forever on Facebook">
                     <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24" style={{ display: 'block' }}>
                       <path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c4.56-.93 8-4.96 8-9.75z"/>
                     </svg>
                   </a>
                 )}
                 {location.instagramUrl && (
-                  <a href={location.instagramUrl} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--gold-accent)', transition: 'var(--transition-smooth)', display: 'flex', alignItems: 'center' }} aria-label="Visit Shadi Mubarak on Instagram">
+                  <a href={location.instagramUrl} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--gold-accent)', transition: 'var(--transition-smooth)', display: 'flex', alignItems: 'center' }} aria-label="Visit Rishte Forever on Instagram">
                     <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24" style={{ display: 'block' }}>
                       <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.051.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/>
                     </svg>
                   </a>
                 )}
                 {location.youtubeUrl && (
-                  <a href={location.youtubeUrl} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--gold-accent)', transition: 'var(--transition-smooth)', display: 'flex', alignItems: 'center' }} aria-label="Visit Shadi Mubarak on YouTube">
+                  <a href={location.youtubeUrl} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--gold-accent)', transition: 'var(--transition-smooth)', display: 'flex', alignItems: 'center' }} aria-label="Visit Rishte Forever on YouTube">
                     <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24" style={{ display: 'block' }}>
                       <path d="M23.498 6.163a3.003 3.003 0 0 0-2.11-2.11C19.517 3.545 12 3.545 12 3.545s-7.517 0-9.388.508a3.003 3.003 0 0 0-2.11 2.11C0 8.033 0 12 0 12s0 3.967.502 5.837a3.003 3.003 0 0 0 2.11 2.11C4.483 20.455 12 20.455 12 20.455s7.517 0 9.388-.508a3.003 3.003 0 0 0 2.11-2.11C24 15.967 24 12 24 12s0-3.967-.502-5.837zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
                     </svg>
                   </a>
                 )}
                 {location.linkedinUrl && (
-                  <a href={location.linkedinUrl} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--gold-accent)', transition: 'var(--transition-smooth)', display: 'flex', alignItems: 'center' }} aria-label="Visit Shadi Mubarak on LinkedIn">
+                  <a href={location.linkedinUrl} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--gold-accent)', transition: 'var(--transition-smooth)', display: 'flex', alignItems: 'center' }} aria-label="Visit Rishte Forever on LinkedIn">
                     <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24" style={{ display: 'block' }}>
                       <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.779-1.75-1.75s.784-1.75 1.75-1.75 1.75.779 1.75 1.75-.784 1.75-1.75 1.75zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
                     </svg>
                   </a>
                 )}
                 {location.twitterUrl && (
-                  <a href={location.twitterUrl} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--gold-accent)', transition: 'var(--transition-smooth)', display: 'flex', alignItems: 'center' }} aria-label="Visit Shadi Mubarak on X">
+                  <a href={location.twitterUrl} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--gold-accent)', transition: 'var(--transition-smooth)', display: 'flex', alignItems: 'center' }} aria-label="Visit Rishte Forever on X">
                     <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24" style={{ display: 'block' }}>
                       <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
                     </svg>
@@ -906,7 +906,7 @@ export const PremiumFooter: React.FC<PremiumFooterProps> = ({ onNavigate }) => {
           </div>
         </div>
         <div className="footer-bottom" style={{ borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '30px', marginTop: '50px', fontSize: '13px', color: 'rgba(248, 241, 231, 0.6)', textAlign: 'center' }}>
-          &copy; 2026 Shadi Mubarak. All Rights Reserved. Created for premium internal launch preview.
+          &copy; 2026 Rishte Forever. All Rights Reserved. Created for premium internal launch preview.
         </div>
       </div>
     </footer>

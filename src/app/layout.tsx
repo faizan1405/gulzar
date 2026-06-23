@@ -42,9 +42,9 @@ import {
 } from "../components/ClientDynamicWrappers";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://shadimubarak.in"),
-  title: "Shadi Mubarak — Trusted Muslim Matrimonial Platform",
-  description: "Shadi Mubarak is a secure, manual-verified Muslim matrimonial site offering verified matches, curated profiles, second marriages, and premium high-profile listings.",
+  metadataBase: new URL("https://rishteforever.in"),
+  title: "Rishte Forever — Trusted Muslim Matrimonial Platform",
+  description: "Rishte Forever is a secure, manual-verified Muslim matrimonial site offering verified matches, curated profiles, second marriages, and premium high-profile listings.",
   openGraph: {
     images: [{ url: "/images/rishte-forever-logo.png", width: 900, height: 340 }],
   },

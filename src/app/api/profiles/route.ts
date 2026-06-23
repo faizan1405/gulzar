@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
-import { getAllProfiles, getProfileByUserId, getUserPurchases } from '@/lib/profileStore';
+import { getAllProfiles, getProfileByUserId, getUserPurchases, getDemoProfiles } from '@/lib/profileStore';
 import { redactProfile } from '@/lib/profilePrivacy';
 
 // Get all verified profiles
@@ -47,7 +47,15 @@ export async function GET(req: NextRequest) {
     const allProfiles = await getAllProfiles();
 
     // Only return approved profiles for public browsing, unless admin
-    const visibleProfiles = allProfiles.filter(p => p.verificationStatus === 'APPROVED' || isAdmin);
+    let visibleProfiles = allProfiles.filter(p => p.verificationStatus === 'APPROVED' || isAdmin);
+
+    // Public showcase safety net: if no approved profiles are available to a
+    // non-admin viewer, fall back to the bundled approved demo profiles so the
+    // directory and featured section are never empty. Privacy redaction below
+    // still applies, so photos/contact stay protected.
+    if (!isAdmin && !visibleProfiles.some(p => p.verificationStatus === 'APPROVED')) {
+      visibleProfiles = getDemoProfiles().filter(p => p.verificationStatus === 'APPROVED');
+    }
 
     const redactedProfiles = visibleProfiles.map(profile => {
       const isOwner = viewerId === profile.userId;

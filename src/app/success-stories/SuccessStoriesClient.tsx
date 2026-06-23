@@ -44,7 +44,7 @@ export default function SuccessStoriesClient() {
             <SuccessStoryCard
               names="Dr. Sarah & Tariq"
               location="Mumbai"
-              story="We connected on Shadi Mubarak in 2025. The manual screening call gave us assurance, and our families met within two weeks. We tied the knot in Bandra."
+              story="We connected on Rishte Forever in 2025. The manual screening call gave us assurance, and our families met within two weeks. We tied the knot in Bandra."
               weddingDate="May 12, 2025"
               imageIndex={0}
             />

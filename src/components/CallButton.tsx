@@ -16,7 +16,7 @@ export default function CallButton() {
       <a
         href="tel:+919675483125"
         className="call-button-trigger"
-        aria-label="Call Shadi Mubarak support"
+        aria-label="Call Rishte Forever support"
       >
         <svg
           className="call-button-icon"

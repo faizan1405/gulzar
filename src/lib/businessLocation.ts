@@ -12,15 +12,15 @@ export interface BusinessLocation {
 }
 
 export const defaultBusinessLocation: BusinessLocation = {
-  name: "Shadi Mubarak",
+  name: "Rishte Forever",
   address: "Innov8 44 Regal Building, 2nd Floor, Property No. 44, Above Madame Tussauds, Regal Building, Connaught Place, New Delhi - 110001",
   phone: "+91 96754 83125",
   phoneRaw: "+919675483125",
-  facebookUrl: "https://www.facebook.com/shadimubarak",
-  instagramUrl: "https://www.instagram.com/shadimubarak",
-  youtubeUrl: "https://www.youtube.com/shadimubarak",
-  linkedinUrl: "https://www.linkedin.com/company/shadimubarak",
-  twitterUrl: "https://x.com/shadimubarak",
+  facebookUrl: "https://www.facebook.com/rishteforever",
+  instagramUrl: "https://www.instagram.com/rishteforever",
+  youtubeUrl: "https://www.youtube.com/rishteforever",
+  linkedinUrl: "https://www.linkedin.com/company/rishteforever",
+  twitterUrl: "https://x.com/rishteforever",
   defaultPreviewImage: "/images/nikah-1.jpeg" // Elegant default preview
 };
 

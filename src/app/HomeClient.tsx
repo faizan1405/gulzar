@@ -526,7 +526,7 @@ export default function HomeClient() {
                         required
                       />
                       <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
-                        I consent to manual phone verification call from Shadi Mubarak Admin team to confirm these profile details.
+                        I consent to manual phone verification call from Rishte Forever Admin team to confirm these profile details.
                       </span>
                     </div>
 
@@ -539,7 +539,7 @@ export default function HomeClient() {
                         required
                       />
                       <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
-                        I accept the Shadi Mubarak Terms of Service and Shariah-compliant match guidelines.
+                        I accept the Rishte Forever Terms of Service and Shariah-compliant match guidelines.
                       </span>
                     </div>
                   </div>
@@ -692,7 +692,7 @@ export default function HomeClient() {
             <section style={{ backgroundColor: 'var(--warm-ivory)', padding: '80px 0' }}>
               <div className="container">
                 <SectionHeading
-                  title="How Shadi Mubarak Works"
+                  title="How Rishte Forever Works"
                   subtitle="Designed from the ground up for pure, respectful, and family-approved matches."
                   scriptText="Begin Your Journey"
                 />
@@ -734,7 +734,7 @@ export default function HomeClient() {
                     <div style={{ position: 'relative', width: '100%', paddingBottom: '75%', borderRadius: 'var(--border-radius-lg)', border: '1.5px solid var(--gold-accent)', boxShadow: 'var(--shadow-premium)', overflow: 'hidden' }}>
                       <Image
                         src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=600&h=450"
-                        alt="Verified Muslim profiles and matchmaking safety - Shadi Mubarak"
+                        alt="Verified Muslim profiles and matchmaking safety - Rishte Forever"
                         fill
                         sizes="(max-width: 768px) 100vw, 500px"
                         style={{ objectFit: 'cover' }}
@@ -767,7 +767,7 @@ export default function HomeClient() {
               <div className="container">
                 <SectionHeading
                   title="Blessed Success Stories"
-                  subtitle="Alhamdulillah! Here are matching stories of couples who found their partners on Shadi Mubarak."
+                  subtitle="Alhamdulillah! Here are matching stories of couples who found their partners on Rishte Forever."
                   scriptText="Success Stories"
                 />
 
@@ -775,7 +775,7 @@ export default function HomeClient() {
                   <SuccessStoryCard
                     names="Dr. Sarah & Tariq"
                     location="Mumbai • Married 2025"
-                    story="Shadi Mubarak made the search simple and extremely respectful. The manual verification check gave my parents peace of mind, and we connected securely."
+                    story="Rishte Forever made the search simple and extremely respectful. The manual verification check gave my parents peace of mind, and we connected securely."
                     imageIndex={0}
                   />
                   <SuccessStoryCard
@@ -814,7 +814,7 @@ export default function HomeClient() {
                     ctaText="Buy Monthly Membership"
                     onActivate={() => handleRazorpayCheckout('monthly_membership', 300, 'Standard Monthly Membership')}
                     onInquire={() => setInquiryPackage('₹300 Monthly Membership')}
-                    whatsappMessage="Assalamu Alaikum, I want to know more about the ₹300 monthly membership on Shadi Mubarak."
+                    whatsappMessage="Assalamu Alaikum, I want to know more about the ₹300 monthly membership on Rishte Forever."
                   />
                   <PremiumPlanCard
                     title="Good Profile Package"
@@ -826,7 +826,7 @@ export default function HomeClient() {
                     ctaText="Buy Good Profile Package"
                     onActivate={() => handleRazorpayCheckout('good_profile_package', 5500, 'Good Profile Package')}
                     onInquire={() => setInquiryPackage('₹5,500 Good Profiles Package')}
-                    whatsappMessage="Assalamu Alaikum, I am interested in the ₹5,500 Good Profiles Package on Shadi Mubarak. Please guide me."
+                    whatsappMessage="Assalamu Alaikum, I am interested in the ₹5,500 Good Profiles Package on Rishte Forever. Please guide me."
                     isPopular
                   />
                   <PremiumPlanCard
@@ -839,7 +839,7 @@ export default function HomeClient() {
                     ctaText="Buy Second Marriage Package"
                     onActivate={() => handleRazorpayCheckout('second_marriage_package', 11000, 'Second Marriage Package')}
                     onInquire={() => setInquiryPackage('₹11,000 Second Marriage Package')}
-                    whatsappMessage="Assalamu Alaikum, I am interested in the ₹11,000 Second Marriage Package on Shadi Mubarak. Please guide me."
+                    whatsappMessage="Assalamu Alaikum, I am interested in the ₹11,000 Second Marriage Package on Rishte Forever. Please guide me."
                   />
                   <PremiumPlanCard
                     title="High Profile Package"
@@ -851,7 +851,7 @@ export default function HomeClient() {
                     ctaText="Buy High Profile Package"
                     onActivate={() => handleRazorpayCheckout('high_profile_package', 21000, 'High Profile Package')}
                     onInquire={() => setInquiryPackage('₹21,000 High Profile Package')}
-                    whatsappMessage="Assalamu Alaikum, I am interested in the ₹21,000 High Profile Package on Shadi Mubarak. Please guide me."
+                    whatsappMessage="Assalamu Alaikum, I am interested in the ₹21,000 High Profile Package on Rishte Forever. Please guide me."
                   />
                 </div>
               </div>
@@ -887,7 +887,7 @@ export default function HomeClient() {
 
             <div style={{ textAlign: 'center', padding: '10px 0' }}>
               <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '24px', color: 'var(--deep-maroon)', marginBottom: '12px', fontWeight: 'bold' }}>
-                Join Shadi Mubarak
+                Join Rishte Forever
               </h3>
               <p style={{ fontSize: '14px', color: 'var(--text-muted)', marginBottom: '24px', lineHeight: '1.5' }}>
                 Create a profile or log in securely using your Google account to get verified.

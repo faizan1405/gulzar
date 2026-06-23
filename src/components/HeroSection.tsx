@@ -32,18 +32,13 @@ export const HeroSection: React.FC = () => {
       {/* Background Image */}
       <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 0 }}>
         <Image
-          src="/images/nikah-1.jpeg"
-          alt="Premium Islamic Matrimonial Nikah"
+          src="/images/hero-couple.png"
+          alt="Happy Muslim couple after Nikah"
           fill
-          style={{ objectFit: 'cover', objectPosition: 'center' }}
+          sizes="100vw"
+          style={{ objectFit: 'cover', objectPosition: 'center 25%' }}
           priority
         />
-        {/* Soft Cream/Gradient Overlay for readability */}
-        <div style={{
-          position: 'absolute',
-          top: 0, left: 0, right: 0, bottom: 0,
-          background: 'linear-gradient(to bottom, rgba(253, 248, 245, 0.85), rgba(253, 248, 245, 0.95))'
-        }} />
       </div>
 
       <div className="container" style={{ position: 'relative', zIndex: 1, textAlign: 'center', maxWidth: '800px' }}>
