@@ -815,6 +815,7 @@ export default function HomeClient() {
                     onActivate={() => handleRazorpayCheckout('monthly_membership', 300, 'Standard Monthly Membership')}
                     onInquire={() => setInquiryPackage('₹300 Monthly Membership')}
                     whatsappMessage="Assalamu Alaikum, I want to know more about the ₹300 monthly membership on Rishte Forever."
+                    imageUrl="/images/monthly_active.png"
                   />
                   <PremiumPlanCard
                     title="Good Profile Package"
@@ -828,6 +829,7 @@ export default function HomeClient() {
                     onInquire={() => setInquiryPackage('₹5,500 Good Profiles Package')}
                     whatsappMessage="Assalamu Alaikum, I am interested in the ₹5,500 Good Profiles Package on Rishte Forever. Please guide me."
                     isPopular
+                    imageUrl="/images/good_profile.png"
                   />
                   <PremiumPlanCard
                     title="Second Marriage Package"
@@ -840,6 +842,7 @@ export default function HomeClient() {
                     onActivate={() => handleRazorpayCheckout('second_marriage_package', 11000, 'Second Marriage Package')}
                     onInquire={() => setInquiryPackage('₹11,000 Second Marriage Package')}
                     whatsappMessage="Assalamu Alaikum, I am interested in the ₹11,000 Second Marriage Package on Rishte Forever. Please guide me."
+                    imageUrl="/images/second_marriage.png"
                   />
                   <PremiumPlanCard
                     title="High Profile Package"
@@ -852,6 +855,7 @@ export default function HomeClient() {
                     onActivate={() => handleRazorpayCheckout('high_profile_package', 21000, 'High Profile Package')}
                     onInquire={() => setInquiryPackage('₹21,000 High Profile Package')}
                     whatsappMessage="Assalamu Alaikum, I am interested in the ₹21,000 High Profile Package on Rishte Forever. Please guide me."
+                    imageUrl="/images/high_profile.png"
                   />
                 </div>
               </div>

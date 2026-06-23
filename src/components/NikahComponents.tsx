@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -737,6 +737,7 @@ interface PremiumPlanCardProps {
   ctaText: string;
   onInquire?: () => void;
   whatsappMessage?: string;
+  imageUrl?: string;
 }
 
 export const PremiumPlanCard: React.FC<PremiumPlanCardProps> = ({
@@ -750,7 +751,8 @@ export const PremiumPlanCard: React.FC<PremiumPlanCardProps> = ({
   onActivate,
   ctaText,
   onInquire,
-  whatsappMessage
+  whatsappMessage,
+  imageUrl
 }) => {
   const gstAmount = Math.floor(price * gstRate);
   const totalAmount = price + gstAmount;
@@ -766,7 +768,8 @@ export const PremiumPlanCard: React.FC<PremiumPlanCardProps> = ({
       display: 'flex',
       flexDirection: 'column',
       boxShadow: 'var(--shadow-premium)',
-      transition: 'var(--transition-smooth)'
+      transition: 'var(--transition-smooth)',
+      overflow: 'hidden'
     }}>
       {isPopular && <div className="pkg-badge" style={{
         position: 'absolute',
@@ -780,11 +783,34 @@ export const PremiumPlanCard: React.FC<PremiumPlanCardProps> = ({
         fontSize: '10.5px',
         fontWeight: 'bold',
         textTransform: 'uppercase',
-        letterSpacing: '0.8px'
+        letterSpacing: '0.8px',
+        zIndex: 10
       }}>Recommended</div>}
 
-      <FloralCorner position="tl" color="var(--gold-light)" />
-      <FloralCorner position="tr" color="var(--gold-light)" />
+      {imageUrl && (
+        <div style={{
+          position: 'relative',
+          width: 'calc(100% + 60px)',
+          height: '180px',
+          margin: '-48px -30px 24px -30px',
+          overflow: 'hidden',
+          borderBottom: '1.5px solid var(--gold-light)'
+        }}>
+          <Image
+            src={imageUrl}
+            alt={title}
+            fill
+            sizes="(max-width: 768px) 100vw, 300px"
+            style={{
+              objectFit: 'cover',
+              objectPosition: 'center',
+            }}
+          />
+        </div>
+      )}
+
+      {!imageUrl && <FloralCorner position="tl" color="var(--gold-light)" />}
+      {!imageUrl && <FloralCorner position="tr" color="var(--gold-light)" />}
 
       <h3 className="pkg-title" style={{ fontFamily: 'var(--font-serif)', fontSize: '24px', color: 'var(--primary-brand)', fontWeight: 700, marginBottom: '20px' }}>
         {title}
