@@ -122,41 +122,6 @@ export const QuranVerseBlock: React.FC = () => {
           />
         </div>
 
-        {/* Text overlay — frosted pill behind content for readability */}
-        <div className="quran-verse-text-panel">
-          <div style={{
-            backgroundColor: 'rgba(255, 253, 248, 0.82)',
-            backdropFilter: 'blur(8px)',
-            borderRadius: '16px',
-            border: '1px solid rgba(184, 146, 74, 0.3)',
-            padding: '32px 40px',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            maxWidth: '420px',
-          }}>
-            <div style={{ marginBottom: '14px' }}>
-              <svg width="44" height="44" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ margin: '0 auto' }}>
-                <path d="M50 85 C 10 50, 20 20, 50 35 C 80 20, 90 50, 50 85 Z" fill="none" stroke="var(--gold-accent)" strokeWidth="1.5" />
-                <text x="50" y="52" dominantBaseline="middle" textAnchor="middle" fill="var(--deep-maroon)" fontFamily="var(--font-arabic)" fontSize="16" fontWeight="bold">
-                  زوج
-                </text>
-              </svg>
-            </div>
-
-            <div className="arabic-calligraphy" style={{ fontSize: '2rem', color: 'var(--deep-maroon)', lineHeight: 1.4, marginBottom: '12px', textAlign: 'center' }}>
-              وَخَلَقْنَاكُمْ أَزْوَاجًا
-            </div>
-
-            <div style={{ fontStyle: 'italic', fontSize: '16px', fontFamily: 'var(--font-serif)', color: 'var(--text-dark)', marginBottom: '8px', textAlign: 'center' }}>
-              &ldquo;And We created you in pairs&rdquo;
-            </div>
-
-            <div style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1.5px', color: 'var(--gold-accent)', fontWeight: 700 }}>
-              — Al-Qur&apos;an 78:8
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );
