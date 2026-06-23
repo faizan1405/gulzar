@@ -1218,6 +1218,7 @@ export const PremiumFooter: React.FC<PremiumFooterProps> = ({ onNavigate }) => {
             <h4 style={{ color: 'var(--gold-accent)', fontSize: '14px', fontWeight: 'bold', marginBottom: '20px', textTransform: 'uppercase', letterSpacing: '0.8px' }}>Safety & Support</h4>
             <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13.5px', padding: 0 }}>
               <li><Link href="/safety" className="footer-link">Verification & Safety</Link></li>
+              <li><Link href="/zaicha" className="footer-link">Zaicha Guidance</Link></li>
               <li><Link href="/success-stories" className="footer-link">Success Stories</Link></li>
               <li><Link href="/about" className="footer-link">About Us</Link></li>
               <li><Link href="/contact" className="footer-link">Contact Support</Link></li>

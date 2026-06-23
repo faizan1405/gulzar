@@ -757,6 +757,11 @@ export default function HomeClient() {
                       title="Family Inclusion Encouraged"
                       desc="We encourage candidates to involve parents or guardians in match check calls and meetings."
                     />
+                    <SafetyFeatureCard
+                      icon="✓"
+                      title="Islamic Compatibility & Zaicha"
+                      desc="We also help families with Zaicha guidance for marriage compatibility, while keeping the final decision based on deen, character, mutual consent, and family understanding."
+                    />
                   </div>
                 </div>
               </div>

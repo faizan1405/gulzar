@@ -66,30 +66,35 @@ export const Navbar: React.FC = () => {
             ☰
           </button>
           <nav className="nav-menu-desktop">
-            <ul className="nav-menu" style={{ margin: 0, padding: 0 }}>
+            <ul className="nav-menu" style={{ margin: 0, padding: 0, display: 'flex', alignItems: 'center', gap: '16px' }}>
               <li>
-                <Link href="/" className={`nav-link ${pathname === '/' ? 'active' : ''}`}>
+                <Link href="/" className={`nav-link ${pathname === '/' ? 'active' : ''}`} style={{ display: 'inline-flex', alignItems: 'center' }}>
                   Home
                 </Link>
               </li>
               <li>
-                <Link href="/search" className={`nav-link ${pathname === '/search' ? 'active' : ''}`}>
+                <Link href="/search" className={`nav-link ${pathname === '/search' ? 'active' : ''}`} style={{ display: 'inline-flex', alignItems: 'center' }}>
                   Browse Profiles
                 </Link>
               </li>
               <li>
-                <Link href="/how-it-works" className={`nav-link ${pathname === '/how-it-works' ? 'active' : ''}`}>
+                <Link href="/how-it-works" className={`nav-link ${pathname === '/how-it-works' ? 'active' : ''}`} style={{ display: 'inline-flex', alignItems: 'center' }}>
                   How It Works
                 </Link>
               </li>
               <li>
-                <Link href="/premium" className={`nav-link ${pathname === '/premium' ? 'active' : ''}`}>
+                <Link href="/premium" className={`nav-link ${pathname === '/premium' ? 'active' : ''}`} style={{ display: 'inline-flex', alignItems: 'center' }}>
                   Premium
                 </Link>
               </li>
               <li>
-                <Link href="/safety" className={`nav-link ${pathname === '/safety' ? 'active' : ''}`}>
+                <Link href="/safety" className={`nav-link ${pathname === '/safety' ? 'active' : ''}`} style={{ display: 'inline-flex', alignItems: 'center' }}>
                   Safety
+                </Link>
+              </li>
+              <li>
+                <Link href="/zaicha" className={`nav-link ${pathname === '/zaicha' ? 'active' : ''}`} style={{ display: 'inline-flex', alignItems: 'center' }}>
+                  Zaicha
                 </Link>
               </li>
             </ul>
@@ -97,23 +102,24 @@ export const Navbar: React.FC = () => {
         </div>
 
         {/* Center: logo */}
-        <Link href="/" className="logo" id="header-logo-link">
+        <Link href="/" className="logo" id="header-logo-link" style={{ display: 'flex', alignItems: 'center' }}>
           <Image
             src="/images/rishte-forever-logo.png"
             alt="Rishte Forever — Where Faith Meets Forever"
             width={210}
             height={79}
             priority
+            style={{ display: 'block' }}
           />
         </Link>
 
         {/* Right: action buttons */}
-        <div className="nav-section nav-right nav-menu-desktop">
+        <div className="nav-section nav-right nav-menu-desktop" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           {isLoggedIn && (
             <Link
               href="/my-account"
               className="btn btn-secondary"
-              style={{ padding: '8px 16px', fontSize: '13px' }}
+              style={{ padding: '8px 16px', fontSize: '13px', display: 'inline-flex', alignItems: 'center' }}
             >
               My Account
             </Link>
@@ -122,36 +128,36 @@ export const Navbar: React.FC = () => {
             href="/admin"
             className="btn btn-secondary"
             id="btn-toggle-admin"
-            style={{ padding: '8px 16px', fontSize: '13px' }}
+            style={{ padding: '8px 16px', fontSize: '13px', display: 'inline-flex', alignItems: 'center' }}
           >
             {pathname.startsWith('/admin') ? 'View Website' : 'Admin Panel'}
           </Link>
           {isLoggedIn ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--primary-brand)', fontFamily: 'var(--font-serif)' }}>Salaam!</span>
+              <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--primary-brand)', fontFamily: 'var(--font-serif)', display: 'inline-flex', alignItems: 'center' }}>Salaam!</span>
               <button
                 onClick={handleLogout}
                 className="btn btn-primary"
                 id="btn-logout"
-                style={{ padding: '8px 16px', fontSize: '13px' }}
+                style={{ padding: '8px 16px', fontSize: '13px', display: 'inline-flex', alignItems: 'center' }}
               >
                 Logout
               </button>
             </div>
           ) : (
-            <div style={{ display: 'flex', gap: '8px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <button
                 onClick={handleLoginTrigger}
                 className="btn btn-secondary"
                 id="btn-login-trigger"
-                style={{ padding: '8px 16px', fontSize: '13px' }}
+                style={{ padding: '8px 16px', fontSize: '13px', display: 'inline-flex', alignItems: 'center' }}
               >
                 Login
               </button>
               <button
                 onClick={handleRegisterFree}
                 className="btn btn-gold"
-                style={{ padding: '8px 16px', fontSize: '13px' }}
+                style={{ padding: '8px 16px', fontSize: '13px', display: 'inline-flex', alignItems: 'center' }}
               >
                 Register Free
               </button>
@@ -225,6 +231,13 @@ export const Navbar: React.FC = () => {
               style={{ padding: '10px 0', fontWeight: '500', fontSize: '15px', color: 'inherit', textDecoration: 'none' }}
             >
               Safety Guidelines
+            </Link>
+            <Link
+              href="/zaicha"
+              onClick={() => setIsMobileMenuOpen(false)}
+              style={{ padding: '10px 0', fontWeight: '500', fontSize: '15px', color: 'inherit', textDecoration: 'none' }}
+            >
+              Zaicha Guidance
             </Link>
 
             {isLoggedIn && (
