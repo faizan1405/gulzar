@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -109,32 +109,48 @@ export const SectionHeading: React.FC<{
 export const QuranVerseBlock: React.FC = () => {
   return (
     <div className="container" style={{ margin: '40px auto' }}>
-      <div className="arch-container max-w-2xl mx-auto p-8 text-center gold-rim gold-glow" style={{ maxWidth: '650px', margin: '0 auto', padding: '36px', textAlign: 'center' }}>
-        <FloralCorner position="tl" />
-        <FloralCorner position="tr" />
-        <FloralCorner position="bl" />
-        <FloralCorner position="br" />
-        
-        <div style={{ marginBottom: '16px' }}>
-          {/* Heart shaped Quranic verse calligraphy stamp */}
-          <svg width="60" height="60" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ margin: '0 auto' }}>
-            <path d="M50 85 C 10 50, 20 20, 50 35 C 80 20, 90 50, 50 85 Z" fill="none" stroke="var(--gold-accent)" strokeWidth="1.5" />
-            <text x="50" y="52" dominantBaseline="middle" textAnchor="middle" fill="var(--deep-maroon)" fontFamily="var(--font-arabic)" fontSize="16" fontWeight="bold">
-              زوج
-            </text>
-          </svg>
+      <div className="quran-verse-split gold-glow">
+        <div className="quran-verse-image-panel">
+          <Image
+            src="/images/nikah-3.jpeg"
+            alt="Elegant Islamic matrimonial - Rishte Forever"
+            fill
+            sizes="(max-width: 640px) 100vw, 380px"
+            style={{ objectFit: 'cover', objectPosition: 'center' }}
+            priority
+          />
+          <div style={{
+            position: 'absolute',
+            inset: 0,
+            background: 'linear-gradient(to right, transparent 60%, rgba(245,235,210,0.55) 100%)',
+            pointerEvents: 'none',
+          }} />
         </div>
 
-        <div className="arabic-calligraphy my-4" style={{ margin: '16px 0', fontSize: '2.4rem', color: 'var(--deep-maroon)' }}>
-          وَخَلَقْنَاكُمْ أَزْوَاجًا
-        </div>
+        <div className="quran-verse-text-panel">
+          <FloralCorner position="tr" />
+          <FloralCorner position="br" />
 
-        <div style={{ fontStyle: 'italic', fontSize: '18px', fontFamily: 'var(--font-serif)', color: 'var(--text-dark)', marginTop: '12px' }}>
-          &ldquo;And We created you in pairs&rdquo;
-        </div>
-        
-        <div style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--gold-accent)', fontWeight: 700, marginTop: '8px' }}>
-          — Al-Qur’an 78:8
+          <div style={{ marginBottom: '18px' }}>
+            <svg width="54" height="54" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ margin: '0 auto' }}>
+              <path d="M50 85 C 10 50, 20 20, 50 35 C 80 20, 90 50, 50 85 Z" fill="none" stroke="var(--gold-accent)" strokeWidth="1.5" />
+              <text x="50" y="52" dominantBaseline="middle" textAnchor="middle" fill="var(--deep-maroon)" fontFamily="var(--font-arabic)" fontSize="16" fontWeight="bold">
+                زوج
+              </text>
+            </svg>
+          </div>
+
+          <div className="arabic-calligraphy" style={{ fontSize: '2.2rem', color: 'var(--deep-maroon)', lineHeight: 1.4, marginBottom: '14px' }}>
+            وَخَلَقْنَاكُمْ أَزْوَاجًا
+          </div>
+
+          <div style={{ fontStyle: 'italic', fontSize: '17px', fontFamily: 'var(--font-serif)', color: 'var(--text-dark)', marginBottom: '10px' }}>
+            &ldquo;And We created you in pairs&rdquo;
+          </div>
+
+          <div style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1.5px', color: 'var(--gold-accent)', fontWeight: 700 }}>
+            — Al-Qur&apos;an 78:8
+          </div>
         </div>
       </div>
     </div>
@@ -194,238 +210,545 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
   getProfileImage,
   getThemeClass
 }) => {
-  const profileCat = (profile as any).category || '';
+  const profileCat = profile.category || '';
+  const isLockedCategory = (profile as any).isLockedCategory || '';
 
-  const isSecMarriage = profile.maritalStatus !== 'Single' || profileCat === 'second_marriage';
-  const isHighProf = 
-    profileCat === 'high_profile' ||
-    profile.occupation.toLowerCase().includes('doctor') ||
-    profile.occupation.toLowerCase().includes('engineer') ||
-    profile.occupation.toLowerCase().includes('business') ||
-    profile.annualIncomeRange.includes('₹10 LPA') ||
-    profile.annualIncomeRange.includes('₹15 LPA') ||
-    profile.annualIncomeRange.includes('Above');
+  const isSecMarriage =
+    profile.maritalStatus !== 'Single'
+    || profileCat === 'second_marriage'
+    || isLockedCategory === 'second_marriage_package';
 
-  const isGoodProfile = profileCat === 'good_profile';
+  const isHighProf =
+    profileCat === 'high_profile'
+    || isLockedCategory === 'high_profile_package'
+    || (!isLockedCategory && (
+      profile.occupation.toLowerCase().includes('doctor') ||
+      profile.occupation.toLowerCase().includes('engineer') ||
+      profile.occupation.toLowerCase().includes('business') ||
+      profile.occupation.toLowerCase().includes('professional') ||
+      profile.annualIncomeRange.includes('₹10 LPA') ||
+      profile.annualIncomeRange.includes('₹12 LPA') ||
+      profile.annualIncomeRange.includes('₹15 LPA') ||
+      profile.annualIncomeRange.includes('Above')
+    ));
+
+  const isGoodProfile = profileCat === 'good_profile' || isLockedCategory === 'good_profile_package';
 
   const hasPaidMonthly = hasPaid300 || simulatedPackages.includes('monthly_membership');
   const hasSecMarriageAccess = simulatedPackages.includes('second_marriage_package');
   const hasHighProfAccess = simulatedPackages.includes('high_profile_package') && simulatedHighProfileApproved;
   const hasGoodProfileAccess = simulatedPackages.includes('good_profile_package');
 
-  let shouldBlur = !isLoggedIn;
-  let lockReason = '';
-  let unlockText = 'Unlock Monthly Membership (₹300)';
+  // Photo visible only when logged in
+  const photoVisible = isLoggedIn;
 
+  // Contact phone shown only to paid members with unlocked category
+  const contactVisible = hasPaidMonthly && !isLockedCategory;
+
+  // Determine upgrade CTA
+  let unlockCta = '';
+  let showUpgradeCta = false;
   if (!isLoggedIn) {
-    shouldBlur = true;
-    lockReason = 'Log in to view wedding profile photos and contact details';
-    unlockText = 'Log In';
+    unlockCta = 'Sign In to View Full Profile';
+    showUpgradeCta = true;
+  } else if (isLockedCategory === 'good_profile_package' && !hasGoodProfileAccess) {
+    unlockCta = 'Good Profile Package · ₹5,500';
+    showUpgradeCta = true;
+  } else if (isLockedCategory === 'second_marriage_package' && !hasSecMarriageAccess) {
+    unlockCta = 'Second Marriage Package · ₹11,000';
+    showUpgradeCta = true;
+  } else if (isLockedCategory === 'high_profile_package' && !hasHighProfAccess) {
+    unlockCta = 'High Profile Package · ₹21,000';
+    showUpgradeCta = true;
   } else if (!hasPaidMonthly) {
-    shouldBlur = true;
-    lockReason = 'Activate monthly membership (₹300) to view normal profiles.';
-    unlockText = 'Unlock Monthly (₹300)';
-  } else if (isGoodProfile && !hasGoodProfileAccess) {
-    shouldBlur = true;
-    lockReason = 'Good Profile Candidate. Buy Good Profile Package for ₹5,500 to view.';
-    unlockText = 'Buy Good Profile Package (₹5,500)';
-  } else if (isSecMarriage && !hasSecMarriageAccess) {
-    shouldBlur = true;
-    lockReason = 'Second-Marriage Candidate. Unlock with Second Marriage Package.';
-    unlockText = 'Unlock Second Marriage (₹11,000)';
-  } else if (isHighProf && !hasHighProfAccess) {
-    shouldBlur = true;
-    lockReason = 'High-Profile Candidate. Requires High Profile Package and approval.';
-    unlockText = 'Unlock High Profile (₹21,000)';
+    unlockCta = 'Monthly Membership · ₹300';
+    showUpgradeCta = true;
   }
 
   const themeClass = getThemeClass(profile.themeColor);
   const isSaved = savedProfiles.includes(profile.id);
 
+  // Dynamic age — gracefully handle locked proxy DOB (1900)
+  const dobDate = profile.dateOfBirth ? new Date(profile.dateOfBirth) : null;
+  const dobYear = dobDate ? dobDate.getFullYear() : 0;
+  const isAgeHidden = dobYear <= 1905;
+  let age: number | null = null;
+  if (!isAgeHidden && dobDate) {
+    const today = new Date();
+    age = today.getFullYear() - dobDate.getFullYear();
+    const m = today.getMonth() - dobDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < dobDate.getDate())) age--;
+  }
+
+  // Display name: show profile code when server has locked the name
+  const isServerLocked =
+    profile.fullName === 'Profile Locked'
+    || profile.fullName.includes('(Locked)');
+  const displayName = isLoggedIn && !isServerLocked
+    ? profile.fullName
+    : `Profile #RF-${String(index + 1).padStart(3, '0')}`;
+
+  // Education/occupation: skip if server returned "Hidden ..."
+  const educationHidden =
+    !profile.education || profile.education.startsWith('Hidden (');
+  const occupationHidden =
+    !profile.occupation
+    || profile.occupation === 'Hidden'
+    || profile.occupation.startsWith('Hidden (');
+
   return (
     <article
-      className={`profile-card ${themeClass} theme-accent-border`}
+      className={`profile-card ${themeClass}`}
       style={{
-        '--profile-theme-color': 'var(--theme-accent)',
         position: 'relative',
         display: 'flex',
         flexDirection: 'column',
-        height: '100%',
         backgroundColor: 'var(--white)',
-        border: '1px solid var(--border-color)',
-        borderRadius: 'var(--border-radius-lg)',
-        boxShadow: 'var(--shadow-premium)',
+        borderRadius: '18px',
+        boxShadow: '0 2px 12px rgba(111,29,53,0.06), 0 8px 32px rgba(111,29,53,0.04)',
+        border: '1px solid rgba(184,146,74,0.14)',
         overflow: 'hidden',
-        transition: 'var(--transition-smooth)'
-      } as React.CSSProperties}
+        transition: 'transform 0.25s ease, box-shadow 0.25s ease',
+        height: '100%',
+      }}
+      onMouseEnter={e => {
+        const el = e.currentTarget as HTMLElement;
+        el.style.transform = 'translateY(-4px)';
+        el.style.boxShadow = '0 8px 32px rgba(111,29,53,0.12), 0 20px 48px rgba(111,29,53,0.08)';
+      }}
+      onMouseLeave={e => {
+        const el = e.currentTarget as HTMLElement;
+        el.style.transform = 'translateY(0)';
+        el.style.boxShadow = '0 2px 12px rgba(111,29,53,0.06), 0 8px 32px rgba(111,29,53,0.04)';
+      }}
     >
-      {/* Decorative floral corner details inside card */}
-      <FloralCorner position="tl" color="var(--gold-light)" />
-      
-      <div className="profile-card-badge-container" style={{
-        position: 'absolute',
-        top: '16px',
-        left: '16px',
-        zIndex: 10,
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '6px'
-      }}>
-        {profile.verificationStatus === 'APPROVED' && <VerifiedBadge />}
-        {isGoodProfile && (
-          <span className="card-badge" style={{ backgroundColor: '#059669', color: '#fff', fontSize: '11px', fontWeight: 'bold', padding: '4px 10px', borderRadius: '20px' }}>
-            💖 Good Profile
-          </span>
-        )}
-        {isHighProf && (
-          <span className="card-badge" style={{ backgroundColor: 'var(--gold-accent)', color: '#fff', fontSize: '11px', fontWeight: 'bold', padding: '4px 10px', borderRadius: '20px' }}>
-            ⭐ High-Profile
-          </span>
-        )}
-        {isSecMarriage && (
-          <span className="card-badge" style={{ backgroundColor: 'var(--deep-maroon)', color: '#fff', fontSize: '11px', fontWeight: 'bold', padding: '4px 10px', borderRadius: '20px' }}>
-            👥 Second-Marriage
-          </span>
-        )}
-        <span className="card-badge card-badge-distance" style={{
-          backgroundColor: 'rgba(255, 255, 255, 0.95)',
-          border: '1px solid var(--border-color)',
-          color: 'var(--text-dark)',
-          fontSize: '11px',
-          padding: '4px 10px',
-          borderRadius: '20px'
-        }}>
-          📍 Mumbai • {index === 0 ? '1.8' : index === 1 ? '5.4' : '12.0'} km away
-        </span>
-      </div>
+      {/* Accent top gradient bar */}
+      <div style={{
+        height: '4px',
+        background: 'linear-gradient(90deg, var(--theme-accent) 0%, var(--gold-accent) 60%, var(--theme-accent) 100%)',
+        flexShrink: 0,
+      }} />
 
-      <button
-        onClick={() => onToggleSave(profile.id)}
-        className="card-save-btn"
-        style={{
-          position: 'absolute',
-          top: '16px',
-          right: '16px',
-          zIndex: 10,
-          backgroundColor: 'rgba(255, 255, 255, 0.95)',
-          border: '1px solid var(--border-color)',
-          width: '36px',
-          height: '36px',
-          borderRadius: '50%',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          cursor: 'pointer',
-          fontSize: '16px',
-          transition: 'var(--transition-smooth)'
-        }}
-      >
-        {isSaved ? '❤️' : '🤍'}
-      </button>
-
-      <div className="profile-image-wrapper" style={{
+      {/* Photo / avatar section */}
+      <div style={{
         position: 'relative',
         width: '100%',
-        paddingBottom: '105%',
-        backgroundColor: 'var(--soft-cream)',
-        overflow: 'hidden'
+        height: '200px',
+        flexShrink: 0,
+        overflow: 'hidden',
+        background: 'linear-gradient(135deg, var(--soft-cream) 0%, var(--warm-ivory) 40%, var(--gold-light) 100%)',
       }}>
-        <Image
-          src={profile.profileImageUrl || getProfileImage(profile.gender, index)}
-          alt={profile.fullName}
-          className={`profile-img ${shouldBlur ? 'blurred-media' : ''}`}
-          fill
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          priority={index < 3}
-          style={{
-            objectFit: 'cover'
-          }}
-        />
-
-        {shouldBlur && (
-          <div className="blur-blocker" style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'rgba(111, 29, 53, 0.82)', /* Ivory tinted deep maroon block overlay */
-            backdropFilter: 'blur(10px)',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'center',
-            padding: '20px',
-            textAlign: 'center',
-            color: 'var(--white)',
-            zIndex: 5
-          }}>
-            <div className="blur-blocker-title" style={{ fontFamily: 'var(--font-serif)', fontSize: '18px', fontWeight: 'bold', color: 'var(--gold-accent)', marginBottom: '8px' }}>
-              🔒 Protected Profile
+        {photoVisible ? (
+          <>
+            <Image
+              src={profile.profileImageUrl || getProfileImage(profile.gender, index)}
+              alt={displayName}
+              fill
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              style={{ objectFit: 'cover', objectPosition: 'top center' }}
+              priority={index < 6}
+            />
+            {/* Gradient at bottom for text legibility */}
+            <div style={{
+              position: 'absolute',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              height: '60px',
+              background: 'linear-gradient(to top, rgba(255,255,255,0.55), transparent)',
+              pointerEvents: 'none',
+            }} />
+          </>
+        ) : (
+          <>
+            <div style={{
+              position: 'absolute',
+              inset: 0,
+              background: 'linear-gradient(155deg, rgba(111,29,53,0.05) 0%, rgba(184,146,74,0.07) 100%)',
+            }} />
+            <div style={{
+              position: 'absolute',
+              inset: 0,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '10px',
+            }}>
+              <div style={{
+                width: '84px',
+                height: '84px',
+                borderRadius: '50%',
+                background: 'linear-gradient(135deg, var(--theme-accent) 0%, var(--gold-accent) 100%)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '40px',
+                boxShadow: '0 4px 20px rgba(111,29,53,0.2)',
+                border: '3px solid rgba(255,255,255,0.85)',
+              }}>
+                {profile.gender?.toLowerCase() === 'female' ? '👩' : '👨'}
+              </div>
+              <span style={{
+                fontSize: '11px',
+                fontWeight: 600,
+                color: 'var(--text-muted)',
+                letterSpacing: '0.6px',
+                textTransform: 'uppercase',
+                background: 'rgba(255,255,255,0.7)',
+                padding: '3px 10px',
+                borderRadius: '20px',
+              }}>
+                Photo Private
+              </span>
             </div>
-            <p style={{ fontSize: '12px', opacity: 0.9, marginBottom: '20px', maxWidth: '240px', color: 'var(--soft-cream)' }}>
-              {lockReason}
-            </p>
+          </>
+        )}
+
+        {/* Category / verification badges — top left */}
+        <div style={{
+          position: 'absolute',
+          top: '10px',
+          left: '10px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '5px',
+          zIndex: 10,
+        }}>
+          {profile.verificationStatus === 'APPROVED' && (
+            <span style={{
+              background: '#059669',
+              color: '#fff',
+              fontSize: '11px',
+              fontWeight: 700,
+              padding: '4px 10px',
+              borderRadius: '20px',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '4px',
+              boxShadow: '0 2px 8px rgba(5,150,105,0.35)',
+              backdropFilter: 'blur(4px)',
+            }}>
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+              Call Verified
+            </span>
+          )}
+          {isGoodProfile && (
+            <span style={{
+              background: 'linear-gradient(135deg,#2e7d32,#43a047)',
+              color: '#fff',
+              fontSize: '11px',
+              fontWeight: 700,
+              padding: '4px 10px',
+              borderRadius: '20px',
+              boxShadow: '0 2px 8px rgba(46,125,50,0.3)',
+              backdropFilter: 'blur(4px)',
+            }}>
+              ✦ Good Profile
+            </span>
+          )}
+          {isHighProf && (
+            <span style={{
+              background: 'linear-gradient(135deg,var(--antique-gold),#c8a052)',
+              color: '#fff',
+              fontSize: '11px',
+              fontWeight: 700,
+              padding: '4px 10px',
+              borderRadius: '20px',
+              boxShadow: '0 2px 8px rgba(184,146,74,0.35)',
+              backdropFilter: 'blur(4px)',
+            }}>
+              ⭐ High Profile
+            </span>
+          )}
+          {isSecMarriage && (
+            <span style={{
+              background: 'linear-gradient(135deg,var(--deep-maroon),#8b2252)',
+              color: '#fff',
+              fontSize: '11px',
+              fontWeight: 700,
+              padding: '4px 10px',
+              borderRadius: '20px',
+              boxShadow: '0 2px 8px rgba(111,29,53,0.3)',
+              backdropFilter: 'blur(4px)',
+            }}>
+              ↺ Second Marriage
+            </span>
+          )}
+          {isLockedCategory && (
+            <span style={{
+              background: 'rgba(20,20,20,0.72)',
+              color: '#fff',
+              fontSize: '11px',
+              fontWeight: 700,
+              padding: '4px 10px',
+              borderRadius: '20px',
+              backdropFilter: 'blur(6px)',
+            }}>
+              🔒 Package Required
+            </span>
+          )}
+        </div>
+
+        {/* Save / heart button — top right */}
+        <button
+          onClick={() => onToggleSave(profile.id)}
+          aria-label={isSaved ? 'Remove from saved' : 'Save profile'}
+          style={{
+            position: 'absolute',
+            top: '10px',
+            right: '10px',
+            zIndex: 10,
+            background: 'rgba(255,255,255,0.92)',
+            border: '1px solid rgba(184,146,74,0.25)',
+            width: '36px',
+            height: '36px',
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            fontSize: '16px',
+            boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+            backdropFilter: 'blur(4px)',
+            transition: 'transform 0.2s ease',
+          }}
+        >
+          {isSaved ? '❤️' : '🤍'}
+        </button>
+      </div>
+
+      {/* Profile info section */}
+      <div style={{
+        padding: '20px 22px',
+        display: 'flex',
+        flexDirection: 'column',
+        flexGrow: 1,
+      }}>
+        {/* Name */}
+        <h3 style={{
+          fontFamily: 'var(--font-serif)',
+          fontSize: '19px',
+          fontWeight: 700,
+          color: isServerLocked ? 'var(--text-muted)' : 'var(--deep-maroon)',
+          marginBottom: '8px',
+          letterSpacing: '-0.2px',
+          lineHeight: 1.3,
+        }}>
+          {displayName}
+        </h3>
+
+        {/* Stats chips: age · gender · marital status */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '6px',
+          marginBottom: '10px',
+          flexWrap: 'wrap',
+        }}>
+          {age !== null && (
+            <span style={{
+              background: 'var(--soft-cream)',
+              color: 'var(--text-dark)',
+              fontSize: '12.5px',
+              fontWeight: 600,
+              padding: '3px 10px',
+              borderRadius: '20px',
+              border: '1px solid rgba(184,146,74,0.2)',
+            }}>
+              {age} yrs
+            </span>
+          )}
+          {profile.gender && (
+            <span style={{
+              background: profile.gender.toLowerCase() === 'female' ? '#fce4ec' : '#e8f4fd',
+              color: profile.gender.toLowerCase() === 'female' ? '#c2185b' : '#1565c0',
+              fontSize: '12.5px',
+              fontWeight: 600,
+              padding: '3px 10px',
+              borderRadius: '20px',
+            }}>
+              {profile.gender}
+            </span>
+          )}
+          {profile.maritalStatus && (
+            <span style={{
+              color: 'var(--text-muted)',
+              fontSize: '12.5px',
+              fontWeight: 500,
+            }}>
+              · {profile.maritalStatus}
+            </span>
+          )}
+        </div>
+
+        {/* Location */}
+        {(profile.city || profile.state) && (
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '5px',
+            marginBottom: '14px',
+            color: 'var(--text-muted)',
+            fontSize: '13px',
+            fontWeight: 500,
+          }}>
+            <span style={{ color: 'var(--gold-accent)', fontSize: '14px' }}>📍</span>
+            <span>{[profile.city, profile.state].filter(Boolean).join(', ')}</span>
+          </div>
+        )}
+
+        {/* Thin gold divider */}
+        <div style={{
+          height: '1px',
+          background: 'linear-gradient(90deg,transparent,rgba(184,146,74,0.22) 30%,rgba(184,146,74,0.22) 70%,transparent)',
+          marginBottom: '14px',
+        }} />
+
+        {/* Profile attributes: education, occupation, community, caste */}
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '9px',
+          marginBottom: '16px',
+          flexGrow: 1,
+        }}>
+          {!educationHidden && profile.education && (
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', fontSize: '13px', color: 'var(--text-dark)' }}>
+              <span style={{ flexShrink: 0, lineHeight: 1.45 }}>🎓</span>
+              <span style={{ fontWeight: 500, lineHeight: 1.45 }}>{profile.education}</span>
+            </div>
+          )}
+          {!occupationHidden && profile.occupation && (
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', fontSize: '13px', color: 'var(--text-dark)' }}>
+              <span style={{ flexShrink: 0, lineHeight: 1.45 }}>💼</span>
+              <span style={{ fontWeight: 500, lineHeight: 1.45 }}>{profile.occupation}</span>
+            </div>
+          )}
+          {profile.maslak && (
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', fontSize: '13px', color: 'var(--text-dark)' }}>
+              <span style={{ flexShrink: 0, lineHeight: 1.45 }}>🕌</span>
+              <span style={{ fontWeight: 500, lineHeight: 1.45 }}>{profile.maslak}</span>
+            </div>
+          )}
+          {profile.biradari && (
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', fontSize: '13px', color: 'var(--text-dark)' }}>
+              <span style={{ flexShrink: 0, lineHeight: 1.45 }}>👪</span>
+              <span style={{ fontWeight: 500, lineHeight: 1.45 }}>{profile.biradari}</span>
+            </div>
+          )}
+        </div>
+
+        {/* Divider before CTA */}
+        <div style={{
+          height: '1px',
+          background: 'linear-gradient(90deg,transparent,rgba(184,146,74,0.22) 30%,rgba(184,146,74,0.22) 70%,transparent)',
+          marginBottom: '14px',
+        }} />
+
+        {/* CTA area */}
+        {showUpgradeCta ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {!isLoggedIn ? (
               <button
                 onClick={onShowLogin}
-                className="btn btn-gold"
-                style={{ padding: '8px 24px', fontSize: '13px' }}
+                style={{
+                  width: '100%',
+                  padding: '12px 18px',
+                  background: 'linear-gradient(135deg,var(--deep-maroon) 0%,#8b2252 100%)',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: '10px',
+                  fontSize: '13.5px',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  fontFamily: 'var(--font-sans)',
+                  letterSpacing: '0.2px',
+                  boxShadow: '0 4px 16px rgba(111,29,53,0.25)',
+                }}
               >
-                Log In
+                🔒 Sign In to View Full Profile
               </button>
             ) : (
               <a
                 href="#premium-pricing"
-                className="btn btn-gold"
-                style={{ padding: '8px 24px', fontSize: '13px', display: 'inline-block' }}
+                style={{
+                  display: 'block',
+                  padding: '12px 18px',
+                  background: 'linear-gradient(135deg,var(--antique-gold) 0%,#c8a052 100%)',
+                  color: '#fff',
+                  borderRadius: '10px',
+                  fontSize: '13px',
+                  fontWeight: 700,
+                  fontFamily: 'var(--font-sans)',
+                  textAlign: 'center',
+                  textDecoration: 'none',
+                  boxShadow: '0 4px 16px rgba(184,146,74,0.3)',
+                }}
               >
-                {unlockText.split('(')[0]}
+                🔓 {unlockCta}
               </a>
             )}
+            <button
+              onClick={() => onViewDetails(profile)}
+              style={{
+                width: '100%',
+                padding: '10px 18px',
+                background: 'transparent',
+                color: 'var(--text-muted)',
+                border: '1px solid rgba(184,146,74,0.3)',
+                borderRadius: '10px',
+                fontSize: '13px',
+                fontWeight: 600,
+                cursor: 'pointer',
+                fontFamily: 'var(--font-sans)',
+              }}
+            >
+              View Preview
+            </button>
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            {contactVisible && profile.phoneNumber && profile.phoneNumber !== '+91-XXXXX-XXXXX' && (
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                fontSize: '13px',
+                color: 'var(--text-muted)',
+                fontWeight: 500,
+                padding: '6px 12px',
+                background: 'var(--soft-cream)',
+                borderRadius: '8px',
+                border: '1px solid rgba(184,146,74,0.15)',
+              }}>
+                <span>📞</span>
+                <span>{profile.phoneNumber}</span>
+              </div>
+            )}
+            <button
+              onClick={() => onViewDetails(profile)}
+              style={{
+                width: '100%',
+                padding: '12px 18px',
+                background: 'linear-gradient(135deg,var(--deep-maroon) 0%,#8b2252 100%)',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '10px',
+                fontSize: '13.5px',
+                fontWeight: 700,
+                cursor: 'pointer',
+                fontFamily: 'var(--font-sans)',
+                letterSpacing: '0.2px',
+                boxShadow: '0 4px 16px rgba(111,29,53,0.25)',
+              }}
+            >
+              View Full Profile →
+            </button>
           </div>
         )}
-      </div>
-
-      <div className="profile-card-details" style={{ padding: '24px', display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
-        <h3 className="profile-card-name" style={{ fontFamily: 'var(--font-serif)', fontSize: '22px', color: 'var(--text-dark)', fontWeight: 700, marginBottom: '4px' }}>
-          {shouldBlur ? 'Profile details blurred' : profile.fullName}
-        </h3>
-        <div className="profile-card-subtitle" style={{ fontSize: '13px', color: 'var(--gold-accent)', fontWeight: 600, marginBottom: '18px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-          {isHighProf ? 'High-Profile Candidate' : isSecMarriage ? 'Second-Marriage Candidate' : 'Muslim Matrimonial Match'}
-        </div>
-
-        <div className="profile-specs-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginBottom: '20px' }}>
-          <div className="spec-cell">
-            <span style={{ fontSize: '10.5px', color: 'var(--text-muted)', textTransform: 'uppercase', display: 'block', fontWeight: 600, letterSpacing: '0.5px' }}>Gender / Age</span>
-            <strong style={{ fontSize: '13.5px', color: 'var(--text-dark)' }}>{profile.gender} • {2026 - new Date(profile.dateOfBirth).getFullYear()} Yrs</strong>
-          </div>
-          <div className="spec-cell">
-            <span style={{ fontSize: '10.5px', color: 'var(--text-muted)', textTransform: 'uppercase', display: 'block', fontWeight: 600, letterSpacing: '0.5px' }}>Marital Status</span>
-            <strong style={{ fontSize: '13.5px', color: 'var(--text-dark)' }}>{profile.maritalStatus}</strong>
-          </div>
-          <div className="spec-cell">
-            <span style={{ fontSize: '10.5px', color: 'var(--text-muted)', textTransform: 'uppercase', display: 'block', fontWeight: 600, letterSpacing: '0.5px' }}>City Location</span>
-            <strong style={{ fontSize: '13.5px', color: 'var(--text-dark)' }}>{profile.city}, {profile.state}</strong>
-          </div>
-          <div className="spec-cell">
-            <span style={{ fontSize: '10.5px', color: 'var(--text-muted)', textTransform: 'uppercase', display: 'block', fontWeight: 600, letterSpacing: '0.5px' }}>Profession</span>
-            <strong style={{ fontSize: '13.5px', color: 'var(--text-dark)' }}>{shouldBlur ? 'Hidden' : profile.occupation}</strong>
-          </div>
-        </div>
-
-        <div className="profile-card-footer" style={{ borderTop: '1px solid var(--border-color)', paddingTop: '18px', marginTop: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <span style={{ fontSize: '13.5px', color: 'var(--text-dark)', fontWeight: '600' }}>
-            📞 {shouldBlur ? '+91-XXXXX-XXXXX' : profile.phoneNumber}
-          </span>
-          <button
-            onClick={() => onViewDetails(profile)}
-            className="btn btn-secondary"
-            style={{ padding: '8px 18px', fontSize: '12px' }}
-          >
-            View Biodata
-          </button>
-        </div>
       </div>
     </article>
   );

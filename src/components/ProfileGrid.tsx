@@ -24,12 +24,63 @@ export const ProfileGrid: React.FC<ProfileGridProps> = ({ filteredProfiles }) =>
 
   if (filteredProfiles.length === 0) {
     return (
-      <div className="empty-state card-theme-wrapper" style={{ maxWidth: '600px', margin: '40px auto', textAlign: 'center', padding: '48px 24px' }}>
-        <div className="empty-state-icon" style={{ fontSize: '32px', color: 'var(--gold-accent)' }}>❀</div>
-        <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '22px', color: 'var(--deep-maroon)', marginTop: '12px' }}>No Matches Found</h3>
-        <p style={{ color: 'var(--text-muted)', marginTop: '8px' }}>
-          Try clearing filters or search keywords to explore more candidates.
+      <div style={{
+        maxWidth: '520px',
+        margin: '60px auto',
+        textAlign: 'center',
+        padding: '52px 32px',
+        background: 'var(--white)',
+        borderRadius: '20px',
+        border: '1px solid rgba(184,146,74,0.15)',
+        boxShadow: '0 4px 24px rgba(111,29,53,0.06)',
+      }}>
+        <div style={{ fontSize: '48px', marginBottom: '16px' }}>🌙</div>
+        <h3 style={{
+          fontFamily: 'var(--font-serif)',
+          fontSize: '22px',
+          color: 'var(--deep-maroon)',
+          marginBottom: '10px',
+          fontWeight: 700,
+        }}>
+          No Profiles Match Your Filters
+        </h3>
+        <p style={{ color: 'var(--text-muted)', fontSize: '14.5px', lineHeight: 1.6, marginBottom: '28px' }}>
+          Try widening your search — adjust the age range, location, or community filters to discover more compatible matches.
         </p>
+        <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
+          <a
+            href="/search"
+            style={{
+              padding: '11px 24px',
+              background: 'linear-gradient(135deg,var(--deep-maroon),#8b2252)',
+              color: '#fff',
+              borderRadius: '10px',
+              fontSize: '13.5px',
+              fontWeight: 700,
+              textDecoration: 'none',
+              fontFamily: 'var(--font-sans)',
+              boxShadow: '0 4px 14px rgba(111,29,53,0.22)',
+            }}
+          >
+            Clear All Filters
+          </a>
+          <a
+            href="/register"
+            style={{
+              padding: '11px 24px',
+              background: 'transparent',
+              color: 'var(--deep-maroon)',
+              borderRadius: '10px',
+              fontSize: '13.5px',
+              fontWeight: 700,
+              textDecoration: 'none',
+              fontFamily: 'var(--font-sans)',
+              border: '1.5px solid rgba(111,29,53,0.3)',
+            }}
+          >
+            Register Free
+          </a>
+        </div>
       </div>
     );
   }

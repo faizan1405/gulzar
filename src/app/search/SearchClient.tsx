@@ -10,7 +10,7 @@ import ProfileGrid from '../../components/ProfileGrid';
 import { SectionHeading, PremiumFooter } from '../../components/NikahComponents';
 
 export default function SearchClient() {
-  const { profiles, isLoggedIn, userProfile } = useSimulator();
+  const { profiles, isLoggedIn, userProfile, isLoading } = useSimulator();
   
   const searchParams = useSearchParams();
   const queryLocation = searchParams?.get('location');
@@ -232,7 +232,14 @@ export default function SearchClient() {
             totalResults={rankedProfiles.length}
           />
 
-          <ProfileGrid filteredProfiles={rankedProfiles} />
+          {isLoading ? (
+            <div style={{ textAlign: 'center', padding: '80px 20px' }}>
+              <div style={{ fontSize: '36px', marginBottom: '14px', animation: 'spin 1.2s linear infinite', display: 'inline-block' }}>⏳</div>
+              <p style={{ color: 'var(--text-muted)', fontSize: '15px', fontWeight: 500 }}>Loading profiles…</p>
+            </div>
+          ) : (
+            <ProfileGrid filteredProfiles={rankedProfiles} />
+          )}
         </div>
       </main>
       <PremiumFooter onNavigate={(view) => window.location.href = `/${view === 'home' ? '' : view}`} />

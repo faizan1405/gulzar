@@ -651,8 +651,8 @@ export default function HomeClient() {
                 />
 
                 {profiles.length > 0 ? (
-                  <div className="grid-3" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '32px' }}>
-                    {profiles.slice(0, 3).map((profile, index) => (
+                  <div className="grid-3" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '32px' }}>
+                    {profiles.slice(0, 6).map((profile, index) => (
                       <ProfileCard
                         key={profile.id}
                         profile={profile}
