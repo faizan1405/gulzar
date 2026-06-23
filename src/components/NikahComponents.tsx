@@ -112,17 +112,17 @@ export const QuranVerseBlock: React.FC = () => {
       <div className="quran-verse-split gold-glow">
         <div className="quran-verse-image-panel">
           <Image
-            src="/images/nikah-3.jpeg"
+            src="/images/couple.png"
             alt="Elegant Islamic matrimonial - Rishte Forever"
             fill
             sizes="(max-width: 640px) 100vw, 380px"
-            style={{ objectFit: 'cover', objectPosition: 'center' }}
+            style={{ objectFit: 'cover', objectPosition: 'center top' }}
             priority
           />
           <div style={{
             position: 'absolute',
             inset: 0,
-            background: 'linear-gradient(to right, transparent 60%, rgba(245,235,210,0.55) 100%)',
+            background: 'linear-gradient(to right, transparent 55%, rgba(255,253,248,0.7) 100%)',
             pointerEvents: 'none',
           }} />
         </div>
