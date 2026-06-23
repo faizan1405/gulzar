@@ -197,8 +197,8 @@ a {
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  column-gap: 16px;
-  height: 72px;
+  column-gap: 24px;
+  height: 80px;
 }
 
 .nav-section {
@@ -218,6 +218,9 @@ a {
 
 .nav-container .logo {
   justify-self: center;
+  display: flex;
+  align-items: center;
+  z-index: 5;
 }
 
 .logo {
@@ -243,9 +246,11 @@ a {
 
 .nav-menu {
   display: flex;
-  gap: 12px;
+  gap: 16px;
   list-style: none;
   align-items: center;
+  margin: 0;
+  padding: 0;
 }
 
 .nav-link {
@@ -257,11 +262,65 @@ a {
   transition: var(--transition-smooth);
   letter-spacing: 0.3px;
   position: relative;
+  white-space: nowrap; /* Prevent awkward wrapping */
+  display: inline-flex;
+  align-items: center;
 }
 
 .nav-link:hover, .nav-link.active {
   color: var(--deep-maroon);
   background-color: var(--primary-brand-light);
+}
+
+/* Navbar specific action styles & highlight helper classes */
+.nav-actions-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.nav-actions-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nav-btn {
+  padding: 8px 16px !important;
+  font-size: 13px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  text-transform: none; /* Make buttons fit nicely without heavy all-caps */
+}
+
+.nav-link-zaicha {
+  color: var(--antique-gold) !important;
+  font-weight: 700 !important;
+}
+
+.hamburger-btn {
+  background: none;
+  border: none;
+  font-size: 28px;
+  cursor: pointer;
+  color: var(--primary-brand);
+  transition: var(--transition-smooth);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+}
+
+.hamburger-btn:hover {
+  color: var(--gold-accent);
+  background-color: var(--soft-cream);
+  transform: scale(1.05);
+}
+
+#hamburger-btn {
+  display: none;
 }
 
 .nav-link.active::after {
@@ -1723,22 +1782,40 @@ input[type="checkbox"] {
 }
 
 /* Media Queries for Responsive Design */
-@media (max-width: 1200px) {
+@media (max-width: 1280px) {
   .hero-title {
     font-size: 48px;
   }
   /* Tighten navbar so 3-column layout never crowds on tablet/laptop */
   .nav-container {
-    column-gap: 10px;
+    column-gap: 12px;
+    height: 72px;
   }
   .nav-menu {
-    gap: 4px;
+    gap: 8px;
   }
   .nav-link {
-    padding: 8px 10px;
+    padding: 6px 12px;
+    font-size: 13px;
   }
-  .nav-right .btn {
-    padding: 8px 12px !important;
+  .nav-actions-wrapper {
+    gap: 8px;
+  }
+  .nav-actions-group {
+    gap: 6px;
+  }
+  .nav-btn {
+    padding: 6px 12px !important;
+    font-size: 12px !important;
+  }
+}
+
+@media (max-width: 1180px) {
+  .nav-menu-desktop {
+    display: none !important;
+  }
+  #hamburger-btn {
+    display: flex !important;
   }
 }
 
