@@ -169,10 +169,30 @@ a {
 }
 
 .nav-container {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  height: 80px;
+  column-gap: 16px;
+  height: 72px;
+}
+
+.nav-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.nav-left {
+  justify-self: start;
+}
+
+.nav-right {
+  justify-self: end;
+}
+
+.nav-container .logo {
+  justify-self: center;
 }
 
 .logo {
@@ -1659,6 +1679,19 @@ input[type="checkbox"] {
 @media (max-width: 1200px) {
   .hero-title {
     font-size: 48px;
+  }
+  /* Tighten navbar so 3-column layout never crowds on tablet/laptop */
+  .nav-container {
+    column-gap: 10px;
+  }
+  .nav-menu {
+    gap: 4px;
+  }
+  .nav-link {
+    padding: 8px 10px;
+  }
+  .nav-right .btn {
+    padding: 8px 12px !important;
   }
 }
 

@@ -48,6 +48,55 @@ export const Navbar: React.FC = () => {
   return (
     <header className="header font-sans">
       <div className="container nav-container">
+        <style>{`
+          @media (max-width: 991px) {
+            #hamburger-btn { display: flex !important; }
+            .nav-menu-desktop { display: none !important; }
+          }
+        `}</style>
+
+        {/* Left: hamburger (mobile) + primary nav links (desktop) */}
+        <div className="nav-section nav-left">
+          <button
+            className="modal-close-btn"
+            style={{ display: 'none', alignItems: 'center', justifyContent: 'center', border: 'none', background: 'none', cursor: 'pointer' }}
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            id="hamburger-btn"
+          >
+            ☰
+          </button>
+          <nav className="nav-menu-desktop">
+            <ul className="nav-menu" style={{ margin: 0, padding: 0 }}>
+              <li>
+                <Link href="/" className={`nav-link ${pathname === '/' ? 'active' : ''}`}>
+                  Home
+                </Link>
+              </li>
+              <li>
+                <Link href="/search" className={`nav-link ${pathname === '/search' ? 'active' : ''}`}>
+                  Browse Profiles
+                </Link>
+              </li>
+              <li>
+                <Link href="/how-it-works" className={`nav-link ${pathname === '/how-it-works' ? 'active' : ''}`}>
+                  How It Works
+                </Link>
+              </li>
+              <li>
+                <Link href="/premium" className={`nav-link ${pathname === '/premium' ? 'active' : ''}`}>
+                  Premium
+                </Link>
+              </li>
+              <li>
+                <Link href="/safety" className={`nav-link ${pathname === '/safety' ? 'active' : ''}`}>
+                  Safety
+                </Link>
+              </li>
+            </ul>
+          </nav>
+        </div>
+
+        {/* Center: logo */}
         <Link href="/" className="logo" id="header-logo-link">
           <Image
             src="/images/rishte-forever-logo.png"
@@ -58,104 +107,57 @@ export const Navbar: React.FC = () => {
           />
         </Link>
 
-        <button
-          className="modal-close-btn"
-          style={{ display: 'none', border: 'none', background: 'none', cursor: 'pointer' }}
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          id="hamburger-btn"
-        >
-          ☰
-        </button>
-        <style>{`
-          @media (max-width: 991px) {
-            #hamburger-btn { display: block !important; }
-            .nav-menu-desktop { display: none !important; }
-          }
-        `}</style>
-
-        <nav className="nav-menu-desktop">
-          <ul className="nav-menu" style={{ margin: 0, padding: 0 }}>
-            <li>
-              <Link href="/" className={`nav-link ${pathname === '/' ? 'active' : ''}`}>
-                Home
-              </Link>
-            </li>
-            <li>
-              <Link href="/search" className={`nav-link ${pathname === '/search' ? 'active' : ''}`}>
-                Browse Profiles
-              </Link>
-            </li>
-            <li>
-              <Link href="/how-it-works" className={`nav-link ${pathname === '/how-it-works' ? 'active' : ''}`}>
-                How It Works
-              </Link>
-            </li>
-            <li>
-              <Link href="/premium" className={`nav-link ${pathname === '/premium' ? 'active' : ''}`}>
-                Premium
-              </Link>
-            </li>
-            <li>
-              <Link href="/safety" className={`nav-link ${pathname === '/safety' ? 'active' : ''}`}>
-                Safety
-              </Link>
-            </li>
-            <li>
-              {isLoggedIn && (
-                <Link
-                  href="/my-account"
-                  className="btn btn-secondary"
-                  style={{ padding: '8px 16px', fontSize: '13px' }}
-                >
-                  My Account
-                </Link>
-              )}
-            </li>
-            <li>
-              <Link
-                href="/admin"
-                className="btn btn-secondary"
-                id="btn-toggle-admin"
+        {/* Right: action buttons */}
+        <div className="nav-section nav-right nav-menu-desktop">
+          {isLoggedIn && (
+            <Link
+              href="/my-account"
+              className="btn btn-secondary"
+              style={{ padding: '8px 16px', fontSize: '13px' }}
+            >
+              My Account
+            </Link>
+          )}
+          <Link
+            href="/admin"
+            className="btn btn-secondary"
+            id="btn-toggle-admin"
+            style={{ padding: '8px 16px', fontSize: '13px' }}
+          >
+            {pathname.startsWith('/admin') ? 'View Website' : 'Admin Panel'}
+          </Link>
+          {isLoggedIn ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--primary-brand)', fontFamily: 'var(--font-serif)' }}>Salaam!</span>
+              <button
+                onClick={handleLogout}
+                className="btn btn-primary"
+                id="btn-logout"
                 style={{ padding: '8px 16px', fontSize: '13px' }}
               >
-                {pathname.startsWith('/admin') ? 'View Website' : 'Admin Panel'}
-              </Link>
-            </li>
-            <li>
-              {isLoggedIn ? (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--primary-brand)', fontFamily: 'var(--font-serif)' }}>Salaam!</span>
-                  <button
-                    onClick={handleLogout}
-                    className="btn btn-primary"
-                    id="btn-logout"
-                    style={{ padding: '8px 16px', fontSize: '13px' }}
-                  >
-                    Logout
-                  </button>
-                </div>
-              ) : (
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  <button
-                    onClick={handleLoginTrigger}
-                    className="btn btn-secondary"
-                    id="btn-login-trigger"
-                    style={{ padding: '8px 16px', fontSize: '13px' }}
-                  >
-                    Login
-                  </button>
-                  <button
-                    onClick={handleRegisterFree}
-                    className="btn btn-gold"
-                    style={{ padding: '8px 16px', fontSize: '13px' }}
-                  >
-                    Register Free
-                  </button>
-                </div>
-              )}
-            </li>
-          </ul>
-        </nav>
+                Logout
+              </button>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button
+                onClick={handleLoginTrigger}
+                className="btn btn-secondary"
+                id="btn-login-trigger"
+                style={{ padding: '8px 16px', fontSize: '13px' }}
+              >
+                Login
+              </button>
+              <button
+                onClick={handleRegisterFree}
+                className="btn btn-gold"
+                style={{ padding: '8px 16px', fontSize: '13px' }}
+              >
+                Register Free
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Mobile Drawer Navigation Menu */}
