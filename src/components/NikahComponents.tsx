@@ -50,18 +50,74 @@ export const DecorativeArch: React.FC<{ children: React.ReactNode; className?: s
 };
 
 // 3. Bismillah Calligraphy (SVG representation)
+// 3. Bismillah Calligraphy (SVG representation)
 export const BismillahCalligraphy: React.FC = () => {
   return (
-    <div className="flex justify-center my-6" aria-label="Bismillah-ir-Rahman-ir-Rahim calligraphy stamp" style={{ display: 'flex', justifyContent: 'center', width: '100%', margin: '24px 0' }}>
-      <svg width="280" height="65" viewBox="0 0 300 70" fill="none" xmlns="http://www.w3.org/2000/svg" className="mx-auto" style={{ display: 'block', maxWidth: '100%', height: 'auto' }}>
-        {/* Background elegant calligraphic shape */}
-        <path d="M10 35 C 70 5, 230 5, 290 35 C 230 65, 70 65, 10 35 Z" fill="#F8F1E7" stroke="var(--gold-accent)" strokeWidth="0.75" />
-        {/* Stylized high-quality Arabic Bismillah lettering paths */}
-        <text x="50%" y="46" dominantBaseline="middle" textAnchor="middle" fill="var(--deep-maroon)" fontFamily="var(--font-arabic)" fontSize="32" fontWeight="bold">
-          بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
-        </text>
-        <path d="M80 50 Q 150 58 220 50" stroke="var(--gold-accent)" strokeWidth="1" fill="none" strokeDasharray="4,4" />
-      </svg>
+    <div className="bismillah-container font-sans" aria-label="Bismillah-ir-Rahman-ir-Rahim calligraphy stamp">
+      {/* Hanging Lantern Left */}
+      <div className="lantern-wrapper lantern-left">
+        <svg width="40" height="150" viewBox="0 0 40 150" fill="none">
+          <line x1="20" y1="0" x2="20" y2="70" stroke="var(--gold-accent)" strokeWidth="1" strokeDasharray="3,3" />
+          <path d="M12 70 L20 62 L28 70 Z" fill="var(--gold-accent)" />
+          <path d="M10 70 L30 70 L34 78 L6 78 Z" fill="var(--gold-accent)" />
+          <path d="M6 78 L34 78 L28 112 L12 112 Z" fill="var(--warm-ivory)" stroke="var(--gold-accent)" strokeWidth="1.2" />
+          <circle cx="20" cy="95" r="7" fill="var(--gold-light)" opacity="0.6" style={{ filter: 'blur(2px)' }} />
+          <path d="M20 89 C19 93 20 98 20 98 C20 98 21 93 20 89 Z" fill="#EBC5C8" />
+          <path d="M12 112 L28 112 L24 120 L16 120 Z" fill="var(--gold-accent)" />
+          <circle cx="20" cy="124" r="2.5" stroke="var(--gold-accent)" strokeWidth="1.2" fill="none" />
+          <path d="M20 126.5 L20 142" stroke="var(--gold-accent)" strokeWidth="1" />
+        </svg>
+      </div>
+
+      {/* Central Calligraphy Stamp Block */}
+      <div className="bismillah-content">
+        {/* Top Floral Ornament */}
+        <div className="bismillah-ornament-top">
+          <svg width="60" height="24" viewBox="0 0 60 24" fill="none">
+            <path d="M30,2 C32,7 37,9 41,7 C45,5 47,2 44,0 C41,-2 35,0 30,2 Z" fill="var(--gold-accent)" opacity="0.85"/>
+            <path d="M30,2 C28,7 23,9 19,7 C15,5 13,2 16,0 C19,-2 25,0 30,2 Z" fill="var(--gold-accent)" opacity="0.85"/>
+            <path d="M30,2 C30,8 26,13 21,15 C16,17 13,13 16,11 C19,9 25,7 30,2 Z" fill="var(--gold-accent)" opacity="0.85"/>
+            <path d="M30,2 C30,8 34,13 39,15 C44,17 47,13 44,11 C41,9 35,7 30,2 Z" fill="var(--gold-accent)" opacity="0.85"/>
+            <circle cx="30" cy="7" r="2" fill="var(--deep-maroon)" stroke="var(--gold-accent)" strokeWidth="0.5"/>
+          </svg>
+        </div>
+
+        {/* Bismillah Arabic SVG */}
+        <svg width="300" height="70" viewBox="0 0 300 70" fill="none" className="bismillah-svg">
+          <path d="M10 35 C 70 5, 230 5, 290 35 C 230 65, 70 65, 10 35 Z" fill="var(--warm-ivory)" stroke="var(--gold-accent)" strokeWidth="1" />
+          <text x="50%" y="46" dominantBaseline="middle" textAnchor="middle" fill="var(--deep-maroon)" fontFamily="var(--font-arabic)" fontSize="32" fontWeight="bold">
+            بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
+          </text>
+          <path d="M80 52 Q 150 60 220 52" stroke="var(--gold-accent)" strokeWidth="1" fill="none" strokeDasharray="4,4" />
+        </svg>
+
+        {/* Bottom Gold Line with Center Accent */}
+        <div className="bismillah-divider-bottom">
+          <div className="bismillah-line-left"></div>
+          <svg width="40" height="15" viewBox="0 0 40 15" fill="none">
+            <path d="M20,0 L24,7.5 L20,15 L16,7.5 Z" fill="var(--gold-accent)" />
+            <circle cx="20" cy="7.5" r="2" fill="var(--deep-maroon)" />
+            <line x1="0" y1="7.5" x2="12" y2="7.5" stroke="var(--gold-accent)" strokeWidth="1" />
+            <line x1="28" y1="7.5" x2="40" y2="7.5" stroke="var(--gold-accent)" strokeWidth="1" />
+          </svg>
+          <div className="bismillah-line-right"></div>
+        </div>
+      </div>
+
+      {/* Hanging Lantern Right */}
+      <div className="lantern-wrapper lantern-right">
+        <svg width="40" height="150" viewBox="0 0 40 150" fill="none">
+          <line x1="20" y1="0" x2="20" y2="70" stroke="var(--gold-accent)" strokeWidth="1" strokeDasharray="3,3" />
+          <path d="M12 70 L20 62 L28 70 Z" fill="var(--gold-accent)" />
+          <path d="M10 70 L30 70 L34 78 L6 78 Z" fill="var(--gold-accent)" />
+          <path d="M6 78 L34 78 L28 112 L12 112 Z" fill="var(--warm-ivory)" stroke="var(--gold-accent)" strokeWidth="1.2" />
+          <circle cx="20" cy="95" r="7" fill="var(--gold-light)" opacity="0.6" style={{ filter: 'blur(2px)' }} />
+          <path d="M20 89 C19 93 20 98 20 98 C20 98 21 93 20 89 Z" fill="#EBC5C8" />
+          <path d="M12 112 L28 112 L24 120 L16 120 Z" fill="var(--gold-accent)" />
+          <circle cx="20" cy="124" r="2.5" stroke="var(--gold-accent)" strokeWidth="1.2" fill="none" />
+          <path d="M20 126.5 L20 142" stroke="var(--gold-accent)" strokeWidth="1" />
+        </svg>
+      </div>
     </div>
   );
 };
