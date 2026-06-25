@@ -733,11 +733,11 @@ export default function HomeClient() {
                   <div style={{ width: '100%' }}>
                     <div style={{ position: 'relative', width: '100%', paddingBottom: '75%', borderRadius: 'var(--border-radius-lg)', border: '1.5px solid var(--gold-accent)', boxShadow: 'var(--shadow-premium)', overflow: 'hidden' }}>
                       <Image
-                        src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=600&h=450"
+                        src="/images/trust-safety.jpg"
                         alt="Verified Muslim profiles and matchmaking safety - Rishte Forever"
                         fill
                         sizes="(max-width: 768px) 100vw, 500px"
-                        style={{ objectFit: 'cover' }}
+                        style={{ objectFit: 'cover', objectPosition: 'center' }}
                       />
                     </div>
                   </div>
