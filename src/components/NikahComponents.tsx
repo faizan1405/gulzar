@@ -820,7 +820,9 @@ interface PremiumPlanCardProps {
   badgeText?: string;
   planTier?: 'basic' | 'silver' | 'gold' | 'membership';
   hidePrices?: boolean;
+  isLoggedIn?: boolean;
   onCompleteForm?: () => void;
+  onShowLogin?: () => void;
 }
 
 export const PremiumPlanCard: React.FC<PremiumPlanCardProps> = ({
@@ -839,7 +841,9 @@ export const PremiumPlanCard: React.FC<PremiumPlanCardProps> = ({
   badgeText,
   planTier,
   hidePrices = true,
+  isLoggedIn = false,
   onCompleteForm,
+  onShowLogin,
 }) => {
   const finalBadge = badgeText || (isPopular ? 'Recommended' : undefined);
   const borderStyle = planTier === 'gold' 
@@ -964,11 +968,11 @@ export const PremiumPlanCard: React.FC<PremiumPlanCardProps> = ({
       <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: '8px' }}>
         {hidePrices ? (
           <button
-            onClick={onCompleteForm}
+            onClick={isLoggedIn ? onCompleteForm : (onShowLogin || onCompleteForm)}
             className="btn btn-primary"
             style={{ width: '100%' }}
           >
-            Complete Form to View Price
+            {isLoggedIn ? 'Complete Form to View Price' : 'Register & Complete Profile'}
           </button>
         ) : (
           <button
@@ -1483,7 +1487,7 @@ export const PremiumFooter: React.FC<PremiumFooterProps> = ({ onNavigate }) => {
           </div>
         </div>
         <div className="footer-bottom" style={{ borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '30px', marginTop: '50px', fontSize: '13px', color: 'rgba(248, 241, 231, 0.6)', textAlign: 'center' }}>
-          &copy; 2026 Rishte Forever. All Rights Reserved. Created for premium internal launch preview.
+          &copy; Rishte Forever. All rights reserved.
         </div>
       </div>
     </footer>

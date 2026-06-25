@@ -281,9 +281,17 @@ export const SimulatorProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         if (typeof saved.simulatedHighProfileApproved === 'boolean') {
           setSimulatedHighProfileApproved(saved.simulatedHighProfileApproved);
         }
+        if (typeof saved.isAdminMode === 'boolean') setIsAdminMode(saved.isAdminMode);
       }
     } catch {
       // corrupt or unavailable storage — start fresh
+    }
+    // Belt-and-suspenders: if the visitor landed directly on /admin (typed URL
+    // or refreshed), treat admin mode as active now — this ensures the very
+    // first loadAllData run uses isAdminMode=true instead of waiting for the
+    // DemoSimulatorBar path-sync effect (which runs later in the tree).
+    if (window.location.pathname.startsWith('/admin')) {
+      setIsAdminMode(true);
     }
     setDemoHydrated(true);
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -297,12 +305,12 @@ export const SimulatorProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     try {
       window.localStorage.setItem(
         DEMO_STATE_KEY,
-        JSON.stringify({ isLoggedIn, hasPaid300, simulatedPackages, simulatedHighProfileApproved })
+        JSON.stringify({ isLoggedIn, hasPaid300, simulatedPackages, simulatedHighProfileApproved, isAdminMode })
       );
     } catch {
       // storage full / unavailable — non-fatal for the demo
     }
-  }, [demoHydrated, isLoggedIn, hasPaid300, simulatedPackages, simulatedHighProfileApproved]);
+  }, [demoHydrated, isLoggedIn, hasPaid300, simulatedPackages, simulatedHighProfileApproved, isAdminMode]);
 
   // Headers generator
   const getSimulatorHeaders = useCallback(() => {

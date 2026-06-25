@@ -2,14 +2,16 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { getAllLeads } from '@/lib/profileStore';
 
+async function isAdmin(req: NextRequest) {
+  const session = await auth();
+  const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
+  const simulatedAdmin = isDemoMode && req.headers.get('x-simulator-admin') === 'true';
+  return session?.user?.role === 'ADMIN' || simulatedAdmin;
+}
+
 export async function GET(req: NextRequest) {
   try {
-    // 1. Role validation check
-    const session = await auth();
-    const simulatedAdminId = req.headers.get('x-simulator-admin-id');
-    const role = session?.user?.role || (simulatedAdminId ? 'ADMIN' : 'USER');
-    
-    if (role !== 'ADMIN') {
+    if (!(await isAdmin(req))) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 

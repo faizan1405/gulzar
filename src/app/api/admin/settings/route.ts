@@ -2,13 +2,16 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/db';
 
+async function isAdmin(req: NextRequest) {
+  const session = await auth();
+  const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
+  const simulatedAdmin = isDemoMode && req.headers.get('x-simulator-admin') === 'true';
+  return session?.user?.role === 'ADMIN' || simulatedAdmin;
+}
+
 export async function GET(req: NextRequest) {
   try {
-    const session = await auth();
-    const simulatedAdminId = req.headers.get('x-simulator-admin-id');
-    const role = session?.user?.role || (simulatedAdminId ? 'ADMIN' : 'USER');
-    
-    if (role !== 'ADMIN') {
+    if (!(await isAdmin(req))) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
@@ -30,11 +33,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await auth();
-    const simulatedAdminId = req.headers.get('x-simulator-admin-id');
-    const role = session?.user?.role || (simulatedAdminId ? 'ADMIN' : 'USER');
-    
-    if (role !== 'ADMIN') {
+    if (!(await isAdmin(req))) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 

@@ -9,7 +9,7 @@ import { SectionHeading, PremiumFooter, FloralCorner } from '../../../components
 import PackageInquiryForm from '../../../components/PackageInquiryForm';
 
 export default function SecondMarriageClient() {
-  const { profiles, isLoggedIn, simulatedPackages, handleRazorpayCheckout, userProfile, setIsRegistering, setRegStep } = useSimulator();
+  const { profiles, isLoggedIn, simulatedPackages, handleRazorpayCheckout, userProfile, setIsRegistering, setRegStep, setShowLoginModal } = useSimulator();
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
   const [showInquiry, setShowInquiry] = useState(false);
@@ -18,6 +18,11 @@ export default function SecondMarriageClient() {
   const isPackageActive = simulatedPackages.includes('second_marriage_package');
 
   const handleCompleteForm = () => {
+    if (!isLoggedIn) {
+      setShowLoginModal(true);
+      router.push('/');
+      return;
+    }
     setIsRegistering(true);
     setRegStep(1);
     router.push('/');

@@ -1,8 +1,11 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useSimulator } from '../../../context/SimulatorContext';
 
 export default function AdminSettingsPage() {
+  const { getSimulatorHeaders } = useSimulator();
+
   const [settings, setSettings] = useState({
     adminEmail: '',
     adminPhone: '',
@@ -21,7 +24,7 @@ export default function AdminSettingsPage() {
   const [message, setMessage] = useState('');
 
   useEffect(() => {
-    fetch('/api/admin/settings')
+    fetch('/api/admin/settings', { headers: getSimulatorHeaders() })
       .then(res => res.json())
       .then(data => {
         if (data.settings) {
@@ -45,7 +48,9 @@ export default function AdminSettingsPage() {
         console.error(err);
         setIsLoading(false);
       });
-  }, []);
+  // Re-fetch when simulator admin state changes (isAdminMode toggles getSimulatorHeaders ref)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [getSimulatorHeaders]);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,7 +60,7 @@ export default function AdminSettingsPage() {
     try {
       const res = await fetch('/api/admin/settings', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getSimulatorHeaders(),
         body: JSON.stringify(settings)
       });
       const data = await res.json();

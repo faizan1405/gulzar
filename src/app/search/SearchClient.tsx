@@ -14,14 +14,24 @@ export default function SearchClient() {
   
   const searchParams = useSearchParams();
   const queryLocation = searchParams?.get('location');
+  const queryGender = searchParams?.get('gender');
+  const queryAgeMin = searchParams?.get('ageMin');
+  const queryAgeMax = searchParams?.get('ageMax');
+  const queryState = searchParams?.get('state');
+  const queryCity = searchParams?.get('city');
+  const queryCommunity = searchParams?.get('community');
+  const queryCaste = searchParams?.get('caste');
 
   const { masterLocations } = useSimulator();
-  
-  // Parse query location to set initial state/city
+
+  // Parse initial state/city: direct params take priority, then legacy location param
   let initialState = 'All';
   let initialCity = 'All';
 
-  if (queryLocation && queryLocation !== 'All India') {
+  if (queryState) {
+    initialState = queryState;
+    if (queryCity) initialCity = queryCity;
+  } else if (queryLocation && queryLocation !== 'All India') {
     const isState = masterLocations.some(l => l.state === queryLocation);
     const isCity = masterLocations.some(l => l.district === queryLocation);
 
@@ -36,22 +46,21 @@ export default function SearchClient() {
         initialState = foundLoc.state;
       }
     } else {
-      // Fallback if not found perfectly, we can check if any state contains it
       const partialState = masterLocations.find(l => l.state.includes(queryLocation));
       if (partialState) initialState = partialState.state;
     }
   }
 
-  // Standard and advanced filters
-  const [selectedCaste, setSelectedCaste] = useState('All');
-  const [selectedCommunity, setSelectedCommunity] = useState('All');
+  // Standard and advanced filters — initialized from URL query params
+  const [selectedCaste, setSelectedCaste] = useState(queryCaste || 'All');
+  const [selectedCommunity, setSelectedCommunity] = useState(queryCommunity || 'All');
   const [selectedState, setSelectedState] = useState(initialState);
   const [selectedCity, setSelectedCity] = useState(initialCity);
 
-  // New Gender and Age filters
-  const [selectedGender, setSelectedGender] = useState('No preference');
-  const [minAge, setMinAge] = useState('Any');
-  const [maxAge, setMaxAge] = useState('Any');
+  // Gender and Age filters — initialized from URL query params
+  const [selectedGender, setSelectedGender] = useState(queryGender || 'No preference');
+  const [minAge, setMinAge] = useState(queryAgeMin || 'Any');
+  const [maxAge, setMaxAge] = useState(queryAgeMax || 'Any');
 
   const parsedMin = minAge !== 'Any' ? Number(minAge) : null;
   const parsedMax = maxAge !== 'Any' ? Number(maxAge) : null;

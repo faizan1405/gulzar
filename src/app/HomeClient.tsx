@@ -8,7 +8,7 @@ import { getProfileImage, getThemeClass } from '../lib/helpers';
 import Navbar from '../components/Navbar';
 import HeroSection from '../components/HeroSection';
 import SearchableCombobox from '../components/SearchableCombobox';
-import { DEFAULT_FIQHS, QUICK_MATCH_LOCATIONS } from '../lib/masterData';
+import { DEFAULT_FIQHS } from '../lib/masterData';
 
 import {
   FloralCorner,
@@ -41,7 +41,14 @@ const THEME_COLORS = [
 export default function HomeClient() {
   const router = useRouter();
   const [inquiryPackage, setInquiryPackage] = React.useState<string | null>(null);
-  const [quickLocation, setQuickLocation] = React.useState('All India');
+  const [quickGender, setQuickGender] = React.useState('');
+  const [quickAgeMin, setQuickAgeMin] = React.useState('');
+  const [quickAgeMax, setQuickAgeMax] = React.useState('');
+  const [quickState, setQuickState] = React.useState('');
+  const [quickCity, setQuickCity] = React.useState('');
+  const [quickCommunity, setQuickCommunity] = React.useState('');
+  const [quickCaste, setQuickCaste] = React.useState('');
+  const [quickAgeError, setQuickAgeError] = React.useState(false);
   const {
     isLoggedIn,
     hasPaid300,
@@ -74,7 +81,38 @@ export default function HomeClient() {
 
   const isFormComplete = isLoggedIn && userProfile?.profileCompletionStatus === 'COMPLETE';
 
+  const activeMaslaks = masterMaslaks.filter(m => !m.isDisabled).sort((a, b) => a.label.localeCompare(b.label));
+  const activeCastes = masterCastes.filter(c => !c.isDisabled).sort((a, b) => a.label.localeCompare(b.label));
+  const activeLocations = masterLocations.filter(l => !l.isDisabled);
+  const quickStates = Array.from(new Set(activeLocations.map(l => l.state))).sort((a, b) => a.localeCompare(b));
+  const quickCities = quickState
+    ? Array.from(new Set(activeLocations.filter(l => l.state === quickState).map(l => l.district))).sort((a, b) => a.localeCompare(b))
+    : [];
+
+  const handleQuickSearch = () => {
+    const minNum = quickAgeMin ? Number(quickAgeMin) : null;
+    const maxNum = quickAgeMax ? Number(quickAgeMax) : null;
+    if (minNum !== null && maxNum !== null && minNum > maxNum) {
+      setQuickAgeError(true);
+      return;
+    }
+    setQuickAgeError(false);
+    const params = new URLSearchParams();
+    if (quickGender) params.set('gender', quickGender);
+    if (quickAgeMin) params.set('ageMin', quickAgeMin);
+    if (quickAgeMax) params.set('ageMax', quickAgeMax);
+    if (quickState) params.set('state', quickState);
+    if (quickCity) params.set('city', quickCity);
+    if (quickCommunity) params.set('community', quickCommunity);
+    if (quickCaste) params.set('caste', quickCaste);
+    router.push(`/search?${params.toString()}`);
+  };
+
   const handleCompleteForm = () => {
+    if (!isLoggedIn) {
+      setShowLoginModal(true);
+      return;
+    }
     setIsRegistering(true);
     setRegStep(1);
     // Scroll to top so the wizard is visible
@@ -600,50 +638,125 @@ export default function HomeClient() {
             <div className="container" style={{ position: 'relative', zIndex: '20', marginTop: '-30px' }}>
               <div className="search-panel" style={{ backgroundColor: 'var(--white)', border: '1.5px solid var(--border-color)', borderRadius: 'var(--border-radius-lg)', padding: '24px 36px', boxShadow: 'var(--shadow-premium)' }}>
                 <span className="script-accent" style={{ fontSize: '2rem', display: 'block', marginBottom: '8px' }}>Refined Search</span>
-                <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '20px', color: 'var(--deep-maroon)', fontWeight: 'bold', marginBottom: '18px' }}>
+                <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '20px', color: 'var(--deep-maroon)', fontWeight: 'bold', marginBottom: '14px' }}>
                   Quick Match Search
                 </h3>
-                <div className="search-panel-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr)) 160px', gap: '20px', alignItems: 'flex-end' }}>
+
+                {quickAgeError && (
+                  <div style={{ backgroundColor: '#FEF2F2', border: '1px solid #FCA5A5', color: '#991B1B', padding: '10px 14px', borderRadius: '8px', marginBottom: '14px', fontSize: '14px', fontWeight: 500 }}>
+                    Minimum age cannot be greater than maximum age.
+                  </div>
+                )}
+
+                {/* Row 1: Gender, Min Age, Max Age, State, City */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: '16px', marginBottom: '16px' }}>
                   <div>
                     <label className="form-label">Looking For</label>
-                    <select className="form-control" style={{ backgroundColor: 'var(--warm-ivory)' }}>
-                      <option>Bride (Female)</option>
-                      <option>Groom (Male)</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="form-label">Age Range</label>
-                    <select className="form-control" style={{ backgroundColor: 'var(--warm-ivory)' }}>
-                      <option>18 - 25 Yrs</option>
-                      <option>26 - 32 Yrs</option>
-                      <option>33 - 40 Yrs</option>
-                      <option>40+ Yrs</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="form-label">STATE / CITY LOCATION</label>
-                    <select 
-                      className="form-control" 
+                    <select
+                      className="form-control"
                       style={{ backgroundColor: 'var(--warm-ivory)' }}
-                      value={quickLocation}
-                      onChange={(e) => setQuickLocation(e.target.value)}
+                      value={quickGender}
+                      onChange={(e) => setQuickGender(e.target.value)}
                     >
-                      {QUICK_MATCH_LOCATIONS.map(loc => (
-                        <option key={loc} value={loc}>{loc}</option>
+                      <option value="">Any Gender</option>
+                      <option value="Female">Bride (Female)</option>
+                      <option value="Male">Groom (Male)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="form-label">Min Age</label>
+                    <select
+                      className="form-control"
+                      style={{ backgroundColor: 'var(--warm-ivory)' }}
+                      value={quickAgeMin}
+                      onChange={(e) => { setQuickAgeMin(e.target.value); setQuickAgeError(false); }}
+                    >
+                      <option value="">Any</option>
+                      {Array.from({ length: 53 }, (_, i) => 18 + i).map(age => (
+                        <option key={age} value={String(age)}>{age}</option>
                       ))}
                     </select>
                   </div>
                   <div>
-                    <label className="form-label">Caste / Community</label>
-                    <select className="form-control" style={{ backgroundColor: 'var(--warm-ivory)' }}>
-                      <option>All Communities</option>
-                      <option>Hanafi</option>
-                      <option>Sheikh</option>
-                      <option>Sunni</option>
-                      <option>Syed</option>
+                    <label className="form-label">Max Age</label>
+                    <select
+                      className="form-control"
+                      style={{ backgroundColor: 'var(--warm-ivory)' }}
+                      value={quickAgeMax}
+                      onChange={(e) => { setQuickAgeMax(e.target.value); setQuickAgeError(false); }}
+                    >
+                      <option value="">Any</option>
+                      {Array.from({ length: 53 }, (_, i) => 18 + i).map(age => (
+                        <option key={age} value={String(age)}>{age}</option>
+                      ))}
                     </select>
                   </div>
-                  <button onClick={() => router.push(`/search?location=${encodeURIComponent(quickLocation)}`)} className="btn btn-primary" style={{ width: '100%' }}>
+                  <div>
+                    <label className="form-label">State</label>
+                    <select
+                      className="form-control"
+                      style={{ backgroundColor: 'var(--warm-ivory)' }}
+                      value={quickState}
+                      onChange={(e) => { setQuickState(e.target.value); setQuickCity(''); }}
+                    >
+                      <option value="">All States</option>
+                      {quickStates.map(s => (
+                        <option key={s} value={s}>{s}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="form-label">City</label>
+                    <select
+                      className="form-control"
+                      style={{ backgroundColor: 'var(--warm-ivory)' }}
+                      value={quickCity}
+                      onChange={(e) => setQuickCity(e.target.value)}
+                      disabled={!quickState}
+                    >
+                      <option value="">All Cities</option>
+                      {quickCities.map(c => (
+                        <option key={c} value={c}>{c}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Row 2: Community, Caste, Search Button */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: '16px', alignItems: 'flex-end' }}>
+                  <div>
+                    <label className="form-label">Community</label>
+                    <select
+                      className="form-control"
+                      style={{ backgroundColor: 'var(--warm-ivory)' }}
+                      value={quickCommunity}
+                      onChange={(e) => setQuickCommunity(e.target.value)}
+                    >
+                      <option value="">All Communities</option>
+                      {activeMaslaks.map(m => (
+                        <option key={m.id} value={m.label}>{m.label}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="form-label">Caste / Biradari</label>
+                    <select
+                      className="form-control"
+                      style={{ backgroundColor: 'var(--warm-ivory)' }}
+                      value={quickCaste}
+                      onChange={(e) => setQuickCaste(e.target.value)}
+                    >
+                      <option value="">All Castes</option>
+                      {activeCastes.map(c => (
+                        <option key={c.id} value={c.label}>{c.label}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <button
+                    onClick={handleQuickSearch}
+                    className="btn btn-primary"
+                    style={{ width: '100%', alignSelf: 'flex-end' }}
+                  >
                     Search Now
                   </button>
                 </div>
@@ -847,7 +960,9 @@ export default function HomeClient() {
                     whatsappMessage="Assalamu Alaikum, I want to know more about the ₹300 monthly membership on Rishte Forever."
                     imageUrl="/images/monthly_active.png"
                     hidePrices={!isFormComplete}
+                    isLoggedIn={isLoggedIn}
                     onCompleteForm={handleCompleteForm}
+                    onShowLogin={() => setShowLoginModal(true)}
                   />
                   <PremiumPlanCard
                     title="Good Profile Package"
@@ -864,7 +979,9 @@ export default function HomeClient() {
                     planTier="basic"
                     imageUrl="/images/good_profile.png"
                     hidePrices={!isFormComplete}
+                    isLoggedIn={isLoggedIn}
                     onCompleteForm={handleCompleteForm}
+                    onShowLogin={() => setShowLoginModal(true)}
                   />
                   <PremiumPlanCard
                     title="Silver Plan"
@@ -890,7 +1007,9 @@ export default function HomeClient() {
                     planTier="silver"
                     imageUrl="/images/second_marriage.png"
                     hidePrices={!isFormComplete}
+                    isLoggedIn={isLoggedIn}
                     onCompleteForm={handleCompleteForm}
+                    onShowLogin={() => setShowLoginModal(true)}
                   />
                   <PremiumPlanCard
                     title="Gold Package"
@@ -918,7 +1037,9 @@ export default function HomeClient() {
                     planTier="gold"
                     imageUrl="/images/high_profile.png"
                     hidePrices={!isFormComplete}
+                    isLoggedIn={isLoggedIn}
                     onCompleteForm={handleCompleteForm}
+                    onShowLogin={() => setShowLoginModal(true)}
                   />
                 </div>
               </div>
