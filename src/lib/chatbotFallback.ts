@@ -57,9 +57,9 @@ export function getFallbackResponse(message: string): string {
   ) {
     return "Assalamu Alaikum! Rishte Forever offers 4 matrimonial packages (inclusive of 18% GST):\n\n" +
       "1. **Standard Monthly Membership**: ₹300/month (₹354 with GST). Allows searching matches, filtering, and unblurring photos/phone numbers on normal profiles.\n" +
-      "2. **Good Profiles Package**: ₹5,500 one-time (₹6,490 with GST). Gives access to curated, hand-selected attractive profiles + ₹21,000 success fee after marriage confirmation.\n" +
-      "3. **Second Marriage Package**: ₹11,000 one-time (₹12,980 with GST). Separate private matchmaking category with unlimited leads until marriage. No success fee.\n" +
-      "4. **High Profile Package**: ₹21,000 one-time (₹24,780 with GST). For doctors, engineers, premium families, and candidates earning ₹10 Lakhs+ annually + ₹25,000 success fee after marriage.";
+      "2. **Good Profiles Package**: ₹5,500 one-time (₹6,490 with GST). Access to curated profiles, valid for 1 year + ₹21,000 success fee after marriage confirmation.\n" +
+      "3. **Silver Plan**: ₹11,000 one-time (₹12,980 with GST). Tailored search category, valid for 1 year. No success fee.\n" +
+      "4. **Gold Package**: ₹21,000 one-time (₹24,780 with GST). For doctors, engineers, premium families, and candidates earning ₹10 Lakhs+ annually, valid for 1 year + ₹25,000 success fee after marriage.";
   }
 
   // 4. Verification check

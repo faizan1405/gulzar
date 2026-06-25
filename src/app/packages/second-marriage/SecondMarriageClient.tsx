@@ -36,7 +36,7 @@ export default function SecondMarriageClient() {
         <div className="container font-sans" style={{ padding: '40px 0 80px 0' }}>
           <SectionHeading
             title="Second Marriage Directory"
-            subtitle="Browse matching divorcee/widow/widower profiles. Unlock access with the Second Marriage Package."
+            subtitle="Browse matching divorcee/widow/widower profiles. Unlock access with the Silver Plan."
             scriptText="Second Marriage Matches"
             as="h1"
           />
@@ -63,9 +63,9 @@ export default function SecondMarriageClient() {
               <ProfileGrid filteredProfiles={secondMarriageProfiles} />
             </div>
 
-            <div className="card-theme-wrapper" style={{ padding: '24px', position: 'sticky', top: '100px', border: '2.5px solid var(--gold-accent)', boxShadow: 'var(--gold-glow-shadow)' }}>
+            <div className="card-theme-wrapper" style={{ padding: '24px', position: 'sticky', top: '100px', border: '1.5px solid var(--gold-accent)', boxShadow: 'var(--shadow-premium)' }}>
               <h3 style={{ fontFamily: 'var(--font-serif)', color: 'var(--deep-maroon)', fontSize: '22px', marginBottom: '16px', fontWeight: 800 }}>
-                Second Marriage Package
+                Silver Plan
               </h3>
               <div style={{ fontSize: '36px', fontWeight: '800', color: 'var(--deep-maroon)', marginBottom: '8px', fontFamily: 'var(--font-serif)' }}>
                 ₹11,000 <span style={{ fontSize: '14px', color: 'var(--text-muted)', fontFamily: 'var(--font-sans)', fontWeight: 'normal' }}>+ 18% GST</span>
@@ -75,18 +75,23 @@ export default function SecondMarriageClient() {
               </p>
               
               <ul style={{ paddingLeft: '20px', marginBottom: '24px', fontSize: '13.5px', color: 'var(--text-dark)' }}>
-                <li style={{ marginBottom: '8px' }}>Dedicated matching support</li>
-                <li style={{ marginBottom: '8px' }}>Leads provided until marriage</li>
-                <li style={{ marginBottom: '8px' }}>No extra after-marriage fees</li>
+                <li style={{ marginBottom: '8px' }}>Everything in Basic Package</li>
+                <li style={{ marginBottom: '8px' }}>More verified profile suggestions</li>
+                <li style={{ marginBottom: '8px' }}>Priority matchmaking support</li>
+                <li style={{ marginBottom: '8px' }}>Profile shortlisting assistance</li>
+                <li style={{ marginBottom: '8px' }}>Family coordination support</li>
+                <li style={{ marginBottom: '8px' }}>Regular follow-up support</li>
+                <li style={{ marginBottom: '8px' }}>Privacy-safe contact assistance</li>
+                <li style={{ marginBottom: '8px' }}>1 year service validity</li>
               </ul>
 
               <button
                 className="btn btn-gold"
                 style={{ width: '100%', padding: '12px', fontSize: '15px' }}
-                onClick={() => handleRazorpayCheckout('second_marriage_package', 11000, 'Second Marriage Package')}
+                onClick={() => handleRazorpayCheckout('second_marriage_package', 11000, 'Silver Plan')}
                 disabled={simulatedPackages.includes('second_marriage_package')}
               >
-                {simulatedPackages.includes('second_marriage_package') ? 'Package Active ✅' : 'Buy Second Marriage Package'}
+                {simulatedPackages.includes('second_marriage_package') ? 'Package Active ✅' : 'Buy Silver Plan'}
               </button>
 
               {!simulatedPackages.includes('second_marriage_package') && (
@@ -99,7 +104,7 @@ export default function SecondMarriageClient() {
                     Inquire & Ask Call back
                   </button>
                   <a
-                    href={`https://wa.me/919675483125?text=${encodeURIComponent("Assalamu Alaikum, I am interested in the ₹11,000 Second Marriage Package on Rishte Forever. Please guide me.")}`}
+                    href={`https://wa.me/919675483125?text=${encodeURIComponent("Assalamu Alaikum, I am interested in the ₹11,000 Silver Plan on Rishte Forever. Please guide me.")}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="btn"
@@ -157,7 +162,7 @@ export default function SecondMarriageClient() {
               Package Inquiry & Callback
             </h3>
             <PackageInquiryForm
-              defaultPackage="₹11,000 Second Marriage Package"
+              defaultPackage="₹11,000 Silver Plan"
               onSuccess={() => setShowInquiry(false)}
               onCancel={() => setShowInquiry(false)}
             />

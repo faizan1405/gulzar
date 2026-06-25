@@ -650,7 +650,12 @@ export default function HomeClient() {
                   scriptText="Nikah Matches"
                 />
 
-                {profiles.length > 0 ? (
+                {isLoading ? (
+                  <div style={{ textAlign: 'center', padding: '48px 20px' }}>
+                    <div style={{ fontSize: '32px', marginBottom: '12px', animation: 'spin 1.2s linear infinite', display: 'inline-block' }}>⏳</div>
+                    <p style={{ color: 'var(--text-muted)', fontSize: '15px', fontWeight: 500 }}>Loading profiles…</p>
+                  </div>
+                ) : profiles.length > 0 ? (
                   <div className="grid-3" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '32px' }}>
                     {profiles.slice(0, 6).map((profile, index) => (
                       <ProfileCard
@@ -672,10 +677,10 @@ export default function HomeClient() {
                   </div>
                 ) : (
                   <div style={{ textAlign: 'center', padding: '48px 20px', backgroundColor: 'var(--white)', borderRadius: '12px', border: '1px dashed var(--gold-accent)' }}>
-                    <div style={{ fontSize: '32px', marginBottom: '12px', color: 'var(--gold-accent)' }}>📭</div>
-                    <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '20px', color: 'var(--primary-brand)', marginBottom: '8px' }}>No Featured Candidates</h3>
+                    <div style={{ fontSize: '32px', marginBottom: '12px', color: 'var(--gold-accent)' }}>🌙</div>
+                    <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '20px', color: 'var(--primary-brand)', marginBottom: '8px' }}>Profiles Coming Soon</h3>
                     <p style={{ color: 'var(--text-muted)', fontSize: '15px' }}>
-                      No featured candidates available right now. Please explore all profiles or check again soon.
+                      Verified profiles are being added. Register now to be among the first candidates.
                     </p>
                   </div>
                 )}
@@ -827,39 +832,64 @@ export default function HomeClient() {
                     price={5500}
                     gstRate={0.18}
                     billingText="one-time base"
-                    features={['For handsome & beautiful profile matches', 'Leads provided until marriage', '₹21,000 payable after marriage confirmation']}
+                    features={['Verified profile suggestions', 'Basic matchmaking support', 'Privacy-safe profile sharing', '1 year service validity']}
                     isActive={simulatedPackages.includes('good_profile_package')}
                     ctaText="Buy Good Profile Package"
                     onActivate={() => handleRazorpayCheckout('good_profile_package', 5500, 'Good Profile Package')}
                     onInquire={() => setInquiryPackage('₹5,500 Good Profiles Package')}
                     whatsappMessage="Assalamu Alaikum, I am interested in the ₹5,500 Good Profiles Package on Rishte Forever. Please guide me."
-                    isPopular
+                    badgeText="Starter"
+                    planTier="basic"
                     imageUrl="/images/good_profile.png"
                   />
                   <PremiumPlanCard
-                    title="Second Marriage Package"
+                    title="Silver Plan"
                     price={11000}
                     gstRate={0.18}
                     billingText="one-time fee"
-                    features={['For second marriage matches', 'Private segregated directory listing', 'Leads provided until marriage', 'No extra after-marriage fee']}
+                    features={[
+                      'Everything in Basic Package',
+                      'More verified profile suggestions',
+                      'Priority matchmaking support',
+                      'Profile shortlisting assistance',
+                      'Family coordination support',
+                      'Regular follow-up support',
+                      'Privacy-safe contact assistance',
+                      '1 year service validity'
+                    ]}
                     isActive={simulatedPackages.includes('second_marriage_package')}
-                    ctaText="Buy Second Marriage Package"
-                    onActivate={() => handleRazorpayCheckout('second_marriage_package', 11000, 'Second Marriage Package')}
-                    onInquire={() => setInquiryPackage('₹11,000 Second Marriage Package')}
-                    whatsappMessage="Assalamu Alaikum, I am interested in the ₹11,000 Second Marriage Package on Rishte Forever. Please guide me."
+                    ctaText="Buy Silver Plan"
+                    onActivate={() => handleRazorpayCheckout('second_marriage_package', 11000, 'Silver Plan')}
+                    onInquire={() => setInquiryPackage('₹11,000 Silver Plan')}
+                    whatsappMessage="Assalamu Alaikum, I am interested in the ₹11,000 Silver Plan on Rishte Forever. Please guide me."
+                    badgeText="Most Balanced"
+                    planTier="silver"
                     imageUrl="/images/second_marriage.png"
                   />
                   <PremiumPlanCard
-                    title="High Profile Package"
+                    title="Gold Package"
                     price={21000}
                     gstRate={0.18}
                     billingText="one-time base"
-                    features={['For candidates earning ₹10 lakh+ annually', 'Doctors, engineers, professionals & premium families', 'Leads provided until marriage', '₹25,000 payable after marriage confirmation']}
+                    features={[
+                      'Everything in Silver Plan',
+                      'Premium verified profile suggestions',
+                      'High-priority matchmaking assistance',
+                      'Personalized profile shortlisting',
+                      'Dedicated support assistance',
+                      'Family meeting coordination support',
+                      'Biodata/profile presentation guidance',
+                      'Regular follow-up and progress updates',
+                      'Privacy-safe contact assistance',
+                      '1 year service validity'
+                    ]}
                     isActive={simulatedPackages.includes('high_profile_package')}
-                    ctaText="Buy High Profile Package"
-                    onActivate={() => handleRazorpayCheckout('high_profile_package', 21000, 'High Profile Package')}
-                    onInquire={() => setInquiryPackage('₹21,000 High Profile Package')}
-                    whatsappMessage="Assalamu Alaikum, I am interested in the ₹21,000 High Profile Package on Rishte Forever. Please guide me."
+                    ctaText="Buy Gold Package"
+                    onActivate={() => handleRazorpayCheckout('high_profile_package', 21000, 'Gold Package')}
+                    onInquire={() => setInquiryPackage('₹21,000 Gold Package')}
+                    whatsappMessage="Assalamu Alaikum, I am interested in the ₹21,000 Gold Package on Rishte Forever. Please guide me."
+                    badgeText="Premium Choice"
+                    planTier="gold"
                     imageUrl="/images/high_profile.png"
                   />
                 </div>

@@ -312,10 +312,10 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
     unlockCta = 'Good Profile Package · ₹5,500';
     showUpgradeCta = true;
   } else if (isLockedCategory === 'second_marriage_package' && !hasSecMarriageAccess) {
-    unlockCta = 'Second Marriage Package · ₹11,000';
+    unlockCta = 'Silver Plan · ₹11,000';
     showUpgradeCta = true;
   } else if (isLockedCategory === 'high_profile_package' && !hasHighProfAccess) {
-    unlockCta = 'High Profile Package · ₹21,000';
+    unlockCta = 'Gold Package · ₹21,000';
     showUpgradeCta = true;
   } else if (!hasPaidMonthly) {
     unlockCta = 'Monthly Membership · ₹300';
@@ -519,7 +519,7 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
               boxShadow: '0 2px 8px rgba(184,146,74,0.35)',
               backdropFilter: 'blur(4px)',
             }}>
-              ⭐ High Profile
+              ⭐ Gold Package
             </span>
           )}
           {isSecMarriage && (
@@ -533,7 +533,7 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
               boxShadow: '0 2px 8px rgba(111,29,53,0.3)',
               backdropFilter: 'blur(4px)',
             }}>
-              ↺ Second Marriage
+              ↺ Silver Plan
             </span>
           )}
           {isLockedCategory && (
@@ -827,6 +827,8 @@ interface PremiumPlanCardProps {
   onInquire?: () => void;
   whatsappMessage?: string;
   imageUrl?: string;
+  badgeText?: string;
+  planTier?: 'basic' | 'silver' | 'gold' | 'membership';
 }
 
 export const PremiumPlanCard: React.FC<PremiumPlanCardProps> = ({
@@ -841,33 +843,61 @@ export const PremiumPlanCard: React.FC<PremiumPlanCardProps> = ({
   ctaText,
   onInquire,
   whatsappMessage,
-  imageUrl
+  imageUrl,
+  badgeText,
+  planTier
 }) => {
   const gstAmount = Math.floor(price * gstRate);
   const totalAmount = price + gstAmount;
 
+  const finalBadge = badgeText || (isPopular ? 'Recommended' : undefined);
+  const borderStyle = planTier === 'gold' 
+    ? '2.5px solid var(--gold-accent)' 
+    : planTier === 'silver'
+      ? '1.5px solid var(--gold-accent)'
+      : '1.5px solid var(--border-color)';
+  
+  const shadowStyle = planTier === 'gold'
+    ? 'var(--gold-glow-shadow)'
+    : 'var(--shadow-premium)';
+
+  const badgeBg = planTier === 'gold'
+    ? 'var(--gold-gradient)'
+    : planTier === 'silver'
+      ? 'linear-gradient(135deg, var(--deep-maroon), var(--gold-accent))'
+      : 'var(--soft-cream)';
+
+  const badgeColor = planTier === 'basic' || planTier === 'membership' || !planTier
+    ? 'var(--deep-maroon)'
+    : 'var(--white)';
+
+  const badgeBorder = planTier === 'basic' || planTier === 'membership' || !planTier
+    ? '1px solid var(--gold-accent)'
+    : 'none';
+
   return (
     <div className={`pkg-card ${isPopular ? 'pkg-card-popular' : ''}`} style={{
       backgroundColor: 'var(--white)',
-      border: isPopular ? '2.5px solid var(--gold-accent)' : '1.5px solid var(--border-color)',
+      border: borderStyle,
       borderRadius: 'var(--border-radius-xl)',
       padding: '48px 30px',
       textAlign: 'center',
       position: 'relative',
       display: 'flex',
       flexDirection: 'column',
-      boxShadow: isPopular ? 'var(--gold-glow-shadow)' : 'var(--shadow-premium)',
+      boxShadow: shadowStyle,
       transition: 'var(--transition-smooth)',
       overflow: 'hidden'
     }}>
-      {isPopular && <div className="pkg-badge" style={{
+      {finalBadge && <div className="pkg-badge" style={{
         position: 'absolute',
         top: '12px',
         right: '12px',
         left: 'auto',
         transform: 'none',
-        background: 'var(--gold-gradient)',
-        color: 'var(--white)',
+        background: badgeBg,
+        color: badgeColor,
+        border: badgeBorder,
         padding: '6px 14px',
         borderRadius: '30px',
         fontSize: '11px',
@@ -875,8 +905,8 @@ export const PremiumPlanCard: React.FC<PremiumPlanCardProps> = ({
         textTransform: 'uppercase',
         letterSpacing: '1px',
         zIndex: 10,
-        boxShadow: 'var(--gold-glow-shadow)'
-      }}>Recommended</div>}
+        boxShadow: planTier === 'gold' ? 'var(--gold-glow-shadow)' : 'none'
+      }}>{finalBadge}</div>}
 
       {imageUrl && (
         <div style={{

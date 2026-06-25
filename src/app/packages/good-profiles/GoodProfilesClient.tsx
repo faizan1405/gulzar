@@ -63,7 +63,7 @@ export default function GoodProfilesClient() {
               <ProfileGrid filteredProfiles={goodProfiles} />
             </div>
 
-            <div className="card-theme-wrapper" style={{ padding: '24px', position: 'sticky', top: '100px', border: '2.5px solid var(--gold-accent)', boxShadow: 'var(--gold-glow-shadow)' }}>
+            <div className="card-theme-wrapper" style={{ padding: '24px', position: 'sticky', top: '100px', border: '1.5px solid var(--border-color)', boxShadow: 'var(--shadow-premium)' }}>
               <h3 style={{ fontFamily: 'var(--font-serif)', color: 'var(--deep-maroon)', fontSize: '22px', marginBottom: '16px', fontWeight: 800 }}>
                 Good Profile Package
               </h3>
@@ -75,9 +75,10 @@ export default function GoodProfilesClient() {
               </p>
               
               <ul style={{ paddingLeft: '20px', marginBottom: '24px', fontSize: '13.5px', color: 'var(--text-dark)' }}>
-                <li style={{ marginBottom: '8px' }}>Leads provided until marriage</li>
-                <li style={{ marginBottom: '8px' }}>₹21,000 payable after marriage confirmation</li>
-                <li style={{ marginBottom: '8px' }}>Requires active ₹300 Monthly Membership</li>
+                <li style={{ marginBottom: '8px' }}>Verified profile suggestions</li>
+                <li style={{ marginBottom: '8px' }}>Basic matchmaking support</li>
+                <li style={{ marginBottom: '8px' }}>Privacy-safe profile sharing</li>
+                <li style={{ marginBottom: '8px' }}>1 year service validity</li>
               </ul>
 
               <button

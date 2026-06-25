@@ -49,9 +49,9 @@ export const ProfileInterestForm: React.FC<ProfileInterestFormProps> = ({
     if (profileCategory === 'good_profile') {
       setPackageInterest('₹5,500 Good Profiles Package');
     } else if (profileCategory === 'second_marriage') {
-      setPackageInterest('₹11,000 Second Marriage Package');
+      setPackageInterest('₹11,000 Silver Plan');
     } else if (profileCategory === 'high_profile') {
-      setPackageInterest('₹21,000 High Profile Package');
+      setPackageInterest('₹21,000 Gold Package');
     }
   }, [profileCategory]);
 
@@ -225,8 +225,8 @@ export const ProfileInterestForm: React.FC<ProfileInterestFormProps> = ({
               <option value="">-- No Package / Not Interested --</option>
               <option value="₹300 Monthly Membership">₹300 Monthly Membership</option>
               <option value="₹5,500 Good Profiles Package">₹5,500 Good Profiles Package</option>
-              <option value="₹11,000 Second Marriage Package">₹11,000 Second Marriage Package</option>
-              <option value="₹21,000 High Profile Package">₹21,000 High Profile Package</option>
+              <option value="₹11,000 Silver Plan">₹11,000 Silver Plan</option>
+              <option value="₹21,000 Gold Package">₹21,000 Gold Package</option>
             </select>
           </div>
 

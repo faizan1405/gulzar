@@ -78,39 +78,64 @@ export default function PremiumClient() {
               price={5500}
               gstRate={0.18}
               billingText="one-time base"
-              features={['For handsome & beautiful profile matches', 'Leads provided until marriage', '₹21,000 payable after marriage confirmation']}
+              features={['Verified profile suggestions', 'Basic matchmaking support', 'Privacy-safe profile sharing', '1 year service validity']}
               isActive={simulatedPackages.includes('good_profile_package')}
               ctaText="Buy Good Profile Package"
               onActivate={() => handleRazorpayCheckout('good_profile_package', 5500, 'Good Profile Package')}
               onInquire={() => setInquiryPackage('₹5,500 Good Profiles Package')}
               whatsappMessage="Assalamu Alaikum, I am interested in the ₹5,500 Good Profiles Package on Rishte Forever. Please guide me."
-              isPopular
+              badgeText="Starter"
+              planTier="basic"
               imageUrl="/images/good_profile.png"
             />
             <PremiumPlanCard
-              title="Second Marriage Package"
+              title="Silver Plan"
               price={11000}
               gstRate={0.18}
               billingText="one-time fee"
-              features={['For second marriage matches', 'Private segregated directory listing', 'Leads provided until marriage', 'No extra after-marriage fee']}
+              features={[
+                'Everything in Basic Package',
+                'More verified profile suggestions',
+                'Priority matchmaking support',
+                'Profile shortlisting assistance',
+                'Family coordination support',
+                'Regular follow-up support',
+                'Privacy-safe contact assistance',
+                '1 year service validity'
+              ]}
               isActive={simulatedPackages.includes('second_marriage_package')}
-              ctaText="Buy Second Marriage Package"
-              onActivate={() => handleRazorpayCheckout('second_marriage_package', 11000, 'Second Marriage Package')}
-              onInquire={() => setInquiryPackage('₹11,000 Second Marriage Package')}
-              whatsappMessage="Assalamu Alaikum, I am interested in the ₹11,000 Second Marriage Package on Rishte Forever. Please guide me."
+              ctaText="Buy Silver Plan"
+              onActivate={() => handleRazorpayCheckout('second_marriage_package', 11000, 'Silver Plan')}
+              onInquire={() => setInquiryPackage('₹11,000 Silver Plan')}
+              whatsappMessage="Assalamu Alaikum, I am interested in the ₹11,000 Silver Plan on Rishte Forever. Please guide me."
+              badgeText="Most Balanced"
+              planTier="silver"
               imageUrl="/images/second_marriage.png"
             />
             <PremiumPlanCard
-              title="High Profile Package"
+              title="Gold Package"
               price={21000}
               gstRate={0.18}
               billingText="one-time base"
-              features={['For candidates earning ₹10 lakh+ annually', 'Doctors, engineers, professionals & premium families', 'Leads provided until marriage', '₹25,000 payable after marriage confirmation']}
+              features={[
+                'Everything in Silver Plan',
+                'Premium verified profile suggestions',
+                'High-priority matchmaking assistance',
+                'Personalized profile shortlisting',
+                'Dedicated support assistance',
+                'Family meeting coordination support',
+                'Biodata/profile presentation guidance',
+                'Regular follow-up and progress updates',
+                'Privacy-safe contact assistance',
+                '1 year service validity'
+              ]}
               isActive={simulatedPackages.includes('high_profile_package')}
-              ctaText="Buy High Profile Package"
-              onActivate={() => handleRazorpayCheckout('high_profile_package', 21000, 'High Profile Package')}
-              onInquire={() => setInquiryPackage('₹21,000 High Profile Package')}
-              whatsappMessage="Assalamu Alaikum, I am interested in the ₹21,000 High Profile Package on Rishte Forever. Please guide me."
+              ctaText="Buy Gold Package"
+              onActivate={() => handleRazorpayCheckout('high_profile_package', 21000, 'Gold Package')}
+              onInquire={() => setInquiryPackage('₹21,000 Gold Package')}
+              whatsappMessage="Assalamu Alaikum, I am interested in the ₹21,000 Gold Package on Rishte Forever. Please guide me."
+              badgeText="Premium Choice"
+              planTier="gold"
               imageUrl="/images/high_profile.png"
             />
           </div>
@@ -123,9 +148,9 @@ export default function PremiumClient() {
                 <thead>
                   <tr style={{ borderBottom: '2px solid var(--border-color)', height: '40px', color: 'var(--deep-maroon)', fontWeight: 'bold' }}>
                     <th style={{ textAlign: 'left', padding: '12px' }}>Feature Benefits</th>
-                    <th>Good Profile</th>
-                    <th>Second Marriage</th>
-                    <th>High Profile</th>
+                    <th>Good Profiles</th>
+                    <th>Silver Plan</th>
+                    <th>Gold Package</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -142,25 +167,43 @@ export default function PremiumClient() {
                     <td>✓</td>
                   </tr>
                   <tr style={{ borderBottom: '1px solid var(--border-color)', height: '48px' }}>
-                    <td style={{ textAlign: 'left', padding: '12px' }}>Good Profile Unlock</td>
-                    <td>✓</td>
-                    <td>—</td>
-                    <td>—</td>
-                  </tr>
-                  <tr style={{ borderBottom: '1px solid var(--border-color)', height: '48px' }}>
-                    <td style={{ textAlign: 'left', padding: '12px' }}>Leads Provided Until Marriage</td>
+                    <td style={{ textAlign: 'left', padding: '12px' }}>1 Year Service Validity</td>
                     <td>✓</td>
                     <td>✓</td>
                     <td>✓</td>
                   </tr>
                   <tr style={{ borderBottom: '1px solid var(--border-color)', height: '48px' }}>
-                    <td style={{ textAlign: 'left', padding: '12px' }}>Segregated Second Marriage Directory</td>
+                    <td style={{ textAlign: 'left', padding: '12px' }}>Silver Plan Directory Access</td>
                     <td>—</td>
                     <td>✓</td>
-                    <td>—</td>
+                    <td>✓</td>
                   </tr>
                   <tr style={{ borderBottom: '1px solid var(--border-color)', height: '48px' }}>
-                    <td style={{ textAlign: 'left', padding: '12px' }}>Earning ₹10 Lakh+ annually Directory</td>
+                    <td style={{ textAlign: 'left', padding: '12px' }}>Gold Package Directory Access</td>
+                    <td>—</td>
+                    <td>—</td>
+                    <td>✓</td>
+                  </tr>
+                  <tr style={{ borderBottom: '1px solid var(--border-color)', height: '48px' }}>
+                    <td style={{ textAlign: 'left', padding: '12px' }}>Matchmaking Support</td>
+                    <td>Basic Matchmaking</td>
+                    <td>Priority Matchmaking</td>
+                    <td>High-Priority Matchmaking</td>
+                  </tr>
+                  <tr style={{ borderBottom: '1px solid var(--border-color)', height: '48px' }}>
+                    <td style={{ textAlign: 'left', padding: '12px' }}>Profile Shortlisting</td>
+                    <td>—</td>
+                    <td>Assistance</td>
+                    <td>Personalized</td>
+                  </tr>
+                  <tr style={{ borderBottom: '1px solid var(--border-color)', height: '48px' }}>
+                    <td style={{ textAlign: 'left', padding: '12px' }}>Family Coordination</td>
+                    <td>—</td>
+                    <td>Support</td>
+                    <td>Meeting Support</td>
+                  </tr>
+                  <tr style={{ borderBottom: '1px solid var(--border-color)', height: '48px' }}>
+                    <td style={{ textAlign: 'left', padding: '12px' }}>Dedicated Support Agent</td>
                     <td>—</td>
                     <td>—</td>
                     <td>✓</td>

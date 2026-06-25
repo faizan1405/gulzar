@@ -49,12 +49,26 @@ export async function GET(req: NextRequest) {
     // Only return approved profiles for public browsing, unless admin
     let visibleProfiles = allProfiles.filter(p => p.verificationStatus === 'APPROVED' || isAdmin);
 
-    // Public showcase safety net: if no approved profiles are available to a
-    // non-admin viewer, fall back to the bundled approved demo profiles so the
-    // directory and featured section are never empty. Privacy redaction below
-    // still applies, so photos/contact stay protected.
-    if (!isAdmin && !visibleProfiles.some(p => p.verificationStatus === 'APPROVED')) {
-      visibleProfiles = getDemoProfiles().filter(p => p.verificationStatus === 'APPROVED');
+    // Public showcase safety net: if there are fewer than 12 approved profiles
+    // available to a non-admin viewer, supplement with bundled approved demo
+    // profiles so the directory and featured section are never empty.
+    // Demo profiles are de-duplicated by id to avoid showing the same card
+    // twice when they have also been seeded into the live database.
+    // Privacy redaction below still applies, so photos/contact stay protected.
+    if (!isAdmin && visibleProfiles.length < 12) {
+      const approvedDemos = getDemoProfiles().filter(p => p.verificationStatus === 'APPROVED');
+      const existingIds = new Set(visibleProfiles.map(p => p.id));
+      const missingDemos = approvedDemos.filter(p => !existingIds.has(p.id));
+      // Sort: high_profile first (featured), then good_profile, then the rest by regDate desc
+      missingDemos.sort((a, b) => {
+        const categoryOrder: Record<string, number> = { high_profile: 0, good_profile: 1, second_marriage: 2, normal: 3 };
+        const aOrder = categoryOrder[(a as any).category || 'normal'] ?? 3;
+        const bOrder = categoryOrder[(b as any).category || 'normal'] ?? 3;
+        if (aOrder !== bOrder) return aOrder - bOrder;
+        return new Date((b as any).createdAt || 0).getTime() - new Date((a as any).createdAt || 0).getTime();
+      });
+      const needed = Math.max(0, 12 - visibleProfiles.length);
+      visibleProfiles = [...visibleProfiles, ...missingDemos.slice(0, needed)];
     }
 
     const redactedProfiles = visibleProfiles.map(profile => {

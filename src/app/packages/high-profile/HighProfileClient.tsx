@@ -74,7 +74,7 @@ export default function HighProfileClient() {
 
             <div className="card-theme-wrapper" style={{ padding: '24px', position: 'sticky', top: '100px', border: '2.5px solid var(--gold-accent)', boxShadow: 'var(--gold-glow-shadow)' }}>
               <h3 style={{ fontFamily: 'var(--font-serif)', color: 'var(--deep-maroon)', fontSize: '22px', marginBottom: '16px', fontWeight: 800 }}>
-                High Profile Package
+                Gold Package
               </h3>
               <div style={{ fontSize: '36px', fontWeight: '800', color: 'var(--deep-maroon)', marginBottom: '8px', fontFamily: 'var(--font-serif)' }}>
                 ₹21,000 <span style={{ fontSize: '14px', color: 'var(--text-muted)', fontFamily: 'var(--font-sans)', fontWeight: 'normal' }}>+ 18% GST</span>
@@ -84,18 +84,25 @@ export default function HighProfileClient() {
               </p>
               
               <ul style={{ paddingLeft: '20px', marginBottom: '24px', fontSize: '13.5px', color: 'var(--text-dark)' }}>
-                <li style={{ marginBottom: '8px' }}>For candidates earning ₹10 LPA+</li>
-                <li style={{ marginBottom: '8px' }}>Leads provided until marriage</li>
-                <li style={{ marginBottom: '8px' }}>₹25,000 payable after marriage confirmation</li>
+                <li style={{ marginBottom: '8px' }}>Everything in Silver Plan</li>
+                <li style={{ marginBottom: '8px' }}>Premium verified profile suggestions</li>
+                <li style={{ marginBottom: '8px' }}>High-priority matchmaking assistance</li>
+                <li style={{ marginBottom: '8px' }}>Personalized profile shortlisting</li>
+                <li style={{ marginBottom: '8px' }}>Dedicated support assistance</li>
+                <li style={{ marginBottom: '8px' }}>Family meeting coordination support</li>
+                <li style={{ marginBottom: '8px' }}>Biodata/profile presentation guidance</li>
+                <li style={{ marginBottom: '8px' }}>Regular follow-up and progress updates</li>
+                <li style={{ marginBottom: '8px' }}>Privacy-safe contact assistance</li>
+                <li style={{ marginBottom: '8px' }}>1 year service validity</li>
               </ul>
 
               <button
                 className="btn btn-gold"
                 style={{ width: '100%', padding: '12px', fontSize: '15px' }}
-                onClick={() => handleRazorpayCheckout('high_profile_package', 21000, 'High Profile Package')}
+                onClick={() => handleRazorpayCheckout('high_profile_package', 21000, 'Gold Package')}
                 disabled={simulatedPackages.includes('high_profile_package')}
               >
-                {simulatedPackages.includes('high_profile_package') ? 'Package Active ✅' : 'Buy High Profile Package'}
+                {simulatedPackages.includes('high_profile_package') ? 'Package Active ✅' : 'Buy Gold Package'}
               </button>
 
               {!simulatedPackages.includes('high_profile_package') && (
@@ -108,7 +115,7 @@ export default function HighProfileClient() {
                     Inquire & Ask Call back
                   </button>
                   <a
-                    href={`https://wa.me/919675483125?text=${encodeURIComponent("Assalamu Alaikum, I am interested in the ₹21,000 High Profile Package on Rishte Forever. Please guide me.")}`}
+                    href={`https://wa.me/919675483125?text=${encodeURIComponent("Assalamu Alaikum, I am interested in the ₹21,000 Gold Package on Rishte Forever. Please guide me.")}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="btn"
@@ -166,7 +173,7 @@ export default function HighProfileClient() {
               Package Inquiry & Callback
             </h3>
             <PackageInquiryForm
-              defaultPackage="₹21,000 High Profile Package"
+              defaultPackage="₹21,000 Gold Package"
               onSuccess={() => setShowInquiry(false)}
               onCancel={() => setShowInquiry(false)}
             />

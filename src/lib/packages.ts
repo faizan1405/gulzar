@@ -36,40 +36,50 @@ export const PREMIUM_PACKAGES: Record<PackageType, PackageDefinition> = {
     billingType: 'ONE_TIME',
     successFeeAmount: 21000,
     benefits: [
-      'For handsome & beautiful profile matches',
-      'Access to attractive/good-looking profiles',
-      'Leads provided until marriage',
-      'Success Fee: ₹21,000 after marriage confirmation'
+      'Verified profile suggestions',
+      'Basic matchmaking support',
+      'Privacy-safe profile sharing',
+      '1 year service validity'
     ]
   },
   second_marriage_package: {
     type: 'second_marriage_package',
-    name: 'Second Marriage Package',
+    name: 'Silver Plan',
     basePrice: 11000,
     gstRate: 0.18,
     totalAmount: 12980,
     billingType: 'ONE_TIME',
     successFeeAmount: 0,
     benefits: [
-      'For second marriage matches',
-      'Dedicated matchmaking access',
-      'Leads provided until marriage',
-      'No extra after-marriage fee'
+      'Everything in Basic Package',
+      'More verified profile suggestions',
+      'Priority matchmaking support',
+      'Profile shortlisting assistance',
+      'Family coordination support',
+      'Regular follow-up support',
+      'Privacy-safe contact assistance',
+      '1 year service validity'
     ]
   },
   high_profile_package: {
     type: 'high_profile_package',
-    name: 'High Profile Package',
+    name: 'Gold Package',
     basePrice: 21000,
     gstRate: 0.18,
     totalAmount: 24780,
     billingType: 'ONE_TIME',
     successFeeAmount: 25000,
     benefits: [
-      'For candidates earning ₹10 lakh+ annually',
-      'Doctors, engineers, professionals & premium families',
-      'Leads provided until marriage',
-      'Success Fee: ₹25,000 after marriage confirmation'
+      'Everything in Silver Plan',
+      'Premium verified profile suggestions',
+      'High-priority matchmaking assistance',
+      'Personalized profile shortlisting',
+      'Dedicated support assistance',
+      'Family meeting coordination support',
+      'Biodata/profile presentation guidance',
+      'Regular follow-up and progress updates',
+      'Privacy-safe contact assistance',
+      '1 year service validity'
     ]
   }
 };

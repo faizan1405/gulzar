@@ -75,6 +75,19 @@ export default function SearchClient() {
     return null;
   };
 
+  // Detect whether the user has set any filter away from defaults
+  const hasActiveFilters = (): boolean => {
+    return (
+      selectedGender !== 'No preference' ||
+      minAge !== 'Any' ||
+      maxAge !== 'Any' ||
+      selectedState !== 'All' ||
+      selectedCity !== 'All' ||
+      selectedCommunity !== 'All' ||
+      selectedCaste !== 'All'
+    );
+  };
+
   // Apply strict filtering
   const filteredProfiles = profiles.filter((p) => {
     // 0a. Gender filter (hard filter)
@@ -238,7 +251,7 @@ export default function SearchClient() {
               <p style={{ color: 'var(--text-muted)', fontSize: '15px', fontWeight: 500 }}>Loading profiles…</p>
             </div>
           ) : (
-            <ProfileGrid filteredProfiles={rankedProfiles} />
+            <ProfileGrid filteredProfiles={rankedProfiles} isFiltered={hasActiveFilters()} />
           )}
         </div>
       </main>
