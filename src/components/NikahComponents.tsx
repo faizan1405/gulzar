@@ -74,31 +74,43 @@ export const BismillahCalligraphy: React.FC = () => {
         {/* Top Floral Ornament */}
         <div className="bismillah-ornament-top">
           <svg width="60" height="24" viewBox="0 0 60 24" fill="none">
-            <path d="M30,2 C32,7 37,9 41,7 C45,5 47,2 44,0 C41,-2 35,0 30,2 Z" fill="var(--gold-accent)" opacity="0.85"/>
-            <path d="M30,2 C28,7 23,9 19,7 C15,5 13,2 16,0 C19,-2 25,0 30,2 Z" fill="var(--gold-accent)" opacity="0.85"/>
-            <path d="M30,2 C30,8 26,13 21,15 C16,17 13,13 16,11 C19,9 25,7 30,2 Z" fill="var(--gold-accent)" opacity="0.85"/>
-            <path d="M30,2 C30,8 34,13 39,15 C44,17 47,13 44,11 C41,9 35,7 30,2 Z" fill="var(--gold-accent)" opacity="0.85"/>
-            <circle cx="30" cy="7" r="2" fill="var(--deep-maroon)" stroke="var(--gold-accent)" strokeWidth="0.5"/>
+            <path d="M30,2 C32,7 37,9 41,7 C45,5 47,2 44,0 C41,-2 35,0 30,2 Z" fill="#1B5E3A" stroke="#C9A227" strokeWidth="0.5" opacity="0.9"/>
+            <path d="M30,2 C28,7 23,9 19,7 C15,5 13,2 16,0 C19,-2 25,0 30,2 Z" fill="#1B5E3A" stroke="#C9A227" strokeWidth="0.5" opacity="0.9"/>
+            <path d="M30,2 C30,8 26,13 21,15 C16,17 13,13 16,11 C19,9 25,7 30,2 Z" fill="#1B5E3A" stroke="#C9A227" strokeWidth="0.5" opacity="0.9"/>
+            <path d="M30,2 C30,8 34,13 39,15 C44,17 47,13 44,11 C41,9 35,7 30,2 Z" fill="#1B5E3A" stroke="#C9A227" strokeWidth="0.5" opacity="0.9"/>
+            <circle cx="30" cy="7" r="2.5" fill="#C9A227" />
           </svg>
         </div>
 
         {/* Bismillah Arabic SVG */}
-        <svg width="300" height="70" viewBox="0 0 300 70" fill="none" className="bismillah-svg">
-          <path d="M10 35 C 70 5, 230 5, 290 35 C 230 65, 70 65, 10 35 Z" fill="var(--warm-ivory)" stroke="var(--gold-accent)" strokeWidth="1" />
-          <text x="50%" y="46" dominantBaseline="middle" textAnchor="middle" fill="var(--deep-maroon)" fontFamily="var(--font-arabic)" fontSize="32" fontWeight="bold">
+        <svg width="300" height="70" viewBox="0 0 300 70" fill="none" className="bismillah-svg" style={{ overflow: 'visible' }}>
+          <defs>
+            <linearGradient id="textSheen" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#1B5E3A" />
+              <stop offset="25%" stopColor="#1B5E3A" />
+              <stop offset="50%" stopColor="#55773A" />
+              <stop offset="75%" stopColor="#1B5E3A" />
+              <stop offset="100%" stopColor="#0F3821" />
+            </linearGradient>
+            <filter id="subtleGoldGlow" x="-20%" y="-20%" width="140%" height="140%">
+              <feDropShadow dx="0" dy="0" stdDeviation="1.5" floodColor="#C9A227" floodOpacity="0.5"/>
+            </filter>
+          </defs>
+          <path d="M10 35 C 70 5, 230 5, 290 35 C 230 65, 70 65, 10 35 Z" fill="var(--warm-ivory)" stroke="#C9A227" strokeWidth="1" />
+          <text x="50%" y="46" dominantBaseline="middle" textAnchor="middle" fill="url(#textSheen)" stroke="#C9A227" strokeWidth="0.3" filter="url(#subtleGoldGlow)" fontFamily="var(--font-arabic)" fontSize="32" fontWeight="bold">
             بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
           </text>
-          <path d="M80 52 Q 150 60 220 52" stroke="var(--gold-accent)" strokeWidth="1" fill="none" strokeDasharray="4,4" />
+          <path d="M80 52 Q 150 60 220 52" stroke="#C9A227" strokeWidth="1" fill="none" strokeDasharray="4,4" />
         </svg>
 
         {/* Bottom Gold Line with Center Accent */}
         <div className="bismillah-divider-bottom">
           <div className="bismillah-line-left"></div>
           <svg width="40" height="15" viewBox="0 0 40 15" fill="none">
-            <path d="M20,0 L24,7.5 L20,15 L16,7.5 Z" fill="var(--gold-accent)" />
-            <circle cx="20" cy="7.5" r="2" fill="var(--deep-maroon)" />
-            <line x1="0" y1="7.5" x2="12" y2="7.5" stroke="var(--gold-accent)" strokeWidth="1" />
-            <line x1="28" y1="7.5" x2="40" y2="7.5" stroke="var(--gold-accent)" strokeWidth="1" />
+            <path d="M20,0 L24,7.5 L20,15 L16,7.5 Z" fill="#1B5E3A" stroke="#C9A227" strokeWidth="1" />
+            <circle cx="20" cy="7.5" r="2" fill="#C9A227" />
+            <line x1="0" y1="7.5" x2="12" y2="7.5" stroke="#C9A227" strokeWidth="1" />
+            <line x1="28" y1="7.5" x2="40" y2="7.5" stroke="#C9A227" strokeWidth="1" />
           </svg>
           <div className="bismillah-line-right"></div>
         </div>
