@@ -53,7 +53,7 @@ export const ProfileDetails: React.FC = () => {
   const hasSecMarriageAccess = simulatedPackages.includes('second_marriage_package');
   const hasHighProfAccess = simulatedPackages.includes('high_profile_package') && simulatedHighProfileApproved;
   const hasGoodProfileAccess = simulatedPackages.includes('good_profile_package');
-  const isFormComplete = userProfile?.profileCompletionStatus === 'COMPLETE';
+  const isFormComplete = isLoggedIn && userProfile?.profileCompletionStatus === 'COMPLETE';
 
   let modalBlur = !isLoggedIn;
   let modalLockReason = '';

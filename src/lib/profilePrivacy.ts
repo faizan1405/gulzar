@@ -42,7 +42,7 @@ export function redactProfile(
       education: 'Hidden (Good Profile Package Required)',
       occupation: 'Hidden',
       annualIncomeRange: 'Hidden',
-      bio: 'Buy Good Profile Package for ₹5,500 to view these profiles.',
+      bio: 'This profile is in the exclusive Good Profile category. Purchase the Good Profile Package to view full details.',
       themeColor: profile.themeColor,
       verificationStatus: profile.verificationStatus,
       profileCompletionStatus: profile.profileCompletionStatus,

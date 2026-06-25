@@ -65,7 +65,7 @@ export default function HowItWorksPage() {
         "name": "Is there a fee to search matches?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Registration is free. Viewing detailed candidate photos and phone numbers requires a Standard Monthly Membership (₹300 + GST)."
+          "text": "Registration is free. Viewing detailed candidate photos and phone numbers requires an active Standard Monthly Membership. Complete your profile on our website to view current membership pricing."
         }
       },
       {

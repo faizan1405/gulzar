@@ -838,7 +838,7 @@ export const PremiumPlanCard: React.FC<PremiumPlanCardProps> = ({
   imageUrl,
   badgeText,
   planTier,
-  hidePrices = false,
+  hidePrices = true,
   onCompleteForm,
 }) => {
   const finalBadge = badgeText || (isPopular ? 'Recommended' : undefined);
