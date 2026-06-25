@@ -2950,6 +2950,13 @@ input[type="checkbox"] {
   }
 }
 
+/* Event Management — service card hover lift */
+.event-service-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-hover);
+  border-color: var(--gold-accent);
+}
+
 /* ================================================================
    Mobile Swipe Carousel — horizontal scroll for card sections
    Only active on screens ≤ 767px. Desktop keeps existing grid.

@@ -1200,7 +1200,101 @@ export const SafetyFeatureCard: React.FC<SafetyFeatureCardProps> = ({ title, des
   );
 };
 
-// 12. Final CTA Block
+// 12. Zaicha / Kundli Promo Card
+export const ZaichaPromoCard: React.FC = () => {
+  return (
+    <section style={{ padding: '80px 0', backgroundColor: 'var(--white)' }}>
+      <div className="container">
+        <div style={{
+          position: 'relative',
+          backgroundColor: 'var(--soft-cream)',
+          borderRadius: 'var(--border-radius-xl)',
+          border: '1.5px solid var(--gold-accent)',
+          padding: '40px',
+          boxShadow: 'var(--shadow-premium)',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          textAlign: 'center',
+          overflow: 'hidden',
+          transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+        }}
+        className="zaicha-promo-card"
+        >
+          {/* Subtle Islamic pattern or visual element in the background */}
+          <div style={{
+            position: 'absolute',
+            top: '-20px',
+            right: '-20px',
+            opacity: 0.05,
+            transform: 'scale(1.5)',
+            pointerEvents: 'none'
+          }}>
+            <svg width="150" height="150" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+            </svg>
+          </div>
+          <div style={{
+            position: 'absolute',
+            bottom: '-20px',
+            left: '-20px',
+            opacity: 0.05,
+            transform: 'scale(1.5) rotate(45deg)',
+            pointerEvents: 'none'
+          }}>
+            <svg width="150" height="150" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 21A9 9 0 1 1 21 12A9.01 9.01 0 0 1 12 21ZM12 4.5A7.5 7.5 0 1 0 19.5 12A7.51 7.51 0 0 0 12 4.5Z" />
+              <path d="M12 16.5A4.5 4.5 0 1 1 16.5 12A4.5 4.5 0 0 1 12 16.5ZM12 9A3 3 0 1 0 15 12A3 3 0 0 0 12 9Z" />
+            </svg>
+          </div>
+          
+          <FloralCorner position="tl" color="var(--gold-accent)" />
+          <FloralCorner position="tr" color="var(--gold-accent)" />
+          <FloralCorner position="bl" color="var(--gold-accent)" />
+          <FloralCorner position="br" color="var(--gold-accent)" />
+
+          <div style={{
+            backgroundColor: 'var(--white)',
+            color: 'var(--gold-accent)',
+            padding: '6px 16px',
+            borderRadius: '20px',
+            fontSize: '12px',
+            fontWeight: 'bold',
+            letterSpacing: '1px',
+            textTransform: 'uppercase',
+            marginBottom: '20px',
+            border: '1px solid var(--gold-light)',
+            position: 'relative',
+            zIndex: 1
+          }}>
+            Islamic Perspective
+          </div>
+
+          <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '32px', color: 'var(--deep-maroon)', fontWeight: 'bold', marginBottom: '16px', position: 'relative', zIndex: 1 }}>
+            Zaicha / Kundli Guidance
+          </h2>
+          
+          <p style={{ color: 'var(--text-muted)', fontSize: '16px', maxWidth: '600px', lineHeight: '1.6', marginBottom: '32px', position: 'relative', zIndex: 1 }}>
+            Get thoughtful compatibility guidance from an Islamic perspective to help families make informed marriage decisions with care, privacy, and trust.
+          </p>
+
+          <Link href="/zaicha" className="btn btn-gold" style={{ padding: '14px 40px', fontSize: '15px', position: 'relative', zIndex: 1, textDecoration: 'none' }}>
+            Explore Zaicha
+          </Link>
+          
+          <style>{`
+            .zaicha-promo-card:hover {
+              transform: translateY(-5px);
+              box-shadow: 0 12px 24px rgba(0,0,0,0.12) !important;
+            }
+          `}</style>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+// 13. Final CTA Block
 interface FinalCTAProps {
   onRegister: () => void;
   onBrowse: () => void;
@@ -1289,7 +1383,7 @@ export const PremiumFooter: React.FC<PremiumFooterProps> = ({ onNavigate }) => {
               />
             </div>
             <p style={{ fontSize: '13.5px', color: 'rgba(248, 241, 231, 0.8)', lineHeight: '1.8', marginBottom: '16px' }}>
-              Trusted Halal Matrimony. Helping single, divorced, and high-profile Muslim candidates find compatible marriage partners.
+              Trusted Halal Matrimony. Helping single, divorced, and high-profile Muslim candidates find compatible marriage partners. We also provide Zaicha guidance from an Islamic perspective.
             </p>
             {/* Social media icons grid inside footer */}
             {location && (location.facebookUrl || location.instagramUrl || location.youtubeUrl || location.linkedinUrl || location.twitterUrl) && (
@@ -1347,6 +1441,7 @@ export const PremiumFooter: React.FC<PremiumFooterProps> = ({ onNavigate }) => {
               <li><button onClick={() => onNavigate('browse')} style={{ background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', opacity: 0.8, padding: 0 }}>Browse Profiles</button></li>
               <li><button onClick={() => onNavigate('premium')} style={{ background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', opacity: 0.8, padding: 0 }}>Pricing & Packages</button></li>
               <li><button onClick={() => onNavigate('how-it-works')} style={{ background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', opacity: 0.8, padding: 0 }}>How It Works</button></li>
+              <li><Link href="/event-management" className="footer-link" style={{ opacity: 0.8 }}>Event Management</Link></li>
             </ul>
           </div>
           <div>

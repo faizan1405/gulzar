@@ -163,6 +163,17 @@ export const Navbar: React.FC = () => {
                       Zaicha
                     </Link>
                   </li>
+                  <li>
+                    <Link href="/event-management" className={`nav-link ${pathname === '/event-management' ? 'active' : ''}`}>
+                      <svg className="nav-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                        <path d="M9 22V12h6v10"></path>
+                        <circle cx="17" cy="5" r="3"></circle>
+                        <path d="M15.5 3.5 L18.5 6.5"></path>
+                      </svg>
+                      Events
+                    </Link>
+                  </li>
                 </ul>
               </nav>
             </div>
@@ -374,6 +385,23 @@ export const Navbar: React.FC = () => {
               }}
             >
               Zaicha Guidance
+            </Link>
+            <Link
+              href="/event-management"
+              onClick={() => setIsMobileMenuOpen(false)}
+              style={{
+                padding: '10px 16px',
+                fontWeight: '700',
+                fontSize: '15px',
+                color: pathname === '/event-management' ? 'var(--deep-maroon)' : 'var(--text-dark)',
+                backgroundColor: pathname === '/event-management' ? 'var(--soft-cream)' : 'transparent',
+                borderRadius: '8px',
+                borderLeft: pathname === '/event-management' ? '4px solid var(--gold-accent)' : '4px solid transparent',
+                textDecoration: 'none',
+                transition: 'var(--transition-smooth)'
+              }}
+            >
+              Event Management
             </Link>
 
             {isLoggedIn && (
