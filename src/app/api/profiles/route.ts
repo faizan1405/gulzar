@@ -28,10 +28,14 @@ export async function GET(req: NextRequest) {
     }> = [];
 
     if (viewerId) {
-      const viewerProfile = await getProfileByUserId(viewerId);
-      if (viewerProfile) {
-        viewerHasPaid = viewerProfile.hasPaid;
-        viewerPurchases = await getUserPurchases(viewerProfile.id);
+      try {
+        const viewerProfile = await getProfileByUserId(viewerId);
+        if (viewerProfile) {
+          viewerHasPaid = viewerProfile.hasPaid;
+          viewerPurchases = await getUserPurchases(viewerProfile.id);
+        }
+      } catch {
+        // DB unavailable — viewer gets public-only access; profiles still load below.
       }
     }
 
@@ -44,7 +48,16 @@ export async function GET(req: NextRequest) {
     const hasHighProfilePkg = viewerPurchases.some(p => p.packageType === 'high_profile_package' && p.paymentStatus === 'PAID' && p.eligibilityStatus === 'APPROVED') || (simulatedPackages.includes('high_profile_package') && simulatedHighProfileApproved);
     const hasGoodProfilePkg = viewerPurchases.some(p => p.packageType === 'good_profile_package' && p.paymentStatus === 'PAID') || simulatedPackages.includes('good_profile_package');
 
-    const allProfiles = await getAllProfiles();
+    // Fetch all profiles, falling back to bundled demo profiles if the database
+    // is completely unreachable (e.g. production deploy before DB is seeded, or
+    // MongoDB Atlas cluster paused on free tier).  This guarantees the profiles
+    // API never returns a 500 to the client — visitors always see content.
+    let allProfiles: Awaited<ReturnType<typeof getAllProfiles>>;
+    try {
+      allProfiles = await getAllProfiles();
+    } catch {
+      allProfiles = getDemoProfiles();
+    }
 
     // Only return approved profiles for public browsing, unless admin
     let visibleProfiles = allProfiles.filter(p => p.verificationStatus === 'APPROVED' || isAdmin);
@@ -59,12 +72,12 @@ export async function GET(req: NextRequest) {
       const approvedDemos = getDemoProfiles().filter(p => p.verificationStatus === 'APPROVED');
       const existingIds = new Set(visibleProfiles.map(p => p.id));
       const missingDemos = approvedDemos.filter(p => !existingIds.has(p.id));
-      // Sort: high_profile first (featured), then good_profile, then the rest by regDate desc
+      // Sort: high_profile first (featured), then good_profile, then the rest by date desc
       missingDemos.sort((a, b) => {
-        const categoryOrder: Record<string, number> = { high_profile: 0, good_profile: 1, second_marriage: 2, normal: 3 };
-        const aOrder = categoryOrder[(a as any).category || 'normal'] ?? 3;
-        const bOrder = categoryOrder[(b as any).category || 'normal'] ?? 3;
-        if (aOrder !== bOrder) return aOrder - bOrder;
+        const order: Record<string, number> = { high_profile: 0, good_profile: 1, second_marriage: 2, normal: 3 };
+        const aOrd = order[(a as any).category || 'normal'] ?? 3;
+        const bOrd = order[(b as any).category || 'normal'] ?? 3;
+        if (aOrd !== bOrd) return aOrd - bOrd;
         return new Date((b as any).createdAt || 0).getTime() - new Date((a as any).createdAt || 0).getTime();
       });
       const needed = Math.max(0, 12 - visibleProfiles.length);
