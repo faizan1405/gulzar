@@ -75,7 +75,7 @@ export const AdminOverview: React.FC = () => {
 
         <div className="stat-card">
           <div>
-            <div className="stat-card-label">Good Profile Cases</div>
+            <div className="stat-card-label">Good Profiles Cases</div>
             <div className="stat-card-value">{curatedMatches}</div>
           </div>
           <div className="stat-card-icon">🤝</div>
@@ -83,7 +83,7 @@ export const AdminOverview: React.FC = () => {
 
         <div className="stat-card">
           <div>
-            <div className="stat-card-label">Second Marriage Cases</div>
+            <div className="stat-card-label">Silver Plan Cases</div>
             <div className="stat-card-value">{secondMarriage}</div>
           </div>
           <div className="stat-card-icon">💍</div>
@@ -91,7 +91,7 @@ export const AdminOverview: React.FC = () => {
 
         <div className="stat-card">
           <div>
-            <div className="stat-card-label">High Profile Cases</div>
+            <div className="stat-card-label">Gold Package Cases</div>
             <div className="stat-card-value">{highProfile}</div>
           </div>
           <div className="stat-card-icon">👑</div>

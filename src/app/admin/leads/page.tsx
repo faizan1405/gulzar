@@ -196,8 +196,8 @@ export default function AdminLeadsPage() {
               <option value="">All Packages</option>
               <option value="₹300 Monthly Membership">₹300 Monthly Membership</option>
               <option value="₹5,500 Good Profiles Package">₹5,500 Good Profiles</option>
-              <option value="₹11,000 Second Marriage Package">₹11,000 Second Marriage</option>
-              <option value="₹21,000 High Profile Package">₹21,000 High Profile</option>
+              <option value="₹11,000 Silver Plan">₹11,000 Silver Plan</option>
+              <option value="₹21,000 Gold Package">₹21,000 Gold Package</option>
             </select>
           </div>
         </div>

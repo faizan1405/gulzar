@@ -13,7 +13,7 @@ export async function generateMetadata(): Promise<Metadata> {
   
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://rishteforever.in';
   const title = "Premium Matrimonial Packages — Rishte Forever";
-  const description = "Select from our standard monthly membership, curated good profiles, second-marriage directory, or exclusive high-profile matrimonial matching options.";
+  const description = "Select from our standard monthly membership, curated good profiles, silver plan matches, or exclusive gold package matrimonial matching options.";
   const previewImage = settings?.defaultPreviewImage || "/images/commitment.png";
   const imageUrl = previewImage.startsWith('http') ? previewImage : `${siteUrl}${previewImage}`;
 
@@ -26,8 +26,8 @@ export async function generateMetadata(): Promise<Metadata> {
       "Muslim marriage bureau rates",
       "Rishte Forever pricing",
       "Premium Muslim matchmaking services",
-      "Second marriage matrimonial packages",
-      "High profile Muslim matchmaking cost"
+      "Silver plan matrimonial packages",
+      "Gold package Muslim matchmaking cost"
     ],
     alternates: {
       canonical: '/premium',

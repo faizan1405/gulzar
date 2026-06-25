@@ -12,8 +12,8 @@ export async function generateMetadata(): Promise<Metadata> {
   }
   
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://rishteforever.in';
-  const title = "High Profile Matrimonial Matches — Rishte Forever";
-  const description = "Browse verified high-profile Muslim matrimonial candidates earning ₹10 Lakh+ annually (Doctors, Engineers, Business Owners, and Premium Families) on Rishte Forever.";
+  const title = "Gold Package Matrimonial Matches — Rishte Forever";
+  const description = "Browse verified Gold Package Muslim matrimonial candidates earning ₹10 Lakh+ annually (Doctors, Engineers, Business Owners, and Premium Families) on Rishte Forever.";
   const previewImage = settings?.defaultPreviewImage || "/images/commitment.png";
   const imageUrl = previewImage.startsWith('http') ? previewImage : `${siteUrl}${previewImage}`;
 
@@ -22,11 +22,11 @@ export async function generateMetadata(): Promise<Metadata> {
     description,
     metadataBase: new URL(siteUrl),
     keywords: [
-      "Muslim high profile matchmaking",
+      "Muslim gold package matchmaking",
       "Premium Muslim matchmaking services",
       "Doctors matrimonial Muslim",
       "Engineers matrimonial Muslim",
-      "Rishte Forever High Profile"
+      "Rishte Forever Gold Package"
     ],
     alternates: {
       canonical: '/packages/high-profile',
@@ -41,7 +41,7 @@ export async function generateMetadata(): Promise<Metadata> {
           url: imageUrl,
           width: 1200,
           height: 630,
-          alt: "Rishte Forever High Profile Package",
+          alt: "Rishte Forever Gold Package",
         }
       ],
       type: "website",
@@ -75,7 +75,7 @@ export default function HighProfilePage() {
       {
         "@type": "ListItem",
         "position": 3,
-        "name": "High Profile Matches",
+        "name": "Gold Package Matches",
         "item": "https://rishteforever.in/packages/high-profile"
       }
     ]

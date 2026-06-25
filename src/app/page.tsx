@@ -28,8 +28,8 @@ export async function generateMetadata(): Promise<Metadata> {
       "Muslim rishta service",
       "Islamic matrimonial platform",
       "Verified Muslim profiles",
-      "Muslim second marriage profiles",
-      "Muslim high profile matchmaking",
+      "Muslim silver plan matches",
+      "Muslim gold package matchmaking",
       "Muslim marriage profiles in India"
     ],
     alternates: {

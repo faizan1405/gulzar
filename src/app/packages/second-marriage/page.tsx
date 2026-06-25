@@ -12,8 +12,8 @@ export async function generateMetadata(): Promise<Metadata> {
   }
   
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://rishteforever.in';
-  const title = "Second Marriage Matrimonial Directory — Rishte Forever";
-  const description = "Browse verified second-marriage matches on Rishte Forever. Tailored private matrimonial directory for divorced, widowed, and serious candidates seeking life partners.";
+  const title = "Silver Plan Matrimonial Directory — Rishte Forever";
+  const description = "Browse verified silver plan matches on Rishte Forever. Tailored private matrimonial directory for divorced, widowed, and serious candidates seeking life partners.";
   const previewImage = settings?.defaultPreviewImage || "/images/nikah-2.jpeg";
   const imageUrl = previewImage.startsWith('http') ? previewImage : `${siteUrl}${previewImage}`;
 
@@ -22,11 +22,11 @@ export async function generateMetadata(): Promise<Metadata> {
     description,
     metadataBase: new URL(siteUrl),
     keywords: [
-      "Muslim second marriage profiles",
+      "Muslim silver plan profiles",
       "Divorced Muslim matrimonial",
       "Widowed Muslim matrimonial",
-      "Second marriage marriage bureau",
-      "Rishte Forever Second Marriage"
+      "Silver plan marriage bureau",
+      "Rishte Forever Silver Plan"
     ],
     alternates: {
       canonical: '/packages/second-marriage',
@@ -41,7 +41,7 @@ export async function generateMetadata(): Promise<Metadata> {
           url: imageUrl,
           width: 1200,
           height: 630,
-          alt: "Rishte Forever Second Marriage Package",
+          alt: "Rishte Forever Silver Plan",
         }
       ],
       type: "website",
@@ -75,7 +75,7 @@ export default function SecondMarriagePage() {
       {
         "@type": "ListItem",
         "position": 3,
-        "name": "Second Marriage Matches",
+        "name": "Silver Plan Matches",
         "item": "https://rishteforever.in/packages/second-marriage"
       }
     ]
