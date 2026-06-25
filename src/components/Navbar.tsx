@@ -58,11 +58,14 @@ export const Navbar: React.FC = () => {
             @media (max-width: 1280px) {
               #hamburger-btn { display: flex !important; }
               .nav-menu-desktop { display: none !important; }
+              .nav-row-2 { display: none !important; }
             }
           `}</style>
 
-          {/* Left Column (Row 1): Hamburger (mobile) + primary nav links (desktop) */}
-          <div className="nav-section nav-left">
+          {/* Row 1: Primary links, Logo, Secondary Links */}
+          <div className="nav-row-1">
+            {/* Left Column (Row 1): Hamburger (mobile) + primary nav links (desktop) */}
+            <div className="nav-section nav-left">
             <button
               className="hamburger-btn"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -129,13 +132,12 @@ export const Navbar: React.FC = () => {
             </div>
           </div>
 
-          {/* Right Column: Premium/Safety/Zaicha nav links + Action buttons */}
+          {/* Right Column: Premium/Safety/Zaicha nav links */}
           <div className="nav-section nav-right">
             {/* Vertical separator */}
             <div className="nav-right-divider nav-menu-desktop"></div>
-            <div className="nav-right-desktop-wrapper">
-              <nav className="nav-menu-desktop">
-                <ul className="nav-menu">
+            <nav className="nav-menu-desktop">
+              <ul className="nav-menu">
                   <li>
                     <Link href="/premium" className={`nav-link ${pathname === '/premium' ? 'active' : ''}`}>
                       <svg className="nav-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -163,9 +165,13 @@ export const Navbar: React.FC = () => {
                   </li>
                 </ul>
               </nav>
+            </div>
+          </div>
 
-              <div className="nav-menu-desktop nav-actions-wrapper">
-                {isLoggedIn && (
+          {/* Row 2: Action buttons */}
+          <div className="nav-row-2 nav-menu-desktop">
+            <div className="nav-actions-wrapper">
+              {isLoggedIn && (
                   <Link
                     href="/my-account"
                     className="btn btn-secondary nav-btn"
@@ -231,7 +237,6 @@ export const Navbar: React.FC = () => {
                     </button>
                   </div>
                 )}
-              </div>
             </div>
           </div>
         </div>

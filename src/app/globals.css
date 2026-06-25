@@ -228,10 +228,8 @@ body:has(.demo-bar) .header {
 }
 
 .nav-container {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: center;
-  column-gap: 16px;
+  display: flex;
+  flex-direction: column;
   background-color: var(--warm-ivory);
   border: 1.5px solid var(--gold-accent);
   border-radius: 20px;
@@ -243,6 +241,23 @@ body:has(.demo-bar) .header {
   margin: 0 auto;
 }
 
+.nav-row-1 {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  column-gap: 16px;
+  width: 100%;
+}
+
+.nav-row-2 {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(184, 146, 74, 0.2);
+}
+
 .nav-section {
   display: flex;
   align-items: center;
@@ -251,9 +266,10 @@ body:has(.demo-bar) .header {
 
 .nav-left {
   grid-column: 1;
-  justify-self: end;
+  justify-self: stretch;
   display: flex;
   align-items: center;
+  justify-content: space-between;
 }
 
 .nav-left-divider {
@@ -266,9 +282,10 @@ body:has(.demo-bar) .header {
 
 .nav-right {
   grid-column: 3;
-  justify-self: start;
+  justify-self: stretch;
   display: flex;
   align-items: center;
+  justify-content: space-between;
 }
 
 .nav-right-divider {
@@ -286,7 +303,7 @@ body:has(.demo-bar) .header {
   position: relative;
   width: 260px;
   height: 115px;
-  margin-top: -30px;
+  margin-top: -46px; /* Arch pops above top edge */
   display: flex;
   justify-content: center;
   align-items: center;
