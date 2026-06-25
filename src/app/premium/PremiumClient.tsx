@@ -13,7 +13,8 @@ export default function PremiumClient() {
   const {
     hasPaid300,
     simulatedPackages,
-    handleRazorpayCheckout
+    handleRazorpayCheckout,
+    pendingProfileId,
   } = useSimulator();
 
   const [inquiryPackage, setInquiryPackage] = useState<string | null>(null);
@@ -26,6 +27,19 @@ export default function PremiumClient() {
     <>
       <Navbar />
       <main className="flex-grow">
+        {pendingProfileId && (
+          <div className="font-sans" style={{
+            background: 'linear-gradient(135deg, rgba(111,29,53,0.08) 0%, rgba(184,146,74,0.08) 100%)',
+            borderBottom: '2px solid var(--gold-accent)',
+            padding: '14px 24px',
+            textAlign: 'center',
+            fontSize: '14px',
+            color: 'var(--deep-maroon)',
+            fontWeight: 600,
+          }}>
+            You&apos;re one step away! Activate a package below and you&apos;ll be redirected to the selected profile automatically.
+          </div>
+        )}
         <div className="container font-sans" style={{ padding: '40px 0 80px 0' }}>
           <SectionHeading
             title="Premium Matrimonial Packages"

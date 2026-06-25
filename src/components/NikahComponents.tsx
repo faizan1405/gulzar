@@ -242,12 +242,14 @@ interface ProfileCardProps {
   profile: Profile;
   index: number;
   isLoggedIn: boolean;
+  isFormComplete: boolean;
   hasPaid300: boolean;
   simulatedPackages: string[];
   simulatedHighProfileApproved: boolean;
   savedProfiles: string[];
   onToggleSave: (id: string) => void;
   onViewDetails: (profile: Profile) => void;
+  onViewProfile: (profile: Profile) => void;
   onShowLogin: () => void;
   getProfileImage: (gender: string, index: number) => string;
   getThemeClass: (color: string) => string;
@@ -257,12 +259,14 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
   profile,
   index,
   isLoggedIn,
+  isFormComplete,
   hasPaid300,
   simulatedPackages,
   simulatedHighProfileApproved,
   savedProfiles,
   onToggleSave,
   onViewDetails,
+  onViewProfile,
   onShowLogin,
   getProfileImage,
   getThemeClass
@@ -302,11 +306,17 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
   // Contact phone shown only to paid members with unlocked category
   const contactVisible = hasPaidMonthly && !isLockedCategory;
 
-  // Determine upgrade CTA
+  // Determine upgrade CTA — ordered: login → form → package → category upgrade
   let unlockCta = '';
   let showUpgradeCta = false;
   if (!isLoggedIn) {
-    unlockCta = 'Sign In to View Full Profile';
+    unlockCta = 'View Profile';
+    showUpgradeCta = true;
+  } else if (!isFormComplete) {
+    unlockCta = 'Complete Form & Unlock Profile';
+    showUpgradeCta = true;
+  } else if (!hasPaidMonthly) {
+    unlockCta = 'Choose Package';
     showUpgradeCta = true;
   } else if (isLockedCategory === 'good_profile_package' && !hasGoodProfileAccess) {
     unlockCta = 'Good Profile Package · ₹5,500';
@@ -316,9 +326,6 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
     showUpgradeCta = true;
   } else if (isLockedCategory === 'high_profile_package' && !hasHighProfAccess) {
     unlockCta = 'Gold Package · ₹21,000';
-    showUpgradeCta = true;
-  } else if (!hasPaidMonthly) {
-    unlockCta = 'Monthly Membership · ₹300';
     showUpgradeCta = true;
   }
 
@@ -710,46 +717,29 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
         {/* CTA area */}
         {showUpgradeCta ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            {!isLoggedIn ? (
-              <button
-                onClick={onShowLogin}
-                style={{
-                  width: '100%',
-                  padding: '12px 18px',
-                  background: 'linear-gradient(135deg,var(--deep-maroon) 0%,#8b2252 100%)',
-                  color: '#fff',
-                  border: 'none',
-                  borderRadius: '10px',
-                  fontSize: '13.5px',
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  fontFamily: 'var(--font-sans)',
-                  letterSpacing: '0.2px',
-                  boxShadow: '0 4px 16px rgba(111,29,53,0.25)',
-                }}
-              >
-                🔒 Sign In to View Full Profile
-              </button>
-            ) : (
-              <a
-                href="#premium-pricing"
-                style={{
-                  display: 'block',
-                  padding: '12px 18px',
-                  background: 'linear-gradient(135deg,var(--antique-gold) 0%,#c8a052 100%)',
-                  color: '#fff',
-                  borderRadius: '10px',
-                  fontSize: '13px',
-                  fontWeight: 700,
-                  fontFamily: 'var(--font-sans)',
-                  textAlign: 'center',
-                  textDecoration: 'none',
-                  boxShadow: '0 4px 16px rgba(184,146,74,0.3)',
-                }}
-              >
-                🔓 {unlockCta}
-              </a>
-            )}
+            <button
+              onClick={() => onViewProfile(profile)}
+              style={{
+                width: '100%',
+                padding: '12px 18px',
+                background: isLoggedIn
+                  ? 'linear-gradient(135deg,var(--antique-gold) 0%,#c8a052 100%)'
+                  : 'linear-gradient(135deg,var(--deep-maroon) 0%,#8b2252 100%)',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '10px',
+                fontSize: '13.5px',
+                fontWeight: 700,
+                cursor: 'pointer',
+                fontFamily: 'var(--font-sans)',
+                letterSpacing: '0.2px',
+                boxShadow: isLoggedIn
+                  ? '0 4px 16px rgba(184,146,74,0.3)'
+                  : '0 4px 16px rgba(111,29,53,0.25)',
+              }}
+            >
+              {isLoggedIn ? `🔓 ${unlockCta}` : `🔒 ${unlockCta}`}
+            </button>
             <button
               onClick={() => onViewDetails(profile)}
               style={{
@@ -1063,12 +1053,20 @@ export const SuccessStoryCard: React.FC<SuccessStoryCardProps> = ({
   weddingDate,
   imageIndex
 }) => {
-  // Original placeholder illustrations of couples
-  const placeholderIllustration = [
-    'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&q=80&w=400&h=300',
-    'https://images.unsplash.com/photo-1583939003579-730e3918a45a?auto=format&fit=crop&q=80&w=400&h=300',
-    'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&q=80&w=400&h=300'
-  ][imageIndex % 3];
+  const successImages = [
+    '/images/success_sarah_tariq.jpg',
+    '/images/success_aisha_khalid.jpg',
+    '/images/success_adnan_yasmin.jpg'
+  ];
+
+  const successAltTexts = [
+    'Sarah and Tariq success story',
+    'Aisha and Khalid success story',
+    'Adnan and Yasmin success story'
+  ];
+
+  const currentImage = successImages[imageIndex % 3];
+  const currentAltText = successAltTexts[imageIndex % 3];
 
   return (
     <div className="testimonial-card" style={{
@@ -1087,7 +1085,7 @@ export const SuccessStoryCard: React.FC<SuccessStoryCardProps> = ({
 
       <div>
         <div style={{ position: 'relative', width: '100%', height: '180px', borderRadius: '12px', overflow: 'hidden', border: '1px solid var(--gold-light)', marginBottom: '20px' }}>
-          <Image src={placeholderIllustration} alt={`Matched Muslim couple success story - ${names} on Rishte Forever`} fill sizes="(max-width: 768px) 100vw, 300px" style={{ objectFit: 'cover' }} />
+          <Image src={currentImage} alt={currentAltText} fill sizes="(max-width: 768px) 100vw, 300px" style={{ objectFit: 'cover' }} />
         </div>
         <p style={{ fontStyle: 'italic', fontSize: '14px', color: 'var(--text-dark)', lineHeight: '1.7', marginBottom: '20px', position: 'relative', zIndex: 2 }}>
           &ldquo;{story}&rdquo;

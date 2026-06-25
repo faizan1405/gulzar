@@ -26,6 +26,9 @@ export async function POST(req: NextRequest) {
     if (!profile) {
       return NextResponse.json({ error: 'Please create your matrimonial profile card first.' }, { status: 400 });
     }
+    if (profile.profileCompletionStatus !== 'COMPLETE') {
+      return NextResponse.json({ error: 'Please complete your matrimonial profile form before purchasing a package.' }, { status: 400 });
+    }
 
     const baseAmount = pkgDef.basePrice;
     const gstAmount = baseAmount * pkgDef.gstRate;

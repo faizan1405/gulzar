@@ -20,8 +20,12 @@ export const ProfileGrid: React.FC<ProfileGridProps> = ({ filteredProfiles, isFi
     savedProfiles,
     toggleSaveProfile,
     setSelectedProfileForDetails,
-    setShowLoginModal
+    setShowLoginModal,
+    handleViewProfile,
+    userProfile,
   } = useSimulator();
+
+  const isFormComplete = userProfile?.profileCompletionStatus === 'COMPLETE';
 
   if (filteredProfiles.length === 0) {
     if (!isFiltered) {
@@ -144,12 +148,14 @@ export const ProfileGrid: React.FC<ProfileGridProps> = ({ filteredProfiles, isFi
           profile={profile}
           index={idx}
           isLoggedIn={isLoggedIn}
+          isFormComplete={isFormComplete}
           hasPaid300={hasPaid300}
           simulatedPackages={simulatedPackages}
           simulatedHighProfileApproved={simulatedHighProfileApproved}
           savedProfiles={savedProfiles}
           onToggleSave={toggleSaveProfile}
           onViewDetails={setSelectedProfileForDetails}
+          onViewProfile={handleViewProfile}
           onShowLogin={() => setShowLoginModal(true)}
           getProfileImage={getProfileImage}
           getThemeClass={getThemeClass}

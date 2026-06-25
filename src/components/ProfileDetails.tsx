@@ -17,7 +17,9 @@ export const ProfileDetails: React.FC = () => {
     hasPaid300,
     simulatedPackages,
     simulatedHighProfileApproved,
-    setShowLoginModal
+    setShowLoginModal,
+    userProfile,
+    handleViewProfile,
   } = useSimulator();
 
   const router = useRouter();
@@ -51,19 +53,24 @@ export const ProfileDetails: React.FC = () => {
   const hasSecMarriageAccess = simulatedPackages.includes('second_marriage_package');
   const hasHighProfAccess = simulatedPackages.includes('high_profile_package') && simulatedHighProfileApproved;
   const hasGoodProfileAccess = simulatedPackages.includes('good_profile_package');
+  const isFormComplete = userProfile?.profileCompletionStatus === 'COMPLETE';
 
   let modalBlur = !isLoggedIn;
   let modalLockReason = '';
-  let modalUnlockText = 'Unlock Monthly Membership (₹300)';
+  let modalUnlockText = 'Choose Package';
 
   if (!isLoggedIn) {
     modalBlur = true;
-    modalLockReason = 'Log in using your secure account to view photos and contact';
-    modalUnlockText = 'Log In';
+    modalLockReason = 'Please login or register to view this profile.';
+    modalUnlockText = 'Log In to View Profile';
+  } else if (!isFormComplete) {
+    modalBlur = true;
+    modalLockReason = 'Complete your details first to continue.';
+    modalUnlockText = 'Complete Form & Unlock Profile';
   } else if (!hasPaidMonthly) {
     modalBlur = true;
-    modalLockReason = 'Activate monthly membership (₹300) to view normal matrimonial profiles.';
-    modalUnlockText = 'Unlock Monthly Membership (₹300)';
+    modalLockReason = 'Choose a package to unlock full profile details.';
+    modalUnlockText = 'Choose Package';
   } else if (isGoodProfile && !hasGoodProfileAccess) {
     modalBlur = true;
     modalLockReason = 'Buy Good Profile Package for ₹5,500 to view these profiles.';
@@ -79,10 +86,14 @@ export const ProfileDetails: React.FC = () => {
   }
 
   const handleUnlockClick = () => {
-    setSelectedProfileForDetails(null);
-    if (!isLoggedIn) {
+    if (selectedProfileForDetails) {
+      setSelectedProfileForDetails(null);
+      handleViewProfile(selectedProfileForDetails);
+    } else if (!isLoggedIn) {
+      setSelectedProfileForDetails(null);
       setShowLoginModal(true);
     } else {
+      setSelectedProfileForDetails(null);
       router.push('/premium');
     }
   };

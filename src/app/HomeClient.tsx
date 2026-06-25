@@ -64,12 +64,15 @@ export default function HomeClient() {
     savedProfiles,
     toggleSaveProfile,
     setSelectedProfileForDetails,
+    handleViewProfile,
     userProfile,
     isLoading,
     masterMaslaks,
     masterCastes,
     masterLocations,
   } = useSimulator();
+
+  const isFormComplete = userProfile?.profileCompletionStatus === 'COMPLETE';
 
   const handleNextStep = () => {
     if (regStep === 1) {
@@ -666,12 +669,14 @@ export default function HomeClient() {
                           profile={profile}
                           index={index}
                           isLoggedIn={isLoggedIn}
+                          isFormComplete={isFormComplete}
                           hasPaid300={hasPaid300}
                           simulatedPackages={simulatedPackages}
                           simulatedHighProfileApproved={simulatedHighProfileApproved}
                           savedProfiles={savedProfiles}
                           onToggleSave={toggleSaveProfile}
                           onViewDetails={setSelectedProfileForDetails}
+                          onViewProfile={handleViewProfile}
                           onShowLogin={() => setShowLoginModal(true)}
                           getProfileImage={getProfileImage}
                           getThemeClass={getThemeClass}

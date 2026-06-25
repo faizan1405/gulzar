@@ -302,6 +302,27 @@ export function getValidObjectId(id: string): string {
   return crypto.createHash('md5').update(id).digest('hex').substring(0, 24);
 }
 
+export async function getProfileById(id: string) {
+  const isDb = await testDbConnection();
+  if (isDb) {
+    try {
+      const dbId = getValidObjectId(id);
+      return await prisma.matrimonialProfile.findUnique({
+        where: { id: dbId },
+      });
+    } catch (e) {
+      const msg = sanitizeErrorMessage(e instanceof Error ? e.message : String(e));
+      if (!isFallbackAllowed()) {
+        throw new Error(`Database query failed: ${msg}`);
+      }
+      console.error('Database query failed, using fallback', msg);
+    }
+  } else if (!isFallbackAllowed()) {
+    throw new Error('Database is offline or not configured.');
+  }
+  return globalStore.inMemoryProfiles?.find((p) => p.id === id) || null;
+}
+
 export async function getProfileByUserId(userId: string) {
   const isDb = await testDbConnection();
   if (isDb) {
@@ -742,8 +763,14 @@ export async function createPackagePurchase(data: {
 
 export async function verifyPackagePurchase(orderId: string, paymentId: string) {
   const isDb = await testDbConnection();
-  const expiryDate = new Date();
-  expiryDate.setMonth(expiryDate.getMonth() + 1); // 1 month from now
+  const monthlyExpiry = new Date();
+  monthlyExpiry.setMonth(monthlyExpiry.getMonth() + 1); // 1 month for monthly plan
+  const yearlyExpiry = new Date();
+  yearlyExpiry.setFullYear(yearlyExpiry.getFullYear() + 1); // 1 year for premium packages
+
+  function getExpiryForPackage(packageType: string): Date {
+    return packageType === 'monthly_membership' ? monthlyExpiry : yearlyExpiry;
+  }
 
   if (isDb) {
     try {
@@ -753,12 +780,15 @@ export async function verifyPackagePurchase(orderId: string, paymentId: string) 
 
       if (!purchase) return null;
 
+      // Idempotent: already verified
+      if (purchase.paymentStatus === 'PAID') return purchase;
+
       const updatedPurchase = await prisma.packagePurchase.update({
         where: { id: purchase.id },
         data: {
           paymentStatus: 'PAID' as PaymentStatus,
           razorpayPaymentId: paymentId,
-          expiryDate: purchase.packageType === 'monthly_membership' ? expiryDate : null,
+          expiryDate: getExpiryForPackage(purchase.packageType),
         },
       });
 
@@ -794,9 +824,10 @@ export async function verifyPackagePurchase(orderId: string, paymentId: string) 
   // Fallback
   const purchase = globalStore.inMemoryPurchases?.find((p) => p.razorpayOrderId === orderId);
   if (purchase) {
+    if (purchase.paymentStatus === 'PAID') return purchase; // idempotent
     purchase.paymentStatus = 'PAID' as PaymentStatus;
     purchase.razorpayPaymentId = paymentId;
-    purchase.expiryDate = purchase.packageType === 'monthly_membership' ? expiryDate : null;
+    purchase.expiryDate = getExpiryForPackage(purchase.packageType);
     purchase.updatedAt = new Date();
 
     if (purchase.packageType === 'monthly_membership') {

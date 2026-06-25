@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { DEFAULT_MASLAKS, DEFAULT_CASTES, DEFAULT_LOCATIONS } from '../lib/masterData';
 import {
@@ -15,6 +15,11 @@ import {
 } from '../types';
 
 interface SimulatorContextType {
+  // Gated profile view flow
+  pendingProfileId: string | null;
+  setPendingProfileId: (val: string | null) => void;
+  handleViewProfile: (profile: Profile) => void;
+
   // Simulator & Session States
   isLoggedIn: boolean;
   setIsLoggedIn: (val: boolean) => void;
@@ -79,7 +84,7 @@ interface SimulatorContextType {
   formData: typeof initialFormData;
   setFormData: React.Dispatch<React.SetStateAction<typeof initialFormData>>;
 
-  // Actions
+  // Actions (gated flow is in handleViewProfile above)
   getSimulatorHeaders: () => Record<string, string>;
   handleGoogleLogin: () => void;
   toggleSaveProfile: (id: string) => void;
@@ -137,6 +142,8 @@ export const SimulatorProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const router = useRouter();
 
   // --- States ---
+  const [pendingProfileId, setPendingProfileId] = useState<string | null>(null);
+
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [hasPaid300, setHasPaid300] = useState(false);
   const [simulatedPackages, setSimulatedPackages] = useState<string[]>([]);
@@ -182,6 +189,9 @@ export const SimulatorProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   );
 
   const [formData, setFormData] = useState(initialFormData);
+
+  // Tracks isLoading transitions to run post-load logic for the gated profile flow
+  const wasLoadingRef = useRef(false);
 
   // Headers generator
   const getSimulatorHeaders = useCallback(() => {
@@ -252,7 +262,13 @@ export const SimulatorProvider: React.FC<{ children: React.ReactNode }> = ({ chi
               familyOrigin: data.profile.familyOrigin || '',
             });
 
-            setIsRegistering(false);
+            // If profile exists but is incomplete, show the registration wizard
+            if (data.profile.profileCompletionStatus !== 'COMPLETE') {
+              setIsRegistering(true);
+              setRegStep(1);
+            } else {
+              setIsRegistering(false);
+            }
           } else {
             setUserProfile(null);
             setIsRegistering(true);
@@ -340,6 +356,56 @@ export const SimulatorProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     loadAllData();
   }, [isLoggedIn, hasPaid300, simulatedPackages, simulatedHighProfileApproved, reloadTrigger, getSimulatorHeaders, isAdminMode]);
 
+  // After loadAllData completes, continue any pending gated profile flow
+  useEffect(() => {
+    if (wasLoadingRef.current && !isLoading && isLoggedIn && pendingProfileId) {
+      // isLoading just went from true → false while logged in with a pending profile
+      if (!userProfile || userProfile.profileCompletionStatus !== 'COMPLETE') {
+        // Onboarding wizard will show (isRegistering was set by loadAllData).
+        // Keep pendingProfileId so handleRegisterSubmit can pick it up.
+        wasLoadingRef.current = isLoading;
+        return;
+      }
+      const hasAnyPackage = hasPaid300 || simulatedPackages.length > 0;
+      if (!hasAnyPackage) {
+        router.push(`/premium?returnProfile=${pendingProfileId}`);
+        setPendingProfileId(null);
+        wasLoadingRef.current = isLoading;
+        return;
+      }
+      // Has full access — open the profile
+      const matched = profiles.find(p => p.id === pendingProfileId);
+      if (matched) setSelectedProfileForDetails(matched);
+      setPendingProfileId(null);
+    }
+    wasLoadingRef.current = isLoading;
+  }, [isLoading, isLoggedIn, pendingProfileId, userProfile, hasPaid300, simulatedPackages, profiles]);
+
+  const handleViewProfile = useCallback((profile: Profile) => {
+    if (!isLoggedIn) {
+      setPendingProfileId(profile.id);
+      setShowLoginModal(true);
+      return;
+    }
+    if (!userProfile || userProfile.profileCompletionStatus !== 'COMPLETE') {
+      setPendingProfileId(profile.id);
+      setIsRegistering(true);
+      setRegStep(1);
+      // Navigate home so the onboarding wizard (in HomeClient) is visible
+      if (typeof window !== 'undefined' && window.location.pathname !== '/') {
+        router.push('/');
+      }
+      return;
+    }
+    const hasAnyPackage = hasPaid300 || simulatedPackages.length > 0;
+    if (!hasAnyPackage) {
+      setPendingProfileId(profile.id);
+      router.push(`/premium?returnProfile=${profile.id}`);
+      return;
+    }
+    setSelectedProfileForDetails(profile);
+  }, [isLoggedIn, userProfile, hasPaid300, simulatedPackages, router]);
+
   const handleGoogleLogin = () => {
     setIsLoggedIn(true);
     setShowLoginModal(false);
@@ -370,9 +436,17 @@ export const SimulatorProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       });
 
       if (res.ok) {
-        alert('Matrimonial profile saved successfully! Entering manual verification queue.');
-        setReloadTrigger((prev) => prev + 1);
-        setIsRegistering(false);
+        if (pendingProfileId) {
+          alert('Profile saved! Please choose a package to view full profiles.');
+          setIsRegistering(false);
+          setReloadTrigger((prev) => prev + 1);
+          router.push(`/premium?returnProfile=${pendingProfileId}`);
+          setPendingProfileId(null);
+        } else {
+          alert('Matrimonial profile saved successfully! Entering manual verification queue.');
+          setReloadTrigger((prev) => prev + 1);
+          setIsRegistering(false);
+        }
       } else {
         const data = await res.json();
         setRegistrationError(data.error || 'Failed to save profile.');
@@ -430,8 +504,13 @@ export const SimulatorProvider: React.FC<{ children: React.ReactNode }> = ({ chi
                 setHasPaid300(true);
               }
               setSimulatedPackages((prev) => Array.from(new Set([...prev, packageType])));
-              alert(`Alhamdulillah! Payment verified and your ${planName} is now active.`);
+              const returnId = pendingProfileId;
+              setPendingProfileId(null);
+              alert(`Alhamdulillah! Payment verified and your ${planName} is now active.${returnId ? '\n\nRedirecting you to the selected profile.' : ''}`);
               setReloadTrigger((prev) => prev + 1);
+              if (returnId) {
+                router.push(`/?profile=${returnId}`);
+              }
             } else {
               alert(verifyData.error || 'Payment verification failed.');
             }
@@ -650,6 +729,10 @@ export const SimulatorProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   return (
     <SimulatorContext.Provider
       value={{
+        pendingProfileId,
+        setPendingProfileId,
+        handleViewProfile,
+
         isLoggedIn,
         setIsLoggedIn,
         hasPaid300,
