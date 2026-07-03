@@ -4,7 +4,7 @@ import type { Session } from 'next-auth';
 export const DEMO_DISABLED_MESSAGE = 'This action is disabled in demo mode.';
 
 export function isDemoMode() {
-  return process.env.DEMO_MODE === 'true';
+  return process.env.DEMO_MODE === 'true' || process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
 }
 
 export function isPublicDemoMode() {
