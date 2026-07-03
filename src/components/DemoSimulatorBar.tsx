@@ -9,6 +9,11 @@ import { isPublicDemoMode } from '../lib/demoEnv';
 export const DemoSimulatorBar: React.FC = () => {
   const isDemoMode = isPublicDemoMode();
   const {
+    isLoggedIn,
+    setIsLoggedIn,
+    hasPaid300,
+    setHasPaid300,
+    simulatedPackages,
     setSimulatedPackages,
     simulatedHighProfileApproved,
     setSimulatedHighProfileApproved,
