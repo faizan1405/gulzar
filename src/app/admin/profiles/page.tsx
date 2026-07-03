@@ -131,7 +131,8 @@ export default function AdminProfilesPage() {
         if (selected?.id === profileId) setSelected(null);
         setTotal(t => t - 1);
       } else {
-        alert('Delete failed.');
+        const data = await res.json();
+        alert(data.error || 'Delete failed.');
       }
     } catch {
       alert('Network error.');

@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
-import { getAllProfiles } from '@/lib/profileStore';
+import { getAllProfiles, getDemoProfiles } from '@/lib/profileStore';
+import { isAdminSessionOrDemo, isDemoMode } from '@/lib/demoMode';
 
 async function isAdmin(req: NextRequest) {
   const session = await auth();
-  const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
-  const simulatedAdmin = isDemoMode && req.headers.get('x-simulator-admin') === 'true';
-  return session?.user?.role === 'ADMIN' || simulatedAdmin;
+  return isAdminSessionOrDemo(req, session);
 }
 
 export async function GET(req: NextRequest) {
@@ -23,7 +22,7 @@ export async function GET(req: NextRequest) {
     const approvalStatus = searchParams.get('approvalStatus') || '';
     const hasPaid = searchParams.get('hasPaid') || '';
 
-    let profiles = await getAllProfiles();
+    let profiles = isDemoMode() ? getDemoProfiles() : await getAllProfiles();
 
     if (gender) profiles = profiles.filter((p: any) => p.gender === gender);
     if (state) profiles = profiles.filter((p: any) => p.state?.toLowerCase().includes(state.toLowerCase()));

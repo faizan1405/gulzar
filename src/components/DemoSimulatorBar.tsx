@@ -6,6 +6,7 @@ import { useSimulator } from '../context/SimulatorContext';
 import { PACKAGE_KEYS } from '../lib/packages';
 
 export const DemoSimulatorBar: React.FC = () => {
+  const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
   const {
     isLoggedIn,
     setIsLoggedIn,
@@ -21,6 +22,8 @@ export const DemoSimulatorBar: React.FC = () => {
 
   const router = useRouter();
   const pathname = usePathname();
+
+  if (!isDemoMode) return null;
 
   const handleAdminToggle = (checked: boolean) => {
     setIsAdminMode(checked);

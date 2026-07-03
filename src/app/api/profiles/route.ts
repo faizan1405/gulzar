@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { getAllProfiles, getProfileByUserId, getUserPurchases, getDemoProfiles } from '@/lib/profileStore';
 import { redactProfile } from '@/lib/profilePrivacy';
+import { getDemoUserId, isDemoAdminRequest, isDemoMode } from '@/lib/demoMode';
 
 // Get all verified profiles
 export async function GET(req: NextRequest) {
@@ -9,12 +10,13 @@ export async function GET(req: NextRequest) {
     const session = await auth();
 
     // Support simulator headers
-    const simulatedUserId = req.headers.get('x-simulator-user-id');
-    const simulatedPaid = req.headers.get('x-simulator-paid') === 'true';
-    const simulatedPackagesHeader = req.headers.get('x-simulator-packages') || '';
+    const demoMode = isDemoMode();
+    const simulatedUserId = getDemoUserId(req);
+    const simulatedPaid = demoMode && req.headers.get('x-simulator-paid') === 'true';
+    const simulatedPackagesHeader = demoMode ? req.headers.get('x-simulator-packages') || '' : '';
     const simulatedPackages = simulatedPackagesHeader.split(',').map(p => p.trim());
-    const simulatedHighProfileApproved = req.headers.get('x-simulator-high-profile-approved') === 'true';
-    const simulatedAdmin = req.headers.get('x-simulator-admin') === 'true';
+    const simulatedHighProfileApproved = demoMode && req.headers.get('x-simulator-high-profile-approved') === 'true';
+    const simulatedAdmin = isDemoAdminRequest(req);
 
     const viewerId = session?.user?.id || simulatedUserId;
     const isAdmin = session?.user?.role === 'ADMIN' || simulatedAdmin;

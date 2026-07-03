@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createLead, getAllLeads } from '@/lib/profileStore';
 import { notifyAdminNewLead } from '@/lib/notifications';
 import { checkRateLimit } from '@/lib/rateLimit';
+import { isDemoMode } from '@/lib/demoMode';
 
 // Basic phone validation helper
 function isValidPhone(phone: string): boolean {
@@ -101,6 +102,30 @@ export async function POST(req: NextRequest) {
         { error: 'Double submission detected. You have already submitted this inquiry. Please wait a moment.' },
         { status: 429 }
       );
+    }
+
+    if (isDemoMode()) {
+      return NextResponse.json({
+        success: true,
+        message: 'Demo inquiry received. No production data was changed.',
+        lead: {
+          id: `lead_demo_${Date.now()}`,
+          fullName: cleanName,
+          phone: cleanPhone,
+          email: cleanEmail,
+          city: cleanCity,
+          message: cleanMessage,
+          inquiryType: cleanInquiryType,
+          interestedPackage: cleanPackage,
+          interestedProfileId: cleanProfileId,
+          sourcePage: cleanSourcePage,
+          status: 'new',
+          priority: 'normal',
+          adminNotes: '',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        }
+      });
     }
 
     // 5. Store lead

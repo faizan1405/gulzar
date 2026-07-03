@@ -2,18 +2,19 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { getProfileByUserId } from '@/lib/profileStore';
 import { PREMIUM_PACKAGES } from '@/lib/packages';
+import { getDemoUserId } from '@/lib/demoMode';
 
 // Public packages API — returns names/features always, prices only after form completion
 export async function GET(req: NextRequest) {
   try {
     const session = await auth();
-    const simulatedUserId = req.headers.get('x-simulator-user-id');
-    const simulatedLoggedIn = req.headers.get('x-simulator-logged-in') === 'true';
+    const simulatedUserId = getDemoUserId(req);
+    const simulatedLoggedIn = !!simulatedUserId && req.headers.get('x-simulator-logged-in') === 'true';
     const activeUserId = session?.user?.id || (simulatedLoggedIn ? simulatedUserId : null);
 
     // Determine if this user has completed their profile form
-    let formComplete = false;
-    if (activeUserId) {
+    let formComplete = simulatedLoggedIn;
+    if (activeUserId && !simulatedLoggedIn) {
       try {
         const profile = await getProfileByUserId(activeUserId);
         formComplete = profile?.profileCompletionStatus === 'COMPLETE';

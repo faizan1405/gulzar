@@ -5,6 +5,7 @@ import { prisma } from '@/lib/db';
 import { redactProfile } from '@/lib/profilePrivacy';
 import { notifyRegistration, notifyAdminNewProfile } from '@/lib/notifications';
 import { checkRateLimit } from '@/lib/rateLimit';
+import { getDemoUserId, isDemoMode } from '@/lib/demoMode';
 
 // Get user profile
 export async function GET(req: NextRequest) {
@@ -54,14 +55,15 @@ export async function GET(req: NextRequest) {
     }> = [];
     
     // Support simulator headers
-    const simulatedUserId = req.headers.get('x-simulator-user-id');
-    const simulatedPaid = req.headers.get('x-simulator-paid') === 'true';
-    const simulatedPackagesHeader = req.headers.get('x-simulator-packages') || '';
+    const simulatedUserId = getDemoUserId(req);
+    const demoMode = isDemoMode();
+    const simulatedPaid = demoMode && req.headers.get('x-simulator-paid') === 'true';
+    const simulatedPackagesHeader = demoMode ? req.headers.get('x-simulator-packages') || '' : '';
     const simulatedPackages = simulatedPackagesHeader.split(',').map(p => p.trim());
-    const simulatedHighProfileApproved = req.headers.get('x-simulator-high-profile-approved') === 'true';
+    const simulatedHighProfileApproved = demoMode && req.headers.get('x-simulator-high-profile-approved') === 'true';
 
     const viewerId = session?.user?.id || simulatedUserId;
-    if (viewerId) {
+    if (viewerId && !isDemoMode()) {
       const viewerProfile = await getProfileByUserId(viewerId);
       if (viewerProfile) {
         viewerHasPaid = viewerProfile.hasPaid;
@@ -127,7 +129,7 @@ export async function POST(req: NextRequest) {
     const session = await auth();
     
     // Support simulated login as well for easy testing
-    const simulatedUserId = req.headers.get('x-simulator-user-id');
+    const simulatedUserId = getDemoUserId(req);
     const activeUserId = session?.user?.id || simulatedUserId;
 
     if (!activeUserId) {
@@ -180,6 +182,24 @@ export async function POST(req: NextRequest) {
 
     if (age < 18) {
       return NextResponse.json({ error: 'Registration is restricted to eligible adults (18 years and older).' }, { status: 400 });
+    }
+
+    if (isDemoMode()) {
+      return NextResponse.json({
+        success: true,
+        profile: {
+          id: 'demo-sim-profile',
+          userId: activeUserId,
+          ...body,
+          verificationStatus: 'PENDING',
+          profileCompletionStatus: 'COMPLETE',
+          adminApprovalStatus: 'PENDING',
+          hasPaid: false,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
+        message: 'Demo profile simulated successfully. No production data was changed.',
+      });
     }
 
     // 3. Save profile

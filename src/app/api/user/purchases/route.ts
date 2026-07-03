@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { getProfileByUserId, getUserPurchases } from '@/lib/profileStore';
+import { getDemoUserId } from '@/lib/demoMode';
 
 export async function GET(req: NextRequest) {
   try {
     const session = await auth();
-    const simulatedUserId = req.headers.get('x-simulator-user-id');
+    const simulatedUserId = getDemoUserId(req);
     const activeUserId = session?.user?.id || simulatedUserId;
 
     if (!activeUserId) {

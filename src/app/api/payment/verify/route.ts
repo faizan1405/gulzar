@@ -4,21 +4,40 @@ import { verifyPackagePurchase } from '@/lib/profileStore';
 import { prisma } from '@/lib/db';
 import { notifyMembership } from '@/lib/notifications';
 import crypto from 'crypto';
+import { getDemoUserId, isDemoMode } from '@/lib/demoMode';
 
 export async function POST(req: NextRequest) {
   try {
     const session = await auth();
-    const simulatedUserId = req.headers.get('x-simulator-user-id');
+    const simulatedUserId = getDemoUserId(req);
     const activeUserId = session?.user?.id || simulatedUserId;
 
     if (!activeUserId) {
       return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
     }
 
-    const { orderId, paymentId, signature, isSimulated } = await req.json();
+    const { orderId, paymentId, signature } = await req.json();
 
     if (!orderId || !paymentId) {
       return NextResponse.json({ error: 'Missing payment details' }, { status: 400 });
+    }
+
+    if (isDemoMode()) {
+      if (!orderId.startsWith('order_demo_')) {
+        return NextResponse.json({ error: 'Invalid demo payment order.' }, { status: 400 });
+      }
+
+      return NextResponse.json({
+        success: true,
+        message: 'Demo payment verified successfully. No real payment was captured.',
+        purchase: {
+          id: `purchase_demo_${Date.now()}`,
+          razorpayOrderId: orderId,
+          razorpayPaymentId: paymentId,
+          paymentStatus: 'PAID',
+          accessStatus: 'ACTIVE',
+        },
+      });
     }
 
     const existingPurchase = await prisma.packagePurchase.findFirst({
@@ -33,7 +52,7 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    if (isSimulated || orderId.startsWith('order_sim_')) {
+    if (orderId.startsWith('order_sim_')) {
       console.warn('⚠️ [SIMULATOR MODE] Verifying Mock Payment. This is for testing only. Not real Razorpay payment.');
       const purchase = await verifyPackagePurchase(orderId, paymentId);
       

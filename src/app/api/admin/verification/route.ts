@@ -1,16 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
-import { getVerificationRequests, updateVerificationStatus, getAuditLogs } from '@/lib/profileStore';
+import { getDemoProfiles, getVerificationRequests, updateVerificationStatus, getAuditLogs } from '@/lib/profileStore';
 import { prisma } from '@/lib/db';
 import { notifyVerificationStatus } from '@/lib/notifications';
 import { VerificationStatus } from '@prisma/client';
+import {
+  demoMutationResponse,
+  getDemoAdminId,
+  isAdminSessionOrDemo,
+  isDemoMode
+} from '@/lib/demoMode';
 
 // Helper to check if admin
 async function isAdmin(req: NextRequest) {
   const session = await auth();
-  const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
-  const simulatedAdmin = isDemoMode && req.headers.get('x-simulator-admin') === 'true';
-  return session?.user?.role === 'ADMIN' || simulatedAdmin;
+  return isAdminSessionOrDemo(req, session);
 }
 
 // Get all verification requests
@@ -24,8 +28,39 @@ export async function GET(req: NextRequest) {
     const mode = searchParams.get('mode');
 
     if (mode === 'audit') {
+      if (isDemoMode()) {
+        return NextResponse.json({
+          logs: [{
+            id: 'audit_demo_1',
+            actorUserId: null,
+            action: 'DEMO_ADMIN_VIEW',
+            targetType: 'Demo',
+            targetId: null,
+            metadata: JSON.stringify({ message: 'Demo audit log. No production data was changed.' }),
+            createdAt: new Date().toISOString(),
+          }]
+        });
+      }
       const logs = await getAuditLogs();
       return NextResponse.json({ logs });
+    }
+
+    if (isDemoMode()) {
+      const requests = getDemoProfiles()
+        .filter((profile) => profile.verificationStatus !== 'APPROVED')
+        .slice(0, 8)
+        .map((profile, index) => ({
+          id: `vr_demo_${index + 1}`,
+          profileId: profile.id,
+          status: profile.verificationStatus,
+          assignedAdminId: null,
+          notes: 'Demo verification request.',
+          verifiedAt: null,
+          createdAt: profile.createdAt,
+          updatedAt: profile.updatedAt,
+          profile,
+        }));
+      return NextResponse.json({ requests });
     }
 
     const requests = await getVerificationRequests();
@@ -42,10 +77,10 @@ export async function POST(req: NextRequest) {
     if (!(await isAdmin(req))) {
       return NextResponse.json({ error: 'Unauthorized. Admin role required.' }, { status: 403 });
     }
+    if (isDemoMode()) return demoMutationResponse();
 
     const session = await auth();
-    const simulatedAdminId = req.headers.get('x-simulator-admin-id') || 'simulated-admin-id';
-    const adminUserId = session?.user?.id || simulatedAdminId;
+    const adminUserId = session?.user?.id || getDemoAdminId(req) || 'simulated-admin-id';
 
     const body = await req.json();
     const { profileId, status, notes } = body;

@@ -2,12 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/db';
 import { getValidObjectId, isFallbackAllowed } from '@/lib/profileStore';
+import { demoMutationResponse, isAdminSessionOrDemo, isDemoMode } from '@/lib/demoMode';
 
 async function isAdmin(req: NextRequest) {
   const session = await auth();
-  const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
-  const simulatedAdmin = isDemoMode && req.headers.get('x-simulator-admin') === 'true';
-  return session?.user?.role === 'ADMIN' || simulatedAdmin;
+  return isAdminSessionOrDemo(req, session);
 }
 
 export async function PATCH(
@@ -18,6 +17,7 @@ export async function PATCH(
     if (!(await isAdmin(req))) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
+    if (isDemoMode()) return demoMutationResponse();
 
     const { id } = await params;
     const body = await req.json();
@@ -74,6 +74,7 @@ export async function DELETE(
     if (!(await isAdmin(req))) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
+    if (isDemoMode()) return demoMutationResponse();
 
     const { id } = await params;
 
