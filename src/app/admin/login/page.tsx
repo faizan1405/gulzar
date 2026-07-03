@@ -5,12 +5,11 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 import { useSimulator } from '../../../context/SimulatorContext';
-import { isPublicDemoMode } from '../../../lib/demoEnv';
 
 export default function AdminLoginPage() {
   const router = useRouter();
   const { setIsAdminMode } = useSimulator();
-  const isDemoMode = isPublicDemoMode();
+  const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 

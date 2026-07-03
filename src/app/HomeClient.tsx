@@ -39,11 +39,9 @@ const THEME_COLORS = [
   { name: 'Saffron Glow', value: 'saffron' }
 ];
 
-import { isPublicDemoMode } from '../lib/demoEnv';
-
 export default function HomeClient() {
   const router = useRouter();
-  const isDemoMode = isPublicDemoMode();
+  const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
   const [inquiryPackage, setInquiryPackage] = React.useState<string | null>(null);
   const [quickGender, setQuickGender] = React.useState('');
   const [quickAgeMin, setQuickAgeMin] = React.useState('');

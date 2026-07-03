@@ -4,10 +4,9 @@ import React from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useSimulator } from '../context/SimulatorContext';
 import { PACKAGE_KEYS } from '../lib/packages';
-import { isPublicDemoMode } from '../lib/demoEnv';
 
 export const DemoSimulatorBar: React.FC = () => {
-  const isDemoMode = isPublicDemoMode();
+  const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
   const {
     isLoggedIn,
     setIsLoggedIn,

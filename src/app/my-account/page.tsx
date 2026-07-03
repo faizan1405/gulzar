@@ -7,7 +7,6 @@ import Navbar from '../../components/Navbar';
 import { SectionHeading, PremiumFooter, DecorativeArch } from '../../components/NikahComponents';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { isPublicDemoMode } from '@/lib/demoEnv';
 
 export default function MyAccountPage() {
   const { isLoggedIn, userProfile, hasPaid300, simulatedPackages, setIsRegistering, setRegStep } = useSimulator();
@@ -45,7 +44,7 @@ export default function MyAccountPage() {
         method: 'POST',
         body: formData,
         // Using simulator headers to mimic the active session in demo mode
-        headers: isPublicDemoMode() && userProfile ? {
+        headers: process.env.NEXT_PUBLIC_DEMO_MODE === 'true' && userProfile ? {
           'x-simulator-user-id': userProfile.id
         } : {}
       });

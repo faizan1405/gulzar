@@ -135,12 +135,10 @@ const initialFormData = {
   familyOrigin: '',
 };
 
-import { isPublicDemoMode } from '../lib/demoEnv';
-
 // localStorage key for persisting demo simulator selections across refreshes
 const DEMO_STATE_KEY = 'rf-demo-sim-state';
 
-const IS_DEMO_MODE = isPublicDemoMode();
+const IS_DEMO_MODE = process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
 
 /**
  * In demo mode the simulated user never has a real DB-backed profile
@@ -320,7 +318,7 @@ export const SimulatorProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   // Headers generator
   const getSimulatorHeaders = useCallback(() => {
-    const isDemoMode = isPublicDemoMode();
+    const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
     if (!isDemoMode) {
       return { 'Content-Type': 'application/json' } as Record<string, string>;
     }
