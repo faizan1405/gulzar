@@ -1,14 +1,23 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import type { Session } from 'next-auth';
+import { isDemoMode, parseEnvBoolean, isPublicDemoMode } from './demoEnv';
+
+export { isDemoMode, parseEnvBoolean, isPublicDemoMode };
 
 export const DEMO_DISABLED_MESSAGE = 'This action is disabled in demo mode.';
 
-export function isDemoMode() {
-  return process.env.DEMO_MODE === 'true' || process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
+/**
+ * Use this in mutation APIs to check if they are blocked by demo mode.
+ */
+export function isDemoMutationBlocked() {
+  return isDemoMode();
 }
 
-export function isPublicDemoMode() {
-  return process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
+/**
+ * Use this in mutation APIs to check if they are blocked by demo mode.
+ */
+export function isDemoMutationBlocked() {
+  return isDemoMode();
 }
 
 export function getDemoUserId(req: NextRequest) {

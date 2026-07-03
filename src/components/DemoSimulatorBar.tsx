@@ -4,15 +4,11 @@ import React from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useSimulator } from '../context/SimulatorContext';
 import { PACKAGE_KEYS } from '../lib/packages';
+import { isPublicDemoMode } from '../lib/demoEnv';
 
 export const DemoSimulatorBar: React.FC = () => {
-  const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
+  const isDemoMode = isPublicDemoMode();
   const {
-    isLoggedIn,
-    setIsLoggedIn,
-    hasPaid300,
-    setHasPaid300,
-    simulatedPackages,
     setSimulatedPackages,
     simulatedHighProfileApproved,
     setSimulatedHighProfileApproved,
