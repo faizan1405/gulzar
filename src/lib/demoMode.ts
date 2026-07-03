@@ -13,12 +13,7 @@ export function isDemoMutationBlocked() {
   return isDemoMode();
 }
 
-/**
- * Use this in mutation APIs to check if they are blocked by demo mode.
- */
-export function isDemoMutationBlocked() {
-  return isDemoMode();
-}
+
 
 export function getDemoUserId(req: NextRequest) {
   if (!isDemoMode()) return null;
