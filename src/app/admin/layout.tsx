@@ -3,7 +3,6 @@ import { redirect } from 'next/navigation';
 import { headers } from 'next/headers';
 import { auth } from '@/auth';
 import AdminLayoutClient from './AdminLayoutClient';
-import { isDemoMode } from '@/lib/demoMode';
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const h = await headers();
@@ -16,9 +15,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   const session = await auth();
 
-  // In demo deployments every visitor may open the admin showcase.
   // In production a genuine ADMIN session is required.
-  const isAdmin = session?.user?.role === 'ADMIN' || isDemoMode();
+  const isAdmin = session?.user?.role === 'ADMIN';
 
   if (!isAdmin) {
     redirect('/admin/login');

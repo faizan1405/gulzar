@@ -3,14 +3,14 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
-import { useSimulator } from '../../context/SimulatorContext';
+import { useApp } from '../../context/AppContext';
 import Navbar from '../../components/Navbar';
 import ProfileFilters from '../../components/ProfileFilters';
 import ProfileGrid from '../../components/ProfileGrid';
 import { SectionHeading, PremiumFooter } from '../../components/NikahComponents';
 
 export default function SearchClient() {
-  const { profiles, isLoggedIn, userProfile, isLoading } = useSimulator();
+  const { profiles, isLoggedIn, userProfile, isLoading } = useApp();
   
   const searchParams = useSearchParams();
   const queryLocation = searchParams?.get('location');
@@ -22,7 +22,7 @@ export default function SearchClient() {
   const queryCommunity = searchParams?.get('community');
   const queryCaste = searchParams?.get('caste');
 
-  const { masterLocations } = useSimulator();
+  const { masterLocations } = useApp();
 
   // Parse initial state/city: direct params take priority, then legacy location param
   let initialState = 'All';

@@ -2,14 +2,9 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
-import { useSimulator } from '../../../context/SimulatorContext';
 
 export default function AdminLoginPage() {
-  const router = useRouter();
-  const { setIsAdminMode } = useSimulator();
-  const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -22,11 +17,6 @@ export default function AdminLoginPage() {
       setError('Sign-in failed. Please try again.');
       setLoading(false);
     }
-  };
-
-  const handleDemoAdmin = () => {
-    setIsAdminMode(true);
-    router.push('/admin');
   };
 
   return (
@@ -49,74 +39,69 @@ export default function AdminLoginPage() {
           backgroundImage:
             'radial-gradient(circle at 20% 20%, rgba(184,146,74,0.08) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(184,146,74,0.06) 0%, transparent 50%)',
           pointerEvents: 'none',
+          zIndex: 0,
         }}
       />
 
       <div
         style={{
-          background: 'var(--warm-ivory)',
-          borderRadius: '24px',
-          padding: '48px 40px',
           width: '100%',
-          maxWidth: '420px',
-          boxShadow: '0 40px 80px -10px rgba(0,0,0,0.5)',
-          border: '1.5px solid rgba(184,146,74,0.3)',
-          position: 'relative',
+          maxWidth: '440px',
+          background: 'rgba(255, 255, 255, 0.98)',
+          borderRadius: '24px',
+          padding: '40px 32px',
+          boxShadow: '0 20px 40px rgba(0,0,0,0.3)',
           textAlign: 'center',
+          position: 'relative',
+          zIndex: 10,
+          border: '1px solid rgba(184, 146, 74, 0.2)',
         }}
       >
-        {/* Floral corners */}
-        <span style={{ position: 'absolute', top: 12, left: 14, fontSize: 18, opacity: 0.4, color: 'var(--gold-accent)' }}>❧</span>
-        <span style={{ position: 'absolute', top: 12, right: 14, fontSize: 18, opacity: 0.4, color: 'var(--gold-accent)', transform: 'scaleX(-1)' }}>❧</span>
-        <span style={{ position: 'absolute', bottom: 12, left: 14, fontSize: 18, opacity: 0.4, color: 'var(--gold-accent)', transform: 'scaleY(-1)' }}>❧</span>
-        <span style={{ position: 'absolute', bottom: 12, right: 14, fontSize: 18, opacity: 0.4, color: 'var(--gold-accent)', transform: 'scale(-1)' }}>❧</span>
-
-        {/* Logo */}
-        <div style={{ marginBottom: '24px' }}>
+        {/* Logo wrapper */}
+        <div style={{ marginBottom: '28px', display: 'flex', justifyContent: 'center' }}>
           <Image
             src="/images/rishte-forever-logo.png"
             alt="Rishte Forever"
-            width={160}
-            height={60}
-            style={{ height: '44px', width: 'auto', margin: '0 auto' }}
+            width={180}
+            height={68}
+            priority
+            style={{ objectFit: 'contain' }}
           />
         </div>
 
-        {/* Title */}
         <h1
           style={{
             fontFamily: 'var(--font-serif)',
-            color: 'var(--deep-maroon)',
-            fontSize: '26px',
+            color: '#6F1D35',
+            fontSize: '28px',
+            marginBottom: '8px',
             fontWeight: 700,
-            marginBottom: '6px',
           }}
         >
-          Admin Portal
+          Rishte Forever Admin
         </h1>
-        <p style={{ color: 'var(--text-muted)', fontSize: '13.5px', marginBottom: '32px' }}>
-          Secure access for Rishte Forever team members only.
-        </p>
-
-        {/* Divider */}
-        <div
+        
+        <p
           style={{
-            height: '1px',
-            background: 'linear-gradient(to right, transparent, var(--gold-accent), transparent)',
-            marginBottom: '28px',
-            opacity: 0.5,
+            color: '#666',
+            fontSize: '14px',
+            marginBottom: '32px',
+            lineHeight: 1.5,
           }}
-        />
+        >
+          Access the Matrimonial management dashboard. Sign in using your registered admin Google account.
+        </p>
 
         {error && (
           <div
             style={{
-              background: 'rgba(111,29,53,0.08)',
-              border: '1px solid rgba(111,29,53,0.2)',
+              padding: '12px 16px',
               borderRadius: '8px',
-              padding: '10px 14px',
+              background: '#fdf2f2',
+              border: '1px solid #fde8e8',
+              color: '#c81e1e',
               marginBottom: '20px',
-              color: 'var(--deep-maroon)',
+              textAlign: 'left',
               fontSize: '13px',
             }}
           >
@@ -145,7 +130,7 @@ export default function AdminLoginPage() {
             transition: 'all 0.2s',
             opacity: loading ? 0.7 : 1,
             boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-            marginBottom: isDemoMode ? '16px' : '0',
+            marginBottom: '0',
           }}
         >
           {/* Google G icon */}
@@ -157,60 +142,6 @@ export default function AdminLoginPage() {
           </svg>
           {loading ? 'Signing in...' : 'Sign in with Google'}
         </button>
-
-        {/* Demo mode shortcut */}
-        {isDemoMode && (
-          <>
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px',
-                margin: '16px 0',
-                color: 'var(--text-muted)',
-                fontSize: '12px',
-              }}
-            >
-              <div style={{ flex: 1, height: '1px', background: 'var(--border-color)' }} />
-              <span>or demo access</span>
-              <div style={{ flex: 1, height: '1px', background: 'var(--border-color)' }} />
-            </div>
-            <button
-              onClick={handleDemoAdmin}
-              className="btn btn-gold"
-              style={{ width: '100%', padding: '13px', fontSize: '14px', fontWeight: 600 }}
-            >
-              🎭 Enter as Demo Admin
-            </button>
-          </>
-        )}
-
-        {/* Footer note */}
-        <p
-          style={{
-            marginTop: '28px',
-            fontSize: '11.5px',
-            color: 'var(--text-muted)',
-            lineHeight: 1.6,
-          }}
-        >
-          Only authorized team accounts can access the admin panel.
-          <br />
-          Unauthorized access attempts are logged.
-        </p>
-
-        <a
-          href="/"
-          style={{
-            display: 'inline-block',
-            marginTop: '16px',
-            fontSize: '12px',
-            color: 'var(--gold-dark)',
-            textDecoration: 'underline',
-          }}
-        >
-          ← Back to public website
-        </a>
       </div>
     </div>
   );

@@ -4,7 +4,7 @@ import React from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
-import { useSimulator } from '../context/SimulatorContext';
+import { useApp } from '../context/AppContext';
 import { getProfileImage, getThemeClass } from '../lib/helpers';
 import Navbar from '../components/Navbar';
 import HeroSection from '../components/HeroSection';
@@ -41,7 +41,6 @@ const THEME_COLORS = [
 
 export default function HomeClient() {
   const router = useRouter();
-  const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
   const [inquiryPackage, setInquiryPackage] = React.useState<string | null>(null);
   const [quickGender, setQuickGender] = React.useState('');
   const [quickAgeMin, setQuickAgeMin] = React.useState('');
@@ -54,8 +53,8 @@ export default function HomeClient() {
   const {
     isLoggedIn,
     hasPaid300,
-    simulatedPackages,
-    simulatedHighProfileApproved,
+    activePackages,
+    highProfileApproved,
     showLoginModal,
     setShowLoginModal,
     handleGoogleLogin,
@@ -79,7 +78,7 @@ export default function HomeClient() {
     masterMaslaks,
     masterCastes,
     masterLocations,
-  } = useSimulator();
+  } = useApp();
 
   const isFormComplete = isLoggedIn && userProfile?.profileCompletionStatus === 'COMPLETE';
 
@@ -793,8 +792,8 @@ export default function HomeClient() {
                           isLoggedIn={isLoggedIn}
                           isFormComplete={isFormComplete}
                           hasPaid300={hasPaid300}
-                          simulatedPackages={simulatedPackages}
-                          simulatedHighProfileApproved={simulatedHighProfileApproved}
+                          activePackages={activePackages}
+                          highProfileApproved={highProfileApproved}
                           savedProfiles={savedProfiles}
                           onToggleSave={toggleSaveProfile}
                           onViewDetails={setSelectedProfileForDetails}
@@ -972,7 +971,7 @@ export default function HomeClient() {
                     gstRate={0.18}
                     billingText="one-time base"
                     features={['Verified profile suggestions', 'Basic matchmaking support', 'Privacy-safe profile sharing', '1 year service validity']}
-                    isActive={simulatedPackages.includes('good_profile_package')}
+                    isActive={activePackages.includes('good_profile_package')}
                     ctaText="Buy Good Profile Package"
                     onActivate={() => handleRazorpayCheckout('good_profile_package', 5500, 'Good Profile Package')}
                     onInquire={() => setInquiryPackage('₹5,500 Good Profiles Package')}
@@ -1000,7 +999,7 @@ export default function HomeClient() {
                       'Privacy-safe contact assistance',
                       '1 year service validity'
                     ]}
-                    isActive={simulatedPackages.includes('second_marriage_package')}
+                    isActive={activePackages.includes('second_marriage_package')}
                     ctaText="Buy Silver Plan"
                     onActivate={() => handleRazorpayCheckout('second_marriage_package', 11000, 'Silver Plan')}
                     onInquire={() => setInquiryPackage('₹11,000 Silver Plan')}
@@ -1030,7 +1029,7 @@ export default function HomeClient() {
                       'Privacy-safe contact assistance',
                       '1 year service validity'
                     ]}
-                    isActive={simulatedPackages.includes('high_profile_package')}
+                    isActive={activePackages.includes('high_profile_package')}
                     ctaText="Buy Gold Package"
                     onActivate={() => handleRazorpayCheckout('high_profile_package', 21000, 'Gold Package')}
                     onInquire={() => setInquiryPackage('₹21,000 Gold Package')}
@@ -1215,31 +1214,6 @@ export default function HomeClient() {
                 Continue with Google
               </button>
 
-              {isDemoMode && (
-                <>
-                  <div
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '10px',
-                      margin: '16px 0',
-                      color: 'var(--text-muted)',
-                      fontSize: '12px',
-                    }}
-                  >
-                    <div style={{ flex: 1, height: '1px', background: 'var(--border-color)' }} />
-                    <span>or demo access</span>
-                    <div style={{ flex: 1, height: '1px', background: 'var(--border-color)' }} />
-                  </div>
-                  <button
-                    onClick={handleGoogleLogin}
-                    className="btn btn-gold"
-                    style={{ width: '100%', fontWeight: 600 }}
-                  >
-                    🎭 Continue as Demo User
-                  </button>
-                </>
-              )}
 
               <button
                 onClick={() => setShowLoginModal(false)}

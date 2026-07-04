@@ -2,7 +2,6 @@
 
 import dynamic from "next/dynamic";
 
-export const DemoSimulatorBar = dynamic(() => import("./DemoSimulatorBar"), { ssr: false });
 export const ProfileDetails = dynamic(() => import("./ProfileDetails"), { ssr: false });
 export const ChatbotWidget = dynamic(() => import("./ChatbotWidget"), { ssr: false });
 export const CallButton = dynamic(() => import("./CallButton"), { ssr: false });

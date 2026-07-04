@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { useSimulator } from '../../../context/SimulatorContext';
+import { useApp } from '../../../context/AppContext';
 import { Lead } from '../../../types';
 import { getWhatsAppLink } from '../../../lib/whatsapp';
 import { SectionHeading, FloralCorner } from '../../../components/NikahComponents';
@@ -32,7 +32,7 @@ const STATUS_COLORS: Record<string, React.CSSProperties> = {
 };
 
 export default function AdminEventsPage() {
-  const { getSimulatorHeaders, reloadTrigger, setReloadTrigger } = useSimulator();
+  const { reloadTrigger, setReloadTrigger } = useApp();
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -53,14 +53,14 @@ export default function AdminEventsPage() {
       const eventType = typeFilter || 'Event Management';
       q.set('inquiryType', eventType);
 
-      const res = await fetch(`/api/admin/leads?${q}`, { headers: getSimulatorHeaders() });
+      const res = await fetch(`/api/admin/leads?${q}`, { headers: { 'Content-Type': 'application/json' } });
       if (res.ok) {
         const data = await res.json();
         // Show all event-type leads even when filter is cleared
         let result: Lead[] = data.leads || [];
         if (!typeFilter) {
           // Re-fetch without type filter and filter client-side for all event categories
-          const allRes = await fetch(`/api/admin/leads?${new URLSearchParams({ ...(search ? { search } : {}), ...(statusFilter ? { status: statusFilter } : {}) })}`, { headers: getSimulatorHeaders() });
+          const allRes = await fetch(`/api/admin/leads?${new URLSearchParams({ ...(search ? { search } : {}), ...(statusFilter ? { status: statusFilter } : {}) })}`, { headers: { 'Content-Type': 'application/json' } });
           if (allRes.ok) {
             const allData = await allRes.json();
             result = (allData.leads || []).filter((l: Lead) =>
@@ -79,7 +79,7 @@ export default function AdminEventsPage() {
     } finally {
       setLoading(false);
     }
-  }, [search, statusFilter, typeFilter, getSimulatorHeaders]);
+  }, [search, statusFilter, typeFilter]);
 
   useEffect(() => { fetchLeads(); }, [fetchLeads, reloadTrigger]);
 
@@ -89,7 +89,7 @@ export default function AdminEventsPage() {
     try {
       const res = await fetch(`/api/admin/leads/${leadId}`, {
         method: 'PATCH',
-        headers: { ...getSimulatorHeaders(), 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updates),
       });
       const data = await res.json();

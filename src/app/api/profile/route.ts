@@ -5,7 +5,6 @@ import { prisma } from '@/lib/db';
 import { redactProfile } from '@/lib/profilePrivacy';
 import { notifyRegistration, notifyAdminNewProfile } from '@/lib/notifications';
 import { checkRateLimit } from '@/lib/rateLimit';
-import { getDemoUserId, isDemoMode } from '@/lib/demoMode';
 
 // Get user profile
 export async function GET(req: NextRequest) {
@@ -54,16 +53,8 @@ export async function GET(req: NextRequest) {
       eligibilityStatus?: string;
     }> = [];
     
-    // Support simulator headers
-    const simulatedUserId = getDemoUserId(req);
-    const demoMode = isDemoMode();
-    const simulatedPaid = demoMode && req.headers.get('x-simulator-paid') === 'true';
-    const simulatedPackagesHeader = demoMode ? req.headers.get('x-simulator-packages') || '' : '';
-    const simulatedPackages = simulatedPackagesHeader.split(',').map(p => p.trim());
-    const simulatedHighProfileApproved = demoMode && req.headers.get('x-simulator-high-profile-approved') === 'true';
-
-    const viewerId = session?.user?.id || simulatedUserId;
-    if (viewerId && !isDemoMode()) {
+    const viewerId = session?.user?.id;
+    if (viewerId) {
       const viewerProfile = await getProfileByUserId(viewerId);
       if (viewerProfile) {
         viewerHasPaid = viewerProfile.hasPaid;
@@ -71,14 +62,14 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    const hasStandardPkg = viewerHasPaid || hasPaid300Check() || simulatedPaid || simulatedPackages.includes('monthly_membership');
-    const hasSecondMarriagePkg = viewerPurchases.some(p => p.packageType === 'second_marriage_package' && p.paymentStatus === 'PAID') || simulatedPackages.includes('second_marriage_package');
-    const hasHighProfilePkg = viewerPurchases.some(p => p.packageType === 'high_profile_package' && p.paymentStatus === 'PAID' && p.eligibilityStatus === 'APPROVED') || (simulatedPackages.includes('high_profile_package') && simulatedHighProfileApproved);
-    const hasGoodProfilePkg = viewerPurchases.some(p => p.packageType === 'good_profile_package' && p.paymentStatus === 'PAID') || simulatedPackages.includes('good_profile_package');
-
     function hasPaid300Check() {
       return viewerPurchases.some(p => p.packageType === 'monthly_membership' && p.paymentStatus === 'PAID');
     }
+
+    const hasStandardPkg = viewerHasPaid || hasPaid300Check();
+    const hasSecondMarriagePkg = viewerPurchases.some(p => p.packageType === 'second_marriage_package' && p.paymentStatus === 'PAID');
+    const hasHighProfilePkg = viewerPurchases.some(p => p.packageType === 'high_profile_package' && p.paymentStatus === 'PAID' && p.eligibilityStatus === 'APPROVED');
+    const hasGoodProfilePkg = viewerPurchases.some(p => p.packageType === 'good_profile_package' && p.paymentStatus === 'PAID');
 
     // Enforce privacy constraints
     const redactedProfile = redactProfile(
@@ -91,87 +82,43 @@ export async function GET(req: NextRequest) {
       isAdmin
     );
 
-    // Log access where appropriate
-    if (viewerId) {
-      const isDb = await testDbConnection();
-      const actionMsg = `VIEW_PROFILE_ATTEMPT_${targetUserId}`;
-      if (isDb) {
-        try {
-          await prisma.auditLog.create({
-            data: {
-              actorUserId: getValidObjectId(viewerId),
-              action: actionMsg,
-              targetType: 'MatrimonialProfile',
-              targetId: targetUserId,
-              metadata: JSON.stringify({ isOwner, isAdmin }),
-            }
-          });
-        } catch {}
-      }
-    }
-
-    return NextResponse.json({ profile: redactedProfile });
+    return NextResponse.json({
+      profile: redactedProfile,
+      isSecondMarriage,
+      isHighProfile,
+      isGoodProfile,
+    });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Internal Server Error';
     return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }
 
-// Create or update matrimonial profile
+// Create or update user profile
 export async function POST(req: NextRequest) {
   try {
-    const ip = (req as any).ip || req.headers.get('x-forwarded-for') || 'anonymous';
-    // Max 10 profile updates per minute per IP
-    if (checkRateLimit(ip, 10, 60 * 1000)) {
-      return NextResponse.json({ error: 'Too many requests. Please try again later.' }, { status: 429 });
-    }
-
     const session = await auth();
-    
-    // Support simulated login as well for easy testing
-    const simulatedUserId = getDemoUserId(req);
-    const activeUserId = session?.user?.id || simulatedUserId;
+    const activeUserId = session?.user?.id;
 
     if (!activeUserId) {
-      return NextResponse.json({ error: 'Authentication Required' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized. Please log in.' }, { status: 401 });
+    }
+
+    // Rate Limiting (prevent spamming profile updates)
+    const ip = req.headers.get('x-forwarded-for') || '127.0.0.1';
+    const limitExceeded = checkRateLimit(`profile_post_${ip}`, 10, 60 * 1000); // Max 10 requests per minute
+    if (limitExceeded) {
+      return NextResponse.json({ error: 'Too many requests. Please try again later.' }, { status: 429 });
     }
 
     const body = await req.json();
 
-    if (body._honey) {
-      // Honeypot check for bots pretending to be authenticated
-      return NextResponse.json({ success: true });
+    // 1. Mandatory validations
+    if (!body.fullName || !body.gender || !body.dateOfBirth || !body.phoneNumber) {
+      return NextResponse.json({ error: 'Required fields are missing: fullName, gender, dateOfBirth, phoneNumber' }, { status: 400 });
     }
 
-    // 1. Server-side validation
-    if (body.termsAccepted !== true) {
-      return NextResponse.json({ error: 'Please accept the Terms & Conditions before submitting.' }, { status: 400 });
-    }
-
-    const requiredFields = [
-      'fullName',
-      'gender',
-      'dateOfBirth',
-      'maritalStatus',
-      'phoneNumber',
-      'city',
-      'areaOrLocality',
-      'state',
-      'country',
-      'education',
-      'occupation',
-      'annualIncomeRange',
-      'familyInfo',
-      'bio'
-    ];
-
-    for (const field of requiredFields) {
-      if (!body[field]) {
-        return NextResponse.json({ error: `Field '${field}' is required.` }, { status: 400 });
-      }
-    }
-
-    // 2. Age limit verification (Restricted to eligible adults >= 18)
+    // 2. Validate age (Must be 18+)
     const dob = new Date(body.dateOfBirth);
     const today = new Date();
     let age = today.getFullYear() - dob.getFullYear();
@@ -182,24 +129,6 @@ export async function POST(req: NextRequest) {
 
     if (age < 18) {
       return NextResponse.json({ error: 'Registration is restricted to eligible adults (18 years and older).' }, { status: 400 });
-    }
-
-    if (isDemoMode()) {
-      return NextResponse.json({
-        success: true,
-        profile: {
-          id: 'demo-sim-profile',
-          userId: activeUserId,
-          ...body,
-          verificationStatus: 'PENDING',
-          profileCompletionStatus: 'COMPLETE',
-          adminApprovalStatus: 'PENDING',
-          hasPaid: false,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        },
-        message: 'Demo profile simulated successfully. No production data was changed.',
-      });
     }
 
     // 3. Save profile

@@ -2,19 +2,15 @@ import { NextRequest, NextResponse } from 'next/server';
 import { put } from '@vercel/blob';
 import { auth } from '@/auth';
 import { updateProfileImage } from '@/lib/profileStore';
-import { demoMutationResponse, getDemoUserId, isDemoMode } from '@/lib/demoMode';
 
 export async function POST(request: NextRequest) {
   try {
     const session = await auth();
-    const simulatedUserId = getDemoUserId(request);
-    
-    const activeUserId = session?.user?.id || simulatedUserId;
+    const activeUserId = session?.user?.id;
 
     if (!activeUserId) {
       return NextResponse.json({ error: 'Unauthorized. Please log in.' }, { status: 401 });
     }
-    if (isDemoMode()) return demoMutationResponse();
 
     const formData = await request.formData();
     const file = formData.get('file') as File;

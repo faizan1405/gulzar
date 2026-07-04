@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useSimulator } from '../../context/SimulatorContext';
+import { useApp } from '../../context/AppContext';
 import Navbar from '../../components/Navbar';
 import Image from 'next/image';
 import { SectionHeading, PremiumPlanCard, PremiumFooter, FloralCorner } from '../../components/NikahComponents';
@@ -13,14 +13,14 @@ export default function PremiumClient() {
   const {
     isLoggedIn,
     hasPaid300,
-    simulatedPackages,
+    activePackages,
     handleRazorpayCheckout,
     pendingProfileId,
     userProfile,
     setIsRegistering,
     setRegStep,
     setShowLoginModal,
-  } = useSimulator();
+  } = useApp();
 
   const isFormComplete = isLoggedIn && userProfile?.profileCompletionStatus === 'COMPLETE';
 
@@ -115,7 +115,7 @@ export default function PremiumClient() {
               gstRate={0.18}
               billingText="one-time base"
               features={['Verified profile suggestions', 'Basic matchmaking support', 'Privacy-safe profile sharing', '1 year service validity']}
-              isActive={simulatedPackages.includes('good_profile_package')}
+              isActive={activePackages.includes('good_profile_package')}
               ctaText="Buy Good Profile Package"
               onActivate={() => handleRazorpayCheckout('good_profile_package', 5500, 'Good Profile Package')}
               onInquire={() => setInquiryPackage('₹5,500 Good Profiles Package')}
@@ -143,7 +143,7 @@ export default function PremiumClient() {
                 'Privacy-safe contact assistance',
                 '1 year service validity'
               ]}
-              isActive={simulatedPackages.includes('second_marriage_package')}
+              isActive={activePackages.includes('second_marriage_package')}
               ctaText="Buy Silver Plan"
               onActivate={() => handleRazorpayCheckout('second_marriage_package', 11000, 'Silver Plan')}
               onInquire={() => setInquiryPackage('₹11,000 Silver Plan')}
@@ -173,7 +173,7 @@ export default function PremiumClient() {
                 'Privacy-safe contact assistance',
                 '1 year service validity'
               ]}
-              isActive={simulatedPackages.includes('high_profile_package')}
+              isActive={activePackages.includes('high_profile_package')}
               ctaText="Buy Gold Package"
               onActivate={() => handleRazorpayCheckout('high_profile_package', 21000, 'Gold Package')}
               onInquire={() => setInquiryPackage('₹21,000 Gold Package')}

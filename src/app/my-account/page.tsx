@@ -2,14 +2,14 @@
 
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
-import { useSimulator } from '../../context/SimulatorContext';
+import { useApp } from '../../context/AppContext';
 import Navbar from '../../components/Navbar';
 import { SectionHeading, PremiumFooter, DecorativeArch } from '../../components/NikahComponents';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 export default function MyAccountPage() {
-  const { isLoggedIn, userProfile, hasPaid300, simulatedPackages, setIsRegistering, setRegStep } = useSimulator();
+  const { isLoggedIn, userProfile, hasPaid300, activePackages, setIsRegistering, setRegStep } = useApp();
   const router = useRouter();
 
   useEffect(() => {
@@ -219,11 +219,11 @@ export default function MyAccountPage() {
                 </div>
               </div>
 
-              {simulatedPackages.length > 0 && (
+              {activePackages.length > 0 && (
                 <div style={{ marginBottom: '24px', backgroundColor: '#fdfbf7', padding: '16px', borderRadius: '8px', border: '1px solid var(--gold-accent)' }}>
                   <p style={{ color: 'var(--text-secondary)', marginBottom: '8px', fontWeight: 'bold' }}>Premium Packages (Simulator)</p>
                   <ul style={{ listStyleType: 'disc', paddingLeft: '20px', fontSize: '15px', color: 'var(--primary-dark)' }}>
-                    {simulatedPackages.map((pkg) => (
+                    {activePackages.map((pkg) => (
                       <li key={pkg} style={{ textTransform: 'capitalize' }}>
                         {pkg.replace(/_/g, ' ')}
                       </li>

@@ -2,10 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import {
   getMasterDataOptions,
-  initFallbackOptions,
-  MOCK_CASTE_OPTIONS,
-  MOCK_LOCATION_OPTIONS,
-  MOCK_MASLAK_OPTIONS,
   addMaslakOption,
   editMaslakOption,
   toggleDisableMaslakOption,
@@ -18,25 +14,16 @@ import {
   mergeCastes,
   mergeLocations
 } from '@/lib/profileStore';
-import { demoMutationResponse, isAdminSessionOrDemo, isDemoMode } from '@/lib/demoMode';
 
-async function isAdmin(req: NextRequest) {
+async function isAdmin() {
   const session = await auth();
-  return isAdminSessionOrDemo(req, session);
+  return session?.user?.role === 'ADMIN';
 }
 
 export async function GET(req: NextRequest) {
   try {
-    if (!(await isAdmin(req))) {
+    if (!(await isAdmin())) {
       return NextResponse.json({ error: 'Unauthorized. Admin role required.' }, { status: 403 });
-    }
-    if (isDemoMode()) {
-      initFallbackOptions();
-      return NextResponse.json({
-        maslaks: MOCK_MASLAK_OPTIONS,
-        castes: MOCK_CASTE_OPTIONS,
-        locations: MOCK_LOCATION_OPTIONS
-      });
     }
     const options = await getMasterDataOptions();
     return NextResponse.json(options);
@@ -48,10 +35,9 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    if (!(await isAdmin(req))) {
+    if (!(await isAdmin())) {
       return NextResponse.json({ error: 'Unauthorized. Admin role required.' }, { status: 403 });
     }
-    if (isDemoMode()) return demoMutationResponse();
 
     const body = await req.json();
     const { action } = body;

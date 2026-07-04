@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { SimulatorProvider } from "../context/SimulatorContext";
+import { AppProvider } from "../context/AppContext";
 import { Cormorant_Garamond, Poppins, Great_Vibes, Amiri } from "next/font/google";
 
 const cormorantGaramond = Cormorant_Garamond({
@@ -34,7 +34,6 @@ const amiri = Amiri({
 });
 
 import {
-  DemoSimulatorBar,
   ProfileDetails,
   ChatbotWidget,
   CallButton,
@@ -58,14 +57,13 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${cormorantGaramond.variable} ${poppins.variable} ${greatVibes.variable} ${amiri.variable}`}>
       <body>
-        <SimulatorProvider>
-          <DemoSimulatorBar />
+        <AppProvider>
           <ProfileDetails />
           {children}
           <ChatbotWidget />
           <CallButton />
           <WhatsAppButton />
-        </SimulatorProvider>
+        </AppProvider>
       </body>
     </html>
   );

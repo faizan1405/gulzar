@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { signIn } from 'next-auth/react';
 import { DEFAULT_MASLAKS, DEFAULT_CASTES, DEFAULT_LOCATIONS } from '../lib/masterData';
 import {
   Profile,
@@ -14,23 +15,22 @@ import {
   LocationOption
 } from '../types';
 
-interface SimulatorContextType {
+interface AppContextType {
   // Gated profile view flow
   pendingProfileId: string | null;
   setPendingProfileId: (val: string | null) => void;
   handleViewProfile: (profile: Profile) => void;
 
-  // Simulator & Session States
+  // Session States
   isLoggedIn: boolean;
   setIsLoggedIn: (val: boolean) => void;
-  hasPaid300: boolean;
-  setHasPaid300: (val: boolean) => void;
-  simulatedPackages: string[];
-  setSimulatedPackages: (val: string[] | ((prev: string[]) => string[])) => void;
-  simulatedHighProfileApproved: boolean;
-  setSimulatedHighProfileApproved: (val: boolean) => void;
-  isAdminMode: boolean;
-  setIsAdminMode: (val: boolean) => void;
+  isAdmin: boolean;
+  setIsAdmin: (val: boolean) => void;
+  activePackages: string[];
+  setActivePackages: React.Dispatch<React.SetStateAction<string[]>>;
+  highProfileApproved: boolean;
+  setHighProfileApproved: (val: boolean) => void;
+  hasPaid300: boolean; // DB-backed membership state
   referralRate: number;
   setReferralRate: (val: number) => void;
   showLoginModal: boolean;
@@ -84,8 +84,7 @@ interface SimulatorContextType {
   formData: typeof initialFormData;
   setFormData: React.Dispatch<React.SetStateAction<typeof initialFormData>>;
 
-  // Actions (gated flow is in handleViewProfile above)
-  getSimulatorHeaders: () => Record<string, string>;
+  // Actions
   handleGoogleLogin: () => void;
   toggleSaveProfile: (id: string) => void;
   handleRegisterSubmit: (e: React.FormEvent) => Promise<void>;
@@ -135,71 +134,23 @@ const initialFormData = {
   familyOrigin: '',
 };
 
-// localStorage key for persisting demo simulator selections across refreshes
-const DEMO_STATE_KEY = 'rf-demo-sim-state';
+const AppContext = createContext<AppContextType | undefined>(undefined);
 
-const IS_DEMO_MODE = process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
-
-/**
- * In demo mode the simulated user never has a real DB-backed profile
- * (`/api/profile` returns 401 for `simulated-user-123`). So that package access
- * can be driven purely by the demo bar toggles, we hand the app a synthetic,
- * already-complete & approved profile. This makes `isFormComplete` true so the
- * package toggles actually unlock profile cards instead of getting stuck behind
- * the "Complete Form" gate.
- */
-function buildDemoUserProfile(): Profile {
-  return {
-    id: 'demo-sim-profile',
-    userId: 'simulated-user-123',
-    fullName: 'Demo Member',
-    gender: 'Female',
-    dateOfBirth: '1995-06-15',
-    maritalStatus: 'Single',
-    phoneNumber: '+91 99999 99999',
-    city: 'Mumbai',
-    areaOrLocality: 'Bandra',
-    state: 'Maharashtra',
-    country: 'India',
-    education: 'Post Graduate',
-    occupation: 'Professional',
-    annualIncomeRange: '₹5 LPA - ₹10 LPA',
-    familyInfo: 'Demo family background.',
-    bio: 'Synthetic profile used by the Pricing & Access Simulator.',
-    themeColor: 'emerald',
-    verificationStatus: 'APPROVED',
-    profileCompletionStatus: 'COMPLETE',
-    createdAt: new Date().toISOString(),
-    maslak: null,
-    fiqh: null,
-    biradari: null,
-    district: null,
-    locality: null,
-    preferredLocations: [],
-  } as Profile;
-}
-
-const SimulatorContext = createContext<SimulatorContextType | undefined>(undefined);
-
-export const SimulatorProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const router = useRouter();
 
   // --- States ---
   const [pendingProfileId, setPendingProfileId] = useState<string | null>(null);
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [hasPaid300, setHasPaid300] = useState(false);
-  const [simulatedPackages, setSimulatedPackages] = useState<string[]>([]);
-  const [simulatedHighProfileApproved, setSimulatedHighProfileApproved] = useState(false);
-  const [isAdminMode, setIsAdminMode] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [activePackages, setActivePackages] = useState<string[]>([]);
+  const [highProfileApproved, setHighProfileApproved] = useState(false);
   const [referralRate, setReferralRate] = useState(21);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [reloadTrigger, setReloadTrigger] = useState(0);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  // True once demo selections have been restored from localStorage; gates the
-  // persistence writer so it never overwrites saved state with defaults on mount.
-  const [demoHydrated, setDemoHydrated] = useState(false);
 
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [savedProfiles, setSavedProfiles] = useState<string[]>([]);
@@ -239,131 +190,40 @@ export const SimulatorProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   // Tracks isLoading transitions to run post-load logic for the gated profile flow
   const wasLoadingRef = useRef(false);
 
-  // Detect a real NextAuth (Google) session on first mount. Runs in BOTH demo
-  // and production modes so a real Google login reflects in the UI even while
-  // the demo simulator is enabled. The demo "Continue as Demo User" button sets
-  // isLoggedIn directly, so skip if it's already set. We hit /api/auth/session
-  // (not /api/profile) so a freshly signed-in Google user with no matrimonial
-  // profile yet still counts as logged in.
-  useEffect(() => {
-    if (isLoggedIn) return; // simulator (or a prior run) already set this
+  // Computed state for active monthly membership
+  const hasPaid300 = !!(userProfile?.hasPaid || activePackages.includes('monthly_membership'));
 
+  // Detect a real NextAuth (Google) session on mount
+  useEffect(() => {
     async function detectRealSession() {
       try {
         const res = await fetch('/api/auth/session');
         if (res.ok) {
           const session = await res.json();
           if (session?.user) {
-            setIsLoggedIn(true); // triggers loadAllData via its dependency
+            setIsLoggedIn(true);
+            setIsAdmin(session.user.role === 'ADMIN');
           }
         }
       } catch {
-        // no session or network error — stay logged out
+        // no session — stay logged out
       }
     }
 
     detectRealSession();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // intentionally runs once on mount
-
-  // Restore demo simulator selections from localStorage on first mount (demo
-  // mode only). Done in an effect (not a lazy useState initializer) to avoid a
-  // server/client hydration mismatch — the first paint always matches the SSR
-  // "logged-out" state, then we hydrate the saved selections.
-  useEffect(() => {
-    if (!IS_DEMO_MODE) {
-      setDemoHydrated(true);
-      return;
-    }
-    try {
-      const raw = window.localStorage.getItem(DEMO_STATE_KEY);
-      if (raw) {
-        const saved = JSON.parse(raw);
-        if (typeof saved.isLoggedIn === 'boolean') setIsLoggedIn(saved.isLoggedIn);
-        if (typeof saved.hasPaid300 === 'boolean') setHasPaid300(saved.hasPaid300);
-        if (Array.isArray(saved.simulatedPackages)) setSimulatedPackages(saved.simulatedPackages);
-        if (typeof saved.simulatedHighProfileApproved === 'boolean') {
-          setSimulatedHighProfileApproved(saved.simulatedHighProfileApproved);
-        }
-        if (typeof saved.isAdminMode === 'boolean') setIsAdminMode(saved.isAdminMode);
-      }
-    } catch {
-      // corrupt or unavailable storage — start fresh
-    }
-    // Belt-and-suspenders: if the visitor landed directly on /admin (typed URL
-    // or refreshed), treat admin mode as active now — this ensures the very
-    // first loadAllData run uses isAdminMode=true instead of waiting for the
-    // DemoSimulatorBar path-sync effect (which runs later in the tree).
-    if (window.location.pathname.startsWith('/admin')) {
-      setIsAdminMode(true);
-    }
-    setDemoHydrated(true);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  // Persist demo simulator selections whenever they change (demo mode only).
-  // Guarded by demoHydrated so the initial mount render doesn't clobber the
-  // values we just restored above.
-  useEffect(() => {
-    if (!IS_DEMO_MODE || !demoHydrated) return;
-    try {
-      window.localStorage.setItem(
-        DEMO_STATE_KEY,
-        JSON.stringify({ isLoggedIn, hasPaid300, simulatedPackages, simulatedHighProfileApproved, isAdminMode })
-      );
-    } catch {
-      // storage full / unavailable — non-fatal for the demo
-    }
-  }, [demoHydrated, isLoggedIn, hasPaid300, simulatedPackages, simulatedHighProfileApproved, isAdminMode]);
-
-  // Headers generator
-  const getSimulatorHeaders = useCallback(() => {
-    const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
-    if (!isDemoMode) {
-      return { 'Content-Type': 'application/json' } as Record<string, string>;
-    }
-    
-    // Admin is only asserted while the simulator is actually in admin mode.
-    // Sending it unconditionally made every demo request look like an admin,
-    // which bypassed server-side privacy redaction so the package toggles had
-    // no effect on the data the directory returned.
-    return {
-      'Content-Type': 'application/json',
-      'x-simulator-user-id': 'simulated-user-123',
-      'x-simulator-logged-in': isLoggedIn ? 'true' : 'false',
-      'x-simulator-paid': hasPaid300 ? 'true' : 'false',
-      'x-simulator-admin': isAdminMode ? 'true' : 'false',
-      'x-simulator-admin-id': isAdminMode ? 'simulated-admin-999' : '',
-      'x-simulator-packages': simulatedPackages.join(','),
-      'x-simulator-high-profile-approved': simulatedHighProfileApproved ? 'true' : 'false',
-    } as Record<string, string>;
-  }, [isLoggedIn, hasPaid300, simulatedPackages, simulatedHighProfileApproved, isAdminMode]);
 
   // Fetch all data
   useEffect(() => {
     async function loadAllData() {
       setIsLoading(true);
       try {
-        const simulatorHeaders = getSimulatorHeaders();
-
         // 1. Fetch current user profile
-        if (isLoggedIn && IS_DEMO_MODE) {
-          // DEMO MODE: the simulated user has no real DB profile, so give the app
-          // a synthetic complete profile. This keeps `isFormComplete` true so the
-          // demo bar package toggles are the single source of access. We also skip
-          // the /api/user/purchases merge below — re-adding DB packages would fight
-          // the tester un-toggling a package. We intentionally do NOT touch
-          // isRegistering here, so the "Register Free" flow can still open the
-          // wizard on demand.
-          setUserProfile(buildDemoUserProfile());
-        } else if (isLoggedIn) {
-          const res = await fetch('/api/profile', { headers: simulatorHeaders });
+        if (isLoggedIn) {
+          const res = await fetch('/api/profile');
           const data = await res.json();
           if (data.profile) {
             setUserProfile(data.profile);
-            if (data.profile.hasPaid) {
-              setHasPaid300(true);
-            }
             setFormData({
               fullName: data.profile.fullName || '',
               gender: data.profile.gender || 'Female',
@@ -408,15 +268,13 @@ export const SimulatorProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
             // Sync active packages from DB into state (so page-refresh preserves access)
             try {
-              const resPkg = await fetch('/api/user/purchases', { headers: simulatorHeaders });
+              const resPkg = await fetch('/api/user/purchases');
               if (resPkg.ok) {
                 const pkgData = await resPkg.json();
                 if (pkgData.packages && pkgData.packages.length > 0) {
-                  setSimulatedPackages(prev => Array.from(new Set([...prev, ...pkgData.packages])));
+                  setActivePackages(prev => Array.from(new Set([...prev, ...pkgData.packages])));
                 }
-                if (pkgData.hasPaid) {
-                  setHasPaid300(true);
-                }
+                setHighProfileApproved(pkgData.highProfileApproved || false);
               }
             } catch {
               // ignore — purchases will just be empty if DB is down
@@ -431,8 +289,8 @@ export const SimulatorProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           setIsRegistering(false);
         }
 
-        // 2a. Fetch public profiles
-        const resProfiles = await fetch('/api/profiles', { headers: simulatorHeaders });
+        // 2. Fetch public profiles
+        const resProfiles = await fetch('/api/profiles');
         const dataProfiles = await resProfiles.json();
         if (dataProfiles.profiles) {
           setProfiles(dataProfiles.profiles);
@@ -442,7 +300,7 @@ export const SimulatorProvider: React.FC<{ children: React.ReactNode }> = ({ chi
             const searchParams = new URLSearchParams(window.location.search);
             const profileId = searchParams.get('profile');
             if (profileId) {
-              const matched = dataProfiles.profiles.find((p: any) => p.id === profileId);
+              const matched = dataProfiles.profiles.find((p: Profile) => p.id === profileId);
               if (matched) {
                 setSelectedProfileForDetails(matched);
               }
@@ -450,10 +308,9 @@ export const SimulatorProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           }
         }
 
-        // Only fetch admin dashboards and options if user is in admin mode
-        if (isAdminMode) {
-          // 2b. Fetch admin requests
-          const resReq = await fetch('/api/admin/verification', { headers: simulatorHeaders });
+        // 3. Fetch admin dashboards if logged in user is admin
+        if (isAdmin) {
+          const resReq = await fetch('/api/admin/verification');
           if (resReq.ok) {
             const dataReq = await resReq.json();
             if (dataReq.requests) {
@@ -461,8 +318,7 @@ export const SimulatorProvider: React.FC<{ children: React.ReactNode }> = ({ chi
             }
           }
 
-          // 3. Fetch audit logs
-          const resLogs = await fetch('/api/admin/verification?mode=audit', { headers: simulatorHeaders });
+          const resLogs = await fetch('/api/admin/verification?mode=audit');
           if (resLogs.ok) {
             const dataLogs = await resLogs.json();
             if (dataLogs.logs) {
@@ -470,8 +326,7 @@ export const SimulatorProvider: React.FC<{ children: React.ReactNode }> = ({ chi
             }
           }
 
-          // 4. Fetch premium purchases
-          const resPurchases = await fetch('/api/admin/packages', { headers: simulatorHeaders });
+          const resPurchases = await fetch('/api/admin/packages');
           if (resPurchases.ok) {
             const dataPurchases = await resPurchases.json();
             if (dataPurchases.purchases) {
@@ -479,8 +334,7 @@ export const SimulatorProvider: React.FC<{ children: React.ReactNode }> = ({ chi
             }
           }
 
-          // 5. Fetch curated assignments
-          const resAssignments = await fetch('/api/admin/packages?mode=assignments', { headers: simulatorHeaders });
+          const resAssignments = await fetch('/api/admin/packages?mode=assignments');
           if (resAssignments.ok) {
             const dataAssignments = await resAssignments.json();
             if (dataAssignments.assignments) {
@@ -488,8 +342,7 @@ export const SimulatorProvider: React.FC<{ children: React.ReactNode }> = ({ chi
             }
           }
 
-          // 6. Fetch master data options
-          const resMaster = await fetch('/api/admin/master-data', { headers: simulatorHeaders });
+          const resMaster = await fetch('/api/admin/master-data');
           if (resMaster.ok) {
             const dataMaster = await resMaster.json();
             setMasterMaslaks(dataMaster.maslaks || []);
@@ -504,34 +357,33 @@ export const SimulatorProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       }
     }
 
-
     loadAllData();
-  }, [isLoggedIn, hasPaid300, simulatedPackages, simulatedHighProfileApproved, reloadTrigger, getSimulatorHeaders, isAdminMode]);
+  }, [isLoggedIn, reloadTrigger, isAdmin]);
 
   // After loadAllData completes, continue any pending gated profile flow
   useEffect(() => {
     if (wasLoadingRef.current && !isLoading && isLoggedIn && pendingProfileId) {
-      // isLoading just went from true → false while logged in with a pending profile
       if (!userProfile || userProfile.profileCompletionStatus !== 'COMPLETE') {
-        // Onboarding wizard will show (isRegistering was set by loadAllData).
-        // Keep pendingProfileId so handleRegisterSubmit can pick it up.
         wasLoadingRef.current = isLoading;
         return;
       }
-      const hasAnyPackage = hasPaid300 || simulatedPackages.length > 0;
-      if (!hasAnyPackage) {
+      
+      const hasStandardPkg = userProfile.hasPaid;
+      if (!hasStandardPkg) {
         router.push(`/premium?returnProfile=${pendingProfileId}`);
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setPendingProfileId(null);
         wasLoadingRef.current = isLoading;
         return;
       }
-      // Has full access — open the profile
+      
       const matched = profiles.find(p => p.id === pendingProfileId);
       if (matched) setSelectedProfileForDetails(matched);
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setPendingProfileId(null);
     }
     wasLoadingRef.current = isLoading;
-  }, [isLoading, isLoggedIn, pendingProfileId, userProfile, hasPaid300, simulatedPackages, profiles]);
+  }, [isLoading, isLoggedIn, pendingProfileId, userProfile, profiles, router]);
 
   const handleViewProfile = useCallback((profile: Profile) => {
     if (!isLoggedIn) {
@@ -543,24 +395,23 @@ export const SimulatorProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       setPendingProfileId(profile.id);
       setIsRegistering(true);
       setRegStep(1);
-      // Navigate home so the onboarding wizard (in HomeClient) is visible
       if (typeof window !== 'undefined' && window.location.pathname !== '/') {
         router.push('/');
       }
       return;
     }
-    const hasAnyPackage = hasPaid300 || simulatedPackages.length > 0;
-    if (!hasAnyPackage) {
+
+    const hasStandardPkg = userProfile.hasPaid;
+    if (!hasStandardPkg) {
       setPendingProfileId(profile.id);
       router.push(`/premium?returnProfile=${profile.id}`);
       return;
     }
     setSelectedProfileForDetails(profile);
-  }, [isLoggedIn, userProfile, hasPaid300, simulatedPackages, router]);
+  }, [isLoggedIn, userProfile, router]);
 
   const handleGoogleLogin = () => {
-    setIsLoggedIn(true);
-    setShowLoginModal(false);
+    signIn('google');
   };
 
   const toggleSaveProfile = (id: string) => {
@@ -583,7 +434,7 @@ export const SimulatorProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     try {
       const res = await fetch('/api/profile', {
         method: 'POST',
-        headers: getSimulatorHeaders(),
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
       });
 
@@ -617,7 +468,7 @@ export const SimulatorProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     try {
       const res = await fetch('/api/payment/order', {
         method: 'POST',
-        headers: getSimulatorHeaders(),
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ packageType }),
       });
 
@@ -627,7 +478,7 @@ export const SimulatorProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         return;
       }
 
-      const { orderId, amount, currency, keyId, isSimulated } = data;
+      const { orderId, amount, currency, keyId } = data;
 
       const options = {
         key: keyId,
@@ -641,21 +492,16 @@ export const SimulatorProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           try {
             const verifyRes = await fetch('/api/payment/verify', {
               method: 'POST',
-              headers: getSimulatorHeaders(),
+              headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
                 orderId: orderId,
-                paymentId: response.razorpay_payment_id || 'mock_pay_id',
-                signature: response.razorpay_signature || 'mock_sig',
-                isSimulated: isSimulated,
+                paymentId: response.razorpay_payment_id || '',
+                signature: response.razorpay_signature || '',
               }),
             });
 
             const verifyData = await verifyRes.json();
             if (verifyData.success) {
-              if (packageType === 'monthly_membership') {
-                setHasPaid300(true);
-              }
-              setSimulatedPackages((prev) => Array.from(new Set([...prev, packageType])));
               const returnId = pendingProfileId;
               setPendingProfileId(null);
               alert(`Alhamdulillah! Payment verified and your ${planName} is now active.${returnId ? '\n\nRedirecting you to the selected profile.' : ''}`);
@@ -679,34 +525,25 @@ export const SimulatorProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         },
       };
 
-      if (isSimulated) {
-        if (confirm(`[SIMULATOR] Razorpay checkout popup triggered.\n\nOrder ID: ${orderId}\nAmount: ₹${amount/100}\n\nClick OK to simulate successful transaction approval.`)) {
-          options.handler({
-            razorpay_payment_id: 'pay_mock_' + Date.now(),
-            razorpay_signature: 'sig_mock_' + Date.now(),
-          });
-        }
-      } else {
-        const loadScript = () => {
-          return new Promise((resolve) => {
-            const script = document.createElement('script');
-            script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-            script.onload = () => resolve(true);
-            script.onerror = () => resolve(false);
-            document.body.appendChild(script);
-          });
-        };
+      const loadScript = () => {
+        return new Promise((resolve) => {
+          const script = document.createElement('script');
+          script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+          script.onload = () => resolve(true);
+          script.onerror = () => resolve(false);
+          document.body.appendChild(script);
+        });
+      };
 
-        const loaded = await loadScript();
-        if (!loaded) {
-          alert('Failed to load Razorpay payment widget. Check network connection.');
-          return;
-        }
-
-        /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-        const rzp = new (window as any).Razorpay(options);
-        rzp.open();
+      const loaded = await loadScript();
+      if (!loaded) {
+        alert('Failed to load Razorpay payment widget. Check network connection.');
+        return;
       }
+
+      /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+      const rzp = new (window as any).Razorpay(options);
+      rzp.open();
     } catch (err) {
       console.error('Checkout error:', err);
       alert('Failed starting payment flow.');
@@ -718,7 +555,7 @@ export const SimulatorProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     try {
       const res = await fetch('/api/admin/verification', {
         method: 'POST',
-        headers: getSimulatorHeaders(),
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           profileId: request.profile.id,
           status,
@@ -746,7 +583,7 @@ export const SimulatorProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     try {
       const res = await fetch('/api/admin/packages', {
         method: 'POST',
-        headers: getSimulatorHeaders(),
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'assign_lead',
           buyerProfileId: buyerId,
@@ -769,7 +606,7 @@ export const SimulatorProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     try {
       const res = await fetch('/api/admin/packages', {
         method: 'POST',
-        headers: getSimulatorHeaders(),
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'update_lead_status',
           assignmentId,
@@ -792,7 +629,7 @@ export const SimulatorProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     try {
       const res = await fetch('/api/admin/packages', {
         method: 'POST',
-        headers: getSimulatorHeaders(),
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'update_eligibility',
           purchaseId,
@@ -816,7 +653,7 @@ export const SimulatorProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     try {
       const res = await fetch('/api/admin/packages', {
         method: 'POST',
-        headers: getSimulatorHeaders(),
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'confirm_marriage',
           purchaseId,
@@ -839,7 +676,7 @@ export const SimulatorProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     try {
       const res = await fetch('/api/admin/packages', {
         method: 'POST',
-        headers: getSimulatorHeaders(),
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'update_success_fee_status',
           purchaseId,
@@ -862,7 +699,7 @@ export const SimulatorProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     try {
       const res = await fetch('/api/admin/master-data', {
         method: 'POST',
-        headers: getSimulatorHeaders(),
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(actionData)
       });
       if (res.ok) {
@@ -879,7 +716,7 @@ export const SimulatorProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   };
 
   return (
-    <SimulatorContext.Provider
+    <AppContext.Provider
       value={{
         pendingProfileId,
         setPendingProfileId,
@@ -887,14 +724,13 @@ export const SimulatorProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
         isLoggedIn,
         setIsLoggedIn,
+        isAdmin,
+        setIsAdmin,
+        activePackages,
+        setActivePackages,
+        highProfileApproved,
+        setHighProfileApproved,
         hasPaid300,
-        setHasPaid300,
-        simulatedPackages,
-        setSimulatedPackages,
-        simulatedHighProfileApproved,
-        setSimulatedHighProfileApproved,
-        isAdminMode,
-        setIsAdminMode,
         referralRate,
         setReferralRate,
         showLoginModal,
@@ -943,7 +779,6 @@ export const SimulatorProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         formData,
         setFormData,
 
-        getSimulatorHeaders,
         handleGoogleLogin,
         toggleSaveProfile,
         handleRegisterSubmit,
@@ -958,14 +793,14 @@ export const SimulatorProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       }}
     >
       {children}
-    </SimulatorContext.Provider>
+    </AppContext.Provider>
   );
 };
 
-export const useSimulator = () => {
-  const context = useContext(SimulatorContext);
+export const useApp = () => {
+  const context = useContext(AppContext);
   if (context === undefined) {
-    throw new Error('useSimulator must be used within a SimulatorProvider');
+    throw new Error('useApp must be used within an AppProvider');
   }
 
   return context;

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useSimulator } from '../context/SimulatorContext';
+import { useApp } from '../context/AppContext';
 
 interface ProfileInterestFormProps {
   profileId: string;
@@ -18,7 +18,7 @@ export const ProfileInterestForm: React.FC<ProfileInterestFormProps> = ({
   onSuccess,
   onCancel
 }) => {
-  const { userProfile, isLoggedIn, getSimulatorHeaders, setReloadTrigger } = useSimulator();
+  const { userProfile, isLoggedIn, setReloadTrigger } = useApp();
 
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
@@ -64,10 +64,9 @@ export const ProfileInterestForm: React.FC<ProfileInterestFormProps> = ({
     const sourcePage = typeof window !== 'undefined' ? `${window.location.pathname}?id=${profileId}` : `/search?id=${profileId}`;
 
     try {
-      const headers = getSimulatorHeaders();
       const res = await fetch('/api/leads', {
         method: 'POST',
-        headers,
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           fullName,
           phone,

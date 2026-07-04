@@ -2,20 +2,20 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useSimulator } from '../../../context/SimulatorContext';
+import { useApp } from '../../../context/AppContext';
 import Navbar from '../../../components/Navbar';
 import ProfileGrid from '../../../components/ProfileGrid';
 import { SectionHeading, PremiumFooter, FloralCorner } from '../../../components/NikahComponents';
 import PackageInquiryForm from '../../../components/PackageInquiryForm';
 
 export default function HighProfileClient() {
-  const { profiles, isLoggedIn, simulatedPackages, handleRazorpayCheckout, userProfile, setIsRegistering, setRegStep, setShowLoginModal } = useSimulator();
+  const { profiles, isLoggedIn, activePackages, handleRazorpayCheckout, userProfile, setIsRegistering, setRegStep, setShowLoginModal } = useApp();
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
   const [showInquiry, setShowInquiry] = useState(false);
 
   const isFormComplete = isLoggedIn && userProfile?.profileCompletionStatus === 'COMPLETE';
-  const isPackageActive = simulatedPackages.includes('high_profile_package');
+  const isPackageActive = activePackages.includes('high_profile_package');
 
   const handleCompleteForm = () => {
     if (!isLoggedIn) {

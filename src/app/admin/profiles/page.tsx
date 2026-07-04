@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { useSimulator } from '../../../context/SimulatorContext';
+import { useApp } from '../../../context/AppContext';
 import { SectionHeading, FloralCorner } from '../../../components/NikahComponents';
 
 interface AdminProfile {
@@ -47,7 +47,7 @@ function calcAge(dob: string | Date): string {
 }
 
 export default function AdminProfilesPage() {
-  const { getSimulatorHeaders } = useSimulator();
+  const { } = useApp();
 
   const [profiles, setProfiles] = useState<AdminProfile[]>([]);
   const [loading, setLoading] = useState(true);
@@ -76,7 +76,7 @@ export default function AdminProfilesPage() {
       if (approvalStatus) q.set('approvalStatus', approvalStatus);
 
       const res = await fetch(`/api/admin/profiles?${q}`, {
-        headers: getSimulatorHeaders(),
+        headers: { 'Content-Type': 'application/json' },
       });
       if (res.ok) {
         const data = await res.json();
@@ -88,7 +88,7 @@ export default function AdminProfilesPage() {
     } finally {
       setLoading(false);
     }
-  }, [search, gender, state, verificationStatus, approvalStatus, getSimulatorHeaders]);
+  }, [search, gender, state, verificationStatus, approvalStatus]);
 
   useEffect(() => {
     fetchProfiles();
@@ -100,7 +100,7 @@ export default function AdminProfilesPage() {
     try {
       const res = await fetch(`/api/admin/profiles/${profileId}`, {
         method: 'PATCH',
-        headers: { ...getSimulatorHeaders(), 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updates),
       });
       const data = await res.json();
@@ -124,7 +124,7 @@ export default function AdminProfilesPage() {
     try {
       const res = await fetch(`/api/admin/profiles/${profileId}`, {
         method: 'DELETE',
-        headers: getSimulatorHeaders(),
+        headers: { 'Content-Type': 'application/json' },
       });
       if (res.ok) {
         setProfiles(prev => prev.filter(p => p.id !== profileId));

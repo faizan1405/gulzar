@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useSimulator } from '../context/SimulatorContext';
+import { useApp } from '../context/AppContext';
 import { Profile } from '../types';
 import { ProfileCard } from './NikahComponents';
 import { getProfileImage, getThemeClass } from '../lib/helpers';
@@ -15,15 +15,15 @@ export const ProfileGrid: React.FC<ProfileGridProps> = ({ filteredProfiles, isFi
   const {
     isLoggedIn,
     hasPaid300,
-    simulatedPackages,
-    simulatedHighProfileApproved,
+    activePackages,
+    highProfileApproved,
     savedProfiles,
     toggleSaveProfile,
     setSelectedProfileForDetails,
     setShowLoginModal,
     handleViewProfile,
     userProfile,
-  } = useSimulator();
+  } = useApp();
 
   const isFormComplete = userProfile?.profileCompletionStatus === 'COMPLETE';
 
@@ -150,8 +150,8 @@ export const ProfileGrid: React.FC<ProfileGridProps> = ({ filteredProfiles, isFi
           isLoggedIn={isLoggedIn}
           isFormComplete={isFormComplete}
           hasPaid300={hasPaid300}
-          simulatedPackages={simulatedPackages}
-          simulatedHighProfileApproved={simulatedHighProfileApproved}
+          activePackages={activePackages}
+          highProfileApproved={highProfileApproved}
           savedProfiles={savedProfiles}
           onToggleSave={toggleSaveProfile}
           onViewDetails={setSelectedProfileForDetails}

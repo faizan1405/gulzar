@@ -2,11 +2,11 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { useSimulator } from '../context/SimulatorContext';
+import { useApp } from '../context/AppContext';
 import { VerificationRequest } from '../types';
 
 export const VerificationQueue: React.FC = () => {
-  const { adminRequests, handleReviewSubmit } = useSimulator();
+  const { adminRequests, handleReviewSubmit } = useApp();
   const [selectedRequest, setSelectedRequest] = useState<VerificationRequest | null>(null);
   const [notes, setNotes] = useState('');
 

@@ -4,11 +4,11 @@ import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useSimulator } from '../context/SimulatorContext';
+import { useApp } from '../context/AppContext';
 
 export const AdminSidebar: React.FC = () => {
   const pathname = usePathname();
-  const { referralRate, setReferralRate, isAdminMobileOpen, setIsAdminMobileOpen } = useSimulator();
+  const { referralRate, setReferralRate, isAdminMobileOpen, setIsAdminMobileOpen } = useApp();
 
   const handleLinkClick = () => {
     setIsAdminMobileOpen(false);

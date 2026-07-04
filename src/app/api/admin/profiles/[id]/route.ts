@@ -2,11 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/db';
 import { getValidObjectId, isFallbackAllowed } from '@/lib/profileStore';
-import { demoMutationResponse, isAdminSessionOrDemo, isDemoMode } from '@/lib/demoMode';
 
-async function isAdmin(req: NextRequest) {
+async function isAdmin() {
   const session = await auth();
-  return isAdminSessionOrDemo(req, session);
+  return session?.user?.role === 'ADMIN';
 }
 
 export async function PATCH(
@@ -14,10 +13,9 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    if (!(await isAdmin(req))) {
+    if (!(await isAdmin())) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
-    if (isDemoMode()) return demoMutationResponse();
 
     const { id } = await params;
     const body = await req.json();
@@ -57,7 +55,7 @@ export async function PATCH(
       return NextResponse.json({ success: true, profile: updated });
     } catch (dbErr: any) {
       if (!isFallbackAllowed()) throw dbErr;
-      // In-memory fallback: return success so UI doesn't break in demo mode
+      // In-memory fallback: return success so UI doesn't break
       return NextResponse.json({ success: true, profile: { id, ...updateData } });
     }
   } catch (error: any) {
@@ -71,10 +69,9 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    if (!(await isAdmin(req))) {
+    if (!(await isAdmin())) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
-    if (isDemoMode()) return demoMutationResponse();
 
     const { id } = await params;
 

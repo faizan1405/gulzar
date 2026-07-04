@@ -117,7 +117,7 @@ export function getFallbackResponse(message: string): string {
   }
 
   // 8. General greeting/unknown fallback response
-  return "Assalamu Alaikum! I'm the Rishte Forever support assistant (demo mode).\n\n" +
+  return "Assalamu Alaikum! I'm the Rishte Forever support assistant (offline mode).\n\n" +
     "I can answer your questions about:\n" +
     "• **Packages & Pricing** (₹300/₹5.5k/₹11k/₹21k)\n" +
     "• **Photo & Contact Privacy** (Blurring details)\n" +

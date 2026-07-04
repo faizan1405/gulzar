@@ -1,25 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
-import { getAllProfiles, getProfileByUserId, getUserPurchases, getDemoProfiles } from '@/lib/profileStore';
+import { getAllProfiles, getProfileByUserId, getUserPurchases, getFallbackProfiles } from '@/lib/profileStore';
 import { redactProfile } from '@/lib/profilePrivacy';
-import { getDemoUserId, isDemoAdminRequest, isDemoMode } from '@/lib/demoMode';
 
 // Get all verified profiles
 export async function GET(req: NextRequest) {
   try {
     const session = await auth();
 
-    // Support simulator headers
-    const demoMode = isDemoMode();
-    const simulatedUserId = getDemoUserId(req);
-    const simulatedPaid = demoMode && req.headers.get('x-simulator-paid') === 'true';
-    const simulatedPackagesHeader = demoMode ? req.headers.get('x-simulator-packages') || '' : '';
-    const simulatedPackages = simulatedPackagesHeader.split(',').map(p => p.trim());
-    const simulatedHighProfileApproved = demoMode && req.headers.get('x-simulator-high-profile-approved') === 'true';
-    const simulatedAdmin = isDemoAdminRequest(req);
-
-    const viewerId = session?.user?.id || simulatedUserId;
-    const isAdmin = session?.user?.role === 'ADMIN' || simulatedAdmin;
+    const viewerId = session?.user?.id;
+    const isAdmin = session?.user?.role === 'ADMIN';
 
     let viewerHasPaid = false;
     let viewerPurchases: Array<{
@@ -45,12 +35,12 @@ export async function GET(req: NextRequest) {
       return viewerPurchases.some(p => p.packageType === 'monthly_membership' && p.paymentStatus === 'PAID');
     }
 
-    const hasStandardPkg = viewerHasPaid || hasPaid300Check() || simulatedPaid || simulatedPackages.includes('monthly_membership');
-    const hasSecondMarriagePkg = viewerPurchases.some(p => p.packageType === 'second_marriage_package' && p.paymentStatus === 'PAID') || simulatedPackages.includes('second_marriage_package');
-    const hasHighProfilePkg = viewerPurchases.some(p => p.packageType === 'high_profile_package' && p.paymentStatus === 'PAID' && p.eligibilityStatus === 'APPROVED') || (simulatedPackages.includes('high_profile_package') && simulatedHighProfileApproved);
-    const hasGoodProfilePkg = viewerPurchases.some(p => p.packageType === 'good_profile_package' && p.paymentStatus === 'PAID') || simulatedPackages.includes('good_profile_package');
+    const hasStandardPkg = viewerHasPaid || hasPaid300Check();
+    const hasSecondMarriagePkg = viewerPurchases.some(p => p.packageType === 'second_marriage_package' && p.paymentStatus === 'PAID');
+    const hasHighProfilePkg = viewerPurchases.some(p => p.packageType === 'high_profile_package' && p.paymentStatus === 'PAID' && p.eligibilityStatus === 'APPROVED');
+    const hasGoodProfilePkg = viewerPurchases.some(p => p.packageType === 'good_profile_package' && p.paymentStatus === 'PAID');
 
-    // Fetch all profiles, falling back to bundled demo profiles if the database
+    // Fetch all profiles, falling back to bundled fallback profiles if the database
     // is completely unreachable (e.g. production deploy before DB is seeded, or
     // MongoDB Atlas cluster paused on free tier).  This guarantees the profiles
     // API never returns a 500 to the client — visitors always see content.
@@ -58,24 +48,24 @@ export async function GET(req: NextRequest) {
     try {
       allProfiles = await getAllProfiles();
     } catch {
-      allProfiles = getDemoProfiles();
+      allProfiles = getFallbackProfiles();
     }
 
     // Only return approved profiles for public browsing, unless admin
     let visibleProfiles = allProfiles.filter(p => p.verificationStatus === 'APPROVED' || isAdmin);
 
     // Public showcase safety net: if there are fewer than 12 approved profiles
-    // available to a non-admin viewer, supplement with bundled approved demo
+    // available to a non-admin viewer, supplement with bundled approved fallback
     // profiles so the directory and featured section are never empty.
-    // Demo profiles are de-duplicated by id to avoid showing the same card
+    // Fallback profiles are de-duplicated by id to avoid showing the same card
     // twice when they have also been seeded into the live database.
     // Privacy redaction below still applies, so photos/contact stay protected.
     if (!isAdmin && visibleProfiles.length < 12) {
-      const approvedDemos = getDemoProfiles().filter(p => p.verificationStatus === 'APPROVED');
+      const approvedFallbacks = getFallbackProfiles().filter(p => p.verificationStatus === 'APPROVED');
       const existingIds = new Set(visibleProfiles.map(p => p.id));
-      const missingDemos = approvedDemos.filter(p => !existingIds.has(p.id));
+      const missingFallbacks = approvedFallbacks.filter(p => !existingIds.has(p.id));
       // Sort: high_profile first (featured), then good_profile, then the rest by date desc
-      missingDemos.sort((a, b) => {
+      missingFallbacks.sort((a, b) => {
         const order: Record<string, number> = { high_profile: 0, good_profile: 1, second_marriage: 2, normal: 3 };
         const aOrd = order[(a as any).category || 'normal'] ?? 3;
         const bOrd = order[(b as any).category || 'normal'] ?? 3;
@@ -83,7 +73,7 @@ export async function GET(req: NextRequest) {
         return new Date((b as any).createdAt || 0).getTime() - new Date((a as any).createdAt || 0).getTime();
       });
       const needed = Math.max(0, 12 - visibleProfiles.length);
-      visibleProfiles = [...visibleProfiles, ...missingDemos.slice(0, needed)];
+      visibleProfiles = [...visibleProfiles, ...missingFallbacks.slice(0, needed)];
     }
 
     const redactedProfiles = visibleProfiles.map(profile => {

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { useSimulator } from '../../../context/SimulatorContext';
+import { useApp } from '../../../context/AppContext';
 import { Lead } from '../../../types';
 import { getWhatsAppLink } from '../../../lib/whatsapp';
 import { SectionHeading, FloralCorner } from '../../../components/NikahComponents';
@@ -18,7 +18,7 @@ const STATUS_COLORS: Record<string, React.CSSProperties> = {
 const ZAICHA_KEYWORDS = ['zaicha', 'kundli', 'kundali', 'istikhara', 'istikhaara', 'compatibility', 'horoscope', 'jyotish', 'tawiz', 'taweez'];
 
 export default function AdminZaichaPage() {
-  const { getSimulatorHeaders, reloadTrigger, setReloadTrigger } = useSimulator();
+  const { reloadTrigger, setReloadTrigger } = useApp();
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -36,7 +36,7 @@ export default function AdminZaichaPage() {
       if (statusFilter) q.set('status', statusFilter);
 
       // First try the dedicated Zaicha inquiry type
-      const zaichaRes = await fetch(`/api/admin/leads?inquiryType=Zaicha+Inquiry&${q}`, { headers: getSimulatorHeaders() });
+      const zaichaRes = await fetch(`/api/admin/leads?inquiryType=Zaicha+Inquiry&${q}`, { headers: { 'Content-Type': 'application/json' } });
       let result: Lead[] = [];
       if (zaichaRes.ok) {
         const d = await zaichaRes.json();
@@ -44,7 +44,7 @@ export default function AdminZaichaPage() {
       }
 
       // Also fetch all leads and filter by keyword matches in message/type
-      const allRes = await fetch(`/api/admin/leads?${q}`, { headers: getSimulatorHeaders() });
+      const allRes = await fetch(`/api/admin/leads?${q}`, { headers: { 'Content-Type': 'application/json' } });
       if (allRes.ok) {
         const allData = await allRes.json();
         const keywordMatches = (allData.leads || []).filter((l: Lead) => {
@@ -63,7 +63,7 @@ export default function AdminZaichaPage() {
     } finally {
       setLoading(false);
     }
-  }, [search, statusFilter, getSimulatorHeaders]);
+  }, [search, statusFilter]);
 
   useEffect(() => { fetchLeads(); }, [fetchLeads, reloadTrigger]);
 
@@ -73,7 +73,7 @@ export default function AdminZaichaPage() {
     try {
       const res = await fetch(`/api/admin/leads/${leadId}`, {
         method: 'PATCH',
-        headers: { ...getSimulatorHeaders(), 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updates),
       });
       const data = await res.json();

@@ -244,8 +244,8 @@ interface ProfileCardProps {
   isLoggedIn: boolean;
   isFormComplete: boolean;
   hasPaid300: boolean;
-  simulatedPackages: string[];
-  simulatedHighProfileApproved: boolean;
+  activePackages: string[];
+  highProfileApproved: boolean;
   savedProfiles: string[];
   onToggleSave: (id: string) => void;
   onViewDetails: (profile: Profile) => void;
@@ -261,8 +261,8 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
   isLoggedIn,
   isFormComplete,
   hasPaid300,
-  simulatedPackages,
-  simulatedHighProfileApproved,
+  activePackages,
+  highProfileApproved,
   savedProfiles,
   onToggleSave,
   onViewDetails,
@@ -295,10 +295,10 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
 
   const isGoodProfile = profileCat === 'good_profile' || isLockedCategory === 'good_profile_package';
 
-  const hasPaidMonthly = hasPaid300 || simulatedPackages.includes('monthly_membership');
-  const hasSecMarriageAccess = simulatedPackages.includes('second_marriage_package');
-  const hasHighProfAccess = simulatedPackages.includes('high_profile_package') && simulatedHighProfileApproved;
-  const hasGoodProfileAccess = simulatedPackages.includes('good_profile_package');
+  const hasPaidMonthly = hasPaid300 || activePackages.includes('monthly_membership');
+  const hasSecMarriageAccess = activePackages.includes('second_marriage_package');
+  const hasHighProfAccess = activePackages.includes('high_profile_package') && highProfileApproved;
+  const hasGoodProfileAccess = activePackages.includes('good_profile_package');
 
   // Photo visible only when logged in
   const photoVisible = isLoggedIn;

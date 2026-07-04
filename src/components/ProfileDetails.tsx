@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { useSimulator } from '../context/SimulatorContext';
+import { useApp } from '../context/AppContext';
 import { getProfileImage } from '../lib/helpers';
 import { VerifiedBadge, FloralCorner } from './NikahComponents';
 import ProfileInterestForm from './ProfileInterestForm';
@@ -15,12 +15,12 @@ export const ProfileDetails: React.FC = () => {
     setSelectedProfileForDetails,
     isLoggedIn,
     hasPaid300,
-    simulatedPackages,
-    simulatedHighProfileApproved,
+    activePackages,
+    highProfileApproved,
     setShowLoginModal,
     userProfile,
     handleViewProfile,
-  } = useSimulator();
+  } = useApp();
 
   const router = useRouter();
   const [showInterestForm, setShowInterestForm] = useState(false);
@@ -49,10 +49,10 @@ export const ProfileDetails: React.FC = () => {
   
   const isGoodProfile = profileCat === 'good_profile';
 
-  const hasPaidMonthly = hasPaid300 || simulatedPackages.includes('monthly_membership');
-  const hasSecMarriageAccess = simulatedPackages.includes('second_marriage_package');
-  const hasHighProfAccess = simulatedPackages.includes('high_profile_package') && simulatedHighProfileApproved;
-  const hasGoodProfileAccess = simulatedPackages.includes('good_profile_package');
+  const hasPaidMonthly = hasPaid300 || activePackages.includes('monthly_membership');
+  const hasSecMarriageAccess = activePackages.includes('second_marriage_package');
+  const hasHighProfAccess = activePackages.includes('high_profile_package') && highProfileApproved;
+  const hasGoodProfileAccess = activePackages.includes('good_profile_package');
   const isFormComplete = isLoggedIn && userProfile?.profileCompletionStatus === 'COMPLETE';
 
   let modalBlur = !isLoggedIn;

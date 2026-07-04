@@ -10,57 +10,20 @@ import {
   updateSuccessFeeStatus
 } from '@/lib/profileStore';
 import { ApprovalStatus, PaymentStatus } from '@prisma/client';
-import {
-  demoMutationResponse,
-  getDemoAdminId,
-  isAdminSessionOrDemo,
-  isDemoMode
-} from '@/lib/demoMode';
 
-async function isAdmin(req: NextRequest) {
+async function isAdmin() {
   const session = await auth();
-  return isAdminSessionOrDemo(req, session);
+  return session?.user?.role === 'ADMIN';
 }
 
 export async function GET(req: NextRequest) {
   try {
-    if (!(await isAdmin(req))) {
+    if (!(await isAdmin())) {
       return NextResponse.json({ error: 'Unauthorized. Admin role required.' }, { status: 403 });
     }
 
     const { searchParams } = new URL(req.url);
     const mode = searchParams.get('mode');
-
-    if (isDemoMode()) {
-      if (mode === 'assignments') {
-        return NextResponse.json({ assignments: [] });
-      }
-
-      return NextResponse.json({
-        purchases: [{
-          id: 'purchase_demo_1',
-          profileId: 'demo-sim-profile',
-          packageType: 'monthly_membership',
-          basePrice: 300,
-          gstRate: 0.18,
-          totalAmount: 354,
-          billingType: 'MONTHLY',
-          successFeeAmount: 0,
-          razorpayOrderId: 'order_demo_sample',
-          razorpayPaymentId: 'pay_demo_sample',
-          paymentStatus: 'PAID',
-          purchaseDate: new Date().toISOString(),
-          expiryDate: null,
-          accessStatus: 'ACTIVE',
-          eligibilityStatus: 'APPROVED',
-          marriageConfirmation: 'PENDING',
-          successFeePaymentStatus: 'PENDING',
-          internalNotes: 'Demo purchase sample. No production payment exists.',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        }]
-      });
-    }
 
     if (mode === 'assignments') {
       const assignments = await getCuratedAssignments();
@@ -77,13 +40,12 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    if (!(await isAdmin(req))) {
+    if (!(await isAdmin())) {
       return NextResponse.json({ error: 'Unauthorized. Admin role required.' }, { status: 403 });
     }
-    if (isDemoMode()) return demoMutationResponse();
 
     const session = await auth();
-    const adminUserId = session?.user?.id || getDemoAdminId(req) || 'simulated-admin-id';
+    const adminUserId = session?.user?.id || 'admin';
 
     const body = await req.json();
     const { action } = body;

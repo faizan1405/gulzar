@@ -1,13 +1,13 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useSimulator } from '../../../context/SimulatorContext';
+import { useApp } from '../../../context/AppContext';
 import { Lead } from '../../../types';
 import { getWhatsAppLink } from '../../../lib/whatsapp';
 import { SectionHeading, FloralCorner } from '../../../components/NikahComponents';
 
 export default function AdminLeadsPage() {
-  const { getSimulatorHeaders, reloadTrigger, setReloadTrigger } = useSimulator();
+  const { reloadTrigger, setReloadTrigger } = useApp();
 
   const [leads, setLeads] = useState<Lead[]>([]);
   const [search, setSearch] = useState('');
@@ -34,9 +34,7 @@ export default function AdminLeadsPage() {
         if (packageFilter) queryParams.set('interestedPackage', packageFilter);
 
         const url = `/api/admin/leads?${queryParams.toString()}`;
-        const headers = getSimulatorHeaders();
-
-        const res = await fetch(url, { headers });
+        const res = await fetch(url);
         if (res.ok) {
           const data = await res.json();
           setLeads(data.leads || []);
@@ -48,7 +46,7 @@ export default function AdminLeadsPage() {
       }
     }
     fetchLeads();
-  }, [search, statusFilter, typeFilter, packageFilter, reloadTrigger, getSimulatorHeaders]);
+  }, [search, statusFilter, typeFilter, packageFilter, reloadTrigger]);
 
   // Handle opening lead details
   const handleOpenLead = (lead: Lead) => {
@@ -64,7 +62,7 @@ export default function AdminLeadsPage() {
     try {
       const res = await fetch(`/api/admin/leads/${leadId}`, {
         method: 'PATCH',
-        headers: getSimulatorHeaders(),
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updateData)
       });
       const data = await res.json();
@@ -89,7 +87,7 @@ export default function AdminLeadsPage() {
     try {
       const res = await fetch(`/api/admin/leads/${leadId}`, {
         method: 'DELETE',
-        headers: getSimulatorHeaders()
+        headers: { 'Content-Type': 'application/json' }
       });
       if (res.ok) {
         if (selectedLead && selectedLead.id === leadId) {

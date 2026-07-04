@@ -1,10 +1,10 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useSimulator } from '../../../context/SimulatorContext';
+import { useApp } from '../../../context/AppContext';
 
 export default function AdminSettingsPage() {
-  const { getSimulatorHeaders } = useSimulator();
+  const { } = useApp();
 
   const [settings, setSettings] = useState({
     adminEmail: '',
@@ -25,7 +25,7 @@ export default function AdminSettingsPage() {
   const [messageType, setMessageType] = useState<'success' | 'error'>('success');
 
   useEffect(() => {
-    fetch('/api/admin/settings', { headers: getSimulatorHeaders() })
+    fetch('/api/admin/settings', { headers: { 'Content-Type': 'application/json' } })
       .then(res => res.json())
       .then(data => {
         if (data.settings) {
@@ -49,9 +49,9 @@ export default function AdminSettingsPage() {
         console.error(err);
         setIsLoading(false);
       });
-  // Re-fetch when simulator admin state changes (isAdminMode toggles getSimulatorHeaders ref)
+  // Re-fetch when simulator admin state changes (isAdminMode toggles ref)
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [getSimulatorHeaders]);
+  }, []);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,7 +61,7 @@ export default function AdminSettingsPage() {
     try {
       const res = await fetch('/api/admin/settings', {
         method: 'POST',
-        headers: getSimulatorHeaders(),
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(settings)
       });
       const data = await res.json();

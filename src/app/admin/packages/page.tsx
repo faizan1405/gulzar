@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useSimulator } from '../../../context/SimulatorContext';
+import { useApp } from '../../../context/AppContext';
 
 export default function PremiumPackagesPage() {
   const {
@@ -13,7 +13,7 @@ export default function PremiumPackagesPage() {
     handleUpdateHPStatus,
     handleConfirmMarriage,
     handleUpdateSuccessFee
-  } = useSimulator();
+  } = useApp();
 
   const [assignBuyerId, setAssignBuyerId] = useState('');
   const [assignLeadId, setAssignLeadId] = useState('');

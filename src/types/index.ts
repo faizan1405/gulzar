@@ -41,6 +41,7 @@ export interface Profile {
   profileImagePublicId?: string;
   profileImageStatus?: 'PENDING' | 'APPROVED' | 'REJECTED';
   category?: string | null;
+  hasPaid?: boolean;
 }
 
 

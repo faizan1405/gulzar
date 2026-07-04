@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { CHATBOT_SYSTEM_PROMPT } from '../../../lib/chatbotPrompt';
 import { getFallbackResponse } from '../../../lib/chatbotFallback';
-import { isDemoMode } from '@/lib/demoMode';
 
 // Basic in-memory rate limiting map
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
@@ -68,10 +67,6 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    if (isDemoMode()) {
-      const fallbackText = getFallbackResponse(message);
-      return NextResponse.json({ text: fallbackText, isDemo: true });
-    }
 
     // 3. Load Environment Settings
     const apiKey = process.env.AI_CHATBOT_API_KEY;

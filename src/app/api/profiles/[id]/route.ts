@@ -9,7 +9,6 @@ import {
   LOCK_MESSAGES,
   LOCK_REASONS,
 } from '@/lib/accessControl';
-import { getDemoUserId, isDemoAdminRequest } from '@/lib/demoMode';
 
 type RouteContext = { params: Promise<{ id: string }> };
 
@@ -24,11 +23,9 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
     }
 
     const session = await auth();
-    const simulatedUserId = getDemoUserId(req);
-    const simulatedAdmin = isDemoAdminRequest(req);
 
-    const viewerId = session?.user?.id || simulatedUserId;
-    const isAdmin = session?.user?.role === 'ADMIN' || simulatedAdmin;
+    const viewerId = session?.user?.id;
+    const isAdmin = session?.user?.role === 'ADMIN';
 
     if (isAdmin) {
       return NextResponse.json({ profile: targetProfile, locked: false });

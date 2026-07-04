@@ -1,33 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/db';
-import { demoMutationResponse, isAdminSessionOrDemo, isDemoMode } from '@/lib/demoMode';
 
-const DEMO_SETTINGS = {
-  adminEmail: '',
-  adminPhone: '',
-  emailAlertsEnabled: true,
-  smsAlertsEnabled: false,
-  officeAddress: '',
-  facebookUrl: '',
-  instagramUrl: '',
-  youtubeUrl: '',
-  linkedinUrl: '',
-  twitterUrl: '',
-  defaultPreviewImage: '',
-};
-
-async function isAdmin(req: NextRequest) {
+async function isAdmin() {
   const session = await auth();
-  return isAdminSessionOrDemo(req, session);
+  return session?.user?.role === 'ADMIN';
 }
 
 export async function GET(req: NextRequest) {
   try {
-    if (!(await isAdmin(req))) {
+    if (!(await isAdmin())) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
-    if (isDemoMode()) return NextResponse.json({ settings: DEMO_SETTINGS });
 
     let settings = await prisma.globalSettings.findFirst();
     if (!settings) {
@@ -47,10 +31,9 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    if (!(await isAdmin(req))) {
+    if (!(await isAdmin())) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
-    if (isDemoMode()) return demoMutationResponse();
 
     const body = await req.json();
     const { 

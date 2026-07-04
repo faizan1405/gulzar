@@ -1,16 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
-import { getAllProfiles, getDemoProfiles } from '@/lib/profileStore';
-import { isAdminSessionOrDemo, isDemoMode } from '@/lib/demoMode';
+import { getAllProfiles } from '@/lib/profileStore';
 
-async function isAdmin(req: NextRequest) {
+async function isAdmin() {
   const session = await auth();
-  return isAdminSessionOrDemo(req, session);
+  return session?.user?.role === 'ADMIN';
 }
 
 export async function GET(req: NextRequest) {
   try {
-    if (!(await isAdmin(req))) {
+    if (!(await isAdmin())) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
@@ -22,7 +21,7 @@ export async function GET(req: NextRequest) {
     const approvalStatus = searchParams.get('approvalStatus') || '';
     const hasPaid = searchParams.get('hasPaid') || '';
 
-    let profiles = isDemoMode() ? getDemoProfiles() : await getAllProfiles();
+    let profiles = await getAllProfiles();
 
     if (gender) profiles = profiles.filter((p: any) => p.gender === gender);
     if (state) profiles = profiles.filter((p: any) => p.state?.toLowerCase().includes(state.toLowerCase()));

@@ -3,13 +3,11 @@ import { auth } from '@/auth';
 import Razorpay from 'razorpay';
 import { PREMIUM_PACKAGES, PackageType } from '@/lib/packages';
 import { getProfileByUserId, createPackagePurchase } from '@/lib/profileStore';
-import { getDemoUserId, isDemoMode } from '@/lib/demoMode';
 
 export async function POST(req: NextRequest) {
   try {
     const session = await auth();
-    const simulatedUserId = getDemoUserId(req);
-    const activeUserId = session?.user?.id || simulatedUserId;
+    const activeUserId = session?.user?.id;
 
     if (!activeUserId) {
       return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
@@ -28,19 +26,6 @@ export async function POST(req: NextRequest) {
     const totalAmount = baseAmount + gstAmount;
     const totalAmountPaise = Math.round(totalAmount * 100);
 
-    if (isDemoMode()) {
-      const demoOrderId = `order_demo_${Date.now()}_${packageTypeInput.toLowerCase()}`;
-      return NextResponse.json({
-        success: true,
-        isSimulated: true,
-        orderId: demoOrderId,
-        amount: totalAmountPaise,
-        currency: 'INR',
-        keyId: 'rzp_test_demo_only',
-        message: 'Demo payment order created. No real payment gateway was used.',
-      });
-    }
-
     const profile = await getProfileByUserId(activeUserId);
     if (!profile) {
       return NextResponse.json({ error: 'Please create your matrimonial profile card first.' }, { status: 400 });
@@ -52,29 +37,8 @@ export async function POST(req: NextRequest) {
     const keyId = process.env.RAZORPAY_KEY_ID;
     const keySecret = process.env.RAZORPAY_KEY_SECRET;
 
-    if (!keyId || !keySecret || keyId.includes('dummy') || keySecret.includes('dummy')) {
-      console.warn('⚠️ [SIMULATOR MODE] Real Razorpay keys missing. Using Simulator Payment for testing only. Not real Razorpay payment.');
-      const simulatorOrderId = `order_sim_${Date.now()}_${packageTypeInput.toLowerCase()}`;
-      // Create pending purchase in simulator mode
-      await createPackagePurchase({
-        profileId: profile.id,
-        packageType: packageTypeInput,
-        basePrice: baseAmount,
-        gstRate: pkgDef.gstRate,
-        totalAmount: totalAmount,
-        billingType: pkgDef.billingType,
-        successFeeAmount: pkgDef.successFeeAmount,
-        razorpayOrderId: simulatorOrderId,
-      });
-
-      return NextResponse.json({
-        success: true,
-        isSimulated: true,
-        orderId: simulatorOrderId,
-        amount: totalAmountPaise,
-        currency: 'INR',
-        keyId: 'rzp_test_dummyKeyId123',
-      });
+    if (!keyId || !keySecret) {
+      return NextResponse.json({ error: 'Razorpay payment gateway is not configured. Please set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET.' }, { status: 500 });
     }
 
     const razorpayInstance = new Razorpay({
@@ -102,7 +66,6 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      isSimulated: false,
       orderId: order.id,
       amount: order.amount,
       currency: order.currency,
