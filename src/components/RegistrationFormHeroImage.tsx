@@ -17,8 +17,10 @@ export default function RegistrationFormHeroImage() {
         position: 'relative',
         borderRadius: '12px',
         overflow: 'hidden',
-        marginBottom: '20px',
-        height: '200px', // controlled height so it does not dominate the form
+        marginBottom: '24px',
+        aspectRatio: '16 / 7', // Better aspect ratio for banner so it doesn't crop too aggressively
+        minHeight: '200px',
+        maxHeight: '340px',
       }}
     >
       <Image 
@@ -27,7 +29,7 @@ export default function RegistrationFormHeroImage() {
         fill
         style={{
           objectFit: 'cover',
-          objectPosition: 'center 25%'
+          objectPosition: 'center 15%' // Aligns closer to the top to keep faces fully visible
         }}
         priority
       />
