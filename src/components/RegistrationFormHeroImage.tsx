@@ -18,8 +18,8 @@ export default function RegistrationFormHeroImage() {
         borderRadius: '12px',
         overflow: 'hidden',
         marginBottom: '24px',
-        aspectRatio: '16 / 7', // Better aspect ratio for banner so it doesn't crop too aggressively
-        minHeight: '200px',
+        aspectRatio: '21 / 9', // Perfect widescreen ratio matching your uploaded image
+        minHeight: '180px',
         maxHeight: '340px',
       }}
     >
@@ -29,7 +29,7 @@ export default function RegistrationFormHeroImage() {
         fill
         style={{
           objectFit: 'cover',
-          objectPosition: 'center 15%' // Aligns closer to the top to keep faces fully visible
+          objectPosition: 'center' // Natural center focus since the new image is already a perfectly framed banner
         }}
         priority
       />
