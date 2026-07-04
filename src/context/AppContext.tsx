@@ -262,7 +262,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             setFormData({
               fullName: data.profile.fullName || '',
               gender: data.profile.gender || 'Female',
-              dateOfBirth: data.profile.dateOfBirth ? new Date(data.profile.dateOfBirth).toISOString().substring(0, 10) : '',
+              dateOfBirth: data.profile.dateOfBirth ? new Date(data.profile.dateOfBirth).toISOString().slice(0, 10) : '',
               maritalStatus: data.profile.maritalStatus || 'Single',
               phoneNumber: data.profile.phoneNumber || '',
               city: data.profile.city || '',

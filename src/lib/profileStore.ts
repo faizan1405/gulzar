@@ -381,7 +381,7 @@ export async function upsertProfile(
   data: {
     fullName: string;
     gender: string;
-    dateOfBirth: string;
+    dateOfBirth: string | Date;
     maritalStatus: string;
     phoneNumber: string;
     city?: string | null;

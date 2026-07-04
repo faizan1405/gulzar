@@ -142,8 +142,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Required fields are missing: fullName, gender, dateOfBirth, phoneNumber' }, { status: 400 });
     }
 
-    // 2. Validate age (Must be 18+)
-    const dob = new Date(body.dateOfBirth);
+    // 2. Validate date and age (Must be 18+)
+    const normalizedDateOfBirth = new Date(`${body.dateOfBirth}T00:00:00.000Z`);
+
+    if (!body.dateOfBirth || Number.isNaN(normalizedDateOfBirth.getTime())) {
+      return NextResponse.json({ error: 'Invalid date of birth' }, { status: 400 });
+    }
+
+    body.dateOfBirth = normalizedDateOfBirth;
+    const dob = normalizedDateOfBirth;
     const today = new Date();
     let age = today.getFullYear() - dob.getFullYear();
     const m = today.getMonth() - dob.getMonth();
