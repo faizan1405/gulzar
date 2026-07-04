@@ -357,7 +357,9 @@ export default function Navbar() {
               className="nav-menu-desktop"
               aria-label="Secondary navigation"
             >
-              {renderDesktopLinks(rightNavItems)}
+              {renderDesktopLinks(
+                rightNavItems.filter((item) => item.href !== '/safety')
+              )}
             </nav>
 
             <div className="nav-actions-wrapper nav-menu-desktop">
@@ -396,15 +398,6 @@ export default function Navbar() {
                   >
                     <NavIcon name="lock" className="btn-icon" />
                     <span>Login</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={handleRegisterFree}
-                    className="btn btn-gold nav-btn"
-                  >
-                    <NavIcon name="register" className="btn-icon" />
-                    <span>Register Free</span>
                   </button>
                 </div>
               )}
