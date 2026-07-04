@@ -447,6 +447,16 @@ export default function Navbar() {
               </Link>
             ))}
 
+            {/* FAQ — mobile navigation only (desktop navbar intentionally unchanged) */}
+            <Link
+              href="/faq"
+              onClick={closeRegistrationAndMenu}
+              style={mobileLinkStyle('/faq')}
+              aria-current={isActive('/faq') ? 'page' : undefined}
+            >
+              FAQ
+            </Link>
+
             {isLoggedIn && (
               <Link
                 href="/my-account"

@@ -189,6 +189,32 @@ export default function ChatbotWindow({ onClose }: ChatbotWindowProps) {
         <div ref={messagesEndRef} />
       </div>
 
+      {/* Suggested questions — shown at the start of a conversation */}
+      {messages.length <= 1 && !isLoading && (
+        <div className="chatbot-suggestions">
+          <span className="chatbot-suggestions-label">Popular questions</span>
+          <div className="chatbot-suggestions-list">
+            {SUGGESTIONS.map((s) => (
+              <button
+                key={s.id}
+                type="button"
+                className="chatbot-suggestion-chip"
+                onClick={() => sendMessage(s.question)}
+              >
+                {s.question}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Link to the full FAQ page */}
+      <div className="chatbot-faq-link-row">
+        <Link href="/faq" className="chatbot-faq-link" onClick={onClose}>
+          Browse all FAQs →
+        </Link>
+      </div>
+
       {/* Input Footer */}
       <form onSubmit={handleSend} className="chatbot-input-form">
         <input
