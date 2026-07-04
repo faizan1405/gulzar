@@ -37,6 +37,7 @@ export default function MatrimonialRegistrationForm({
     handleRegisterSubmit,
     masterCastes,
     masterLocations,
+    masterMaslaks,
   } = useApp();
 
   const [isSubmittingForm, setIsSubmittingForm] = React.useState(false);
@@ -541,6 +542,7 @@ export default function MatrimonialRegistrationForm({
           )}
         </div>
       </form>
+    </div>
     </div>
   );
 }
