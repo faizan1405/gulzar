@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation';
 import Navbar from '../../components/Navbar';
 import {
   SectionHeading,
-  FloralCorner,
   PremiumFooter,
 } from '../../components/NikahComponents';
 import { getSupportWhatsAppLink } from '../../lib/whatsapp';
@@ -582,12 +581,7 @@ export default function EventManagementClient() {
                 position: 'relative',
               }}
             >
-              <FloralCorner position="tl" color="var(--gold-accent)" />
-              <FloralCorner position="tr" color="var(--gold-accent)" />
-              <FloralCorner position="bl" color="var(--gold-accent)" />
-              <FloralCorner position="br" color="var(--gold-accent)" />
-
-              {submitStatus === 'success' ? (
+                                                                      {submitStatus === 'success' ? (
                 <div style={{ textAlign: 'center', padding: '40px 20px' }}>
                   <div style={{ fontSize: '48px', marginBottom: '16px' }}>✅</div>
                   <h3

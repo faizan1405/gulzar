@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Navbar from '../../components/Navbar';
 import Image from 'next/image';
-import { SectionHeading, FloralCorner, PremiumFooter } from '../../components/NikahComponents';
+import { SectionHeading, PremiumFooter } from '../../components/NikahComponents';
 
 export default function ZaichaClient() {
   const router = useRouter();
@@ -79,9 +79,7 @@ export default function ZaichaClient() {
 
           {/* Central Service Messaging Block */}
           <div className="card-theme-wrapper" style={{ maxWidth: '800px', margin: '0 auto 40px auto', padding: '40px', border: '2.5px solid var(--gold-accent)', boxShadow: 'var(--gold-glow-shadow)' }}>
-            <FloralCorner position="tl" color="var(--gold-accent)" />
-            <FloralCorner position="tr" color="var(--gold-accent)" />
-            
+                                    
             <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '24px', color: 'var(--deep-maroon)', marginBottom: '20px', textAlign: 'center', fontWeight: 800 }}>
               We Also Help With Zaicha
             </h3>

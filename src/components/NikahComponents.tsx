@@ -5,37 +5,6 @@ import Link from 'next/link';
 // Color types matching schema & UI
 import { Profile } from '../types';
 
-// 1. Floral Corner Ornaments
-export const FloralCorner: React.FC<{ position: 'tl' | 'tr' | 'bl' | 'br'; color?: string }> = ({
-  position,
-  color = 'var(--gold-accent)'
-}) => {
-  const rotationClass = {
-    tl: '',
-    tr: 'rotate-90',
-    bl: '-rotate-90',
-    br: 'rotate-180'
-  }[position];
-
-  return (
-    <div className={`absolute p-0 pointer-events-none opacity-50 z-0 ${rotationClass}`} style={{
-      top: position.startsWith('t') ? '10px' : 'auto',
-      bottom: position.startsWith('b') ? '10px' : 'auto',
-      left: position.endsWith('l') ? '10px' : 'auto',
-      right: position.endsWith('r') ? '10px' : 'auto',
-      transform: position === 'tr' ? 'rotate(90deg)' : position === 'bl' ? 'rotate(-90deg)' : position === 'br' ? 'rotate(180deg)' : 'none'
-    }}>
-      <svg width="40" height="40" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M10 10 C 30 10, 50 30, 50 50 C 30 50, 10 30, 10 10" fill="none" stroke={color} strokeWidth="2" />
-        <path d="M10 10 C 10 30, 30 50, 50 50 C 50 30, 30 10, 10 10" fill="none" stroke={color} strokeWidth="2" />
-        <circle cx="50" cy="50" r="5" fill={color} />
-        <path d="M10 10 L 80 10" stroke={color} strokeWidth="1" strokeDasharray="3,3" />
-        <path d="M10 10 L 10 80" stroke={color} strokeWidth="1" strokeDasharray="3,3" />
-        <path d="M30 30 C 45 20, 60 45, 75 35" stroke={color} strokeWidth="1.5" fill="none" />
-      </svg>
-    </div>
-  );
-};
 
 // 2. Gold Decorative Arch Wrapper
 export const DecorativeArch: React.FC<{ children: React.ReactNode; className?: string }> = ({
@@ -43,7 +12,7 @@ export const DecorativeArch: React.FC<{ children: React.ReactNode; className?: s
   className = ''
 }) => {
   return (
-    <div className={`arch-container gold-rim gold-glow ${className}`}>
+    <div className={`arch-container ${className}`}>
       {children}
     </div>
   );
@@ -53,34 +22,9 @@ export const DecorativeArch: React.FC<{ children: React.ReactNode; className?: s
 export const BismillahCalligraphy: React.FC = () => {
   return (
     <div className="bismillah-container font-sans" aria-label="Bismillah-ir-Rahman-ir-Rahim calligraphy stamp">
-      {/* Hanging Lantern Left */}
-      <div className="lantern-wrapper lantern-left">
-        <svg width="40" height="150" viewBox="0 0 40 150" fill="none">
-          <line x1="20" y1="0" x2="20" y2="70" stroke="var(--gold-accent)" strokeWidth="1" strokeDasharray="3,3" />
-          <path d="M12 70 L20 62 L28 70 Z" fill="var(--gold-accent)" />
-          <path d="M10 70 L30 70 L34 78 L6 78 Z" fill="var(--gold-accent)" />
-          <path d="M6 78 L34 78 L28 112 L12 112 Z" fill="var(--warm-ivory)" stroke="var(--gold-accent)" strokeWidth="1.2" />
-          <circle cx="20" cy="95" r="7" fill="var(--gold-light)" opacity="0.6" style={{ filter: 'blur(2px)' }} />
-          <path d="M20 89 C19 93 20 98 20 98 C20 98 21 93 20 89 Z" fill="#EBC5C8" />
-          <path d="M12 112 L28 112 L24 120 L16 120 Z" fill="var(--gold-accent)" />
-          <circle cx="20" cy="124" r="2.5" stroke="var(--gold-accent)" strokeWidth="1.2" fill="none" />
-          <path d="M20 126.5 L20 142" stroke="var(--gold-accent)" strokeWidth="1" />
-        </svg>
-      </div>
-
       {/* Central Calligraphy Block */}
       <div className="bismillah-content">
-        {/* Top Crescent + Star Ornament */}
-        <div className="bismillah-ornament-top" style={{ display: 'flex', justifyContent: 'center', marginBottom: '16px' }}>
-          <svg width="48" height="24" viewBox="0 0 48 24" fill="none">
-            {/* Crescent */}
-            <path d="M21 4 A8 8 0 1 0 21 20 A6 6 0 1 1 21 4 Z" fill="#C9A227" />
-            {/* Star */}
-            <polygon points="33,6 34.6,9.4 38.3,9.7 35.4,12.1 36.4,15.7 33,13.7 29.6,15.7 30.6,12.1 27.7,9.7 31.4,9.4" fill="#C9A227" />
-          </svg>
-        </div>
-
-        {/* Bismillah row: line+diamond | TEXT | diamond+line */}
+        {/* Bismillah row: TEXT */}
         <div style={{
           position: 'relative',
           display: 'flex',
@@ -89,20 +33,6 @@ export const BismillahCalligraphy: React.FC = () => {
           gap: 'clamp(10px, 3vw, 20px)',
           padding: '8px 0',
         }}>
-          {/* soft gold glow behind text */}
-          <div style={{
-            position: 'absolute',
-            inset: 0,
-            background: 'radial-gradient(ellipse 45% 75% at 50% 50%, rgba(201,162,39,0.12), transparent 70%)',
-            pointerEvents: 'none',
-          }} />
-
-          {/* Left decoration */}
-          <svg width="54" height="12" viewBox="0 0 54 12" fill="none" style={{ flexShrink: 0 }}>
-            <line x1="0" y1="6" x2="40" y2="6" stroke="#C9A227" strokeWidth="1" />
-            <polygon points="48,2 52,6 48,10 44,6" fill="#C9A227" />
-          </svg>
-
           {/* Arabic text */}
           <span style={{
             position: 'relative',
@@ -116,53 +46,12 @@ export const BismillahCalligraphy: React.FC = () => {
           }}>
             بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
           </span>
-
-          {/* Right decoration */}
-          <svg width="54" height="12" viewBox="0 0 54 12" fill="none" style={{ flexShrink: 0 }}>
-            <polygon points="6,2 10,6 6,10 2,6" fill="#C9A227" />
-            <line x1="14" y1="6" x2="54" y2="6" stroke="#C9A227" strokeWidth="1" />
-          </svg>
         </div>
-
-        {/* Bottom Gold Line with Center Accent */}
-        <div className="bismillah-divider-bottom" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '14px' }}>
-          <svg width="40" height="15" viewBox="0 0 40 15" fill="none">
-            <path d="M20,0 L24,7.5 L20,15 L16,7.5 Z" fill="#1B5E3A" stroke="#C9A227" strokeWidth="1" />
-            <circle cx="20" cy="7.5" r="2" fill="#C9A227" />
-            <line x1="0" y1="7.5" x2="12" y2="7.5" stroke="#C9A227" strokeWidth="1" />
-            <line x1="28" y1="7.5" x2="40" y2="7.5" stroke="#C9A227" strokeWidth="1" />
-          </svg>
-        </div>
-      </div>
-
-      {/* Hanging Lantern Right */}
-      <div className="lantern-wrapper lantern-right">
-        <svg width="40" height="150" viewBox="0 0 40 150" fill="none">
-          <line x1="20" y1="0" x2="20" y2="70" stroke="var(--gold-accent)" strokeWidth="1" strokeDasharray="3,3" />
-          <path d="M12 70 L20 62 L28 70 Z" fill="var(--gold-accent)" />
-          <path d="M10 70 L30 70 L34 78 L6 78 Z" fill="var(--gold-accent)" />
-          <path d="M6 78 L34 78 L28 112 L12 112 Z" fill="var(--warm-ivory)" stroke="var(--gold-accent)" strokeWidth="1.2" />
-          <circle cx="20" cy="95" r="7" fill="var(--gold-light)" opacity="0.6" style={{ filter: 'blur(2px)' }} />
-          <path d="M20 89 C19 93 20 98 20 98 C20 98 21 93 20 89 Z" fill="#EBC5C8" />
-          <path d="M12 112 L28 112 L24 120 L16 120 Z" fill="var(--gold-accent)" />
-          <circle cx="20" cy="124" r="2.5" stroke="var(--gold-accent)" strokeWidth="1.2" fill="none" />
-          <path d="M20 126.5 L20 142" stroke="var(--gold-accent)" strokeWidth="1" />
-        </svg>
       </div>
     </div>
   );
 };
 
-// 4. Gold Divider
-export const GoldDivider: React.FC<{ className?: string }> = ({ className = '' }) => {
-  return (
-    <div className={`flex items-center justify-center my-8 ${className}`}>
-      <div style={{ width: '80px', height: '1px', background: 'linear-gradient(90deg, transparent, var(--gold-accent))' }} />
-      <span className="mx-3 text-gold-accent" style={{ fontSize: '16px', color: 'var(--gold-accent)' }}>❀</span>
-      <div style={{ width: '80px', height: '1px', background: 'linear-gradient(270deg, transparent, var(--gold-accent))' }} />
-    </div>
-  );
-};
 
 // 5. Section Heading
 export const SectionHeading: React.FC<{
@@ -187,8 +76,7 @@ export const SectionHeading: React.FC<{
           {subtitle}
         </p>
       )}
-      <GoldDivider />
-    </div>
+          </div>
   );
 };
 
@@ -910,8 +798,6 @@ export const PremiumPlanCard: React.FC<PremiumPlanCardProps> = ({
         </div>
       )}
 
-      {!imageUrl && <FloralCorner position="tl" color="var(--gold-light)" />}
-      {!imageUrl && <FloralCorner position="tr" color="var(--gold-light)" />}
 
       <h3 className="pkg-title" style={{ fontFamily: 'var(--font-serif)', fontSize: '26px', color: 'var(--primary-brand)', fontWeight: 800, marginBottom: '20px' }}>
         {title}
@@ -1100,10 +986,7 @@ export const SuccessStoryCard: React.FC<SuccessStoryCardProps> = ({
       justifyContent: 'space-between',
       position: 'relative'
     }}>
-      <FloralCorner position="tl" color="var(--gold-light)" />
-      <FloralCorner position="br" color="var(--gold-light)" />
-
-      <div>
+                  <div>
         <div style={{ position: 'relative', width: '100%', height: '180px', borderRadius: '12px', overflow: 'hidden', border: '1px solid var(--gold-light)', marginBottom: '20px' }}>
           <Image src={currentImage} alt={currentAltText} fill sizes="(max-width: 768px) 100vw, 300px" style={{ objectFit: 'cover' }} />
         </div>
@@ -1266,12 +1149,7 @@ export const ZaichaPromoCard: React.FC = () => {
             </svg>
           </div>
           
-          <FloralCorner position="tl" color="var(--gold-accent)" />
-          <FloralCorner position="tr" color="var(--gold-accent)" />
-          <FloralCorner position="bl" color="var(--gold-accent)" />
-          <FloralCorner position="br" color="var(--gold-accent)" />
-
-          <div style={{
+                                                  <div style={{
             backgroundColor: 'var(--white)',
             color: 'var(--gold-accent)',
             padding: '6px 16px',
@@ -1325,12 +1203,7 @@ export const FinalCTA: React.FC<FinalCTAProps> = ({ onRegister, onBrowse, isLogg
     <section style={{ backgroundColor: 'var(--soft-cream)', borderTop: '1px solid var(--border-color)', borderBottom: '1px solid var(--border-color)', padding: '80px 0', position: 'relative' }}>
       <div className="container" style={{ position: 'relative', zIndex: 5 }}>
         <div className="arch-container max-w-4xl mx-auto text-center" style={{ maxWidth: '800px', margin: '0 auto', padding: '60px 40px', textAlign: 'center' }}>
-          <FloralCorner position="tl" color="var(--gold-accent)" />
-          <FloralCorner position="tr" color="var(--gold-accent)" />
-          <FloralCorner position="bl" color="var(--gold-accent)" />
-          <FloralCorner position="br" color="var(--gold-accent)" />
-
-          <span className="script-accent block mb-2" style={{ display: 'block', marginBottom: '12px' }}>Start Your Blessed Future</span>
+                                                  <span className="script-accent block mb-2" style={{ display: 'block', marginBottom: '12px' }}>Start Your Blessed Future</span>
           <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '36px', color: 'var(--deep-maroon)', fontWeight: 'bold', marginBottom: '20px' }}>
             Begin Your Journey Towards a Meaningful Nikah
           </h2>

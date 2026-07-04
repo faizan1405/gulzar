@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Navbar from '../../components/Navbar';
 import Image from 'next/image';
-import { SectionHeading, FloralCorner, PremiumFooter } from '../../components/NikahComponents';
+import { SectionHeading, PremiumFooter } from '../../components/NikahComponents';
 
 export default function SafetyClient() {
   const router = useRouter();
@@ -64,9 +64,7 @@ export default function SafetyClient() {
           </div>
 
           <div className="card-theme-wrapper" style={{ maxWidth: '800px', margin: '48px auto 0 auto', padding: '40px' }}>
-            <FloralCorner position="tl" color="var(--gold-accent)" />
-            <FloralCorner position="tr" color="var(--gold-accent)" />
-            <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '22px', color: 'var(--deep-maroon)', marginBottom: '16px', textAlign: 'center' }}>Safe Matrimonial Advice</h3>
+                                    <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '22px', color: 'var(--deep-maroon)', marginBottom: '16px', textAlign: 'center' }}>Safe Matrimonial Advice</h3>
             <ul style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '14px', color: 'var(--text-dark)' }}>
               <li>Never share credit card information, bank credentials, or send money to matches.</li>
               <li>Involve family members in your matrimonial discussions as early as possible.</li>

@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Navbar from '../../components/Navbar';
 import Image from 'next/image';
-import { SectionHeading, FloralCorner, PremiumFooter } from '../../components/NikahComponents';
+import { SectionHeading, PremiumFooter } from '../../components/NikahComponents';
 
 // Edit leadership names, roles, and bios here — single source for the About page leadership section.
 const leadershipTeam = [
@@ -52,12 +52,7 @@ export default function AboutClient() {
           </div>
 
           <div className="arch-container max-w-4xl mx-auto p-12 gold-rim gold-glow" style={{ maxWidth: '800px', margin: '0 auto', padding: '40px' }}>
-            <FloralCorner position="tl" color="var(--gold-accent)" />
-            <FloralCorner position="tr" color="var(--gold-accent)" />
-            <FloralCorner position="bl" color="var(--gold-accent)" />
-            <FloralCorner position="br" color="var(--gold-accent)" />
-
-            <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '24px', color: 'var(--deep-maroon)', marginBottom: '16px', textAlign: 'center' }}>
+                                                            <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '24px', color: 'var(--deep-maroon)', marginBottom: '16px', textAlign: 'center' }}>
               Serious Connections. Family Values. Absolute Trust.
             </h3>
             

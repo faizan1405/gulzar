@@ -253,8 +253,7 @@ export default function Navbar() {
   return (
     <header className="header font-sans">
       <div className="header-top-strip" aria-hidden="true">
-        <div className="header-top-strip-ornament" />
-      </div>
+              </div>
 
       <div className="container nav-outer-container">
         <div className="nav-container">

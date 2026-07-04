@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useApp } from '../../../context/AppContext';
 import Navbar from '../../../components/Navbar';
 import ProfileGrid from '../../../components/ProfileGrid';
-import { SectionHeading, PremiumFooter, PremiumPlanCard, FloralCorner } from '../../../components/NikahComponents';
+import { SectionHeading, PremiumFooter, PremiumPlanCard } from '../../../components/NikahComponents';
 import PackageInquiryForm from '../../../components/PackageInquiryForm';
 
 export default function GoodProfilesClient() {
@@ -170,9 +170,7 @@ export default function GoodProfilesClient() {
       {showInquiry && (
         <div className="modal-overlay font-sans" onClick={() => setShowInquiry(false)}>
           <div className="card-theme-wrapper" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '500px', width: '90%', margin: '20px', border: '2px solid var(--gold-accent)', padding: '32px', position: 'relative' }}>
-            <FloralCorner position="tl" color="var(--gold-accent)" />
-            <FloralCorner position="tr" color="var(--gold-accent)" />
-            <button
+                                    <button
               onClick={() => setShowInquiry(false)}
               style={{
                 position: 'absolute',

@@ -12,7 +12,7 @@ import SearchableCombobox from '../components/SearchableCombobox';
 import MatrimonialRegistrationForm from '../components/MatrimonialRegistrationForm';
 
 import {
-  FloralCorner,
+  
   BismillahCalligraphy,
   SectionHeading,
   QuranVerseBlock,
@@ -674,12 +674,7 @@ export default function HomeClient() {
       {showLoginModal && (
         <div className="modal-overlay font-sans">
           <div className="card-theme-wrapper" style={{ maxWidth: '400px', width: '90%', margin: '20px' }}>
-            <FloralCorner position="tl" color="var(--gold-accent)" />
-            <FloralCorner position="tr" color="var(--gold-accent)" />
-            <FloralCorner position="bl" color="var(--gold-accent)" />
-            <FloralCorner position="br" color="var(--gold-accent)" />
-
-            <div style={{ textAlign: 'center', padding: '10px 0' }}>
+                                                            <div style={{ textAlign: 'center', padding: '10px 0' }}>
               <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '24px', color: 'var(--deep-maroon)', marginBottom: '12px', fontWeight: 'bold' }}>
                 Join Rishte Forever
               </h3>
@@ -727,9 +722,7 @@ export default function HomeClient() {
       {inquiryPackage && (
         <div className="modal-overlay font-sans" onClick={() => setInquiryPackage(null)}>
           <div className="card-theme-wrapper" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '500px', width: '90%', margin: '20px', border: '2px solid var(--gold-accent)', padding: '32px', position: 'relative' }}>
-            <FloralCorner position="tl" color="var(--gold-accent)" />
-            <FloralCorner position="tr" color="var(--gold-accent)" />
-            <button
+                                    <button
               onClick={() => setInquiryPackage(null)}
               style={{
                 position: 'absolute',

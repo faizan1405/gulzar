@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useApp } from '../../context/AppContext';
 import Navbar from '../../components/Navbar';
 import Image from 'next/image';
-import { SectionHeading, PremiumPlanCard, PremiumFooter, FloralCorner } from '../../components/NikahComponents';
+import { SectionHeading, PremiumPlanCard, PremiumFooter } from '../../components/NikahComponents';
 import PackageInquiryForm from '../../components/PackageInquiryForm';
 
 export default function PremiumClient() {
@@ -267,9 +267,7 @@ export default function PremiumClient() {
       {inquiryPackage && (
         <div className="modal-overlay font-sans" onClick={() => setInquiryPackage(null)}>
           <div className="card-theme-wrapper" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '500px', width: '90%', margin: '20px', border: '2px solid var(--gold-accent)', padding: '32px', position: 'relative' }}>
-            <FloralCorner position="tl" color="var(--gold-accent)" />
-            <FloralCorner position="tr" color="var(--gold-accent)" />
-            <button
+                                    <button
               onClick={() => setInquiryPackage(null)}
               style={{
                 position: 'absolute',

@@ -3,7 +3,7 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import Navbar from '../../components/Navbar';
-import { SectionHeading, FloralCorner, PremiumFooter } from '../../components/NikahComponents';
+import { SectionHeading, PremiumFooter } from '../../components/NikahComponents';
 
 export default function TermsAndConditionsPage() {
   const router = useRouter();
@@ -25,9 +25,7 @@ export default function TermsAndConditionsPage() {
           />
 
           <div className="card-theme-wrapper" style={{ maxWidth: '1000px', margin: '0 auto', padding: '40px', lineHeight: '1.8', color: 'var(--text-dark)' }}>
-            <FloralCorner position="tl" color="var(--gold-accent)" />
-            <FloralCorner position="tr" color="var(--gold-accent)" />
-            
+                                    
             <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '24px', color: 'var(--deep-maroon)', marginBottom: '16px' }}>1. Introduction</h2>
             <p style={{ marginBottom: '24px' }}>Welcome to Rishte Forever. By accessing or using our matrimonial platform, you agree to be bound by these Terms & Conditions. Our service is designed to facilitate Shariah-compliant matchmaking for Muslim singles.</p>
 
