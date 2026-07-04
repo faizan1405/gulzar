@@ -1252,6 +1252,17 @@ const profilesToSeed = [
 ];;
 
 async function main() {
+  const dbUrl = process.env.DATABASE_URL || '';
+  let maskedDb = 'Unknown';
+  if (dbUrl.includes('@')) {
+    const parts = dbUrl.split('@');
+    if (parts.length > 1) {
+      const hostAndDb = parts[1].split('?')[0]; // shadi-mubarak-cluster.ydid5wn.mongodb.net/shadi_mubarak
+      const [host, dbName] = hostAndDb.split('/');
+      maskedDb = `${host.substring(0, 4)}***${host.substring(host.length - 4)} / ${dbName ? dbName.substring(0, 3) + '***' : ''}`;
+    }
+  }
+  console.log(`Target Database Host / Name: ${maskedDb}`);
   console.log('Starting demo profiles database seeding...');
   let insertedCount = 0;
   let skippedCount = 0;

@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { CHATBOT_SYSTEM_PROMPT } from '../../../lib/chatbotPrompt';
 import { getFallbackResponse } from '../../../lib/chatbotFallback';
+import {
+  getGuardrailResponse,
+  findFaqAnswer,
+  getRelevantFaqContext,
+} from '../../../lib/faqData';
 
 // Basic in-memory rate limiting map
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
@@ -29,6 +34,10 @@ function checkRateLimit(ip: string): boolean {
 }
 
 export async function POST(req: NextRequest) {
+  // Captured here so the catch block can build a graceful fallback without
+  // re-reading the request body (the stream can only be consumed once).
+  let message = '';
+
   try {
     // 1. Get Client IP for Rate Limiting
     const ip = (req as any).ip || req.headers.get('x-forwarded-for') || 'anonymous';
@@ -41,7 +50,8 @@ export async function POST(req: NextRequest) {
 
     // 2. Parse and Validate Input
     const body = await req.json();
-    const { message, history } = body;
+    const { history } = body;
+    message = typeof body?.message === 'string' ? body.message : '';
 
     if (!message || typeof message !== 'string' || message.trim() === '') {
       return NextResponse.json(
@@ -68,18 +78,38 @@ export async function POST(req: NextRequest) {
     }
 
 
-    // 3. Load Environment Settings
+    // 3. Mandatory guardrails first — these always win, no AI call.
+    const guardrail = getGuardrailResponse(message);
+    if (guardrail) {
+      return NextResponse.json({ text: guardrail, isFaq: true });
+    }
+
+    // 4. Answer clear FAQ questions directly from the shared knowledge,
+    //    skipping the external AI provider entirely (fast + consistent + no tokens).
+    const faqMatch = findFaqAnswer(message);
+    if (faqMatch) {
+      return NextResponse.json({ text: faqMatch.answer, isFaq: true });
+    }
+
+    // 5. Load Environment Settings
     const apiKey = process.env.AI_CHATBOT_API_KEY;
     const provider = (process.env.AI_CHATBOT_PROVIDER || 'gemini').toLowerCase();
     const model = process.env.AI_CHATBOT_MODEL;
 
-    // 4. Return Fallback Response if API key is not provided
+    // 6. Return Fallback Response if API key is not provided
     if (!apiKey || apiKey.trim() === '') {
       const fallbackText = getFallbackResponse(message);
       return NextResponse.json({ text: fallbackText, isDemo: true });
     }
 
-    // 5. Call External AI Provider
+    // Inject only a SMALL set of relevant FAQ entries into the AI context so the
+    // provider stays grounded without paying tokens for all 40+ answers.
+    const faqContext = getRelevantFaqContext(message, 4);
+    const systemPrompt = faqContext
+      ? `${CHATBOT_SYSTEM_PROMPT}\n\n### Relevant Rishte Forever FAQ entries:\n${faqContext}`
+      : CHATBOT_SYSTEM_PROMPT;
+
+    // 7. Call External AI Provider
     if (provider === 'gemini') {
       const geminiModel = model || 'gemini-1.5-flash';
       const url = `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent?key=${apiKey}`;
@@ -103,7 +133,7 @@ export async function POST(req: NextRequest) {
         body: JSON.stringify({
           contents,
           systemInstruction: {
-            parts: [{ text: CHATBOT_SYSTEM_PROMPT }]
+            parts: [{ text: systemPrompt }]
           },
           generationConfig: {
             maxOutputTokens: 800,
@@ -133,7 +163,7 @@ export async function POST(req: NextRequest) {
       const url = 'https://api.openai.com/v1/chat/completions';
 
       const messages = [
-        { role: 'system', content: CHATBOT_SYSTEM_PROMPT },
+        { role: 'system', content: systemPrompt },
         ...(history || []).map((h: any) => ({
           role: h.role === 'assistant' ? 'assistant' : 'user',
           content: h.content
@@ -177,8 +207,6 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     // If the API call fails, log the error and fall back gracefully to the demo replies.
     console.error('Chatbot route execution error, reverting to fallback mode:', error);
-    const body = await req.json().catch(() => ({}));
-    const message = body?.message || '';
     const fallbackText = getFallbackResponse(message);
     return NextResponse.json({ 
       text: fallbackText, 

@@ -1,129 +1,37 @@
+import {
+  getGuardrailResponse,
+  findFaqAnswer,
+  SUPPORT_EMAIL,
+} from './faqData';
+
+/**
+ * Offline / no-API-key fallback for the chatbot.
+ *
+ * This no longer keeps its own duplicated answer list. It delegates to the
+ * shared FAQ knowledge in `faqData.ts` so answers stay consistent with the
+ * public FAQ page and the online chatbot:
+ *   1. Mandatory guardrails (religious rulings, private info, payment details).
+ *   2. A confident FAQ match from the shared collection.
+ *   3. A friendly generic prompt listing the topics we can help with.
+ */
 export function getFallbackResponse(message: string): string {
-  const msg = message.toLowerCase();
+  // 1. Non-negotiable platform guardrails always win.
+  const guardrail = getGuardrailResponse(message);
+  if (guardrail) return guardrail;
 
-  // 1. Religious / Fatwa check
-  if (
-    msg.includes('fatwa') ||
-    msg.includes('halal') ||
-    msg.includes('haram') ||
-    msg.includes('shariah') ||
-    msg.includes('ruling') ||
-    msg.includes('islamic') ||
-    msg.includes('scholar') ||
-    msg.includes('sin') ||
-    msg.includes('quran') ||
-    msg.includes('hadith')
-  ) {
-    return "For religious rulings, please consult a qualified scholar. I can only explain how Rishte Forever works as a matrimonial platform.";
-  }
+  // 2. Direct answer from the shared FAQ knowledge.
+  const faq = findFaqAnswer(message);
+  if (faq) return faq.answer;
 
-  // 2. Photo / Phone blur / Privacy check
-  if (
-    msg.includes('blur') ||
-    msg.includes('photo') ||
-    msg.includes('phone') ||
-    msg.includes('unblur') ||
-    msg.includes('hide') ||
-    msg.includes('visible') ||
-    msg.includes('number') ||
-    msg.includes('show') ||
-    msg.includes('privacy') ||
-    msg.includes('picture') ||
-    msg.includes('image') ||
-    msg.includes('contact')
-  ) {
-    return "Profile photos and phone numbers are protected for privacy. You need to follow the membership/package process to access eligible details. For standard profiles, a ₹1 Monthly Membership is required to unblur photos and contact details.";
-  }
-
-  // 3. Packages & Pricing check
-  if (
-    msg.includes('package') ||
-    msg.includes('price') ||
-    msg.includes('pricing') ||
-    msg.includes('cost') ||
-    msg.includes('fee') ||
-    msg.includes('subscribe') ||
-    msg.includes('subscription') ||
-    msg.includes('pay') ||
-    msg.includes('payment') ||
-    msg.includes('gst') ||
-    msg.includes('rs') ||
-    msg.includes('₹') ||
-    msg.includes('money') ||
-    msg.includes('membership') ||
-    msg.includes('monthly') ||
-    msg.includes('rupees') ||
-    msg.includes('charge')
-  ) {
-    return "Assalamu Alaikum! Rishte Forever offers 4 matrimonial packages:\n\n" +
-      "1. **Standard Monthly Membership**: ₹1/month. Allows searching matches, filtering, and unblurring photos/phone numbers on normal profiles.\n" +
-      "2. **Good Profiles Package**: ₹1 one-time fee. Access to curated profiles, valid for 1 year. No success fee.\n" +
-      "3. **Silver Plan**: ₹1 one-time fee. Tailored search category, valid for 1 year. No success fee.\n" +
-      "4. **Gold Package**: ₹1 one-time fee. For doctors, engineers, premium families, and candidates earning ₹10 Lakhs+ annually, valid for 1 year. No success fee.";
-  }
-
-  // 4. Verification check
-  if (
-    msg.includes('verify') ||
-    msg.includes('verification') ||
-    msg.includes('approved') ||
-    msg.includes('pending') ||
-    msg.includes('call') ||
-    msg.includes('review') ||
-    msg.includes('approve') ||
-    msg.includes('status')
-  ) {
-    return "Every profile on Rishte Forever is manually reviewed. An admin will call you on your registered phone number to verify your identity and intent. Once approved, your profile status will change to APPROVED, making you visible in the match directory.";
-  }
-
-  // 5. Registration check
-  if (
-    msg.includes('register') ||
-    msg.includes('registration') ||
-    msg.includes('signup') ||
-    msg.includes('sign up') ||
-    msg.includes('join') ||
-    msg.includes('create') ||
-    msg.includes('wizard') ||
-    msg.includes('account')
-  ) {
-    return "To register, click the 'Register' button on the homepage. Use our 5-step onboarding wizard to enter your details, family background, partner expectations, select a custom color theme, and submit your profile. Our admin team will contact you soon after to complete manual verification.";
-  }
-
-  // 6. Search check
-  if (
-    msg.includes('search') ||
-    msg.includes('filter') ||
-    msg.includes('find') ||
-    msg.includes('match') ||
-    msg.includes('directory') ||
-    msg.includes('browse')
-  ) {
-    return "Once your profile is verified and you have an active membership, you can use our Search page to filter matches by age, location, occupation, marital status, and education to find compatible matches.";
-  }
-
-  // 7. Support / Contact check
-  if (
-    msg.includes('support') ||
-    msg.includes('contact') ||
-    msg.includes('help') ||
-    msg.includes('email') ||
-    msg.includes('office') ||
-    msg.includes('address') ||
-    msg.includes('admin') ||
-    msg.includes('reach')
-  ) {
-    return "You can contact Rishte Forever support by navigating to the Contact page or by emailing support@rishteforever.in. Our support team is active Monday to Saturday, 9:00 AM to 6:00 PM.";
-  }
-
-  // 8. General greeting/unknown fallback response
-  return "Assalamu Alaikum! I'm the Rishte Forever support assistant (offline mode).\n\n" +
-    "I can answer your questions about:\n" +
-    "• **Packages & Pricing** (₹1)\n" +
-    "• **Photo & Contact Privacy** (Blurring details)\n" +
-    "• **Manual Verification** (Telephone review process)\n" +
-    "• **Registration** & Onboarding\n" +
-    "• **Search Filters** & Matchmaking\n" +
-    "• **Contacting Support**\n\n" +
-    "Please ask me about any of these topics!";
+  // 3. Generic help prompt.
+  return (
+    'Assalamu Alaikum! I\'m the Rishte Forever assistant.\n\n' +
+    'I can help with:\n' +
+    '• Registration & Google sign-in\n' +
+    '• Telephone verification & profile approval\n' +
+    '• Photo & contact privacy\n' +
+    '• Memberships & packages\n' +
+    '• Staying safe & reporting profiles\n\n' +
+    'Ask me about any of these, or email ' + SUPPORT_EMAIL + ' for more help.'
+  );
 }

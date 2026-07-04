@@ -1,11 +1,15 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
+import Link from 'next/link';
+import { getChatbotSuggestions } from '../lib/faqData';
 
 interface Message {
   role: 'user' | 'assistant';
   content: string;
 }
+
+const SUGGESTIONS = getChatbotSuggestions();
 
 interface ChatbotWindowProps {
   onClose: () => void;
@@ -33,10 +37,9 @@ export default function ChatbotWindow({ onClose }: ChatbotWindowProps) {
     scrollToBottom();
   }, [messages, isLoading]);
 
-  const handleSend = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const cleanInput = input.trim();
-    if (!cleanInput) return;
+  const sendMessage = async (rawText: string) => {
+    const cleanInput = rawText.trim();
+    if (!cleanInput || isLoading) return;
     if (cleanInput.length > 1000) {
       setErrorMsg('Message is too long (maximum 1000 characters).');
       return;
@@ -46,6 +49,7 @@ export default function ChatbotWindow({ onClose }: ChatbotWindowProps) {
     setErrorMsg(null);
 
     // 1. Add User Message to UI
+    const historyForRequest = messages;
     const updatedMessages: Message[] = [...messages, { role: 'user', content: cleanInput }];
     setMessages(updatedMessages);
     setInput('');
@@ -58,7 +62,7 @@ export default function ChatbotWindow({ onClose }: ChatbotWindowProps) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           message: cleanInput,
-          history: messages // Pass existing history
+          history: historyForRequest // Pass existing history
         }),
       });
 

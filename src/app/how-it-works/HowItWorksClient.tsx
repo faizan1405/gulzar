@@ -1,10 +1,12 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Navbar from '../../components/Navbar';
 import Image from 'next/image';
 import { SectionHeading, PremiumFooter } from '../../components/NikahComponents';
+import { getFaqPreview } from '../../lib/faqData';
 
 interface Step {
   num: number;
@@ -162,11 +164,22 @@ export default function HowItWorksClient() {
             ))}
           </div>
 
-          <div className="arch-container max-w-2xl mx-auto p-8 text-center gold-rim gold-glow" style={{ maxWidth: '600px', margin: '48px auto 0 auto', padding: '32px', textAlign: 'center' }}>
-                                    <h4 style={{ fontFamily: 'var(--font-serif)', fontSize: '20px', color: 'var(--deep-maroon)', marginBottom: '12px' }}>Frequently Asked Questions</h4>
-            <div style={{ textAlign: 'left', display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '20px', fontSize: '13.5px' }}>
-              <p><strong>Q: Is there a fee to search matches?</strong><br />A: Registration is free. Viewing detailed candidate photos and phone numbers requires an active Standard Monthly Membership. Complete your profile to view current membership pricing.</p>
-              <p><strong>Q: How does manual verification work?</strong><br />A: Our support team calls each registered number to confirm biological identities, marital histories, and ensure serious intentions before approval.</p>
+          <div className="arch-container gold-rim" style={{ maxWidth: '760px', margin: '48px auto 0 auto', padding: '32px' }}>
+            <h4 style={{ fontFamily: 'var(--font-serif)', fontSize: '20px', color: 'var(--deep-maroon)', marginBottom: '8px', textAlign: 'center' }}>Frequently Asked Questions</h4>
+            <p style={{ textAlign: 'center', fontSize: '13.5px', color: 'var(--text-muted)', marginBottom: '20px' }}>
+              A few common questions. See the full list on our FAQ page.
+            </p>
+            <div style={{ textAlign: 'left', display: 'flex', flexDirection: 'column', gap: '16px', fontSize: '13.5px' }}>
+              {getFaqPreview().map((faq) => (
+                <p key={faq.id}>
+                  <strong>Q: {faq.question}</strong>
+                  <br />
+                  A: {faq.answer}
+                </p>
+              ))}
+            </div>
+            <div style={{ textAlign: 'center', marginTop: '26px' }}>
+              <Link href="/faq" className="btn btn-primary">View All FAQs</Link>
             </div>
           </div>
         </div>
