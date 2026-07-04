@@ -4,6 +4,7 @@ import { verifyPackagePurchase } from '@/lib/profileStore';
 import { prisma } from '@/lib/db';
 import { notifyMembership } from '@/lib/notifications';
 import crypto from 'crypto';
+import Razorpay from 'razorpay';
 
 export async function POST(req: NextRequest) {
   try {
@@ -52,9 +53,10 @@ export async function POST(req: NextRequest) {
       });
     }
 
+    const keyId = process.env.RAZORPAY_KEY_ID;
     const keySecret = process.env.RAZORPAY_KEY_SECRET;
-    if (!keySecret) {
-      return NextResponse.json({ error: 'Razorpay secret key not configured' }, { status: 500 });
+    if (!keyId || !keySecret) {
+      return NextResponse.json({ error: 'Razorpay credentials not configured' }, { status: 500 });
     }
 
     // Verify signature cryptographically
@@ -66,6 +68,25 @@ export async function POST(req: NextRequest) {
 
     if (expectedSignature !== signature) {
       return NextResponse.json({ error: 'Invalid payment signature. Verification failed.' }, { status: 400 });
+    }
+
+    // Verify against Razorpay API
+    const razorpayInstance = new Razorpay({
+      key_id: keyId,
+      key_secret: keySecret,
+    });
+
+    const razorpayOrder = await razorpayInstance.orders.fetch(orderId);
+    if (razorpayOrder.amount !== 100 || razorpayOrder.currency !== 'INR') {
+      return NextResponse.json({ error: 'External Razorpay order verification failed.' }, { status: 400 });
+    }
+
+    const razorpayPayment = await razorpayInstance.payments.fetch(paymentId);
+    if (razorpayPayment.status !== 'captured' && razorpayPayment.status !== 'authorized') {
+      return NextResponse.json({ error: 'Payment is not captured or authorized.' }, { status: 400 });
+    }
+    if (razorpayPayment.amount !== 100 || razorpayPayment.currency !== 'INR') {
+      return NextResponse.json({ error: 'External Razorpay payment verification failed.' }, { status: 400 });
     }
 
     const purchase = await verifyPackagePurchase(orderId, paymentId);

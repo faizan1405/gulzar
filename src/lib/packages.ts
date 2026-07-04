@@ -56,7 +56,7 @@ export const PREMIUM_PACKAGES: Record<PackageType, PackageDefinition> = {
     gstRate: 0,
     totalAmount: 1,
     billingType: 'ONE_TIME',
-    successFeeAmount: 0,
+    successFeeAmount: 21000,
     benefits: [
       'Verified profile suggestions',
       'Basic matchmaking support',
@@ -90,7 +90,7 @@ export const PREMIUM_PACKAGES: Record<PackageType, PackageDefinition> = {
     gstRate: 0,
     totalAmount: 1,
     billingType: 'ONE_TIME',
-    successFeeAmount: 0,
+    successFeeAmount: 25000,
     benefits: [
       'Everything in Silver Plan',
       'Premium verified profile suggestions',
