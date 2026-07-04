@@ -41,6 +41,15 @@ export default function MyAccountPage() {
     router.push('/');
   };
 
+  const handleLogout = async () => {
+    try {
+      const { signOut } = await import('next-auth/react');
+      await signOut({ callbackUrl: '/' });
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  };
+
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState('');
   const [uploadSuccess, setUploadSuccess] = useState('');
@@ -367,6 +376,16 @@ export default function MyAccountPage() {
                 <Link href="/premium" className="btn btn-secondary" style={{ textAlign: 'center', backgroundColor: 'var(--cream-bg)', border: 'none' }}>
                   Upgrade Package
                 </Link>
+              </div>
+              
+              <div style={{ marginTop: '24px', paddingTop: '24px', borderTop: '1px solid var(--border-color)' }}>
+                <button 
+                  onClick={() => void handleLogout()} 
+                  className="btn btn-primary" 
+                  style={{ width: '100%' }}
+                >
+                  Logout
+                </button>
               </div>
             </div>
           </div>

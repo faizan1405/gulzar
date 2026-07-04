@@ -14,7 +14,6 @@ type IconName =
   | 'star'
   | 'event'
   | 'user'
-  | 'logout'
   | 'lock'
   | 'register';
 
@@ -146,15 +145,6 @@ function NavIcon({
         </svg>
       );
 
-    case 'logout':
-      return (
-        <svg {...commonProps}>
-          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-          <polyline points="16 17 21 12 16 7" />
-          <line x1="21" y1="12" x2="9" y2="12" />
-        </svg>
-      );
-
     case 'lock':
       return (
         <svg {...commonProps}>
@@ -220,17 +210,6 @@ export default function Navbar() {
   const handleLoginTrigger = () => {
     setIsMobileMenuOpen(false);
     setShowLoginModal(true);
-  };
-
-  const handleLogout = async () => {
-    setIsMobileMenuOpen(false);
-
-    try {
-      const { signOut } = await import('next-auth/react');
-      await signOut({ callbackUrl: '/' });
-    } catch (error) {
-      console.error('Logout failed:', error);
-    }
   };
 
   const renderDesktopLinks = (items: NavItem[]) => (
@@ -377,16 +356,6 @@ export default function Navbar() {
               {isLoggedIn ? (
                 <div className="nav-actions-group">
                   <span className="nav-greeting">Salaam!</span>
-
-                  <button
-                    type="button"
-                    onClick={() => void handleLogout()}
-                    className="btn btn-primary nav-btn"
-                    id="btn-logout"
-                  >
-                    <NavIcon name="logout" className="btn-icon" />
-                    <span>Logout</span>
-                  </button>
                 </div>
               ) : (
                 <div className="nav-actions-group">
@@ -490,16 +459,7 @@ export default function Navbar() {
               </Link>
             )}
 
-            {isLoggedIn ? (
-              <button
-                type="button"
-                onClick={() => void handleLogout()}
-                className="btn btn-primary"
-                style={{ width: '100%' }}
-              >
-                Logout
-              </button>
-            ) : (
+            {!isLoggedIn && (
               <div
                 style={{
                   display: 'flex',
