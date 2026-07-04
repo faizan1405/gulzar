@@ -35,10 +35,19 @@ export default function MatrimonialRegistrationForm({
     formData,
     setFormData,
     handleRegisterSubmit,
-    masterMaslaks,
     masterCastes,
     masterLocations,
   } = useApp();
+
+  const [isSubmittingForm, setIsSubmittingForm] = React.useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (isSubmittingForm) return;
+    setIsSubmittingForm(true);
+    await handleRegisterSubmit(e);
+    setIsSubmittingForm(false);
+  };
 
   const handleNextStep = () => {
     if (regStep === 1) {
@@ -116,13 +125,9 @@ export default function MatrimonialRegistrationForm({
         <div className={`step-dot ${regStep >= 6 ? 'completed' : ''} ${regStep === 6 ? 'active' : ''}`}>6</div>
       </div>
 
-      {registrationError && (
-        <div style={{ backgroundColor: 'rgba(111, 29, 53, 0.08)', color: 'var(--deep-maroon)', padding: '12px 16px', borderRadius: '8px', marginBottom: '20px', fontSize: '13px', border: '1px solid rgba(111,29,53,0.15)' }}>
-          ⚠️ {registrationError}
-        </div>
-      )}
-
-      <form onSubmit={handleRegisterSubmit}>
+    <div className="registration-wizard" style={{ maxWidth: '600px', margin: '0 auto', background: 'var(--card-bg)', borderRadius: '12px', padding: '30px', boxShadow: '0 4px 15px rgba(0,0,0,0.05)' }}>
+      {registrationError && <div className="error-message" style={{ marginBottom: '20px' }}>{registrationError}</div>}
+      <form onSubmit={handleSubmit}>
         {regStep === 1 && (
           <div>
             <div className="form-group">
@@ -530,8 +535,8 @@ export default function MatrimonialRegistrationForm({
               Next Step
             </button>
           ) : (
-            <button type="submit" className="btn btn-gold" style={{ marginLeft: 'auto' }}>
-              Save Profile
+            <button type="submit" className="btn btn-gold" style={{ marginLeft: 'auto' }} disabled={isSubmittingForm}>
+              {isSubmittingForm ? 'Saving...' : 'Save Profile'}
             </button>
           )}
         </div>

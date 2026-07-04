@@ -418,8 +418,16 @@ export async function upsertProfile(
   if (isDb) {
     try {
       const dbUserId = getValidObjectId(userId);
-      const { category, ...rest } = data;
+      const { category, ...rawRest } = data;
       const cleanCategory = category === null ? 'normal' : category;
+      
+      const {
+        consent,
+        terms,
+        termsAccepted,
+        familyOrigin,
+        ...rest
+      } = rawRest as any;
       
       return await prisma.matrimonialProfile.upsert({
         where: { userId: dbUserId },

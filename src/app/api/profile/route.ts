@@ -177,6 +177,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: true, profile });
   } catch (error) {
     console.error('Profile upsert failed:', error);
-    return NextResponse.json({ error: 'Unable to save your profile. Please try again.' }, { status: 500 });
+    const errorMessage = error instanceof Error ? error.message : 'Unable to save your profile. Please try again.';
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }
