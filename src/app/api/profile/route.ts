@@ -26,17 +26,19 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ profile: null }, { status: 200 });
     }
 
-    // Identify profile categories
+    // Identify profile categories (null-safe: optional fields may be missing)
     const profileCat = (profile as any).category || '';
+    const occupation = (profile.occupation ?? '').toLowerCase();
+    const income = profile.annualIncomeRange ?? '';
     const isSecondMarriage = profile.maritalStatus !== 'Single' || profileCat === 'second_marriage';
-    const isHighProfile = 
+    const isHighProfile =
       profileCat === 'high_profile' ||
-      profile.occupation.toLowerCase().includes('doctor') ||
-      profile.occupation.toLowerCase().includes('engineer') ||
-      profile.occupation.toLowerCase().includes('business') ||
-      profile.annualIncomeRange.includes('₹10 LPA') ||
-      profile.annualIncomeRange.includes('₹15 LPA') ||
-      profile.annualIncomeRange.includes('Above');
+      occupation.includes('doctor') ||
+      occupation.includes('engineer') ||
+      occupation.includes('business') ||
+      income.includes('₹10 LPA') ||
+      income.includes('₹15 LPA') ||
+      income.includes('Above');
 
     const isGoodProfile = profileCat === 'good_profile';
 

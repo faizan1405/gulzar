@@ -36,9 +36,9 @@ export default function SecondMarriageClient() {
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       return (
-        p.fullName.toLowerCase().includes(q) ||
-        p.occupation.toLowerCase().includes(q) ||
-        p.education.toLowerCase().includes(q) ||
+        (p.fullName ?? '').toLowerCase().includes(q) ||
+        (p.occupation ?? '').toLowerCase().includes(q) ||
+        (p.education ?? '').toLowerCase().includes(q) ||
         (p.city && p.city.toLowerCase().includes(q))
       );
     }

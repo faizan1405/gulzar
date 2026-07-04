@@ -93,10 +93,15 @@ export function canViewFullProfile(
 export function buildProfilePreview(profile: Record<string, unknown>) {
   const dob = profile.dateOfBirth ? new Date(profile.dateOfBirth as string) : null;
   const age = dob ? Math.floor((Date.now() - dob.getTime()) / (365.25 * 24 * 60 * 60 * 1000)) : null;
-  const bio = profile.bio as string | undefined;
+  const category = (profile.category as string) ?? 'normal';
+  // Premium categories are protected content: hide the name too. "normal"
+  // profiles expose the limited card (name, age, caste) to everyone.
+  const isPremiumCategory =
+    category === 'good_profile' || category === 'high_profile' || category === 'second_marriage';
 
   return {
     id: profile.id,
+    fullName: isPremiumCategory ? 'Protected Candidate Profile' : (profile.fullName ?? 'Protected Candidate Profile'),
     gender: profile.gender,
     age,
     city: profile.city ?? null,
@@ -104,10 +109,10 @@ export function buildProfilePreview(profile: Record<string, unknown>) {
     maslak: profile.maslak ?? null,
     biradari: profile.biradari ?? null,
     maritalStatus: profile.maritalStatus ?? null,
-    category: profile.category ?? 'normal',
+    category,
     verificationStatus: profile.verificationStatus,
     themeColor: profile.themeColor ?? null,
-    bio: bio ? bio.substring(0, 100) + (bio.length > 100 ? '...' : '') : null,
+    // No contact, education, occupation, income, precise location or photo.
     isLocked: true,
   };
 }

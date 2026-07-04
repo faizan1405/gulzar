@@ -6,63 +6,11 @@
 - Local:         http://localhost:3000
 - Network:       http://192.168.1.34:3000
 - Environments: .env
-✓ Ready in 2.9s
-Creating turbopack project {
-  dir: 'E:\\012\\Git Repos of Cleints\\Rishte Forever\\gulzar',
-  testMode: true
-}
+✓ Ready in 2.7s
 
 prisma:query db.GlobalSettings.aggregate([ { $limit: 1, }, { $project: { _id: 1, adminEmail: 1, adminPhone: 1, emailAlertsEnabled: 1, smsAlertsEnabled: 1, officeAddress: 1, facebookUrl: 1, instagramUrl: 1, youtubeUrl: 1, linkedinUrl: 1, twitterUrl: 1, defaultPreviewImage: 1, updatedAt: 1, }, }, ])
- GET / 200 in 884ms (next.js: 228ms, application-code: 656ms)
-prisma:query db.GlobalSettings.aggregate([ { $limit: 1, }, { $project: { _id: 1, adminEmail: 1, adminPhone: 1, emailAlertsEnabled: 1, smsAlertsEnabled: 1, officeAddress: 1, facebookUrl: 1, instagramUrl: 1, youtubeUrl: 1, linkedinUrl: 1, twitterUrl: 1, defaultPreviewImage: 1, updatedAt: 1, }, }, ])
- GET /premium 200 in 897ms (next.js: 687ms, application-code: 210ms)
-prisma:query db.GlobalSettings.aggregate([ { $limit: 1, }, { $project: { _id: 1, adminEmail: 1, adminPhone: 1, emailAlertsEnabled: 1, smsAlertsEnabled: 1, officeAddress: 1, facebookUrl: 1, instagramUrl: 1, youtubeUrl: 1, linkedinUrl: 1, twitterUrl: 1, defaultPreviewImage: 1, updatedAt: 1, }, }, ])
- GET /search 200 in 811ms (next.js: 665ms, application-code: 146ms)
- GET /api/admin/profiles 403 in 845ms (next.js: 587ms, application-code: 258ms)
+ GET / 200 in 1310ms (next.js: 533ms, application-code: 776ms)
 prisma:query db.User.aggregate([ { $limit: 1, }, { $project: { _id: 1, }, }, ])
 MongoDB connection active.
- POST /api/payment/order 401 in 771ms (next.js: 722ms, application-code: 49ms)
-prisma:query db.Lead.aggregate([ { $sort: { createdAt: -1, }, }, { $project: { _id: 1, fullName: 1, phone: 1, email: 1, city: 1, message: 1, inquiryType: 1, interestedPackage: 1, interestedProfileId: 1, sourcePage: 1, status: 1, priority: 1, adminNotes: 1, createdAt: 1, updatedAt: 1, }, }, ])
-prisma:query db.Lead.insertOne({ fullName: "Demo Test", phone: "9876543210", email: null, city: "Delhi", message: "Demo normal mode test", inquiryType: "General", interestedPackage: null, interestedProfileId: null, sourcePage: null, status: "new", priority: "normal", adminNotes: "", createdAt: DateTime("2026-07-03 18:44:07.213 +00:00:00"), updatedAt: DateTime("2026-07-03 18:44:07.213 +00:00:00"), })
-prisma:query db.Lead.aggregate([ { $match: { $expr: { $and: [ { $and: [ { $eq: [ "$_id", { $literal: ObjectId("6a4802f7d4e1df8bd667d8ce"), }, ], }, { $ne: [ "$_id", "$$REMOVE", ], }, ], }, ], }, }, }, { $project: { _id: 1, fullName: 1, phone: 1, email: 1, city: 1, message: 1, inquiryType: 1, interestedPackage: 1, interestedProfileId: 1, sourcePage: 1, status: 1, priority: 1, adminNotes: 1, createdAt: 1, updatedAt: 1, }, }, ])
- POST /api/leads 200 in 1069ms (next.js: 618ms, application-code: 451ms)
-prisma:query db.GlobalSettings.aggregate([ { $limit: 1, }, { $project: { _id: 1, adminEmail: 1, adminPhone: 1, emailAlertsEnabled: 1, smsAlertsEnabled: 1, officeAddress: 1, facebookUrl: 1, instagramUrl: 1, youtubeUrl: 1, linkedinUrl: 1, twitterUrl: 1, defaultPreviewImage: 1, updatedAt: 1, }, }, ])
-  Reload env: .env
- GET /api/categories 404 in 901ms (next.js: 775ms, application-code: 126ms)
- GET /api/categories 404 in 28ms (next.js: 3ms, application-code: 25ms)
- GET /api/categories 404 in 28ms (next.js: 6ms, application-code: 22ms)
- GET /api/categories 404 in 28ms (next.js: 4ms, application-code: 24ms)
- GET /api/categories 404 in 100ms (next.js: 5ms, application-code: 95ms)
- GET /api/categories 404 in 27ms (next.js: 2ms, application-code: 24ms)
- GET /api/categories 404 in 50ms (next.js: 5ms, application-code: 46ms)
- GET /api/categories 404 in 35ms (next.js: 4ms, application-code: 32ms)
- GET /api/categories 404 in 31ms (next.js: 4ms, application-code: 27ms)
- GET /api/categories 404 in 25ms (next.js: 2ms, application-code: 23ms)
- GET /api/categories 404 in 35ms (next.js: 4ms, application-code: 31ms)
- GET /api/categories 404 in 27ms (next.js: 2ms, application-code: 24ms)
- GET /api/categories 404 in 25ms (next.js: 3ms, application-code: 22ms)
- GET /api/categories 404 in 46ms (next.js: 4ms, application-code: 42ms)
- GET /api/categories 404 in 28ms (next.js: 4ms, application-code: 24ms)
- GET /api/categories 404 in 40ms (next.js: 4ms, application-code: 36ms)
- GET /api/categories 404 in 40ms (next.js: 5ms, application-code: 35ms)
- GET /api/categories 404 in 24ms (next.js: 2ms, application-code: 22ms)
- GET /api/categories 404 in 41ms (next.js: 4ms, application-code: 38ms)
- GET /api/categories 404 in 28ms (next.js: 4ms, application-code: 24ms)
- GET /api/categories 404 in 27ms (next.js: 3ms, application-code: 24ms)
- GET /api/categories 404 in 38ms (next.js: 4ms, application-code: 34ms)
- GET /api/categories 404 in 30ms (next.js: 2ms, application-code: 28ms)
- GET /api/categories 404 in 38ms (next.js: 4ms, application-code: 34ms)
- GET /api/categories 404 in 37ms (next.js: 5ms, application-code: 32ms)
- GET /api/categories 404 in 34ms (next.js: 9ms, application-code: 25ms)
- GET /api/categories 404 in 43ms (next.js: 4ms, application-code: 39ms)
- GET /api/categories 404 in 33ms (next.js: 12ms, application-code: 22ms)
- GET /api/categories 404 in 28ms (next.js: 2ms, application-code: 25ms)
- GET /api/categories 404 in 35ms (next.js: 2ms, application-code: 32ms)
-prisma:query db.GlobalSettings.aggregate([ { $limit: 1, }, { $project: { _id: 1, adminEmail: 1, adminPhone: 1, emailAlertsEnabled: 1, smsAlertsEnabled: 1, officeAddress: 1, facebookUrl: 1, instagramUrl: 1, youtubeUrl: 1, linkedinUrl: 1, twitterUrl: 1, defaultPreviewImage: 1, updatedAt: 1, }, }, ])
- GET / 200 in 561ms (next.js: 132ms, application-code: 429ms)
- GET /api/products 404 in 123ms (next.js: 42ms, application-code: 81ms)
-✓ Compiled in 393ms
-✓ Compiled in 1013ms
-✓ Compiled in 176ms
-✓ Compiled in 160ms
-✓ Compiled in 292ms
+prisma:query db.MatrimonialProfile.aggregate([ { $sort: { createdAt: -1, }, }, { $project: { _id: 1, userId: 1, fullName: 1, gender: 1, dateOfBirth: 1, maritalStatus: 1, phoneNumber: 1, city: 1, areaOrLocality: 1, state: 1, country: 1, latitude: 1, longitude: 1, education: 1, occupation: 1, annualIncomeRange: 1, familyInfo: 1, bio: 1, themeColor: 1, verificationStatus: 1, profileCompletionStatus: 1, adminApprovalStatus: 1, hasPaid: 1, maslak: 1, fiqh: 1, biradari: 1, biradariAliases: 1, district: 1, locality: 1, preferredLocations: 1, sameCastePreference: 1, sameMaslakPreference: 1, noCastePreference: 1, noMaslakPreference: 1, willingToRelocate: 1, category: 1, profileImageUrl: 1, profileImagePublicId: 1, profileImageStatus: 1, uploadedAt: 1, createdAt: 1, updatedAt: 1, }, }, ])
+ GET /api/profiles 200 in 392ms (next.js: 182ms, application-code: 211ms)

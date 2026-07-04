@@ -36,16 +36,19 @@ export const ProfileDetails: React.FC = () => {
 
 
   const profileCat = (selectedProfileForDetails as any).category || '';
-  
+
+  // Null-safe: locked payloads omit occupation/income entirely.
+  const occ = (selectedProfileForDetails.occupation ?? '').toLowerCase();
+  const inc = selectedProfileForDetails.annualIncomeRange ?? '';
   const isSecMarriage = selectedProfileForDetails.maritalStatus !== 'Single' || profileCat === 'second_marriage';
-  const isHighProf = 
+  const isHighProf =
     profileCat === 'high_profile' ||
-    selectedProfileForDetails.occupation.toLowerCase().includes('doctor') ||
-    selectedProfileForDetails.occupation.toLowerCase().includes('engineer') ||
-    selectedProfileForDetails.occupation.toLowerCase().includes('business') ||
-    selectedProfileForDetails.annualIncomeRange.includes('₹10 LPA') ||
-    selectedProfileForDetails.annualIncomeRange.includes('₹15 LPA') ||
-    selectedProfileForDetails.annualIncomeRange.includes('Above');
+    occ.includes('doctor') ||
+    occ.includes('engineer') ||
+    occ.includes('business') ||
+    inc.includes('₹10 LPA') ||
+    inc.includes('₹15 LPA') ||
+    inc.includes('Above');
   
   const isGoodProfile = profileCat === 'good_profile';
 

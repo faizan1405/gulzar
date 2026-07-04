@@ -11,7 +11,6 @@ export const Navbar: React.FC = () => {
   const router = useRouter();
   const {
     isLoggedIn,
-    setIsLoggedIn,
     setIsRegistering,
     setRegStep,
     setShowLoginModal,
@@ -20,10 +19,17 @@ export const Navbar: React.FC = () => {
   } = useApp();
 
   const handleRegisterFree = () => {
-    setIsLoggedIn(true);
-    setIsRegistering(true);
-    setRegStep(1);
-    router.push('/');
+    // Registration requires a real authenticated session (the profile is tied to
+    // the user's account server-side). Open the login modal so the user signs in
+    // with Google first — once authenticated the onboarding wizard opens
+    // automatically for anyone without a completed profile.
+    if (isLoggedIn) {
+      setIsRegistering(true);
+      setRegStep(1);
+      router.push('/');
+      return;
+    }
+    setShowLoginModal(true);
   };
 
   const handleLogout = async () => {

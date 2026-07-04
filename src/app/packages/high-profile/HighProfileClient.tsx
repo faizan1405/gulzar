@@ -28,26 +28,29 @@ export default function HighProfileClient() {
     router.push('/');
   };
 
-  // High Profile filtering
+  // High Profile filtering (null-safe: locked payloads omit occupation/education)
   const highProfiles = profiles.filter((p) => {
+    const occ = (p.occupation ?? '').toLowerCase();
+    const inc = p.annualIncomeRange ?? '';
     const isHighProfile =
       (p as any).category === 'high_profile' ||
-      p.occupation.toLowerCase().includes('doctor') ||
-      p.occupation.toLowerCase().includes('engineer') ||
-      p.occupation.toLowerCase().includes('business') ||
-      p.occupation.toLowerCase().includes('professional') ||
-      p.annualIncomeRange.includes('₹10 LPA') ||
-      p.annualIncomeRange.includes('₹15 LPA') ||
-      p.annualIncomeRange.includes('Above');
-      
+      (p as any).isLockedCategory === 'high_profile_package' ||
+      occ.includes('doctor') ||
+      occ.includes('engineer') ||
+      occ.includes('business') ||
+      occ.includes('professional') ||
+      inc.includes('₹10 LPA') ||
+      inc.includes('₹15 LPA') ||
+      inc.includes('Above');
+
     if (!isHighProfile) return false;
 
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       return (
-        p.fullName.toLowerCase().includes(q) ||
-        p.occupation.toLowerCase().includes(q) ||
-        p.education.toLowerCase().includes(q) ||
+        (p.fullName ?? '').toLowerCase().includes(q) ||
+        occ.includes(q) ||
+        (p.education ?? '').toLowerCase().includes(q) ||
         (p.city && p.city.toLowerCase().includes(q))
       );
     }

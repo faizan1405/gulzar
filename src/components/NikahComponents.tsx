@@ -279,18 +279,22 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
     || profileCat === 'second_marriage'
     || isLockedCategory === 'second_marriage_package';
 
+  // Null-safe — locked payloads omit occupation/income entirely.
+  const occ = (profile.occupation ?? '').toLowerCase();
+  const inc = profile.annualIncomeRange ?? '';
+
   const isHighProf =
     profileCat === 'high_profile'
     || isLockedCategory === 'high_profile_package'
     || (!isLockedCategory && (
-      profile.occupation.toLowerCase().includes('doctor') ||
-      profile.occupation.toLowerCase().includes('engineer') ||
-      profile.occupation.toLowerCase().includes('business') ||
-      profile.occupation.toLowerCase().includes('professional') ||
-      profile.annualIncomeRange.includes('₹10 LPA') ||
-      profile.annualIncomeRange.includes('₹12 LPA') ||
-      profile.annualIncomeRange.includes('₹15 LPA') ||
-      profile.annualIncomeRange.includes('Above')
+      occ.includes('doctor') ||
+      occ.includes('engineer') ||
+      occ.includes('business') ||
+      occ.includes('professional') ||
+      inc.includes('₹10 LPA') ||
+      inc.includes('₹12 LPA') ||
+      inc.includes('₹15 LPA') ||
+      inc.includes('Above')
     ));
 
   const isGoodProfile = profileCat === 'good_profile' || isLockedCategory === 'good_profile_package';
@@ -299,9 +303,6 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
   const hasSecMarriageAccess = activePackages.includes('second_marriage_package');
   const hasHighProfAccess = activePackages.includes('high_profile_package') && highProfileApproved;
   const hasGoodProfileAccess = activePackages.includes('good_profile_package');
-
-  // Photo visible only when logged in
-  const photoVisible = isLoggedIn;
 
   // Contact phone shown only to paid members with unlocked category
   const contactVisible = hasPaidMonthly && !isLockedCategory;
@@ -329,6 +330,11 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
     showUpgradeCta = true;
   }
 
+  // Real candidate photo is shown only once the card is fully unlocked for this
+  // viewer (owner/admin, or an active member with the right package). Everyone
+  // else — guests and logged-in members without access — sees "Photo Private".
+  const photoVisible = !showUpgradeCta;
+
   const themeClass = getThemeClass(profile.themeColor);
   const isSaved = savedProfiles.includes(profile.id);
 
@@ -344,11 +350,14 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
     if (m < 0 || (m === 0 && today.getDate() < dobDate.getDate())) age--;
   }
 
-  // Display name: show profile code when server has locked the name
+  // Display name: guests and members alike may see the candidate's name (part of
+  // the allowed limited card). Only show a profile code when the SERVER has
+  // withheld the name — i.e. protected premium-category profiles.
   const isServerLocked =
-    profile.fullName === 'Profile Locked'
+    !profile.fullName
+    || profile.fullName === 'Profile Locked'
     || profile.fullName.includes('(Locked)');
-  const displayName = isLoggedIn && !isServerLocked
+  const displayName = !isServerLocked
     ? profile.fullName
     : `Profile #RF-${String(index + 1).padStart(3, '0')}`;
 
