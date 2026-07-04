@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { usePathname } from 'next/navigation';
 import { useApp } from '../context/AppContext';
 import MatrimonialRegistrationForm from './MatrimonialRegistrationForm';
-import { FloralCorner } from './NikahComponents';
+
 
 export default function RegistrationPopup() {
   const pathname = usePathname();
@@ -199,10 +199,7 @@ export default function RegistrationPopup() {
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        <FloralCorner position="tl" color="var(--gold-accent)" />
-        <FloralCorner position="tr" color="var(--gold-accent)" />
-        <FloralCorner position="bl" color="var(--gold-accent)" />
-        <FloralCorner position="br" color="var(--gold-accent)" />
+
 
         {/* Modal Header */}
         <div

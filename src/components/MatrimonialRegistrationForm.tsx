@@ -4,7 +4,7 @@ import React from 'react';
 import { useApp } from '../context/AppContext';
 import SearchableCombobox from './SearchableCombobox';
 import { DEFAULT_FIQHS } from '../lib/masterData';
-import { FloralCorner } from './NikahComponents';
+
 import RegistrationFormHeroImage from './RegistrationFormHeroImage';
 
 // Theme options matching original config
@@ -85,16 +85,9 @@ export default function MatrimonialRegistrationForm({
   return (
     <div
       className={`card-theme-wrapper reg-wizard-card ${isModal ? 'border-0 shadow-none p-0' : ''}`}
-      style={isModal ? { padding: 0, boxShadow: 'none', border: 'none', backgroundColor: 'transparent' } : undefined}
+      style={isModal ? { padding: 0, boxShadow: 'none', border: 'none', backgroundColor: 'transparent' } : { paddingTop: '16px' }}
     >
-      {!isModal && (
-        <>
-          <FloralCorner position="tl" color="var(--gold-accent)" />
-          <FloralCorner position="tr" color="var(--gold-accent)" />
-          <FloralCorner position="bl" color="var(--gold-accent)" />
-          <FloralCorner position="br" color="var(--gold-accent)" />
-        </>
-      )}
+
 
       <RegistrationFormHeroImage />
 
