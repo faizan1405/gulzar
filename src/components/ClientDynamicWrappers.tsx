@@ -6,3 +6,4 @@ export const ProfileDetails = dynamic(() => import("./ProfileDetails"), { ssr: f
 export const ChatbotWidget = dynamic(() => import("./ChatbotWidget"), { ssr: false });
 export const CallButton = dynamic(() => import("./CallButton"), { ssr: false });
 export const WhatsAppButton = dynamic(() => import("./WhatsAppButton"), { ssr: false });
+export const RegistrationPopup = dynamic(() => import("./RegistrationPopup"), { ssr: false });

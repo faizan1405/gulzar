@@ -7,6 +7,22 @@ import Navbar from '../../components/Navbar';
 import Image from 'next/image';
 import { SectionHeading, FloralCorner, PremiumFooter } from '../../components/NikahComponents';
 
+// Edit leadership names, roles, and bios here — single source for the About page leadership section.
+const leadershipTeam = [
+  {
+    initials: 'AG',
+    name: 'Abdulla Gulzar',
+    role: 'Founder & CEO',
+    bio: 'Abdulla Gulzar founded Rishte Forever with a clear vision: to restore dignity, sincerity, and family values to the matrimonial search. His leadership is guided by a deep commitment to Shariah-compliant practices and a belief that every match deserves the same care as a family introduction, shaping the platform into a trusted space for serious, marriage-minded individuals.',
+  },
+  {
+    initials: 'GT',
+    name: 'Ghayasma Tabassum',
+    role: 'Managing Director',
+    bio: 'Ghayasma Tabassum leads the day-to-day management and operations of Rishte Forever, ensuring every member enjoys a smooth, respectful, and trustworthy experience. Her focus on operational excellence and customer care has been instrumental in building lasting trust within the community and steering the platform toward sustainable, meaningful growth.',
+  },
+];
+
 export default function AboutClient() {
   const router = useRouter();
 
@@ -58,6 +74,26 @@ export default function AboutClient() {
               <p>
                 We pray that Allah blesses your matchmaking journey and grants you a compatible, righteous life partner.
               </p>
+            </div>
+          </div>
+
+          <div style={{ maxWidth: '900px', margin: '80px auto 0 auto' }}>
+            <SectionHeading
+              title="Meet Our Leadership"
+              subtitle="Guided by vision, trust, and an unwavering commitment to meaningful relationships."
+              scriptText="Our Leadership"
+              as="h2"
+            />
+            <div className="leadership-grid">
+              {leadershipTeam.map((leader) => (
+                <div className="leadership-card" key={leader.initials}>
+                  <div className="leadership-badge">{leader.initials}</div>
+                  <h4 className="leadership-name">{leader.name}</h4>
+                  <p className="leadership-role">{leader.role}</p>
+                  <div className="leadership-divider" />
+                  <p className="leadership-bio">{leader.bio}</p>
+                </div>
+              ))}
             </div>
           </div>
         </div>
