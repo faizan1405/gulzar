@@ -411,6 +411,7 @@ export async function upsertProfile(
     noMaslakPreference?: boolean;
     willingToRelocate?: boolean;
     category?: string | null;
+    partnerPref?: string | null;
   }
 ) {
   const isDb = await testDbConnection();
@@ -488,6 +489,7 @@ export async function upsertProfile(
     noMaslakPreference: data.noMaslakPreference ?? false,
     willingToRelocate: data.willingToRelocate ?? false,
     category: data.category ?? 'normal',
+    partnerPref: data.partnerPref ?? null,
   };
 
   if (existingIndex > -1 && globalStore.inMemoryProfiles) {

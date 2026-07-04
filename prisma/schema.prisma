@@ -122,6 +122,7 @@ model MatrimonialProfile {
   noMaslakPreference      Boolean                 @default(false)
   willingToRelocate       Boolean                 @default(false)
   category                String                  @default("normal")
+  partnerPref             String?
 
   // Profile Media
   profileImageUrl         String?

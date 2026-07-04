@@ -176,7 +176,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ success: true, profile });
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Internal Server Error';
-    return NextResponse.json({ error: errorMessage }, { status: 500 });
+    console.error('Profile upsert failed:', error);
+    return NextResponse.json({ error: 'Unable to save your profile. Please try again.' }, { status: 500 });
   }
 }
