@@ -15,6 +15,7 @@ export default function MyAccountPage() {
     isLoading,
     userProfile,
     setUserProfile,
+    accountData,
     profileLoadError,
     hasPaidSubscription,
     activePackages,
@@ -33,16 +34,6 @@ export default function MyAccountPage() {
       router.push('/');
     }
   }, [authChecked, isLoggedIn, router]);
-
-  // Logged in but no matrimonial profile yet (new account never finished the
-  // registration wizard) — send them there instead of hanging on "Loading...".
-  useEffect(() => {
-    if (authChecked && isLoggedIn && !isLoading && !userProfile && !profileLoadError) {
-      setIsRegistering(true);
-      setRegStep(1);
-      router.push('/');
-    }
-  }, [authChecked, isLoggedIn, isLoading, userProfile, profileLoadError, setIsRegistering, setRegStep, router]);
 
   const handleEditProfile = () => {
     setIsRegistering(true);
@@ -138,19 +129,6 @@ export default function MyAccountPage() {
     );
   }
 
-  // Logged in, no load error, but no profile yet — the effect above is
-  // already redirecting to the registration wizard.
-  if (!userProfile) {
-    return (
-      <>
-        <Navbar />
-        <main className="flex-grow flex items-center justify-center min-h-[50vh]">
-          <p>Redirecting to profile setup…</p>
-        </main>
-      </>
-    );
-  }
-
   return (
     <>
       <Navbar />
@@ -159,7 +137,8 @@ export default function MyAccountPage() {
           <SectionHeading
             title="My Account"
             scriptText="Welcome"
-            subtitle={`Salaam, ${userProfile.fullName}. Manage your profile and preferences.`}
+            subtitle={`Salaam, ${userProfile?.fullName || accountData?.name || 'Customer'}. Manage your profile and preferences.`}
+            as="h1"
           />
 
           <div style={{
@@ -168,6 +147,53 @@ export default function MyAccountPage() {
             gap: '24px',
             marginTop: '40px'
           }}>
+            {/* Account Details Card */}
+            <div style={{
+              backgroundColor: 'white',
+              borderRadius: '16px',
+              padding: '24px',
+              boxShadow: 'var(--shadow-card)',
+              border: '1px solid var(--border-color)',
+            }}>
+              <h3 style={{ fontSize: '20px', color: 'var(--primary-dark)', marginBottom: '16px' }}>Account Information</h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', borderBottom: '1px solid #eee', paddingBottom: '8px' }}>
+                  <span style={{ color: 'var(--text-secondary)', fontSize: '12px' }}>Full Name</span>
+                  <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
+                    {userProfile?.fullName || accountData?.name || 'Not provided'}
+                  </span>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', borderBottom: '1px solid #eee', paddingBottom: '8px' }}>
+                  <span style={{ color: 'var(--text-secondary)', fontSize: '12px' }}>Email Address</span>
+                  <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
+                    {accountData?.email || 'Not provided'}
+                  </span>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', borderBottom: '1px solid #eee', paddingBottom: '8px' }}>
+                  <span style={{ color: 'var(--text-secondary)', fontSize: '12px' }}>Phone Number</span>
+                  <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
+                    {userProfile?.phoneNumber || 'Profile not completed'}
+                  </span>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', borderBottom: '1px solid #eee', paddingBottom: '8px' }}>
+                  <span style={{ color: 'var(--text-secondary)', fontSize: '12px' }}>Account Created</span>
+                  <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
+                    {accountData?.createdAt 
+                      ? new Date(accountData.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) 
+                      : 'Not provided'}
+                  </span>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                  <span style={{ color: 'var(--text-secondary)', fontSize: '12px' }}>Login Method</span>
+                  <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
+                    {accountData?.providers && accountData.providers.length > 0 
+                      ? accountData.providers.map((p: string) => p.charAt(0).toUpperCase() + p.slice(1)).join(', ') 
+                      : 'Google'}
+                  </span>
+                </div>
+              </div>
+            </div>
+
             {/* Profile Status Card */}
             <div style={{
               backgroundColor: 'white',
@@ -182,29 +208,29 @@ export default function MyAccountPage() {
                   <span style={{ color: 'var(--text-secondary)' }}>Verification</span>
                   <span style={{ 
                     fontWeight: 600,
-                    color: userProfile.verificationStatus === 'APPROVED' ? 'var(--primary-brand)' : 
-                           userProfile.verificationStatus === 'REJECTED' ? 'red' : '#d97706'
+                    color: userProfile?.verificationStatus === 'APPROVED' ? 'var(--primary-brand)' : 
+                           userProfile?.verificationStatus === 'REJECTED' ? 'red' : '#d97706'
                   }}>
-                    {userProfile.verificationStatus}
+                    {userProfile ? userProfile.verificationStatus : 'Profile not completed'}
                   </span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #eee', paddingBottom: '8px' }}>
                   <span style={{ color: 'var(--text-secondary)' }}>Profile Completeness</span>
-                  <span style={{ fontWeight: 600 }}>{userProfile.profileCompletionStatus}</span>
+                  <span style={{ fontWeight: 600 }}>{userProfile ? userProfile.profileCompletionStatus : 'INCOMPLETE'}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                   <span style={{ color: 'var(--text-secondary)' }}>Current Category</span>
                   <span style={{ fontWeight: 600, textTransform: 'capitalize' }}>
-                    {(userProfile as any).category?.replace('_', ' ') || 'Normal'}
+                    {userProfile ? (userProfile as any).category?.replace('_', ' ') || 'Normal' : 'Normal'}
                   </span>
                 </div>
               </div>
               <button 
                 onClick={handleEditProfile}
-                className="btn btn-secondary w-full" 
+                className={userProfile ? "btn btn-secondary w-full" : "btn btn-primary w-full"} 
                 style={{ marginTop: '24px' }}
               >
-                Edit Profile Information
+                {userProfile ? 'Edit Profile Information' : 'Complete Profile'}
               </button>
             </div>
 
@@ -229,7 +255,7 @@ export default function MyAccountPage() {
                   overflow: 'hidden',
                   border: '2px dashed var(--border-color)'
                 }}>
-                  {userProfile.profileImageUrl ? (
+                  {userProfile?.profileImageUrl ? (
                     <Image src={userProfile.profileImageUrl} alt="Profile" width={120} height={120} style={{ objectFit: 'cover' }} />
                   ) : (
                     <span style={{ fontSize: '32px', color: 'var(--text-muted)' }}>📷</span>
@@ -238,21 +264,24 @@ export default function MyAccountPage() {
 
                 <div style={{ textAlign: 'center', width: '100%' }}>
                   <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '8px' }}>
-                    {(userProfile as any).profileImageStatus === 'PENDING' ? 'Your photo is pending admin approval.' : 
+                    {!userProfile ? 'Complete your profile to upload a photo.' :
+                     (userProfile as any).profileImageStatus === 'PENDING' ? 'Your photo is pending admin approval.' : 
                      (userProfile as any).profileImageStatus === 'REJECTED' ? 'Your previous photo was rejected.' : 
                      'Upload a clear, front-facing photo.'}
                   </p>
                   
-                  <label className="btn btn-secondary" style={{ display: 'inline-block', cursor: 'pointer', opacity: uploading ? 0.7 : 1 }}>
-                    {uploading ? 'Uploading...' : 'Choose Photo'}
-                    <input 
-                      type="file" 
-                      accept="image/jpeg,image/png,image/webp" 
-                      onChange={handlePhotoUpload} 
-                      disabled={uploading}
-                      style={{ display: 'none' }} 
-                    />
-                  </label>
+                  {userProfile && (
+                    <label className="btn btn-secondary" style={{ display: 'inline-block', cursor: 'pointer', opacity: uploading ? 0.7 : 1 }}>
+                      {uploading ? 'Uploading...' : 'Choose Photo'}
+                      <input 
+                        type="file" 
+                        accept="image/jpeg,image/png,image/webp" 
+                        onChange={handlePhotoUpload} 
+                        disabled={uploading}
+                        style={{ display: 'none' }} 
+                      />
+                    </label>
+                  )}
                   
                   {uploadError && <p style={{ color: 'red', fontSize: '12px', marginTop: '12px' }}>{uploadError}</p>}
                   {uploadSuccess && <p style={{ color: 'green', fontSize: '12px', marginTop: '12px' }}>{uploadSuccess}</p>}

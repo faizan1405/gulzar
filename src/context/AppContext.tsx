@@ -55,6 +55,13 @@ interface AppContextType {
   // Current User Profile Form & Registration State
   userProfile: Profile | null;
   setUserProfile: (val: Profile | null) => void;
+  accountData: {
+    name?: string | null;
+    email?: string | null;
+    phone?: string | null;
+    createdAt?: string | Date | null;
+    providers?: string[];
+  } | null;
   isRegistering: boolean;
   setIsRegistering: (val: boolean) => void;
   regStep: number;
@@ -170,6 +177,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [selectedProfileForDetails, setSelectedProfileForDetails] = useState<Profile | null>(null);
 
   const [userProfile, setUserProfile] = useState<Profile | null>(null);
+  const [accountData, setAccountData] = useState<any>(null);
   const [isRegistering, setIsRegistering] = useState(false);
   const [regStep, setRegStep] = useState(1);
   const [registrationError, setRegistrationError] = useState('');
@@ -246,6 +254,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             throw new Error(`Unable to load your profile (status ${res.status}).`);
           }
           const data = await res.json();
+          if (data.user) {
+            setAccountData(data.user);
+          }
           if (data.profile) {
             setUserProfile(data.profile);
             setFormData({
@@ -282,13 +293,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
               familyOrigin: data.profile.familyOrigin || '',
             });
 
-            // If profile exists but is incomplete, show the registration wizard
-            if (data.profile.profileCompletionStatus !== 'COMPLETE') {
-              setIsRegistering(true);
-              setRegStep(1);
-            } else {
-              setIsRegistering(false);
-            }
+            // Even if profile exists but is incomplete, do NOT automatically open the wizard
+            setIsRegistering(false);
 
             // Sync active packages from DB into state (so page-refresh preserves access)
             try {
@@ -305,11 +311,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             }
           } else {
             setUserProfile(null);
-            setIsRegistering(true);
-            setRegStep(1);
+            setIsRegistering(false);
           }
         } else {
           setUserProfile(null);
+          setAccountData(null);
           setIsRegistering(false);
         }
 
@@ -778,6 +784,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
         userProfile,
         setUserProfile,
+        accountData,
         isRegistering,
         setIsRegistering,
         regStep,

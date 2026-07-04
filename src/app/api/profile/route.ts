@@ -23,8 +23,43 @@ export async function GET(req: NextRequest) {
 
     const profile = await getProfileByUserId(targetUserId);
 
+    // Fetch user details from database to include in response, handling database-offline gracefully
+    let userDetails = null;
+    const isDb = await testDbConnection();
+    if (isDb) {
+      try {
+        const user = await prisma.user.findUnique({
+          where: { id: targetUserId },
+          include: { accounts: true }
+        });
+        if (user) {
+          userDetails = {
+            name: user.name,
+            email: user.email,
+            createdAt: user.createdAt.toISOString(),
+            providers: user.accounts.map(a => a.provider)
+          };
+        }
+      } catch (e) {
+        console.error('Failed to fetch user details:', e);
+      }
+    }
+
+    if (!userDetails && !isDb) {
+      // In-memory fallback/demo details
+      userDetails = {
+        name: session?.user?.name || 'Demo User',
+        email: session?.user?.email || 'demo@example.com',
+        createdAt: new Date().toISOString(),
+        providers: ['google']
+      };
+    }
+
     if (!profile) {
-      return NextResponse.json({ profile: null }, { status: 200 });
+      return NextResponse.json({ 
+        profile: null,
+        user: userDetails
+      }, { status: 200 });
     }
 
     // Identify profile category strictly from the stable, admin-assigned
@@ -75,6 +110,7 @@ export async function GET(req: NextRequest) {
       isSecondMarriage,
       isHighProfile,
       isGoodProfile,
+      user: userDetails,
     });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Internal Server Error';
