@@ -62,7 +62,7 @@ export const Navbar: React.FC = () => {
             <nav className="nav-menu-desktop">
               <ul className="nav-menu">
                 <li>
-                  <Link href="/" className={`nav-link ${pathname === '/' ? 'active' : ''}`}>
+                  <Link href="/" className={`nav-link ${pathname === '/' ? 'active' : ''}`} onClick={() => setIsRegistering(false)}>
                     <svg className="nav-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
                       <polyline points="9 22 9 12 15 12 15 22"></polyline>
@@ -71,7 +71,7 @@ export const Navbar: React.FC = () => {
                   </Link>
                 </li>
                 <li>
-                  <Link href="/search" className={`nav-link ${pathname === '/search' ? 'active' : ''}`}>
+                  <Link href="/search" className={`nav-link ${pathname === '/search' ? 'active' : ''}`} onClick={() => setIsRegistering(false)}>
                     <svg className="nav-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <circle cx="11" cy="11" r="8"></circle>
                       <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
@@ -80,7 +80,7 @@ export const Navbar: React.FC = () => {
                   </Link>
                 </li>
                 <li>
-                  <Link href="/how-it-works" className={`nav-link ${pathname === '/how-it-works' ? 'active' : ''}`}>
+                  <Link href="/how-it-works" className={`nav-link ${pathname === '/how-it-works' ? 'active' : ''}`} onClick={() => setIsRegistering(false)}>
                     <svg className="nav-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <circle cx="12" cy="12" r="10"></circle>
                       <line x1="12" y1="16" x2="12" y2="12"></line>
@@ -103,7 +103,7 @@ export const Navbar: React.FC = () => {
               <path d="M 136,5 L 140,0 L 144,5 Z" fill="var(--gold-accent)" />
             </svg>
             <div className="logo-arch-content">
-              <Link href="/" className="logo-link" id="header-logo-link">
+              <Link href="/" className="logo-link" id="header-logo-link" onClick={() => setIsRegistering(false)}>
                 <Image
                   src="/images/rishte-forever-logo.png"
                   alt="Rishte Forever — Where Faith Meets Forever"
@@ -121,7 +121,7 @@ export const Navbar: React.FC = () => {
             <nav className="nav-menu-desktop">
               <ul className="nav-menu">
                 <li>
-                  <Link href="/premium" className={`nav-link ${pathname === '/premium' ? 'active' : ''}`}>
+                  <Link href="/premium" className={`nav-link ${pathname === '/premium' ? 'active' : ''}`} onClick={() => setIsRegistering(false)}>
                     <svg className="nav-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M2 4l3 12h14l3-12-6 7-4-7-4 7-6-7z"></path>
                       <path d="M3 20h18a1 1 0 0 0 1-1v-1a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1z"></path>
@@ -130,7 +130,7 @@ export const Navbar: React.FC = () => {
                   </Link>
                 </li>
                 <li>
-                  <Link href="/safety" className={`nav-link ${pathname === '/safety' ? 'active' : ''}`}>
+                  <Link href="/safety" className={`nav-link ${pathname === '/safety' ? 'active' : ''}`} onClick={() => setIsRegistering(false)}>
                     <svg className="nav-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
                     </svg>
@@ -138,7 +138,7 @@ export const Navbar: React.FC = () => {
                   </Link>
                 </li>
                 <li>
-                  <Link href="/zaicha" className={`nav-link nav-link-zaicha ${pathname === '/zaicha' ? 'active' : ''}`}>
+                  <Link href="/zaicha" className={`nav-link nav-link-zaicha ${pathname === '/zaicha' ? 'active' : ''}`} onClick={() => setIsRegistering(false)}>
                     <svg className="nav-icon animate-star" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
                     </svg>
@@ -146,7 +146,7 @@ export const Navbar: React.FC = () => {
                   </Link>
                 </li>
                 <li>
-                  <Link href="/event-management" className={`nav-link ${pathname === '/event-management' ? 'active' : ''}`}>
+                  <Link href="/event-management" className={`nav-link ${pathname === '/event-management' ? 'active' : ''}`} onClick={() => setIsRegistering(false)}>
                     <svg className="nav-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
                       <path d="M9 22V12h6v10"></path>
@@ -164,6 +164,7 @@ export const Navbar: React.FC = () => {
                 <Link
                   href="/my-account"
                   className="btn btn-secondary nav-btn"
+                  onClick={() => setIsRegistering(false)}
                 >
                   <svg className="btn-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
@@ -253,7 +254,10 @@ export const Navbar: React.FC = () => {
             <hr style={{ borderColor: 'var(--border-color)' }} />
             <Link
               href="/"
-              onClick={() => setIsMobileMenuOpen(false)}
+              onClick={() => {
+                setIsRegistering(false);
+                setIsMobileMenuOpen(false);
+              }}
               style={{
                 padding: '10px 16px',
                 fontWeight: '700',
@@ -270,7 +274,10 @@ export const Navbar: React.FC = () => {
             </Link>
             <Link
               href="/search"
-              onClick={() => setIsMobileMenuOpen(false)}
+              onClick={() => {
+                setIsRegistering(false);
+                setIsMobileMenuOpen(false);
+              }}
               style={{
                 padding: '10px 16px',
                 fontWeight: '700',
@@ -287,7 +294,10 @@ export const Navbar: React.FC = () => {
             </Link>
             <Link
               href="/how-it-works"
-              onClick={() => setIsMobileMenuOpen(false)}
+              onClick={() => {
+                setIsRegistering(false);
+                setIsMobileMenuOpen(false);
+              }}
               style={{
                 padding: '10px 16px',
                 fontWeight: '700',
@@ -304,7 +314,10 @@ export const Navbar: React.FC = () => {
             </Link>
             <Link
               href="/premium"
-              onClick={() => setIsMobileMenuOpen(false)}
+              onClick={() => {
+                setIsRegistering(false);
+                setIsMobileMenuOpen(false);
+              }}
               style={{
                 padding: '10px 16px',
                 fontWeight: '700',
@@ -321,7 +334,10 @@ export const Navbar: React.FC = () => {
             </Link>
             <Link
               href="/safety"
-              onClick={() => setIsMobileMenuOpen(false)}
+              onClick={() => {
+                setIsRegistering(false);
+                setIsMobileMenuOpen(false);
+              }}
               style={{
                 padding: '10px 16px',
                 fontWeight: '700',
@@ -338,7 +354,10 @@ export const Navbar: React.FC = () => {
             </Link>
             <Link
               href="/zaicha"
-              onClick={() => setIsMobileMenuOpen(false)}
+              onClick={() => {
+                setIsRegistering(false);
+                setIsMobileMenuOpen(false);
+              }}
               style={{
                 padding: '10px 16px',
                 fontWeight: '700',
@@ -355,7 +374,10 @@ export const Navbar: React.FC = () => {
             </Link>
             <Link
               href="/event-management"
-              onClick={() => setIsMobileMenuOpen(false)}
+              onClick={() => {
+                setIsRegistering(false);
+                setIsMobileMenuOpen(false);
+              }}
               style={{
                 padding: '10px 16px',
                 fontWeight: '700',
@@ -374,7 +396,10 @@ export const Navbar: React.FC = () => {
             {isLoggedIn && (
               <Link
                 href="/my-account"
-                onClick={() => setIsMobileMenuOpen(false)}
+                onClick={() => {
+                  setIsRegistering(false);
+                  setIsMobileMenuOpen(false);
+                }}
                 className="btn btn-secondary"
                 style={{ width: '100%', textAlign: 'center', display: 'block' }}
               >

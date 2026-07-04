@@ -372,7 +372,10 @@ export default function MyAccountPage() {
           </div>
         </div>
       </main>
-      <PremiumFooter onNavigate={(view) => router.push(`/${view === 'home' ? '' : view}`)} />
+      <PremiumFooter onNavigate={(view) => {
+        if (view === 'home') setIsRegistering(false);
+        router.push(`/${view === 'home' ? '' : view}`);
+      }} />
     </>
   );
 }
