@@ -5,6 +5,7 @@ import { useApp } from '../context/AppContext';
 import SearchableCombobox from './SearchableCombobox';
 import { DEFAULT_FIQHS } from '../lib/masterData';
 import { FloralCorner } from './NikahComponents';
+import RegistrationFormHeroImage from './RegistrationFormHeroImage';
 
 // Theme options matching original config
 const THEME_COLORS = [
@@ -94,6 +95,8 @@ export default function MatrimonialRegistrationForm({
           <FloralCorner position="br" color="var(--gold-accent)" />
         </>
       )}
+
+      <RegistrationFormHeroImage />
 
       <div style={{ textAlign: 'center', marginBottom: '24px' }}>
         <span className="script-accent" style={{ display: 'block', marginBottom: '4px' }}>Bismillah</span>
