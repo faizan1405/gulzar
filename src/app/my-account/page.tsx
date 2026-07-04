@@ -4,19 +4,45 @@ import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { useApp } from '../../context/AppContext';
 import Navbar from '../../components/Navbar';
-import { SectionHeading, PremiumFooter, DecorativeArch } from '../../components/NikahComponents';
+import { SectionHeading, PremiumFooter } from '../../components/NikahComponents';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 export default function MyAccountPage() {
-  const { isLoggedIn, userProfile, hasPaidSubscription, activePackages, setIsRegistering, setRegStep } = useApp();
+  const {
+    isLoggedIn,
+    authChecked,
+    isLoading,
+    userProfile,
+    setUserProfile,
+    profileLoadError,
+    hasPaidSubscription,
+    activePackages,
+    setIsRegistering,
+    setRegStep,
+    setReloadTrigger,
+  } = useApp();
   const router = useRouter();
 
+  // isLoggedIn starts false on every mount/refresh until the async session
+  // check resolves, so wait for authChecked before treating it as "logged
+  // out" — otherwise a direct visit/refresh always bounces a logged-in user
+  // back home before their session is even confirmed.
   useEffect(() => {
-    if (!isLoggedIn) {
+    if (authChecked && !isLoggedIn) {
       router.push('/');
     }
-  }, [isLoggedIn, router]);
+  }, [authChecked, isLoggedIn, router]);
+
+  // Logged in but no matrimonial profile yet (new account never finished the
+  // registration wizard) — send them there instead of hanging on "Loading...".
+  useEffect(() => {
+    if (authChecked && isLoggedIn && !isLoading && !userProfile && !profileLoadError) {
+      setIsRegistering(true);
+      setRegStep(1);
+      router.push('/');
+    }
+  }, [authChecked, isLoggedIn, isLoading, userProfile, profileLoadError, setIsRegistering, setRegStep, router]);
 
   const handleEditProfile = () => {
     setIsRegistering(true);
@@ -55,11 +81,10 @@ export default function MyAccountPage() {
       }
 
       setUploadSuccess(data.message || 'Photo uploaded successfully!');
-      
+
       // Update local profile state
       if (userProfile) {
-        (userProfile as any).profileImageUrl = data.url;
-        (userProfile as any).profileImageStatus = 'PENDING';
+        setUserProfile({ ...userProfile, profileImageUrl: data.url, profileImageStatus: 'PENDING' });
       }
     } catch (err: any) {
       setUploadError(err.message || 'An error occurred during upload.');
@@ -68,12 +93,59 @@ export default function MyAccountPage() {
     }
   };
 
-  if (!isLoggedIn || !userProfile) {
+  const handleRetry = () => setReloadTrigger((prev) => prev + 1);
+
+  // Still confirming the session, or actively fetching account data — both
+  // are bounded by AppContext's loadAllData finally block.
+  if (!authChecked || (isLoggedIn && isLoading)) {
     return (
       <>
         <Navbar />
         <main className="flex-grow flex items-center justify-center min-h-[50vh]">
           <p>Loading...</p>
+        </main>
+      </>
+    );
+  }
+
+  // Confirmed logged out — the effect above is already redirecting home.
+  if (!isLoggedIn) {
+    return (
+      <>
+        <Navbar />
+        <main className="flex-grow flex items-center justify-center min-h-[50vh]">
+          <p>Redirecting…</p>
+        </main>
+      </>
+    );
+  }
+
+  // Account data failed to load (server/network error) — offer a retry
+  // instead of hanging on "Loading..." forever.
+  if (profileLoadError) {
+    return (
+      <>
+        <Navbar />
+        <main className="flex-grow flex items-center justify-center min-h-[50vh]">
+          <div style={{ textAlign: 'center' }}>
+            <p style={{ color: 'red', marginBottom: '16px' }}>
+              We couldn&apos;t load your account. {profileLoadError}
+            </p>
+            <button className="btn btn-secondary" onClick={handleRetry}>Retry</button>
+          </div>
+        </main>
+      </>
+    );
+  }
+
+  // Logged in, no load error, but no profile yet — the effect above is
+  // already redirecting to the registration wizard.
+  if (!userProfile) {
+    return (
+      <>
+        <Navbar />
+        <main className="flex-grow flex items-center justify-center min-h-[50vh]">
+          <p>Redirecting to profile setup…</p>
         </main>
       </>
     );

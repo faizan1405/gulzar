@@ -41,6 +41,8 @@ interface AppContextType {
   setIsMobileMenuOpen: (val: boolean) => void;
   isLoading: boolean;
   setIsLoading: (val: boolean) => void;
+  authChecked: boolean;
+  profileLoadError: string;
 
   // Profile List / Search Filters / Details
   profiles: Profile[];
@@ -151,6 +153,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [reloadTrigger, setReloadTrigger] = useState(0);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  // Becomes true once the initial /api/auth/session probe resolves — lets
+  // pages tell "still checking whether you're logged in" apart from
+  // "confirmed logged out" (isLoggedIn starts false either way).
+  const [authChecked, setAuthChecked] = useState(false);
+  const [profileLoadError, setProfileLoadError] = useState('');
 
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [savedProfiles, setSavedProfiles] = useState<string[]>([]);
@@ -207,20 +214,31 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         }
       } catch {
         // no session — stay logged out
+      } finally {
+        setAuthChecked(true);
       }
     }
 
     detectRealSession();
   }, []);
 
-  // Fetch all data
+  // Fetch all data. Waits for the initial session probe (authChecked) so this
+  // never runs with a stale, not-yet-resolved isLoggedIn value — otherwise a
+  // logged-in user's data briefly resolves as "logged out", flips back once
+  // the real session lands, and any page gating on that first pass mis-fires.
   useEffect(() => {
+    if (!authChecked) return;
+
     async function loadAllData() {
       setIsLoading(true);
+      setProfileLoadError('');
       try {
         // 1. Fetch current user profile
         if (isLoggedIn) {
           const res = await fetch('/api/profile');
+          if (!res.ok) {
+            throw new Error(`Unable to load your profile (status ${res.status}).`);
+          }
           const data = await res.json();
           if (data.profile) {
             setUserProfile(data.profile);
@@ -352,13 +370,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         }
       } catch (err) {
         console.error('Failed fetching database state', err);
+        setProfileLoadError(err instanceof Error ? err.message : 'Failed to load account data.');
       } finally {
         setIsLoading(false);
       }
     }
 
     loadAllData();
-  }, [isLoggedIn, reloadTrigger, isAdmin]);
+  }, [authChecked, isLoggedIn, reloadTrigger, isAdmin]);
 
   // After loadAllData completes, continue any pending gated profile flow
   useEffect(() => {
@@ -741,6 +760,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setIsMobileMenuOpen,
         isLoading,
         setIsLoading,
+        authChecked,
+        profileLoadError,
 
         profiles,
         setProfiles,
