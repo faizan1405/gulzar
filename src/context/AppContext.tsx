@@ -368,7 +368,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         return;
       }
       
-      const hasStandardPkg = userProfile.hasPaid;
+      const hasStandardPkg = hasPaidSubscription;
       if (!hasStandardPkg) {
         router.push(`/premium?returnProfile=${pendingProfileId}`);
         // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -383,7 +383,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       setPendingProfileId(null);
     }
     wasLoadingRef.current = isLoading;
-  }, [isLoading, isLoggedIn, pendingProfileId, userProfile, profiles, router]);
+  }, [isLoading, isLoggedIn, pendingProfileId, userProfile, hasPaidSubscription, profiles, router]);
 
   const handleViewProfile = useCallback((profile: Profile) => {
     if (!isLoggedIn) {
@@ -401,14 +401,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return;
     }
 
-    const hasStandardPkg = userProfile.hasPaid;
+    const hasStandardPkg = hasPaidSubscription;
     if (!hasStandardPkg) {
       setPendingProfileId(profile.id);
       router.push(`/premium?returnProfile=${profile.id}`);
       return;
     }
     setSelectedProfileForDetails(profile);
-  }, [isLoggedIn, userProfile, router]);
+  }, [isLoggedIn, userProfile, hasPaidSubscription, router]);
 
   const handleGoogleLogin = () => {
     signIn('google');

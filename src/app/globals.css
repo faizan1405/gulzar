@@ -229,8 +229,10 @@ body:has(.demo-bar) .header {
 
 .nav-container {
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  column-gap: 20px;
   align-items: center;
+  min-height: 68px;
   background-color: var(--warm-ivory);
   border: 1.5px solid var(--gold-accent);
   border-radius: 20px;
@@ -250,18 +252,20 @@ body:has(.demo-bar) .header {
 
 .nav-left {
   grid-column: 1;
-  justify-self: start;
+  justify-self: stretch;
   display: flex;
   align-items: center;
+  justify-content: flex-start;
   min-width: 0;
 }
 
 .nav-right {
   grid-column: 3;
-  justify-self: end;
+  justify-self: stretch;
   display: flex;
   align-items: center;
-  gap: 16px;
+  justify-content: flex-end;
+  gap: 14px;
   min-width: 0;
 }
 
@@ -270,13 +274,14 @@ body:has(.demo-bar) .header {
   grid-column: 2;
   justify-self: center;
   position: relative;
-  width: 260px;
-  height: 115px;
-  margin-top: -46px; /* Arch pops above top edge */
+  width: 220px;
+  height: 104px;
+  margin-top: -40px; /* Arch pops above top edge */
+  flex-shrink: 0;
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 10;
+  z-index: 2;
   overflow: visible;
 }
 
@@ -293,11 +298,12 @@ body:has(.demo-bar) .header {
 .logo-arch-content {
   position: relative;
   z-index: 2;
-  padding-top: 20px;
+  padding-top: 16px;
   display: flex;
   justify-content: center;
   align-items: center;
   width: 190px;
+  flex-shrink: 0;
 }
 
 .logo-link {
@@ -328,18 +334,23 @@ body:has(.demo-bar) .header {
 
 .nav-menu {
   display: flex;
-  gap: 16px;
+  gap: 10px;
   list-style: none;
   align-items: center;
   margin: 0;
   padding: 0;
 }
 
+.nav-menu li {
+  flex-shrink: 0;
+}
+
 .nav-link {
   font-weight: 700;
-  font-size: 13.5px;
+  font-size: 13px;
+  line-height: 1;
   color: var(--text-dark);
-  padding: 8px 16px;
+  padding: 7px 12px;
   border-radius: var(--border-radius-sm);
   transition: var(--transition-smooth);
   letter-spacing: 0.3px;
@@ -347,7 +358,8 @@ body:has(.demo-bar) .header {
   white-space: nowrap;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
+  flex-shrink: 0;
 }
 
 .nav-link:hover {
@@ -359,7 +371,7 @@ body:has(.demo-bar) .header {
   background-color: rgba(248, 241, 231, 0.65);
   border: 1px solid rgba(184, 146, 74, 0.4);
   border-radius: 10px;
-  padding: 8px 16px;
+  padding: 7px 12px;
 }
 
 /* Small active indicator line inside active item card boundary */
@@ -400,27 +412,31 @@ body:has(.demo-bar) .header {
 .nav-actions-wrapper {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   justify-content: flex-end;
+  flex-shrink: 0;
 }
 
 .nav-actions-group {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
+  flex-shrink: 0;
 }
 
 .nav-btn {
-  padding: 8px 16px !important;
-  font-size: 12px !important;
+  padding: 7px 12px !important;
+  font-size: 11.5px !important;
+  line-height: 1 !important;
   font-weight: 700 !important;
   display: inline-flex !important;
   align-items: center !important;
   text-transform: none;
   white-space: nowrap !important;
   gap: 6px !important;
-  height: 38px !important;
+  height: 36px !important;
   border-radius: 8px !important;
+  flex-shrink: 0;
 }
 
 .btn-icon {
@@ -1940,49 +1956,59 @@ input[type="checkbox"] {
 }
 
 /* Media Queries for Responsive Design */
+/* Small desktop / laptop tier: gradually reclaim space so the 3-column
+   layout (left nav | logo | right nav+actions) never crowds the logo. */
 @media (max-width: 1400px) {
-  /* Tighten navbar so 3-column layout never crowds on tablet/laptop */
   .nav-container {
     column-gap: 12px;
-    padding: 12px 24px;
+    padding: 10px 20px;
+    min-height: 64px;
   }
   .logo-arch-wrapper {
-    width: 220px;
-    height: 105px;
-    margin-top: -36px;
+    width: 190px;
+    height: 96px;
+    margin-top: -34px;
   }
   .logo-arch-content {
-    padding-top: 14px;
-    width: 160px;
+    padding-top: 10px;
+    width: 150px;
   }
   .nav-menu {
-    gap: 10px;
+    gap: 8px;
   }
   .nav-link {
-    padding: 6px 10px;
-    font-size: 13px;
+    padding: 6px 9px;
+    font-size: 12.5px;
+    gap: 5px;
+  }
+  .nav-right {
+    gap: 10px;
   }
   .nav-btn {
-    padding: 6px 12px !important;
-    font-size: 11.5px !important;
+    padding: 6px 10px !important;
+    font-size: 11px !important;
     height: 34px !important;
+    gap: 5px !important;
   }
   .nav-actions-wrapper {
     gap: 8px;
   }
   .nav-actions-group {
-    gap: 6px;
+    gap: 5px;
   }
 }
 
+/* Tablet / mobile tier: not enough width remains for a 3-column desktop
+   layout without crowding the logo, so switch to the hamburger menu here
+   rather than let links move underneath the logo. */
 @media (max-width: 1300px) {
   .hero-title {
     font-size: 48px;
   }
   .nav-container {
-    grid-template-columns: 1fr auto 1fr;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
     grid-template-rows: auto;
-    height: 64px;
+    min-height: 64px;
     padding: 8px 16px;
     row-gap: 0;
     column-gap: 10px;

@@ -94,14 +94,13 @@ export function buildProfilePreview(profile: Record<string, unknown>) {
   const dob = profile.dateOfBirth ? new Date(profile.dateOfBirth as string) : null;
   const age = dob ? Math.floor((Date.now() - dob.getTime()) / (365.25 * 24 * 60 * 60 * 1000)) : null;
   const category = (profile.category as string) ?? 'normal';
-  // Premium categories are protected content: hide the name too. "normal"
-  // profiles expose the limited card (name, age, caste) to everyone.
-  const isPremiumCategory =
-    category === 'good_profile' || category === 'high_profile' || category === 'second_marriage';
 
+  // Every active/approved profile — normal or premium category alike — must
+  // show its real candidate name in the limited preview. Only contact/private
+  // fields are protected here, never identity.
   return {
     id: profile.id,
-    fullName: isPremiumCategory ? 'Protected Candidate Profile' : (profile.fullName ?? 'Protected Candidate Profile'),
+    fullName: profile.fullName,
     gender: profile.gender,
     age,
     city: profile.city ?? null,

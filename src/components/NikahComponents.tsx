@@ -274,29 +274,11 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
   const profileCat = profile.category || '';
   const isLockedCategory = (profile as any).isLockedCategory || '';
 
-  const isSecMarriage =
-    profile.maritalStatus !== 'Single'
-    || profileCat === 'second_marriage'
-    || isLockedCategory === 'second_marriage_package';
-
-  // Null-safe — locked payloads omit occupation/income entirely.
-  const occ = (profile.occupation ?? '').toLowerCase();
-  const inc = profile.annualIncomeRange ?? '';
-
-  const isHighProf =
-    profileCat === 'high_profile'
-    || isLockedCategory === 'high_profile_package'
-    || (!isLockedCategory && (
-      occ.includes('doctor') ||
-      occ.includes('engineer') ||
-      occ.includes('business') ||
-      occ.includes('professional') ||
-      inc.includes('₹10 LPA') ||
-      inc.includes('₹12 LPA') ||
-      inc.includes('₹15 LPA') ||
-      inc.includes('Above')
-    ));
-
+  // Category is decided solely by the stable, admin-assigned `category` field
+  // (or the server's `isLockedCategory` echo of it) — never inferred from
+  // occupation/income text or marital status, which misclassifies profiles.
+  const isSecMarriage = profileCat === 'second_marriage' || isLockedCategory === 'second_marriage_package';
+  const isHighProf = profileCat === 'high_profile' || isLockedCategory === 'high_profile_package';
   const isGoodProfile = profileCat === 'good_profile' || isLockedCategory === 'good_profile_package';
 
   const hasPaidMonthly = hasPaidSubscription || activePackages.includes('monthly_membership');
@@ -350,16 +332,10 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
     if (m < 0 || (m === 0 && today.getDate() < dobDate.getDate())) age--;
   }
 
-  // Display name: guests and members alike may see the candidate's name (part of
-  // the allowed limited card). Only show a profile code when the SERVER has
-  // withheld the name — i.e. protected premium-category profiles.
-  const isServerLocked =
-    !profile.fullName
-    || profile.fullName === 'Profile Locked'
-    || profile.fullName.includes('(Locked)');
-  const displayName = !isServerLocked
-    ? profile.fullName
-    : `Profile #RF-${String(index + 1).padStart(3, '0')}`;
+  // Display name: guests and members alike always see the real candidate name
+  // — it's part of the allowed limited card for every profile, premium or not.
+  // The server never withholds it, so there is no masked-name fallback here.
+  const displayName = profile.fullName;
 
   // Education/occupation: skip if server returned "Hidden ..."
   const educationHidden =
@@ -607,7 +583,7 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
           fontFamily: 'var(--font-serif)',
           fontSize: '21px',
           fontWeight: 800,
-          color: isServerLocked ? 'var(--text-muted)' : 'var(--deep-maroon)',
+          color: 'var(--deep-maroon)',
           marginBottom: '8px',
           letterSpacing: '-0.3px',
           lineHeight: 1.3,

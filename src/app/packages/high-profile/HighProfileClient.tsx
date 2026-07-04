@@ -28,20 +28,15 @@ export default function HighProfileClient() {
     router.push('/');
   };
 
-  // High Profile filtering (null-safe: locked payloads omit occupation/education)
+  // High Profile filtering — category is decided solely by the stable,
+  // admin-assigned `category` field (or its locked-payload echo), never by
+  // occupation/income text (that substring matching misclassified profiles,
+  // e.g. an income range of "₹5 LPA - ₹10 LPA" contains "₹10 LPA").
   const highProfiles = profiles.filter((p) => {
     const occ = (p.occupation ?? '').toLowerCase();
-    const inc = p.annualIncomeRange ?? '';
     const isHighProfile =
       (p as any).category === 'high_profile' ||
-      (p as any).isLockedCategory === 'high_profile_package' ||
-      occ.includes('doctor') ||
-      occ.includes('engineer') ||
-      occ.includes('business') ||
-      occ.includes('professional') ||
-      inc.includes('₹10 LPA') ||
-      inc.includes('₹15 LPA') ||
-      inc.includes('Above');
+      (p as any).isLockedCategory === 'high_profile_package';
 
     if (!isHighProfile) return false;
 

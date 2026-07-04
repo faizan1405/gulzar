@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { getAllProfiles, getProfileByUserId, getUserPurchases, getFallbackProfiles } from '@/lib/profileStore';
 import { redactProfile } from '@/lib/profilePrivacy';
+import { getViewerPackageAccess } from '@/lib/accessControl';
 
 // Get all verified profiles
 export async function GET(req: NextRequest) {
@@ -11,19 +12,13 @@ export async function GET(req: NextRequest) {
     const viewerId = session?.user?.id;
     const isAdmin = session?.user?.role === 'ADMIN';
 
-    let viewerHasPaid = false;
-    let viewerPurchases: Array<{
-      id: string;
-      packageType: string;
-      paymentStatus: string;
-      eligibilityStatus?: string;
-    }> = [];
+    let viewerProfile: Awaited<ReturnType<typeof getProfileByUserId>> = null;
+    let viewerPurchases: Awaited<ReturnType<typeof getUserPurchases>> = [];
 
     if (viewerId) {
       try {
-        const viewerProfile = await getProfileByUserId(viewerId);
+        viewerProfile = await getProfileByUserId(viewerId);
         if (viewerProfile) {
-          viewerHasPaid = viewerProfile.hasPaid;
           viewerPurchases = await getUserPurchases(viewerProfile.id);
         }
       } catch {
@@ -31,14 +26,11 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    function hasPaidSubscriptionCheck() {
-      return viewerPurchases.some(p => p.packageType === 'monthly_membership' && p.paymentStatus === 'PAID');
-    }
-
-    const hasStandardPkg = viewerHasPaid || hasPaidSubscriptionCheck();
-    const hasSecondMarriagePkg = viewerPurchases.some(p => p.packageType === 'second_marriage_package' && p.paymentStatus === 'PAID');
-    const hasHighProfilePkg = viewerPurchases.some(p => p.packageType === 'high_profile_package' && p.paymentStatus === 'PAID' && p.eligibilityStatus === 'APPROVED');
-    const hasGoodProfilePkg = viewerPurchases.some(p => p.packageType === 'good_profile_package' && p.paymentStatus === 'PAID');
+    // Single source of truth for package access (expiry/accessStatus-aware) —
+    // shared with the profile-detail route so list and detail views can never
+    // disagree about what a viewer is entitled to see.
+    const { hasStandard: hasStandardPkg, hasSecondMarriage: hasSecondMarriagePkg, hasHighProfile: hasHighProfilePkg, hasGoodProfile: hasGoodProfilePkg } =
+      getViewerPackageAccess(viewerProfile, viewerPurchases);
 
     // Fetch all profiles, falling back to bundled fallback profiles if the database
     // is completely unreachable (e.g. production deploy before DB is seeded, or

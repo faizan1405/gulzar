@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "seed": "npx tsx scripts/seed.ts",
-    "set-package-prices": "npx tsx scripts/set-package-prices.ts"
+    "set-package-prices": "npx tsx scripts/set-package-prices.ts",
+    "test": "npx tsx --test tests/profilePrivacy.test.ts tests/accessControl.test.ts tests/integration.e2e.test.ts"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.2",

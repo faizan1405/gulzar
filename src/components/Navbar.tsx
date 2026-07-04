@@ -50,13 +50,6 @@ export const Navbar: React.FC = () => {
 
       <div className="container nav-outer-container">
         <div className="nav-container">
-          <style>{`
-            @media (max-width: 1300px) {
-              #hamburger-btn { display: flex !important; }
-              .nav-menu-desktop { display: none !important; }
-            }
-          `}</style>
-
           {/* Left Column: Hamburger (mobile) + primary nav links (desktop) */}
           <div className="nav-section nav-left">
             <button

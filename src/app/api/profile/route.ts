@@ -3,6 +3,7 @@ import { auth } from '@/auth';
 import { getProfileByUserId, upsertProfile, getUserPurchases, testDbConnection, getValidObjectId } from '@/lib/profileStore';
 import { prisma } from '@/lib/db';
 import { redactProfile } from '@/lib/profilePrivacy';
+import { getViewerPackageAccess } from '@/lib/accessControl';
 import { notifyRegistration, notifyAdminNewProfile } from '@/lib/notifications';
 import { checkRateLimit } from '@/lib/rateLimit';
 
@@ -26,52 +27,37 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ profile: null }, { status: 200 });
     }
 
-    // Identify profile categories (null-safe: optional fields may be missing)
+    // Identify profile category strictly from the stable, admin-assigned
+    // `category` field — never infer from occupation/income text or marital
+    // status (fragile substring matching misclassifies profiles).
     const profileCat = (profile as any).category || '';
-    const occupation = (profile.occupation ?? '').toLowerCase();
-    const income = profile.annualIncomeRange ?? '';
-    const isSecondMarriage = profile.maritalStatus !== 'Single' || profileCat === 'second_marriage';
-    const isHighProfile =
-      profileCat === 'high_profile' ||
-      occupation.includes('doctor') ||
-      occupation.includes('engineer') ||
-      occupation.includes('business') ||
-      income.includes('₹10 LPA') ||
-      income.includes('₹15 LPA') ||
-      income.includes('Above');
-
+    const isSecondMarriage = profileCat === 'second_marriage';
+    const isHighProfile = profileCat === 'high_profile';
     const isGoodProfile = profileCat === 'good_profile';
 
     // Security check: is the current user allowed to see private fields?
     const isOwner = session?.user?.id === targetUserId;
     const isAdmin = session?.user?.role === 'ADMIN';
 
-    // Fetch viewer profile and purchases to check status
-    let viewerHasPaid = false;
-    let viewerPurchases: Array<{
-      id: string;
-      packageType: string;
-      paymentStatus: string;
-      eligibilityStatus?: string;
-    }> = [];
-    
+    // Fetch viewer profile and purchases to check status. Shared, expiry/
+    // accessStatus-aware helper — the same one the list and detail routes use.
+    let viewerProfileForAccess: Awaited<ReturnType<typeof getProfileByUserId>> = null;
+    let viewerPurchases: Awaited<ReturnType<typeof getUserPurchases>> = [];
+
     const viewerId = session?.user?.id;
     if (viewerId) {
-      const viewerProfile = await getProfileByUserId(viewerId);
-      if (viewerProfile) {
-        viewerHasPaid = viewerProfile.hasPaid;
-        viewerPurchases = await getUserPurchases(viewerProfile.id);
+      viewerProfileForAccess = await getProfileByUserId(viewerId);
+      if (viewerProfileForAccess) {
+        viewerPurchases = await getUserPurchases(viewerProfileForAccess.id);
       }
     }
 
-    function hasPaidSubscriptionCheck() {
-      return viewerPurchases.some(p => p.packageType === 'monthly_membership' && p.paymentStatus === 'PAID');
-    }
-
-    const hasStandardPkg = viewerHasPaid || hasPaidSubscriptionCheck();
-    const hasSecondMarriagePkg = viewerPurchases.some(p => p.packageType === 'second_marriage_package' && p.paymentStatus === 'PAID');
-    const hasHighProfilePkg = viewerPurchases.some(p => p.packageType === 'high_profile_package' && p.paymentStatus === 'PAID' && p.eligibilityStatus === 'APPROVED');
-    const hasGoodProfilePkg = viewerPurchases.some(p => p.packageType === 'good_profile_package' && p.paymentStatus === 'PAID');
+    const {
+      hasStandard: hasStandardPkg,
+      hasSecondMarriage: hasSecondMarriagePkg,
+      hasHighProfile: hasHighProfilePkg,
+      hasGoodProfile: hasGoodProfilePkg,
+    } = getViewerPackageAccess(viewerProfileForAccess, viewerPurchases);
 
     // Enforce privacy constraints
     const redactedProfile = redactProfile(

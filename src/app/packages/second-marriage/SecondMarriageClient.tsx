@@ -28,9 +28,10 @@ export default function SecondMarriageClient() {
     router.push('/');
   };
 
-  // Second marriage filtering
+  // Second marriage filtering — category is decided solely by the stable,
+  // admin-assigned `category` field, never marital status text.
   const secondMarriageProfiles = profiles.filter((p) => {
-    const isSecMarriage = p.maritalStatus !== 'Single' || (p as any).category === 'second_marriage';
+    const isSecMarriage = (p as any).category === 'second_marriage';
     if (!isSecMarriage) return false;
 
     if (searchQuery.trim()) {

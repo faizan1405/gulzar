@@ -37,19 +37,10 @@ export const ProfileDetails: React.FC = () => {
 
   const profileCat = (selectedProfileForDetails as any).category || '';
 
-  // Null-safe: locked payloads omit occupation/income entirely.
-  const occ = (selectedProfileForDetails.occupation ?? '').toLowerCase();
-  const inc = selectedProfileForDetails.annualIncomeRange ?? '';
-  const isSecMarriage = selectedProfileForDetails.maritalStatus !== 'Single' || profileCat === 'second_marriage';
-  const isHighProf =
-    profileCat === 'high_profile' ||
-    occ.includes('doctor') ||
-    occ.includes('engineer') ||
-    occ.includes('business') ||
-    inc.includes('₹10 LPA') ||
-    inc.includes('₹15 LPA') ||
-    inc.includes('Above');
-  
+  // Category is decided solely by the stable, admin-assigned `category`
+  // field — never inferred from occupation/income text or marital status.
+  const isSecMarriage = profileCat === 'second_marriage';
+  const isHighProf = profileCat === 'high_profile';
   const isGoodProfile = profileCat === 'good_profile';
 
   const hasPaidMonthly = hasPaidSubscription || activePackages.includes('monthly_membership');
@@ -119,7 +110,7 @@ export const ProfileDetails: React.FC = () => {
               </h3>
               <ProfileInterestForm
                 profileId={selectedProfileForDetails.id}
-                profileName={modalBlur ? 'Protected Candidate Profile' : selectedProfileForDetails.fullName}
+                profileName={selectedProfileForDetails.fullName}
                 profileCategory={profileCat}
                 onSuccess={() => {
                   setShowInterestForm(false);
@@ -145,7 +136,7 @@ export const ProfileDetails: React.FC = () => {
                 />
                 <div>
                   <h3 style={{ fontFamily: 'var(--font-serif)', color: 'var(--deep-maroon)', fontSize: '24px', fontWeight: 'bold' }}>
-                    {modalBlur ? 'Protected Candidate Profile' : selectedProfileForDetails.fullName}
+                    {selectedProfileForDetails.fullName}
                   </h3>
                   <p style={{ fontSize: '13.5px', color: 'var(--text-muted)', marginTop: '4px', fontWeight: 500 }}>
                     {selectedProfileForDetails.gender} • {2026 - new Date(selectedProfileForDetails.dateOfBirth).getFullYear()} Yrs Old
@@ -189,19 +180,19 @@ export const ProfileDetails: React.FC = () => {
                 <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '16px' }}>
                   <strong style={{ color: 'var(--deep-maroon)', display: 'block', marginBottom: '4px' }}>Caste / Biradari</strong>
                   <p style={{ color: 'var(--text-dark)' }}>
-                    {modalBlur ? 'Hidden' : (selectedProfileForDetails.biradari || 'Not specified')}
+                    {selectedProfileForDetails.biradari || 'Not specified'}
                   </p>
                 </div>
                 <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '16px' }}>
                   <strong style={{ color: 'var(--deep-maroon)', display: 'block', marginBottom: '4px' }}>Current Location</strong>
                   <p style={{ color: 'var(--text-dark)' }}>
-                    {modalBlur ? 'Hidden' : (
-                      [
-                        selectedProfileForDetails.locality,
-                        selectedProfileForDetails.district || selectedProfileForDetails.city,
-                        selectedProfileForDetails.state
-                      ].filter(Boolean).join(', ') || 'Not specified'
-                    )}
+                    {modalBlur
+                      ? ([selectedProfileForDetails.city, selectedProfileForDetails.state].filter(Boolean).join(', ') || 'Not specified')
+                      : ([
+                          selectedProfileForDetails.locality,
+                          selectedProfileForDetails.district || selectedProfileForDetails.city,
+                          selectedProfileForDetails.state
+                        ].filter(Boolean).join(', ') || 'Not specified')}
                   </p>
                 </div>
                 <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '16px' }}>
