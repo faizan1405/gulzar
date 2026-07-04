@@ -243,7 +243,7 @@ interface ProfileCardProps {
   index: number;
   isLoggedIn: boolean;
   isFormComplete: boolean;
-  hasPaid300: boolean;
+  hasPaidSubscription: boolean;
   activePackages: string[];
   highProfileApproved: boolean;
   savedProfiles: string[];
@@ -260,7 +260,7 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
   index,
   isLoggedIn,
   isFormComplete,
-  hasPaid300,
+  hasPaidSubscription,
   activePackages,
   highProfileApproved,
   savedProfiles,
@@ -295,7 +295,7 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
 
   const isGoodProfile = profileCat === 'good_profile' || isLockedCategory === 'good_profile_package';
 
-  const hasPaidMonthly = hasPaid300 || activePackages.includes('monthly_membership');
+  const hasPaidMonthly = hasPaidSubscription || activePackages.includes('monthly_membership');
   const hasSecMarriageAccess = activePackages.includes('second_marriage_package');
   const hasHighProfAccess = activePackages.includes('high_profile_package') && highProfileApproved;
   const hasGoodProfileAccess = activePackages.includes('good_profile_package');
@@ -319,13 +319,13 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
     unlockCta = 'Choose Package';
     showUpgradeCta = true;
   } else if (isLockedCategory === 'good_profile_package' && !hasGoodProfileAccess) {
-    unlockCta = 'Good Profile Package · ₹5,500';
+    unlockCta = 'Good Profile Package · ₹1';
     showUpgradeCta = true;
   } else if (isLockedCategory === 'second_marriage_package' && !hasSecMarriageAccess) {
-    unlockCta = 'Silver Plan · ₹11,000';
+    unlockCta = 'Silver Plan · ₹1';
     showUpgradeCta = true;
   } else if (isLockedCategory === 'high_profile_package' && !hasHighProfAccess) {
-    unlockCta = 'Gold Package · ₹21,000';
+    unlockCta = 'Gold Package · ₹1';
     showUpgradeCta = true;
   }
 
@@ -951,9 +951,11 @@ export const PremiumPlanCard: React.FC<PremiumPlanCardProps> = ({
       ) : (
         <div className="pkg-price" style={{ fontSize: '42px', fontWeight: '800', color: 'var(--deep-maroon)', marginBottom: '28px', fontFamily: 'var(--font-serif)' }}>
           ₹{price.toLocaleString()}
-          <span style={{ fontSize: '12.5px', fontWeight: 'normal', color: 'var(--text-muted)', display: 'block', marginTop: '6px', fontFamily: 'var(--font-sans)' }}>
-            + GST
-          </span>
+          {gstRate > 0 && (
+            <span style={{ fontSize: '12.5px', fontWeight: 'normal', color: 'var(--text-muted)', display: 'block', marginTop: '6px', fontFamily: 'var(--font-sans)' }}>
+              + GST
+            </span>
+          )}
         </div>
       )}
 

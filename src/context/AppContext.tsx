@@ -30,7 +30,7 @@ interface AppContextType {
   setActivePackages: React.Dispatch<React.SetStateAction<string[]>>;
   highProfileApproved: boolean;
   setHighProfileApproved: (val: boolean) => void;
-  hasPaid300: boolean; // DB-backed membership state
+  hasPaidSubscription: boolean; // DB-backed membership state
   referralRate: number;
   setReferralRate: (val: number) => void;
   showLoginModal: boolean;
@@ -191,7 +191,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const wasLoadingRef = useRef(false);
 
   // Computed state for active monthly membership
-  const hasPaid300 = !!(userProfile?.hasPaid || activePackages.includes('monthly_membership'));
+  const hasPaidSubscription = !!(userProfile?.hasPaid || activePackages.includes('monthly_membership'));
 
   // Detect a real NextAuth (Google) session on mount
   useEffect(() => {
@@ -459,7 +459,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   };
 
-  const handleRazorpayCheckout = async (packageType: string, amountInRupees = 300, planName = 'Standard Monthly Membership') => {
+  const handleRazorpayCheckout = async (packageType: string, amountInRupees = 1, planName = 'Standard Monthly Membership') => {
     if (!isLoggedIn) {
       setShowLoginModal(true);
       return;
@@ -485,7 +485,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         amount: amount,
         currency: currency,
         name: 'Rishte Forever',
-        description: `${planName} (₹${amountInRupees} + 18% GST)`,
+        description: `${planName} (₹${amountInRupees})`,
         image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=100&h=100',
         order_id: orderId,
         handler: async function (response: { razorpay_payment_id?: string; razorpay_signature?: string }) {
@@ -730,7 +730,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setActivePackages,
         highProfileApproved,
         setHighProfileApproved,
-        hasPaid300,
+        hasPaidSubscription,
         referralRate,
         setReferralRate,
         showLoginModal,

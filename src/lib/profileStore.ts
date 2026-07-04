@@ -230,7 +230,7 @@ if (!globalStore.inMemoryLeads) {
       city: "Mumbai",
       message: "Interested in gold package, need details on success fee details.",
       inquiryType: "Package Inquiry",
-      interestedPackage: "₹21,000 Gold Package",
+      interestedPackage: "₹1 Gold Package",
       interestedProfileId: null,
       sourcePage: "/premium",
       status: "new",

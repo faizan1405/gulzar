@@ -20,11 +20,31 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Missing payment details' }, { status: 400 });
     }
 
+    const profile = await prisma.matrimonialProfile.findUnique({
+      where: { userId: activeUserId }
+    });
+
+    if (!profile) {
+      return NextResponse.json({ error: 'Matrimonial profile not found.' }, { status: 400 });
+    }
+
     const existingPurchase = await prisma.packagePurchase.findFirst({
       where: { razorpayOrderId: orderId }
     });
+
+    if (!existingPurchase) {
+      return NextResponse.json({ error: 'Purchase record not found.' }, { status: 400 });
+    }
+
+    if (existingPurchase.profileId !== profile.id) {
+      return NextResponse.json({ error: 'Mismatched profile ID for this payment.' }, { status: 403 });
+    }
+
+    if (existingPurchase.totalAmount !== 1) {
+      return NextResponse.json({ error: 'Invalid purchase amount.' }, { status: 400 });
+    }
     
-    if (existingPurchase && existingPurchase.paymentStatus === 'PAID') {
+    if (existingPurchase.paymentStatus === 'PAID') {
       return NextResponse.json({
         success: true,
         message: 'Payment already verified.',

@@ -47,11 +47,11 @@ export const ProfileInterestForm: React.FC<ProfileInterestFormProps> = ({
   // Set default package interest if profile has a category
   useEffect(() => {
     if (profileCategory === 'good_profile') {
-      setPackageInterest('₹5,500 Good Profiles Package');
+      setPackageInterest('₹1 Good Profiles Package');
     } else if (profileCategory === 'second_marriage') {
-      setPackageInterest('₹11,000 Silver Plan');
+      setPackageInterest('₹1 Silver Plan');
     } else if (profileCategory === 'high_profile') {
-      setPackageInterest('₹21,000 Gold Package');
+      setPackageInterest('₹1 Gold Package');
     }
   }, [profileCategory]);
 
@@ -222,10 +222,10 @@ export const ProfileInterestForm: React.FC<ProfileInterestFormProps> = ({
               disabled={isSubmitting}
             >
               <option value="">-- No Package / Not Interested --</option>
-              <option value="₹300 Monthly Membership">₹300 Monthly Membership</option>
-              <option value="₹5,500 Good Profiles Package">₹5,500 Good Profiles Package</option>
-              <option value="₹11,000 Silver Plan">₹11,000 Silver Plan</option>
-              <option value="₹21,000 Gold Package">₹21,000 Gold Package</option>
+              <option value="₹1 Monthly Membership">₹1 Monthly Membership</option>
+              <option value="₹1 Good Profiles Package">₹1 Good Profiles Package</option>
+              <option value="₹1 Silver Plan">₹1 Silver Plan</option>
+              <option value="₹1 Gold Package">₹1 Gold Package</option>
             </select>
           </div>
 

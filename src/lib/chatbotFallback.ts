@@ -32,7 +32,7 @@ export function getFallbackResponse(message: string): string {
     msg.includes('image') ||
     msg.includes('contact')
   ) {
-    return "Profile photos and phone numbers are protected for privacy. You need to follow the membership/package process to access eligible details. For standard profiles, a ₹300 Monthly Membership is required to unblur photos and contact details.";
+    return "Profile photos and phone numbers are protected for privacy. You need to follow the membership/package process to access eligible details. For standard profiles, a ₹1 Monthly Membership is required to unblur photos and contact details.";
   }
 
   // 3. Packages & Pricing check
@@ -55,11 +55,11 @@ export function getFallbackResponse(message: string): string {
     msg.includes('rupees') ||
     msg.includes('charge')
   ) {
-    return "Assalamu Alaikum! Rishte Forever offers 4 matrimonial packages (all prices + GST):\n\n" +
-      "1. **Standard Monthly Membership**: ₹300 + GST/month. Allows searching matches, filtering, and unblurring photos/phone numbers on normal profiles.\n" +
-      "2. **Good Profiles Package**: ₹5,500 + GST. Access to curated profiles, valid for 1 year + ₹21,000 success fee after marriage confirmation.\n" +
-      "3. **Silver Plan**: ₹11,000 + GST. Tailored search category, valid for 1 year. No success fee.\n" +
-      "4. **Gold Package**: ₹21,000 + GST. For doctors, engineers, premium families, and candidates earning ₹10 Lakhs+ annually, valid for 1 year + ₹25,000 success fee after marriage.";
+    return "Assalamu Alaikum! Rishte Forever offers 4 matrimonial packages:\n\n" +
+      "1. **Standard Monthly Membership**: ₹1/month. Allows searching matches, filtering, and unblurring photos/phone numbers on normal profiles.\n" +
+      "2. **Good Profiles Package**: ₹1 one-time fee. Access to curated profiles, valid for 1 year. No success fee.\n" +
+      "3. **Silver Plan**: ₹1 one-time fee. Tailored search category, valid for 1 year. No success fee.\n" +
+      "4. **Gold Package**: ₹1 one-time fee. For doctors, engineers, premium families, and candidates earning ₹10 Lakhs+ annually, valid for 1 year. No success fee.";
   }
 
   // 4. Verification check
@@ -119,7 +119,7 @@ export function getFallbackResponse(message: string): string {
   // 8. General greeting/unknown fallback response
   return "Assalamu Alaikum! I'm the Rishte Forever support assistant (offline mode).\n\n" +
     "I can answer your questions about:\n" +
-    "• **Packages & Pricing** (₹300/₹5.5k/₹11k/₹21k)\n" +
+    "• **Packages & Pricing** (₹1)\n" +
     "• **Photo & Contact Privacy** (Blurring details)\n" +
     "• **Manual Verification** (Telephone review process)\n" +
     "• **Registration** & Onboarding\n" +

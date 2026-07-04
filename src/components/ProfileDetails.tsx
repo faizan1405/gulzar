@@ -14,7 +14,7 @@ export const ProfileDetails: React.FC = () => {
     selectedProfileForDetails,
     setSelectedProfileForDetails,
     isLoggedIn,
-    hasPaid300,
+    hasPaidSubscription,
     activePackages,
     highProfileApproved,
     setShowLoginModal,
@@ -49,7 +49,7 @@ export const ProfileDetails: React.FC = () => {
   
   const isGoodProfile = profileCat === 'good_profile';
 
-  const hasPaidMonthly = hasPaid300 || activePackages.includes('monthly_membership');
+  const hasPaidMonthly = hasPaidSubscription || activePackages.includes('monthly_membership');
   const hasSecMarriageAccess = activePackages.includes('second_marriage_package');
   const hasHighProfAccess = activePackages.includes('high_profile_package') && highProfileApproved;
   const hasGoodProfileAccess = activePackages.includes('good_profile_package');
@@ -73,16 +73,16 @@ export const ProfileDetails: React.FC = () => {
     modalUnlockText = 'Choose Package';
   } else if (isGoodProfile && !hasGoodProfileAccess) {
     modalBlur = true;
-    modalLockReason = 'Buy Good Profile Package for ₹5,500 to view these profiles.';
-    modalUnlockText = 'Buy Good Profile Package (₹5,500)';
+    modalLockReason = 'Buy Good Profile Package for ₹1 to view these profiles.';
+    modalUnlockText = 'Buy Good Profile Package (₹1)';
   } else if (isSecMarriage && !hasSecMarriageAccess) {
     modalBlur = true;
     modalLockReason = 'Second-Marriage Candidate. Access requires Silver Plan.';
-    modalUnlockText = 'Unlock Silver Plan (₹11,000)';
+    modalUnlockText = 'Unlock Silver Plan (₹1)';
   } else if (isHighProf && !hasHighProfAccess) {
     modalBlur = true;
     modalLockReason = 'High-Profile Match. Requires Gold Package & Admin eligibility approval.';
-    modalUnlockText = 'Unlock Gold Package (₹21,000)';
+    modalUnlockText = 'Unlock Gold Package (₹1)';
   }
 
   const handleUnlockClick = () => {

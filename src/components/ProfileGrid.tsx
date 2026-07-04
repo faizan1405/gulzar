@@ -14,7 +14,7 @@ interface ProfileGridProps {
 export const ProfileGrid: React.FC<ProfileGridProps> = ({ filteredProfiles, isFiltered = true }) => {
   const {
     isLoggedIn,
-    hasPaid300,
+    hasPaidSubscription,
     activePackages,
     highProfileApproved,
     savedProfiles,
@@ -149,7 +149,7 @@ export const ProfileGrid: React.FC<ProfileGridProps> = ({ filteredProfiles, isFi
           index={idx}
           isLoggedIn={isLoggedIn}
           isFormComplete={isFormComplete}
-          hasPaid300={hasPaid300}
+          hasPaidSubscription={hasPaidSubscription}
           activePackages={activePackages}
           highProfileApproved={highProfileApproved}
           savedProfiles={savedProfiles}

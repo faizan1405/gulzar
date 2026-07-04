@@ -58,11 +58,11 @@ export default function PremiumPackagesPage() {
             ) : (
               adminPurchases.map((purchase) => {
                 const getPriceDetails = (pkgType: string) => {
-                  if (pkgType === 'monthly_membership') return { name: 'Monthly Membership', base: 300, gst: 54, total: 354 };
-                  if (pkgType === 'good_profile_package') return { name: 'Good Profile Package', base: 5500, gst: 990, total: 6490 };
-                  if (pkgType === 'second_marriage_package') return { name: 'Silver Plan', base: 11000, gst: 1980, total: 12980 };
-                  if (pkgType === 'high_profile_package') return { name: 'Gold Package', base: 21000, gst: 3780, total: 24780 };
-                  return { name: pkgType, base: 0, gst: 0, total: 0 };
+                  if (pkgType === 'monthly_membership') return { name: 'Monthly Membership' };
+                  if (pkgType === 'good_profile_package') return { name: 'Good Profile Package' };
+                  if (pkgType === 'second_marriage_package') return { name: 'Silver Plan' };
+                  if (pkgType === 'high_profile_package') return { name: 'Gold Package' };
+                  return { name: pkgType };
                 };
                 const details = getPriceDetails(purchase.packageType);
                 const isDemo = purchase.razorpayOrderId?.startsWith('order_sim_');
@@ -80,8 +80,10 @@ export default function PremiumPackagesPage() {
                       <strong>{details.name}</strong>
                     </td>
                     <td style={{ padding: '12px 8px' }}>
-                      <strong>₹{details.total}</strong>
-                      <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>(Base: ₹{details.base} + GST: ₹{details.gst})</div>
+                      <strong>₹{purchase.totalAmount}</strong>
+                      <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+                        (Base: ₹{purchase.basePrice} + GST: ₹{(purchase.totalAmount - purchase.basePrice).toFixed(2).replace(/\.00$/, '')})
+                      </div>
                     </td>
                     <td style={{ padding: '12px 8px' }}>
                       <span style={{ 

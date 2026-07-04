@@ -52,7 +52,7 @@ export default function HomeClient() {
   const [quickAgeError, setQuickAgeError] = React.useState(false);
   const {
     isLoggedIn,
-    hasPaid300,
+    hasPaidSubscription,
     activePackages,
     highProfileApproved,
     showLoginModal,
@@ -791,7 +791,7 @@ export default function HomeClient() {
                           index={index}
                           isLoggedIn={isLoggedIn}
                           isFormComplete={isFormComplete}
-                          hasPaid300={hasPaid300}
+                          hasPaidSubscription={hasPaidSubscription}
                           activePackages={activePackages}
                           highProfileApproved={highProfileApproved}
                           savedProfiles={savedProfiles}
@@ -950,15 +950,15 @@ export default function HomeClient() {
                 <div className="grid-4 mobile-swipe-row swipe-packages" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '32px' }}>
                   <PremiumPlanCard
                     title="Monthly Membership"
-                    price={300}
-                    gstRate={0.18}
+                    price={1}
+                    gstRate={0}
                     billingText="monthly"
                     features={['Browse normal verified profiles', 'Unblur matrimonial photos', 'Access candidate mobile numbers']}
-                    isActive={hasPaid300}
+                    isActive={hasPaidSubscription}
                     ctaText="Buy Monthly Membership"
-                    onActivate={() => handleRazorpayCheckout('monthly_membership', 300, 'Standard Monthly Membership')}
-                    onInquire={() => setInquiryPackage('₹300 Monthly Membership')}
-                    whatsappMessage="Assalamu Alaikum, I want to know more about the ₹300 monthly membership on Rishte Forever."
+                    onActivate={() => handleRazorpayCheckout('monthly_membership', 1, 'Standard Monthly Membership')}
+                    onInquire={() => setInquiryPackage('₹1 Monthly Membership')}
+                    whatsappMessage="Assalamu Alaikum, I want to know more about the ₹1 monthly membership on Rishte Forever."
                     imageUrl="/images/monthly_active.png"
                     hidePrices={!isFormComplete}
                     isLoggedIn={isLoggedIn}
@@ -967,15 +967,15 @@ export default function HomeClient() {
                   />
                   <PremiumPlanCard
                     title="Good Profile Package"
-                    price={5500}
-                    gstRate={0.18}
+                    price={1}
+                    gstRate={0}
                     billingText="one-time base"
                     features={['Verified profile suggestions', 'Basic matchmaking support', 'Privacy-safe profile sharing', '1 year service validity']}
                     isActive={activePackages.includes('good_profile_package')}
                     ctaText="Buy Good Profile Package"
-                    onActivate={() => handleRazorpayCheckout('good_profile_package', 5500, 'Good Profile Package')}
-                    onInquire={() => setInquiryPackage('₹5,500 Good Profiles Package')}
-                    whatsappMessage="Assalamu Alaikum, I am interested in the ₹5,500 Good Profiles Package on Rishte Forever. Please guide me."
+                    onActivate={() => handleRazorpayCheckout('good_profile_package', 1, 'Good Profile Package')}
+                    onInquire={() => setInquiryPackage('₹1 Good Profiles Package')}
+                    whatsappMessage="Assalamu Alaikum, I am interested in the ₹1 Good Profiles Package on Rishte Forever. Please guide me."
                     badgeText="Starter"
                     planTier="basic"
                     imageUrl="/images/good_profile.png"
@@ -986,8 +986,8 @@ export default function HomeClient() {
                   />
                   <PremiumPlanCard
                     title="Silver Plan"
-                    price={11000}
-                    gstRate={0.18}
+                    price={1}
+                    gstRate={0}
                     billingText="one-time fee"
                     features={[
                       'Everything in Basic Package',
@@ -1001,9 +1001,9 @@ export default function HomeClient() {
                     ]}
                     isActive={activePackages.includes('second_marriage_package')}
                     ctaText="Buy Silver Plan"
-                    onActivate={() => handleRazorpayCheckout('second_marriage_package', 11000, 'Silver Plan')}
-                    onInquire={() => setInquiryPackage('₹11,000 Silver Plan')}
-                    whatsappMessage="Assalamu Alaikum, I am interested in the ₹11,000 Silver Plan on Rishte Forever. Please guide me."
+                    onActivate={() => handleRazorpayCheckout('second_marriage_package', 1, 'Silver Plan')}
+                    onInquire={() => setInquiryPackage('₹1 Silver Plan')}
+                    whatsappMessage="Assalamu Alaikum, I am interested in the ₹1 Silver Plan on Rishte Forever. Please guide me."
                     badgeText="Most Balanced"
                     planTier="silver"
                     imageUrl="/images/second_marriage.png"
@@ -1014,8 +1014,8 @@ export default function HomeClient() {
                   />
                   <PremiumPlanCard
                     title="Gold Package"
-                    price={21000}
-                    gstRate={0.18}
+                    price={1}
+                    gstRate={0}
                     billingText="one-time base"
                     features={[
                       'Everything in Silver Plan',
@@ -1031,9 +1031,9 @@ export default function HomeClient() {
                     ]}
                     isActive={activePackages.includes('high_profile_package')}
                     ctaText="Buy Gold Package"
-                    onActivate={() => handleRazorpayCheckout('high_profile_package', 21000, 'Gold Package')}
-                    onInquire={() => setInquiryPackage('₹21,000 Gold Package')}
-                    whatsappMessage="Assalamu Alaikum, I am interested in the ₹21,000 Gold Package on Rishte Forever. Please guide me."
+                    onActivate={() => handleRazorpayCheckout('high_profile_package', 1, 'Gold Package')}
+                    onInquire={() => setInquiryPackage('₹1 Gold Package')}
+                    whatsappMessage="Assalamu Alaikum, I am interested in the ₹1 Gold Package on Rishte Forever. Please guide me."
                     badgeText="Premium Choice"
                     planTier="gold"
                     imageUrl="/images/high_profile.png"

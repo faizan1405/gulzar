@@ -21,10 +21,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid package type' }, { status: 400 });
     }
 
-    const baseAmount = pkgDef.basePrice;
-    const gstAmount = baseAmount * pkgDef.gstRate;
-    const totalAmount = baseAmount + gstAmount;
-    const totalAmountPaise = Math.round(totalAmount * 100);
+    const baseAmount = 1;
+    const gstAmount = 0;
+    const totalAmount = 1;
+    const totalAmountPaise = 100;
 
     const profile = await getProfileByUserId(activeUserId);
     if (!profile) {
@@ -56,11 +56,11 @@ export async function POST(req: NextRequest) {
     await createPackagePurchase({
       profileId: profile.id,
       packageType: packageTypeInput,
-      basePrice: baseAmount,
-      gstRate: pkgDef.gstRate,
-      totalAmount: totalAmount,
+      basePrice: 1,
+      gstRate: 0,
+      totalAmount: 1,
       billingType: pkgDef.billingType,
-      successFeeAmount: pkgDef.successFeeAmount,
+      successFeeAmount: 0,
       razorpayOrderId: order.id,
     });
 

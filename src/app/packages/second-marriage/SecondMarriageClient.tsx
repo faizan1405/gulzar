@@ -85,7 +85,7 @@ export default function SecondMarriageClient() {
               </h3>
               {isFormComplete ? (
                 <div style={{ fontSize: '36px', fontWeight: '800', color: 'var(--deep-maroon)', marginBottom: '8px', fontFamily: 'var(--font-serif)' }}>
-                  ₹11,000 <span style={{ fontSize: '14px', color: 'var(--text-muted)', fontFamily: 'var(--font-sans)', fontWeight: 'normal' }}>+ GST</span>
+                  ₹1
                 </div>
               ) : (
                 <div style={{ background: 'linear-gradient(135deg,rgba(111,29,53,0.06),rgba(184,146,74,0.06))', border: '1.5px dashed var(--gold-accent)', borderRadius: '10px', padding: '14px', marginBottom: '8px', textAlign: 'center' }}>
@@ -112,7 +112,7 @@ export default function SecondMarriageClient() {
                 <button
                   className="btn btn-gold"
                   style={{ width: '100%', padding: '12px', fontSize: '15px' }}
-                  onClick={() => handleRazorpayCheckout('second_marriage_package', 11000, 'Silver Plan')}
+                  onClick={() => handleRazorpayCheckout('second_marriage_package', 1, 'Silver Plan')}
                   disabled={isPackageActive}
                 >
                   {isPackageActive ? 'Package Active ✅' : 'Buy Silver Plan'}
@@ -137,7 +137,7 @@ export default function SecondMarriageClient() {
                     Inquire & Ask Call back
                   </button>
                   <a
-                    href={`https://wa.me/919675483125?text=${encodeURIComponent("Assalamu Alaikum, I am interested in the ₹11,000 Silver Plan on Rishte Forever. Please guide me.")}`}
+                    href={`https://wa.me/919675483125?text=${encodeURIComponent("Assalamu Alaikum, I am interested in the ₹1 Silver Plan on Rishte Forever. Please guide me.")}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="btn"
@@ -195,7 +195,7 @@ export default function SecondMarriageClient() {
               Package Inquiry & Callback
             </h3>
             <PackageInquiryForm
-              defaultPackage="₹11,000 Silver Plan"
+              defaultPackage="₹1 Silver Plan"
               onSuccess={() => setShowInquiry(false)}
               onCancel={() => setShowInquiry(false)}
             />

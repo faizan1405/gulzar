@@ -31,11 +31,11 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    function hasPaid300Check() {
+    function hasPaidSubscriptionCheck() {
       return viewerPurchases.some(p => p.packageType === 'monthly_membership' && p.paymentStatus === 'PAID');
     }
 
-    const hasStandardPkg = viewerHasPaid || hasPaid300Check();
+    const hasStandardPkg = viewerHasPaid || hasPaidSubscriptionCheck();
     const hasSecondMarriagePkg = viewerPurchases.some(p => p.packageType === 'second_marriage_package' && p.paymentStatus === 'PAID');
     const hasHighProfilePkg = viewerPurchases.some(p => p.packageType === 'high_profile_package' && p.paymentStatus === 'PAID' && p.eligibilityStatus === 'APPROVED');
     const hasGoodProfilePkg = viewerPurchases.some(p => p.packageType === 'good_profile_package' && p.paymentStatus === 'PAID');

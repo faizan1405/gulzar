@@ -85,7 +85,7 @@ export default function GoodProfilesClient() {
               </h3>
               {isFormComplete ? (
                 <div style={{ fontSize: '36px', fontWeight: '800', color: 'var(--deep-maroon)', marginBottom: '8px', fontFamily: 'var(--font-serif)' }}>
-                  ₹5,500 <span style={{ fontSize: '14px', color: 'var(--text-muted)', fontFamily: 'var(--font-sans)', fontWeight: 'normal' }}>+ GST</span>
+                  ₹1
                 </div>
               ) : (
                 <div style={{ background: 'linear-gradient(135deg,rgba(111,29,53,0.06),rgba(184,146,74,0.06))', border: '1.5px dashed var(--gold-accent)', borderRadius: '10px', padding: '14px', marginBottom: '8px', textAlign: 'center' }}>
@@ -108,7 +108,7 @@ export default function GoodProfilesClient() {
                 <button
                   className="btn btn-gold"
                   style={{ width: '100%', padding: '12px', fontSize: '15px' }}
-                  onClick={() => handleRazorpayCheckout('good_profile_package', 5500, 'Good Profile Package')}
+                  onClick={() => handleRazorpayCheckout('good_profile_package', 1, 'Good Profile Package')}
                   disabled={isPackageActive}
                 >
                   {isPackageActive ? 'Package Active ✅' : 'Buy Good Profile Package'}
@@ -133,7 +133,7 @@ export default function GoodProfilesClient() {
                     Inquire & Ask Call back
                   </button>
                   <a
-                    href={`https://wa.me/919675483125?text=${encodeURIComponent("Assalamu Alaikum, I am interested in the ₹5,500 Good Profiles Package on Rishte Forever. Please guide me.")}`}
+                    href={`https://wa.me/919675483125?text=${encodeURIComponent("Assalamu Alaikum, I am interested in the ₹1 Good Profiles Package on Rishte Forever. Please guide me.")}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="btn"
@@ -148,16 +148,16 @@ export default function GoodProfilesClient() {
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      gap: '6px',
+                      gap: '8px',
                       textDecoration: 'none',
                       borderRadius: '8px',
                       fontWeight: 600
                     }}
                   >
-                    <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
-                      <path d="M12.012 2c-5.506 0-9.97 4.478-9.97 10.012 0 1.77.458 3.43 1.258 4.887L2 22l5.253-1.378c1.402.766 3 1.2 4.759 1.2 5.506 0 9.97-4.478 9.97-10.012 0-5.534-4.464-10.012-9.97-10.012zm5.795 13.91c-.244.694-1.22 1.268-1.745 1.355-.472.079-.938.293-3.04-.542-2.527-.998-4.14-3.565-4.267-3.731-.127-.166-.991-1.32-.991-2.518 0-1.2.626-1.79.847-2.029.221-.24.479-.3.639-.3a.46.46 0 0 1 .332.155c.105.155.434 1.058.471 1.139.037.081.062.176.009.282-.053.106-.079.171-.157.262-.078.09-.166.2-.236.269-.079.078-.162.162-.07.32.092.158.411.678.88 1.096.604.538 1.111.704 1.267.782.157.078.249.066.342-.04.093-.106.402-.469.511-.627.109-.158.217-.132.366-.077.148.055.942.443 1.103.524.161.081.268.121.308.19.04.069.04.4-.204 1.094z" />
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                      <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.724-1.455L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.825 1.451 5.436 0 9.86-4.42 9.864-9.864.002-2.637-1.03-5.114-2.905-6.99C16.246 1.875 13.772 1.84 11.137 1.84c-5.437 0-9.861 4.417-9.865 9.861-.001 1.77.462 3.5 1.34 5.01L1.6 22.2l5.047-1.323zM16.657 13.62c-.252-.127-1.487-.734-1.716-.818-.23-.084-.397-.127-.564.127-.167.253-.648.818-.794.985-.147.168-.294.187-.546.06-2.628-1.31-4.226-2.524-5.155-4.12-.24-.412-.04-.633.16-.833.18-.18.397-.463.595-.694.198-.23.264-.396.396-.66.13-.264.066-.495-.033-.693-.1-.2-.864-2.08-1.186-2.85-.313-.755-.632-.653-.864-.664-.225-.01-.482-.01-.738-.01-.257 0-.676.096-1.03.494-.353.396-1.35 1.32-1.35 3.218 0 1.897 1.382 3.729 1.574 3.993.193.264 2.72 4.153 6.586 5.82 2.68 1.155 3.738 1.258 5.06.1.758-.664 1.488-1.583 1.716-2.296.228-.713.228-1.324.16-1.448-.07-.124-.265-.187-.517-.314z"/>
                     </svg>
-                    Inquire on WhatsApp
+                    Chat on WhatsApp
                   </a>
                 </>
               )}
@@ -191,7 +191,7 @@ export default function GoodProfilesClient() {
               Package Inquiry & Callback
             </h3>
             <PackageInquiryForm
-              defaultPackage="₹5,500 Good Profiles Package"
+              defaultPackage="₹1 Good Profiles Package"
               onSuccess={() => setShowInquiry(false)}
               onCancel={() => setShowInquiry(false)}
             />

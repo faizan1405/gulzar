@@ -9,7 +9,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 export default function MyAccountPage() {
-  const { isLoggedIn, userProfile, hasPaid300, activePackages, setIsRegistering, setRegStep } = useApp();
+  const { isLoggedIn, userProfile, hasPaidSubscription, activePackages, setIsRegistering, setRegStep } = useApp();
   const router = useRouter();
 
   useEffect(() => {
@@ -198,7 +198,7 @@ export default function MyAccountPage() {
               position: 'relative',
               overflow: 'hidden'
             }}>
-              {hasPaid300 && (
+               {hasPaidSubscription && (
                 <div style={{
                   position: 'absolute',
                   top: 0, right: 0,
@@ -214,8 +214,8 @@ export default function MyAccountPage() {
               
               <div style={{ marginBottom: '24px' }}>
                 <p style={{ color: 'var(--text-secondary)', marginBottom: '8px' }}>Active Subscription</p>
-                <div style={{ fontSize: '18px', fontWeight: 600, color: hasPaid300 ? 'var(--primary-brand)' : 'var(--text-primary)' }}>
-                  {hasPaid300 ? 'Standard Monthly Membership' : 'Free Basic Plan'}
+                <div style={{ fontSize: '18px', fontWeight: 600, color: hasPaidSubscription ? 'var(--primary-brand)' : 'var(--text-primary)' }}>
+                  {hasPaidSubscription ? 'Standard Monthly Membership' : 'Free Basic Plan'}
                 </div>
               </div>
 
@@ -232,7 +232,7 @@ export default function MyAccountPage() {
                 </div>
               )}
 
-              {!hasPaid300 && (
+              {!hasPaidSubscription && (
                 <div style={{ backgroundColor: 'var(--cream-bg)', padding: '16px', borderRadius: '8px', marginBottom: '16px' }}>
                   <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '12px' }}>
                     Unlock full profiles, photos, and direct contact numbers by upgrading to a premium membership.
@@ -243,7 +243,7 @@ export default function MyAccountPage() {
                 </div>
               )}
               
-              {hasPaid300 && (
+              {hasPaidSubscription && (
                 <p style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
                   Your subscription is active. You can browse all standard verified profiles and view their contact details.
                 </p>
