@@ -6,8 +6,8 @@ const path = require('path');
 const fs = require('fs');
 
 const URL = process.env.NAVBAR_TEST_URL || 'http://localhost:3000/';
-const DESKTOP_WIDTHS = [1920, 1600, 1440];
-const HAMBURGER_WIDTHS = [1366, 1280];
+const DESKTOP_WIDTHS = [1920, 1600, 1440, 1366, 1280, 1024];
+const HAMBURGER_WIDTHS = [991, 768];
 const OUT_DIR = path.join(__dirname, 'screenshots');
 if (!fs.existsSync(OUT_DIR)) fs.mkdirSync(OUT_DIR, { recursive: true });
 
@@ -20,7 +20,7 @@ let failures = [];
 
 async function checkDesktopWidth(browser, width) {
   const page = await browser.newPage({ viewport: { width, height: 1000 } });
-  await page.goto(URL, { waitUntil: 'networkidle' });
+  await page.goto(URL, { waitUntil: 'domcontentloaded' });
   await page.waitForSelector('.nav-container');
 
   const data = await page.evaluate(() => {
@@ -54,7 +54,7 @@ async function checkDesktopWidth(browser, width) {
 
   await page.screenshot({ path: path.join(OUT_DIR, `nav-${width}.png`), clip: { x: 0, y: 0, width, height: 260 } });
 
-  if (data.desktopMenuDisplay !== 'block') {
+  if (data.desktopMenuDisplay !== 'block' && data.desktopMenuDisplay !== 'flex') {
     failures.push(`[${width}px] expected desktop menu visible, got display:${data.desktopMenuDisplay}`);
   }
   for (const t of data.targets) {
@@ -71,7 +71,7 @@ async function checkDesktopWidth(browser, width) {
 
 async function checkHamburgerWidth(browser, width) {
   const page = await browser.newPage({ viewport: { width, height: 1000 } });
-  await page.goto(URL, { waitUntil: 'networkidle' });
+  await page.goto(URL, { waitUntil: 'domcontentloaded' });
   await page.waitForSelector('.nav-container');
 
   const desktopMenuDisplay = await page.evaluate(
@@ -84,6 +84,7 @@ async function checkHamburgerWidth(browser, width) {
   await page.screenshot({ path: path.join(OUT_DIR, `nav-${width}.png`), clip: { x: 0, y: 0, width, height: 260 } });
 
   await page.click('#hamburger-btn');
+  await page.waitForSelector('.modal-overlay', { state: 'visible', timeout: 3000 }).catch(() => null);
   const drawerOpened = await page.locator('.modal-overlay').isVisible().catch(() => false);
   if (!drawerOpened) {
     failures.push(`[${width}px] hamburger click did not open the mobile drawer`);

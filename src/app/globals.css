@@ -2015,101 +2015,10 @@ input[type="checkbox"] {
 
 /* Media Queries for Responsive Design */
 /* Small desktop / laptop tier: the navbar card's own max-width (1480px)
-   starts getting constrained by the viewport itself below ~1528px, so
-   reclaim a bit more room here before the hamburger cutover. */
-@media (max-width: 1600px) {
-  .nav-container {
-    column-gap: 12px;
-    padding: 8px 14px;
-    min-height: 64px;
-  }
-
-  .logo-arch-wrapper {
-    width: 180px;
-    height: 90px;
-    margin-top: -34px;
-  }
-
-  .logo-arch-content {
-    padding-top: 10px;
-    width: 150px;
-  }
-
-  .nav-menu {
-    gap: 5px;
-  }
-
-  .nav-link {
-    padding: 5px 7px;
-    font-size: 12px;
-  }
-
-  .nav-right {
-    gap: 8px;
-  }
-
-  .nav-btn {
-    padding: 5px 8px !important;
-    font-size: 10.5px !important;
-    height: 32px !important;
-    gap: 4px !important;
-  }
-
-  .nav-actions-wrapper {
-    gap: 6px;
-  }
-
-  .nav-actions-group {
-    gap: 4px;
-  }
-}
-
-/* Tablet / mobile tier: not enough width remains for a 3-column desktop
-   layout without crowding the logo, so switch to the hamburger menu here
-   rather than let links move underneath the logo. */
+   starts getting constrained by the viewport itself below ~1528px. */
 @media (max-width: 1400px) {
   .hero-title {
     font-size: 48px;
-  }
-
-  .nav-container {
-    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-    grid-template-rows: auto;
-    min-height: 64px;
-    padding: 8px 16px;
-    row-gap: 0;
-    column-gap: 10px;
-    border-radius: 12px;
-    margin: 10px auto 5px auto;
-  }
-
-  .logo-arch-wrapper {
-    width: 160px;
-    height: auto;
-    margin-top: 0;
-  }
-
-  .logo-arch-content {
-    padding-top: 0;
-    width: 130px;
-  }
-
-  .logo-arch-bg {
-    display: none;
-  }
-
-  .nav-menu-desktop {
-    display: none !important;
-  }
-
-  #hamburger-btn {
-    display: flex !important;
-  }
-
-  .nav-left {
-    justify-self: start !important;
-    grid-row: 1;
-    grid-column: 1;
   }
 }
 
@@ -3355,35 +3264,33 @@ input[type="checkbox"] {
 }
 
 /* ==========================================================================
-   DESKTOP NAVBAR FIX
-   Desktop navigation remains visible on laptops/desktops.
-   The mobile drawer starts only below 1180px.
-   Keep this block at the very end of globals.css.
+   DESKTOP NAVBAR FIX (Stable Three-Column Grid Layout)
+   Applies only at desktop breakpoints (min-width: 1024px).
+   Mobile navigation menu (<= 1023px) remains exactly unchanged.
    ========================================================================== */
 
-/* Desktop and laptop navigation */
-@media (min-width: 1181px) {
+@media (min-width: 1024px) {
   .nav-outer-container {
     width: 100%;
     max-width: 1920px;
     margin: 0 auto;
-    padding: 18px clamp(16px, 1.5vw, 30px) 8px;
+    padding: 16px clamp(16px, 1.8vw, 32px) 8px;
     overflow: visible;
   }
 
+  /* Stable 3-column grid with equal 1fr outer columns so logo is dead center */
   .nav-container {
     position: relative;
-    display: grid;
-    grid-template-columns:
-      minmax(285px, 0.9fr) clamp(190px, 13vw, 230px) minmax(620px, 1.7fr);
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) !important;
     align-items: center;
-    column-gap: clamp(8px, 0.8vw, 16px);
+    column-gap: clamp(8px, 1.2vw, 24px);
 
     width: 100%;
     max-width: none;
-    min-height: 82px;
+    min-height: clamp(64px, 4.5vw, 76px);
     margin: 0;
-    padding: 8px clamp(12px, 1.25vw, 24px);
+    padding: 8px clamp(12px, 1.5vw, 24px);
 
     background-color: var(--warm-ivory);
     border: 1.5px solid var(--gold-accent);
@@ -3392,6 +3299,7 @@ input[type="checkbox"] {
     overflow: visible;
   }
 
+  /* Prevent overflow on sections and containers */
   .nav-section,
   .nav-left,
   .nav-right,
@@ -3399,7 +3307,7 @@ input[type="checkbox"] {
     min-width: 0;
   }
 
-  /* Force desktop links back on. This overrides the older max-width:1400 rule. */
+  /* Force desktop links visible on desktop */
   .nav-menu-desktop {
     display: flex !important;
     align-items: center;
@@ -3409,23 +3317,23 @@ input[type="checkbox"] {
     display: none !important;
   }
 
+  /* Left column aligned to start */
   .nav-left {
     grid-column: 1;
-    justify-self: stretch !important;
+    justify-self: start !important;
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    padding-right: 4px;
   }
 
+  /* Right column aligned to end */
   .nav-right {
     grid-column: 3;
-    justify-self: stretch;
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
+    justify-self: end !important;
+    display: flex;
     align-items: center;
-    gap: clamp(6px, 0.65vw, 12px);
-    padding-left: 4px;
+    justify-content: flex-end;
+    gap: clamp(6px, 1vw, 16px);
   }
 
   .nav-left>.nav-menu-desktop {
@@ -3439,7 +3347,7 @@ input[type="checkbox"] {
   .nav-menu {
     display: flex !important;
     align-items: center;
-    gap: clamp(3px, 0.45vw, 9px);
+    gap: clamp(4px, 0.6vw, 10px);
     margin: 0;
     padding: 0;
     list-style: none;
@@ -3453,24 +3361,25 @@ input[type="checkbox"] {
   }
 
   .nav-link {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 4px;
-    min-height: 38px;
-    padding: 6px clamp(3px, 0.35vw, 7px);
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: clamp(3px, 0.35vw, 6px);
+    min-height: 36px;
+    padding: 6px clamp(6px, 0.5vw, 10px);
 
     color: var(--text-dark);
-    font-size: clamp(10.5px, 0.74vw, 13px);
+    font-size: clamp(11px, 0.75vw, 13px);
     font-weight: 700;
     line-height: 1;
     letter-spacing: 0.05px;
-    white-space: nowrap;
+    white-space: nowrap !important;
     border-radius: 9px;
+    flex-shrink: 0;
   }
 
   .nav-link.active {
-    padding: 6px clamp(4px, 0.4vw, 8px);
+    padding: 6px clamp(6px, 0.5vw, 10px);
   }
 
   .nav-icon {
@@ -3479,16 +3388,16 @@ input[type="checkbox"] {
     flex: 0 0 auto;
   }
 
-  /* Real center column: logo never overlaps either side. */
+  /* Center Column: Logo wrapper cleanly centered without negative margins or absolute offsets */
   .logo-arch-wrapper {
     grid-column: 2;
-    justify-self: center;
-    align-self: end;
+    justify-self: center !important;
+    align-self: center !important;
     position: relative;
 
-    width: clamp(190px, 13vw, 230px);
-    height: 112px;
-    margin-top: -34px;
+    width: clamp(150px, 12vw, 190px);
+    height: auto;
+    margin: 0 auto !important;
 
     display: flex;
     align-items: center;
@@ -3496,7 +3405,6 @@ input[type="checkbox"] {
     flex: none;
     z-index: 5;
     overflow: visible;
-    pointer-events: none;
   }
 
   .logo-arch-bg {
@@ -3509,14 +3417,13 @@ input[type="checkbox"] {
   }
 
   .logo-arch-content {
-    position: absolute;
-    inset: 31px 20px 10px;
+    position: relative;
     z-index: 2;
-    width: auto;
-    padding: 0;
+    padding: clamp(6px, 0.8vw, 12px) 0;
     display: flex;
     align-items: center;
     justify-content: center;
+    width: 100%;
   }
 
   .logo-link {
@@ -3524,26 +3431,26 @@ input[type="checkbox"] {
     align-items: center;
     justify-content: center;
     width: 100%;
-    max-width: 178px;
-    pointer-events: auto;
+    max-width: clamp(130px, 10vw, 165px);
   }
 
   .logo-link img {
     display: block;
     width: 100% !important;
-    max-width: 178px !important;
+    max-width: 100% !important;
     height: auto !important;
     object-fit: contain;
   }
 
+  /* Right column actions (My Account, Logout, Login, Register) */
   .nav-actions-wrapper,
   .nav-actions-group {
     display: flex !important;
     align-items: center;
     justify-content: flex-end;
-    gap: clamp(4px, 0.4vw, 7px);
-    min-width: max-content;
-    flex: 0 0 auto;
+    gap: clamp(4px, 0.45vw, 8px);
+    flex-shrink: 0;
+    white-space: nowrap;
   }
 
   .nav-greeting {
@@ -3561,17 +3468,17 @@ input[type="checkbox"] {
     align-items: center !important;
     justify-content: center !important;
     width: auto !important;
-    min-width: max-content;
     height: 36px !important;
     margin: 0 !important;
-    padding: 0 clamp(7px, 0.55vw, 11px) !important;
+    padding: 0 clamp(8px, 0.6vw, 12px) !important;
 
     border-radius: 9px !important;
-    font-size: clamp(9.5px, 0.65vw, 11px) !important;
+    font-size: clamp(10.5px, 0.7vw, 12px) !important;
     font-weight: 800 !important;
     line-height: 1 !important;
     letter-spacing: 0.1px;
     white-space: nowrap !important;
+    flex-shrink: 0;
   }
 
   .btn-icon {
@@ -3581,88 +3488,77 @@ input[type="checkbox"] {
   }
 }
 
-/* Compact laptop tier: still desktop navigation, not hamburger. */
-@media (min-width: 1181px) and (max-width: 1450px) {
+/* Compact desktop layout (approximately 1024px–1250px) */
+@media (min-width: 1024px) and (max-width: 1250px) {
   .nav-outer-container {
-    padding-right: 14px;
-    padding-left: 14px;
+    padding: 10px 10px 4px;
   }
 
   .nav-container {
-    grid-template-columns:
-      minmax(275px, 0.9fr) 185px minmax(610px, 1.85fr);
-    column-gap: 6px;
-    min-height: 76px;
-    padding-right: 12px;
-    padding-left: 12px;
+    padding: 6px 10px;
+    column-gap: 4px;
+    min-height: 56px;
+    border-radius: 16px;
   }
 
   .logo-arch-wrapper {
-    width: 185px;
-    height: 102px;
-    margin-top: -29px;
+    width: 120px;
   }
 
   .logo-arch-content {
-    inset: 29px 17px 9px;
+    padding: 2px 0;
   }
 
-  .logo-link,
-  .logo-link img {
-    max-width: 148px !important;
+  .logo-link {
+    max-width: 105px;
   }
 
   .nav-menu {
-    gap: 2px;
+    gap: 1px;
   }
 
   .nav-link {
-    gap: 3px;
-    padding-right: 3px;
-    padding-left: 3px;
-    font-size: 10.5px;
-  }
-
-  .nav-link.active {
-    padding-right: 4px;
-    padding-left: 4px;
+    padding: 4px 4px !important;
+    font-size: 10px !important;
+    gap: 2px !important;
+    min-height: 28px;
+    border-radius: 6px;
   }
 
   .nav-icon {
-    width: 14px;
-    height: 14px;
+    width: 12px;
+    height: 12px;
   }
 
   .nav-right {
-    gap: 5px;
-    padding-left: 0;
+    gap: 2px !important;
   }
 
   .nav-actions-wrapper,
   .nav-actions-group {
-    gap: 4px;
+    gap: 2px !important;
   }
 
   .nav-greeting {
-    display: none;
+    display: none !important;
   }
 
   .nav-btn {
-    height: 34px !important;
-    padding-right: 7px !important;
-    padding-left: 7px !important;
+    height: 28px !important;
+    padding: 0 6px !important;
     font-size: 9.5px !important;
-    gap: 3px !important;
+    gap: 2px !important;
+    border-radius: 6px !important;
   }
 
   .btn-icon {
-    width: 13px;
-    height: 13px;
+    width: 11px;
+    height: 11px;
   }
 }
 
-/* Drawer is now reserved for tablets/mobile only. */
-@media (max-width: 1180px) {
+/* Drawer is now reserved for tablets/mobile only (<= 1023px) — left exactly unchanged */
+@media (max-width: 1023px) {
   .nav-outer-container {
     padding: 16px 16px 8px;
   }
