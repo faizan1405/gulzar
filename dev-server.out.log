@@ -1158,3 +1158,6 @@ prisma:query db.MatrimonialProfile.aggregate([ { $sort: { createdAt: -1, }, }, {
  GET /api/profiles 200 in 288ms (next.js: 1717µs, application-code: 287ms)
 ✓ Compiled in 1368ms
  GET /api/products 404 in 599ms (next.js: 299ms, application-code: 299ms)
+  Reload env: .env
+ GET /login 404 in 639ms (next.js: 214ms, application-code: 425ms)
+ GET /api/auth/google 400 in 191ms (next.js: 172ms, application-code: 19ms)
