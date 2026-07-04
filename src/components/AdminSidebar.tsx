@@ -16,15 +16,17 @@ export const AdminSidebar: React.FC = () => {
 
   return (
     <aside className={`admin-nav-list ${isAdminMobileOpen ? 'open' : ''}`}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px', paddingLeft: '12px' }}>
-        <Image
-          src="/images/rishte-forever-logo.png"
-          alt="Rishte Forever"
-          width={150}
-          height={57}
-          style={{ height: '36px', width: 'auto', background: 'var(--white)', padding: '6px 8px', borderRadius: '8px' }}
-        />
-        <span style={{ fontFamily: 'var(--font-serif)', color: 'var(--gold-accent)', fontSize: '16px', fontWeight: 'bold' }}>Admin</span>
+      <div style={{ padding: '0 12px', marginBottom: '24px' }}>
+        <Link href="/admin" onClick={handleLinkClick} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <Image
+            src="/images/rishte-forever-logo.png"
+            alt="Rishte Forever"
+            width={120}
+            height={45}
+            style={{ height: '32px', width: 'auto', background: 'var(--primary-brand)', padding: '4px', borderRadius: '6px' }}
+          />
+          <span style={{ fontFamily: 'var(--font-serif)', color: '#1e293b', fontSize: '18px', fontWeight: 700 }}>Admin</span>
+        </Link>
       </div>
       
       <div className="admin-nav-section-title">Operations</div>
@@ -33,87 +35,87 @@ export const AdminSidebar: React.FC = () => {
         className={`admin-nav-link ${pathname === '/admin' ? 'active' : ''}`}
         onClick={handleLinkClick}
       >
-        📊 Overview
+        <span>📊</span> Overview
       </Link>
       <Link
         href="/admin/profiles"
         className={`admin-nav-link ${pathname === '/admin/profiles' ? 'active' : ''}`}
         onClick={handleLinkClick}
       >
-        🧑‍🤝‍🧑 Profiles
+        <span>🧑‍🤝‍🧑</span> Profiles
       </Link>
       <Link
         href="/admin/verification"
         className={`admin-nav-link ${pathname === '/admin/verification' ? 'active' : ''}`}
         onClick={handleLinkClick}
       >
-        👤 Verification Queue
+        <span>👤</span> Verification Queue
       </Link>
       <Link
         href="/admin/packages"
         className={`admin-nav-link ${pathname === '/admin/packages' ? 'active' : ''}`}
         onClick={handleLinkClick}
       >
-        💎 Premium Packages
+        <span>💎</span> Premium Packages
       </Link>
       <Link
         href="/admin/leads"
         className={`admin-nav-link ${pathname === '/admin/leads' ? 'active' : ''}`}
         onClick={handleLinkClick}
       >
-        📥 Leads & Inquiries
+        <span>📥</span> Leads & Inquiries
       </Link>
       <Link
         href="/admin/events"
         className={`admin-nav-link ${pathname === '/admin/events' ? 'active' : ''}`}
         onClick={handleLinkClick}
       >
-        🎊 Event Management
+        <span>🎊</span> Event Management
       </Link>
       <Link
         href="/admin/zaicha"
         className={`admin-nav-link ${pathname === '/admin/zaicha' ? 'active' : ''}`}
         onClick={handleLinkClick}
       >
-        🌙 Zaicha Inquiries
+        <span>🌙</span> Zaicha Inquiries
       </Link>
       <Link
         href="/admin/master-data"
         className={`admin-nav-link ${pathname === '/admin/master-data' ? 'active' : ''}`}
         onClick={handleLinkClick}
       >
-        🛠️ Master Data
+        <span>🛠️</span> Master Data
       </Link>
 
-      <div className="admin-nav-section-title">Logs & Settings</div>
+      <div className="admin-nav-section-title">System</div>
       <Link
         href="/admin/logs"
         className={`admin-nav-link ${pathname === '/admin/logs' ? 'active' : ''}`}
         onClick={handleLinkClick}
       >
-        📜 Activity Logs
+        <span>📜</span> Activity Logs
       </Link>
       <Link
         href="/admin/settings"
         className={`admin-nav-link ${pathname === '/admin/settings' ? 'active' : ''}`}
         onClick={handleLinkClick}
       >
-        ⚙️ Settings
+        <span>⚙️</span> Settings
       </Link>
 
-      <div style={{ marginTop: 'auto', borderTop: '1px solid rgba(212,163,89,0.3)', paddingTop: '20px', padding: '0 12px' }}>
-        <h4 style={{ color: 'var(--gold-accent)', fontSize: '13px', marginBottom: '8px' }}>Referral Rate Control</h4>
+      <div style={{ marginTop: 'auto', borderTop: '1px solid #e2e8f0', paddingTop: '24px', paddingBottom: '16px', paddingLeft: '12px', paddingRight: '12px' }}>
+        <h4 style={{ color: '#475569', fontSize: '12px', fontWeight: 600, marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Referral Control</h4>
         <input
           type="range"
           min="20"
           max="23"
           value={referralRate}
           onChange={(e) => setReferralRate(parseInt(e.target.value))}
-          style={{ width: '100%', accentColor: 'var(--gold-accent)' }}
+          style={{ width: '100%', accentColor: 'var(--primary-brand)' }}
         />
-        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', marginTop: '6px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginTop: '8px', color: '#64748b' }}>
           <span>Commission:</span>
-          <strong>{referralRate}%</strong>
+          <strong style={{ color: '#1e293b' }}>{referralRate}%</strong>
         </div>
       </div>
     </aside>

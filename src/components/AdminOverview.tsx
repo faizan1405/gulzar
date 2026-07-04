@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { useApp } from '../context/AppContext';
+import { AdminPageHeader, AdminCard } from './AdminUI';
 
 export const AdminOverview: React.FC = () => {
   const {
@@ -25,93 +26,71 @@ export const AdminOverview: React.FC = () => {
 
   return (
     <div>
-      <h1 style={{ fontFamily: 'var(--font-serif)', color: 'var(--gold-dark)', marginBottom: '8px' }}>
-        Dashboard Overview
-      </h1>
-      <p style={{ color: 'var(--text-muted)', fontSize: '14.5px', marginBottom: '32px' }}>
-        Real-time matrimonial operations, premium subscriptions, and verification statistics.
-      </p>
+      <AdminPageHeader 
+        title="Dashboard Overview" 
+        subtitle="Real-time matrimonial operations, premium subscriptions, and verification statistics." 
+      />
 
-      <div className="stats-grid">
-        <div className="stat-card">
-          <div>
-            <div className="stat-card-label">Total Profiles</div>
-            <div className="stat-card-value">{totalProfiles}</div>
-          </div>
-          <div className="stat-card-icon">👥</div>
-        </div>
+      <div className="admin-stats-grid">
+        <AdminCard style={{ position: 'relative' }}>
+          <div style={{ fontSize: '12px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', marginBottom: '8px' }}>Total Profiles</div>
+          <div style={{ fontSize: '28px', fontWeight: 700, color: 'var(--primary-brand)', lineHeight: 1 }}>{totalProfiles}</div>
+          <div style={{ position: 'absolute', bottom: '20px', right: '20px', fontSize: '24px', opacity: 0.15, color: '#0f172a' }}>👥</div>
+        </AdminCard>
 
-        <div className="stat-card">
-          <div>
-            <div className="stat-card-label">Pending Verifications</div>
-            <div className="stat-card-value">{pendingVerifications}</div>
-          </div>
-          <div className="stat-card-icon">⏳</div>
-        </div>
+        <AdminCard style={{ position: 'relative' }}>
+          <div style={{ fontSize: '12px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', marginBottom: '8px' }}>Pending Verifications</div>
+          <div style={{ fontSize: '28px', fontWeight: 700, color: 'var(--primary-brand)', lineHeight: 1 }}>{pendingVerifications}</div>
+          <div style={{ position: 'absolute', bottom: '20px', right: '20px', fontSize: '24px', opacity: 0.15, color: '#0f172a' }}>⏳</div>
+        </AdminCard>
 
-        <div className="stat-card">
-          <div>
-            <div className="stat-card-label">Verified Profiles</div>
-            <div className="stat-card-value">{verifiedProfiles}</div>
-          </div>
-          <div className="stat-card-icon">✅</div>
-        </div>
+        <AdminCard style={{ position: 'relative' }}>
+          <div style={{ fontSize: '12px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', marginBottom: '8px' }}>Verified Profiles</div>
+          <div style={{ fontSize: '28px', fontWeight: 700, color: 'var(--primary-brand)', lineHeight: 1 }}>{verifiedProfiles}</div>
+          <div style={{ position: 'absolute', bottom: '20px', right: '20px', fontSize: '24px', opacity: 0.15, color: '#0f172a' }}>✅</div>
+        </AdminCard>
 
-        <div className="stat-card">
-          <div>
-            <div className="stat-card-label">Active Monthly Members</div>
-            <div className="stat-card-value">{activeMonthlyMembers}</div>
-          </div>
-          <div className="stat-card-icon">📅</div>
-        </div>
+        <AdminCard style={{ position: 'relative' }}>
+          <div style={{ fontSize: '12px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', marginBottom: '8px' }}>Active Monthly Members</div>
+          <div style={{ fontSize: '28px', fontWeight: 700, color: 'var(--primary-brand)', lineHeight: 1 }}>{activeMonthlyMembers}</div>
+          <div style={{ position: 'absolute', bottom: '20px', right: '20px', fontSize: '24px', opacity: 0.15, color: '#0f172a' }}>📅</div>
+        </AdminCard>
 
-        <div className="stat-card">
-          <div>
-            <div className="stat-card-label">Premium Purchases</div>
-            <div className="stat-card-value">{premiumPurchases}</div>
-          </div>
-          <div className="stat-card-icon">💎</div>
-        </div>
+        <AdminCard style={{ position: 'relative' }}>
+          <div style={{ fontSize: '12px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', marginBottom: '8px' }}>Premium Purchases</div>
+          <div style={{ fontSize: '28px', fontWeight: 700, color: 'var(--primary-brand)', lineHeight: 1 }}>{premiumPurchases}</div>
+          <div style={{ position: 'absolute', bottom: '20px', right: '20px', fontSize: '24px', opacity: 0.15, color: '#0f172a' }}>💎</div>
+        </AdminCard>
 
-        <div className="stat-card">
-          <div>
-            <div className="stat-card-label">Good Profiles Cases</div>
-            <div className="stat-card-value">{curatedMatches}</div>
-          </div>
-          <div className="stat-card-icon">🤝</div>
-        </div>
+        <AdminCard style={{ position: 'relative' }}>
+          <div style={{ fontSize: '12px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', marginBottom: '8px' }}>Good Profiles Cases</div>
+          <div style={{ fontSize: '28px', fontWeight: 700, color: 'var(--primary-brand)', lineHeight: 1 }}>{curatedMatches}</div>
+          <div style={{ position: 'absolute', bottom: '20px', right: '20px', fontSize: '24px', opacity: 0.15, color: '#0f172a' }}>🤝</div>
+        </AdminCard>
 
-        <div className="stat-card">
-          <div>
-            <div className="stat-card-label">Silver Plan Cases</div>
-            <div className="stat-card-value">{secondMarriage}</div>
-          </div>
-          <div className="stat-card-icon">💍</div>
-        </div>
+        <AdminCard style={{ position: 'relative' }}>
+          <div style={{ fontSize: '12px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', marginBottom: '8px' }}>Silver Plan Cases</div>
+          <div style={{ fontSize: '28px', fontWeight: 700, color: 'var(--primary-brand)', lineHeight: 1 }}>{secondMarriage}</div>
+          <div style={{ position: 'absolute', bottom: '20px', right: '20px', fontSize: '24px', opacity: 0.15, color: '#0f172a' }}>💍</div>
+        </AdminCard>
 
-        <div className="stat-card">
-          <div>
-            <div className="stat-card-label">Gold Package Cases</div>
-            <div className="stat-card-value">{highProfile}</div>
-          </div>
-          <div className="stat-card-icon">👑</div>
-        </div>
+        <AdminCard style={{ position: 'relative' }}>
+          <div style={{ fontSize: '12px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', marginBottom: '8px' }}>Gold Package Cases</div>
+          <div style={{ fontSize: '28px', fontWeight: 700, color: 'var(--primary-brand)', lineHeight: 1 }}>{highProfile}</div>
+          <div style={{ position: 'absolute', bottom: '20px', right: '20px', fontSize: '24px', opacity: 0.15, color: '#0f172a' }}>👑</div>
+        </AdminCard>
 
-        <div className="stat-card">
-          <div>
-            <div className="stat-card-label">Completed Matches</div>
-            <div className="stat-card-value">{completedMatches}</div>
-          </div>
-          <div className="stat-card-icon">❤️</div>
-        </div>
+        <AdminCard style={{ position: 'relative' }}>
+          <div style={{ fontSize: '12px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', marginBottom: '8px' }}>Completed Matches</div>
+          <div style={{ fontSize: '28px', fontWeight: 700, color: 'var(--primary-brand)', lineHeight: 1 }}>{completedMatches}</div>
+          <div style={{ position: 'absolute', bottom: '20px', right: '20px', fontSize: '24px', opacity: 0.15, color: '#0f172a' }}>❤️</div>
+        </AdminCard>
 
-        <div className="stat-card">
-          <div>
-            <div className="stat-card-label">Audit Logs</div>
-            <div className="stat-card-value">{totalAuditLogs}</div>
-          </div>
-          <div className="stat-card-icon">📜</div>
-        </div>
+        <AdminCard style={{ position: 'relative' }}>
+          <div style={{ fontSize: '12px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', marginBottom: '8px' }}>Audit Logs</div>
+          <div style={{ fontSize: '28px', fontWeight: 700, color: 'var(--primary-brand)', lineHeight: 1 }}>{totalAuditLogs}</div>
+          <div style={{ position: 'absolute', bottom: '20px', right: '20px', fontSize: '24px', opacity: 0.15, color: '#0f172a' }}>📜</div>
+        </AdminCard>
       </div>
     </div>
   );

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../../../context/AppContext';
+import { AdminPageHeader, AdminCard, AdminButton } from '../../../components/AdminUI';
 
 export default function AdminSettingsPage() {
   const { } = useApp();
@@ -82,213 +83,190 @@ export default function AdminSettingsPage() {
 
   if (isLoading) {
     return (
-      <div style={{ textAlign: 'center', padding: '60px', color: 'var(--text-muted)' }}>
-        Loading settings...
+      <div style={{ textAlign: 'center', padding: '48px', color: '#64748b' }}>
+        <div style={{ fontSize: '16px', fontWeight: 500, color: '#334155' }}>Loading settings...</div>
       </div>
     );
   }
 
-  const inputStyle: React.CSSProperties = {
-    width: '100%',
-    padding: '9px 13px',
-    border: '1.5px solid var(--border-color)',
-    borderRadius: '8px',
-    fontSize: '14px',
-    color: 'var(--text-dark)',
-    background: 'var(--white)',
-    outline: 'none',
-    boxSizing: 'border-box',
-  };
-
-  const labelStyle: React.CSSProperties = {
-    display: 'block',
-    fontSize: '12.5px',
-    fontWeight: 'bold',
-    color: 'var(--deep-maroon)',
-    marginBottom: '6px',
-  };
-
-  const hintStyle: React.CSSProperties = {
-    fontSize: '11.5px',
-    color: 'var(--text-muted)',
-    marginTop: '4px',
-  };
-
-  const sectionStyle: React.CSSProperties = {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '20px',
-  };
-
   return (
-    <div style={{ paddingBottom: '60px' }}>
-      <h1 style={{ fontFamily: 'var(--font-serif)', color: 'var(--gold-dark)', marginBottom: '8px' }}>
-        ⚙️ Website & Admin Settings
-      </h1>
-      <p style={{ color: 'var(--text-muted)', fontSize: '14.5px', marginBottom: '32px' }}>
-        Configure notification preferences, contact details, social media links, and website metadata.
-      </p>
+    <div className="font-sans">
+      <AdminPageHeader
+        title="Website & Admin Settings"
+        subtitle="Configure notification preferences, contact details, social media links, and website metadata."
+      />
 
       {message && (
         <div style={{
-          padding: '12px 18px',
+          padding: '12px 16px',
           marginBottom: '24px',
           borderRadius: '8px',
-          fontSize: '13.5px',
-          fontWeight: '500',
-          backgroundColor: messageType === 'success' ? 'rgba(18, 46, 34, 0.08)' : 'rgba(220, 53, 69, 0.08)',
-          color: messageType === 'success' ? '#155724' : '#dc3545',
-          border: `1px solid ${messageType === 'success' ? 'rgba(18, 46, 34, 0.2)' : 'rgba(220, 53, 69, 0.2)'}`,
+          fontSize: '14px',
+          fontWeight: 500,
+          backgroundColor: messageType === 'success' ? '#f0fdf4' : '#fef2f2',
+          color: messageType === 'success' ? '#166534' : '#991b1b',
+          border: `1px solid ${messageType === 'success' ? '#bbf7d0' : '#fecaca'}`,
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px'
         }}>
-          {messageType === 'success' ? '✅' : '⚠️'} {message}
+          <span>{messageType === 'success' ? '✅' : '⚠️'}</span> {message}
         </div>
       )}
 
-      <form onSubmit={handleSave} style={sectionStyle}>
+      <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
 
         {/* Notification Contact Details */}
-        <div className="card-theme-wrapper">
-          <h3 style={{ fontFamily: 'var(--font-serif)', color: 'var(--gold-dark)', marginBottom: '20px' }}>
+        <AdminCard>
+          <h3 style={{ fontSize: '16px', fontWeight: 600, color: '#0f172a', marginBottom: '20px' }}>
             Notification & Contact Details
           </h3>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }} className="grid-mobile-1">
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
             <div>
-              <label style={labelStyle}>Admin Email Address</label>
+              <label className="admin-label">Admin Email Address</label>
               <input
                 type="email"
-                style={inputStyle}
+                className="admin-input"
                 value={settings.adminEmail}
                 onChange={e => setSettings({ ...settings, adminEmail: e.target.value })}
                 placeholder="admin@rishteforever.in"
+                style={{ width: '100%' }}
               />
-              <p style={hintStyle}>Receive new profile alerts and system notifications here.</p>
+              <p style={{ fontSize: '12px', color: '#64748b', marginTop: '6px' }}>Receive new profile alerts and system notifications here.</p>
             </div>
             <div>
-              <label style={labelStyle}>Admin Phone Number</label>
+              <label className="admin-label">Admin Phone Number</label>
               <input
                 type="tel"
-                style={inputStyle}
+                className="admin-input"
                 value={settings.adminPhone}
                 onChange={e => setSettings({ ...settings, adminPhone: e.target.value })}
                 placeholder="+919876543210"
+                style={{ width: '100%' }}
               />
-              <p style={hintStyle}>Used for urgent SMS alerts when enabled.</p>
+              <p style={{ fontSize: '12px', color: '#64748b', marginTop: '6px' }}>Used for urgent SMS alerts when enabled.</p>
             </div>
             <div style={{ gridColumn: 'span 2' }}>
-              <label style={labelStyle}>Office Address</label>
+              <label className="admin-label">Office Address</label>
               <input
                 type="text"
-                style={inputStyle}
+                className="admin-input"
                 value={settings.officeAddress}
                 onChange={e => setSettings({ ...settings, officeAddress: e.target.value })}
                 placeholder="Innov8 44 Regal Building, 2nd Floor, Connaught Place, New Delhi - 110001"
+                style={{ width: '100%' }}
               />
-              <p style={hintStyle}>Physical address shown on the contact page and footer.</p>
+              <p style={{ fontSize: '12px', color: '#64748b', marginTop: '6px' }}>Physical address shown on the contact page and footer.</p>
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: '32px', marginTop: '20px', paddingTop: '20px', borderTop: '1px solid var(--border-color)', flexWrap: 'wrap' }}>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '13.5px', color: 'var(--text-dark)', cursor: 'pointer' }}>
+          <div style={{ display: 'flex', gap: '32px', marginTop: '24px', paddingTop: '24px', borderTop: '1px solid #e2e8f0', flexWrap: 'wrap' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '14px', color: '#334155', cursor: 'pointer' }}>
               <input
                 type="checkbox"
                 checked={settings.emailAlertsEnabled}
                 onChange={e => setSettings({ ...settings, emailAlertsEnabled: e.target.checked })}
-                style={{ width: '16px', height: '16px', accentColor: 'var(--gold-accent)', cursor: 'pointer' }}
+                style={{ width: '16px', height: '16px', accentColor: 'var(--primary-brand)', cursor: 'pointer' }}
               />
               <span><strong>Enable Email Alerts</strong> — new profiles, verifications</span>
             </label>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '13.5px', color: 'var(--text-dark)', cursor: 'pointer' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '14px', color: '#334155', cursor: 'pointer' }}>
               <input
                 type="checkbox"
                 checked={settings.smsAlertsEnabled}
                 onChange={e => setSettings({ ...settings, smsAlertsEnabled: e.target.checked })}
-                style={{ width: '16px', height: '16px', accentColor: 'var(--gold-accent)', cursor: 'pointer' }}
+                style={{ width: '16px', height: '16px', accentColor: 'var(--primary-brand)', cursor: 'pointer' }}
               />
               <span><strong>Enable SMS Alerts</strong> — urgent admin notifications</span>
             </label>
           </div>
-        </div>
+        </AdminCard>
 
         {/* Social Media Links */}
-        <div className="card-theme-wrapper">
-          <h3 style={{ fontFamily: 'var(--font-serif)', color: 'var(--gold-dark)', marginBottom: '20px' }}>
+        <AdminCard>
+          <h3 style={{ fontSize: '16px', fontWeight: 600, color: '#0f172a', marginBottom: '20px' }}>
             Social Media Links
           </h3>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }} className="grid-mobile-1">
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
             <div>
-              <label style={labelStyle}>Facebook URL</label>
+              <label className="admin-label">Facebook URL</label>
               <input
                 type="url"
-                style={inputStyle}
+                className="admin-input"
                 value={settings.facebookUrl}
                 onChange={e => setSettings({ ...settings, facebookUrl: e.target.value })}
                 placeholder="https://facebook.com/yourpage"
+                style={{ width: '100%' }}
               />
             </div>
             <div>
-              <label style={labelStyle}>Instagram URL</label>
+              <label className="admin-label">Instagram URL</label>
               <input
                 type="url"
-                style={inputStyle}
+                className="admin-input"
                 value={settings.instagramUrl}
                 onChange={e => setSettings({ ...settings, instagramUrl: e.target.value })}
                 placeholder="https://instagram.com/yourhandle"
+                style={{ width: '100%' }}
               />
             </div>
             <div>
-              <label style={labelStyle}>YouTube URL</label>
+              <label className="admin-label">YouTube URL</label>
               <input
                 type="url"
-                style={inputStyle}
+                className="admin-input"
                 value={settings.youtubeUrl}
                 onChange={e => setSettings({ ...settings, youtubeUrl: e.target.value })}
                 placeholder="https://youtube.com/yourchannel"
+                style={{ width: '100%' }}
               />
             </div>
             <div>
-              <label style={labelStyle}>LinkedIn URL</label>
+              <label className="admin-label">LinkedIn URL</label>
               <input
                 type="url"
-                style={inputStyle}
+                className="admin-input"
                 value={settings.linkedinUrl}
                 onChange={e => setSettings({ ...settings, linkedinUrl: e.target.value })}
                 placeholder="https://linkedin.com/company/yourcompany"
+                style={{ width: '100%' }}
               />
             </div>
             <div>
-              <label style={labelStyle}>X / Twitter URL</label>
+              <label className="admin-label">X / Twitter URL</label>
               <input
                 type="url"
-                style={inputStyle}
+                className="admin-input"
                 value={settings.twitterUrl}
                 onChange={e => setSettings({ ...settings, twitterUrl: e.target.value })}
                 placeholder="https://x.com/yourhandle"
+                style={{ width: '100%' }}
               />
             </div>
             <div>
-              <label style={labelStyle}>Default Social Preview Image URL</label>
+              <label className="admin-label">Default Social Preview Image URL</label>
               <input
                 type="url"
-                style={inputStyle}
+                className="admin-input"
                 value={settings.defaultPreviewImage}
                 onChange={e => setSettings({ ...settings, defaultPreviewImage: e.target.value })}
                 placeholder="https://rishteforever.in/images/og-default.jpg"
+                style={{ width: '100%' }}
               />
-              <p style={hintStyle}>OG image shown when links are shared on social media.</p>
+              <p style={{ fontSize: '12px', color: '#64748b', marginTop: '6px' }}>OG image shown when links are shared on social media.</p>
             </div>
           </div>
-        </div>
+        </AdminCard>
 
         {/* Save Button */}
-        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-          <button
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '8px' }}>
+          <AdminButton
             type="submit"
             disabled={isSaving}
-            className="btn btn-gold"
-            style={{ padding: '12px 32px', fontSize: '14.5px', opacity: isSaving ? 0.7 : 1, cursor: isSaving ? 'wait' : 'pointer' }}
+            style={{ padding: '10px 32px', fontSize: '14px', minWidth: '160px' }}
           >
             {isSaving ? 'Saving...' : 'Save Settings'}
-          </button>
+          </AdminButton>
         </div>
       </form>
     </div>

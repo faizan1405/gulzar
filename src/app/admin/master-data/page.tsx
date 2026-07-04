@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../../../context/AppContext';
 import { MaslakOption, CasteOption, LocationOption } from '../../../types';
+import { AdminPageHeader, AdminCard, AdminButton, AdminTable, AdminBadge } from '../../../components/AdminUI';
 
 export default function MasterDataAdminPage() {
   const {
@@ -302,73 +303,65 @@ export default function MasterDataAdminPage() {
   });
 
   return (
-    <div style={{ paddingBottom: '40px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-        <div>
-          <h1 style={{ fontFamily: 'var(--font-serif)', color: 'var(--gold-dark)', marginBottom: '8px' }}>
-            🛠️ Identity & Location Master Data
-          </h1>
-          <p style={{ color: 'var(--text-muted)', fontSize: '14.5px' }}>
-            Manage database-backed sectors, caste systems, locations hierarchy, and run deduplication merges.
-          </p>
-        </div>
-      </div>
+    <div className="font-sans">
+      <AdminPageHeader
+        title="Identity & Location Master Data"
+        subtitle="Manage database-backed sectors, caste systems, locations hierarchy, and run deduplication merges."
+      />
 
       {/* Tabs */}
-      <div style={{ display: 'flex', gap: '8px', borderBottom: '2px solid var(--border-color)', marginBottom: '24px', overflowX: 'auto', paddingBottom: '4px' }}>
-        <button
-          className={`btn ${activeTab === 'maslak' ? 'btn-gold' : 'btn-secondary'}`}
+      <div style={{ display: 'flex', gap: '8px', borderBottom: '1px solid #e2e8f0', marginBottom: '24px', overflowX: 'auto', paddingBottom: '12px' }}>
+        <AdminButton
+          variant={activeTab === 'maslak' ? 'primary' : 'ghost'}
           onClick={() => { setActiveTab('maslak'); cancelEdit(); }}
-          style={{ padding: '8px 16px', fontSize: '13.5px', whiteSpace: 'nowrap' }}
+          style={{ whiteSpace: 'nowrap' }}
         >
           ☪️ Maslak / Sect Options ({masterMaslaks.length})
-        </button>
-        <button
-          className={`btn ${activeTab === 'caste' ? 'btn-gold' : 'btn-secondary'}`}
+        </AdminButton>
+        <AdminButton
+          variant={activeTab === 'caste' ? 'primary' : 'ghost'}
           onClick={() => { setActiveTab('caste'); cancelEdit(); }}
-          style={{ padding: '8px 16px', fontSize: '13.5px', whiteSpace: 'nowrap' }}
+          style={{ whiteSpace: 'nowrap' }}
         >
           👥 Caste / Biradari Options ({masterCastes.length})
-        </button>
-        <button
-          className={`btn ${activeTab === 'location' ? 'btn-gold' : 'btn-secondary'}`}
+        </AdminButton>
+        <AdminButton
+          variant={activeTab === 'location' ? 'primary' : 'ghost'}
           onClick={() => { setActiveTab('location'); cancelEdit(); }}
-          style={{ padding: '8px 16px', fontSize: '13.5px', whiteSpace: 'nowrap' }}
+          style={{ whiteSpace: 'nowrap' }}
         >
           📍 Locations (State/Dist/Locality) ({masterLocations.length})
-        </button>
-        <button
-          className={`btn ${activeTab === 'merge' ? 'btn-gold' : 'btn-secondary'}`}
+        </AdminButton>
+        <AdminButton
+          variant={activeTab === 'merge' ? 'primary' : 'ghost'}
           onClick={() => { setActiveTab('merge'); cancelEdit(); }}
-          style={{ padding: '8px 16px', fontSize: '13.5px', whiteSpace: 'nowrap' }}
+          style={{ whiteSpace: 'nowrap' }}
         >
           🔄 Deduplication & Merges
-        </button>
+        </AdminButton>
       </div>
 
       {isLoading && (
-        <div style={{ textAlign: 'center', padding: '30px', color: 'var(--gold-accent)' }}>
-          Loading master database state...
+        <div style={{ textAlign: 'center', padding: '48px', color: '#64748b' }}>
+          <div style={{ fontSize: '16px', fontWeight: 500, color: '#334155' }}>Loading master database state...</div>
         </div>
       )}
 
       {/* TAB 1: Maslak / Sect */}
       {activeTab === 'maslak' && !isLoading && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '30px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '24px' }}>
           {/* Add / Edit Section */}
-          <div className="card-theme-wrapper">
-            <h3 style={{ fontFamily: 'var(--font-serif)', color: 'var(--gold-dark)', marginBottom: '16px' }}>
+          <AdminCard>
+            <h3 style={{ fontSize: '16px', fontWeight: 600, color: '#0f172a', marginBottom: '16px' }}>
               {editingId ? '✍️ Edit Maslak Option' : '➕ Add New Maslak Option'}
             </h3>
             <form onSubmit={handleMaslakSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: '12.5px', fontWeight: 'bold', color: 'var(--deep-maroon)', marginBottom: '6px' }}>
-                    Maslak Label
-                  </label>
+                  <label className="admin-label">Maslak Label</label>
                   <input
                     type="text"
-                    className="form-input"
+                    className="admin-input"
                     value={maslakLabel}
                     onChange={(e) => setMaslakLabel(e.target.value)}
                     placeholder="e.g. Sunni Deobandi"
@@ -377,12 +370,10 @@ export default function MasterDataAdminPage() {
                   />
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: '12.5px', fontWeight: 'bold', color: 'var(--deep-maroon)', marginBottom: '6px' }}>
-                    Search Aliases (Comma-separated)
-                  </label>
+                  <label className="admin-label">Search Aliases (Comma-separated)</label>
                   <input
                     type="text"
-                    className="form-input"
+                    className="admin-input"
                     value={maslakAliases}
                     onChange={(e) => setMaslakAliases(e.target.value)}
                     placeholder="e.g. Deoband, Thanvi, Tablighi"
@@ -392,115 +383,103 @@ export default function MasterDataAdminPage() {
               </div>
               <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '8px' }}>
                 {editingId && (
-                  <button type="button" className="btn btn-secondary" onClick={cancelEdit} style={{ padding: '8px 20px', fontSize: '13px' }}>
+                  <AdminButton type="button" variant="secondary" onClick={cancelEdit}>
                     Cancel
-                  </button>
+                  </AdminButton>
                 )}
-                <button type="submit" className="btn btn-gold" style={{ padding: '8px 20px', fontSize: '13px' }}>
+                <AdminButton type="submit">
                   {editingId ? 'Update Option' : 'Add Option'}
-                </button>
+                </AdminButton>
               </div>
             </form>
-          </div>
+          </AdminCard>
 
           {/* List Section */}
-          <div className="card-theme-wrapper">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
-              <h3 style={{ fontFamily: 'var(--font-serif)', color: 'var(--gold-dark)' }}>
+          <AdminCard style={{ padding: 0, overflow: 'hidden' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 20px', borderBottom: '1px solid #e2e8f0', background: '#f8fafc' }}>
+              <h3 style={{ fontSize: '15px', fontWeight: 600, color: '#0f172a', margin: 0 }}>
                 Active Sect Options ({filteredMaslaks.length})
               </h3>
               <input
                 type="text"
                 placeholder="Search label or alias..."
-                className="form-input"
+                className="admin-input"
                 value={maslakSearch}
                 onChange={(e) => setMaslakSearch(e.target.value)}
-                style={{ maxWidth: '250px', fontSize: '13px', padding: '6px 12px' }}
+                style={{ width: '250px' }}
               />
             </div>
 
-            <div style={{ overflowX: 'auto' }}>
-              <table className="admin-table" style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13.5px' }}>
-                <thead>
-                  <tr style={{ borderBottom: '1px solid var(--border-color)', textAlign: 'left', backgroundColor: 'rgba(212,163,89,0.05)' }}>
-                    <th style={{ padding: '12px 16px' }}>Label</th>
-                    <th style={{ padding: '12px 16px' }}>Search Aliases</th>
-                    <th style={{ padding: '12px 16px', width: '100px' }}>Status</th>
-                    <th style={{ padding: '12px 16px', width: '180px', textAlign: 'right' }}>Actions</th>
+            <AdminTable headers={['Label', 'Search Aliases', 'Status', 'Actions']}>
+              {filteredMaslaks.length === 0 ? (
+                <tr>
+                  <td colSpan={4} style={{ padding: '24px', textAlign: 'center', color: '#64748b' }}>
+                    No Maslak options found matching search.
+                  </td>
+                </tr>
+              ) : (
+                filteredMaslaks.map((opt) => (
+                  <tr key={opt.id} style={{ opacity: opt.isDisabled ? 0.6 : 1 }}>
+                    <td style={{ fontWeight: 600, color: '#0f172a' }}>{opt.label}</td>
+                    <td>
+                      {opt.aliases && opt.aliases.length > 0 ? (
+                        <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+                          {opt.aliases.map((a: string) => (
+                            <span key={a} style={{ display: 'inline-block', padding: '2px 8px', background: '#f1f5f9', border: '1px solid #e2e8f0', borderRadius: '4px', fontSize: '11px', color: '#475569' }}>
+                              {a}
+                            </span>
+                          ))}
+                        </div>
+                      ) : (
+                        <em style={{ fontSize: '12px', color: '#94a3b8' }}>None</em>
+                      )}
+                    </td>
+                    <td>
+                      <AdminBadge status={opt.isDisabled ? 'REJECTED' : 'APPROVED'}>
+                        {opt.isDisabled ? 'Disabled' : 'Active'}
+                      </AdminBadge>
+                    </td>
+                    <td>
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <AdminButton
+                          variant="secondary"
+                          onClick={() => startEditMaslak(opt)}
+                          style={{ padding: '4px 8px', fontSize: '11px' }}
+                        >
+                          Edit
+                        </AdminButton>
+                        <AdminButton
+                          variant={opt.isDisabled ? 'primary' : 'danger'}
+                          onClick={() => handleToggleDisableMaslak(opt.id, opt.isDisabled)}
+                          style={{ padding: '4px 8px', fontSize: '11px', minWidth: '70px' }}
+                        >
+                          {opt.isDisabled ? 'Enable' : 'Disable'}
+                        </AdminButton>
+                      </div>
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {filteredMaslaks.length === 0 ? (
-                    <tr>
-                      <td colSpan={4} style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)' }}>
-                        No Maslak options found matching search.
-                      </td>
-                    </tr>
-                  ) : (
-                    filteredMaslaks.map((opt) => (
-                      <tr key={opt.id} style={{ borderBottom: '1px solid rgba(212,163,89,0.1)', opacity: opt.isDisabled ? 0.6 : 1 }}>
-                        <td style={{ padding: '12px 16px', fontWeight: 'bold' }}>{opt.label}</td>
-                        <td style={{ padding: '12px 16px', color: 'var(--text-muted)' }}>
-                          {opt.aliases && opt.aliases.length > 0 ? (
-                            opt.aliases.map((a: string) => (
-                              <span key={a} style={{ display: 'inline-block', padding: '2px 6px', background: 'var(--soft-cream)', border: '1px solid var(--border-color)', borderRadius: '4px', fontSize: '11px', marginRight: '4px', marginBottom: '2px' }}>
-                                {a}
-                              </span>
-                            ))
-                          ) : (
-                            <em style={{ fontSize: '12px' }}>None</em>
-                          )}
-                        </td>
-                        <td style={{ padding: '12px 16px' }}>
-                          <span style={{ padding: '2px 8px', borderRadius: '12px', fontSize: '11px', fontWeight: 'bold', background: opt.isDisabled ? 'rgba(220,53,69,0.1)' : 'rgba(40,167,69,0.1)', color: opt.isDisabled ? '#dc3545' : '#28a745' }}>
-                            {opt.isDisabled ? 'Disabled' : 'Active'}
-                          </span>
-                        </td>
-                        <td style={{ padding: '12px 16px', textAlign: 'right' }}>
-                          <div style={{ display: 'inline-flex', gap: '8px' }}>
-                            <button
-                              className="btn btn-secondary"
-                              onClick={() => startEditMaslak(opt)}
-                              style={{ padding: '4px 8px', fontSize: '11.5px' }}
-                            >
-                              Edit
-                            </button>
-                            <button
-                              className={`btn ${opt.isDisabled ? 'btn-gold' : 'btn-secondary'}`}
-                              onClick={() => handleToggleDisableMaslak(opt.id, opt.isDisabled)}
-                              style={{ padding: '4px 8px', fontSize: '11.5px', minWidth: '70px', color: opt.isDisabled ? 'var(--deep-maroon)' : '#dc3545' }}
-                            >
-                              {opt.isDisabled ? 'Enable' : 'Disable'}
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
+                ))
+              )}
+            </AdminTable>
+          </AdminCard>
         </div>
       )}
 
       {/* TAB 2: Caste / Biradari */}
       {activeTab === 'caste' && !isLoading && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '30px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '24px' }}>
           {/* Add / Edit Section */}
-          <div className="card-theme-wrapper">
-            <h3 style={{ fontFamily: 'var(--font-serif)', color: 'var(--gold-dark)', marginBottom: '16px' }}>
+          <AdminCard>
+            <h3 style={{ fontSize: '16px', fontWeight: 600, color: '#0f172a', marginBottom: '16px' }}>
               {editingId ? '✍️ Edit Caste/Biradari Option' : '➕ Add New Caste/Biradari Option'}
             </h3>
             <form onSubmit={handleCasteSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: '12.5px', fontWeight: 'bold', color: 'var(--deep-maroon)', marginBottom: '6px' }}>
-                    Caste / Biradari Label
-                  </label>
+                  <label className="admin-label">Caste / Biradari Label</label>
                   <input
                     type="text"
-                    className="form-input"
+                    className="admin-input"
                     value={casteLabel}
                     onChange={(e) => setCasteLabel(e.target.value)}
                     placeholder="e.g. Qureshi"
@@ -509,12 +488,10 @@ export default function MasterDataAdminPage() {
                   />
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: '12.5px', fontWeight: 'bold', color: 'var(--deep-maroon)', marginBottom: '6px' }}>
-                    Search Aliases (Comma-separated)
-                  </label>
+                  <label className="admin-label">Search Aliases (Comma-separated)</label>
                   <input
                     type="text"
-                    className="form-input"
+                    className="admin-input"
                     value={casteAliases}
                     onChange={(e) => setCasteAliases(e.target.value)}
                     placeholder="e.g. Kureshi, Quraishi, Butcher"
@@ -524,115 +501,103 @@ export default function MasterDataAdminPage() {
               </div>
               <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '8px' }}>
                 {editingId && (
-                  <button type="button" className="btn btn-secondary" onClick={cancelEdit} style={{ padding: '8px 20px', fontSize: '13px' }}>
+                  <AdminButton type="button" variant="secondary" onClick={cancelEdit}>
                     Cancel
-                  </button>
+                  </AdminButton>
                 )}
-                <button type="submit" className="btn btn-gold" style={{ padding: '8px 20px', fontSize: '13px' }}>
+                <AdminButton type="submit">
                   {editingId ? 'Update Option' : 'Add Option'}
-                </button>
+                </AdminButton>
               </div>
             </form>
-          </div>
+          </AdminCard>
 
           {/* List Section */}
-          <div className="card-theme-wrapper">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
-              <h3 style={{ fontFamily: 'var(--font-serif)', color: 'var(--gold-dark)' }}>
+          <AdminCard style={{ padding: 0, overflow: 'hidden' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 20px', borderBottom: '1px solid #e2e8f0', background: '#f8fafc' }}>
+              <h3 style={{ fontSize: '15px', fontWeight: 600, color: '#0f172a', margin: 0 }}>
                 Active Caste Options ({filteredCastes.length})
               </h3>
               <input
                 type="text"
                 placeholder="Search caste or alias..."
-                className="form-input"
+                className="admin-input"
                 value={casteSearch}
                 onChange={(e) => setCasteSearch(e.target.value)}
-                style={{ maxWidth: '250px', fontSize: '13px', padding: '6px 12px' }}
+                style={{ width: '250px' }}
               />
             </div>
 
-            <div style={{ overflowX: 'auto' }}>
-              <table className="admin-table" style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13.5px' }}>
-                <thead>
-                  <tr style={{ borderBottom: '1px solid var(--border-color)', textAlign: 'left', backgroundColor: 'rgba(212,163,89,0.05)' }}>
-                    <th style={{ padding: '12px 16px' }}>Label</th>
-                    <th style={{ padding: '12px 16px' }}>Search Aliases</th>
-                    <th style={{ padding: '12px 16px', width: '100px' }}>Status</th>
-                    <th style={{ padding: '12px 16px', width: '180px', textAlign: 'right' }}>Actions</th>
+            <AdminTable headers={['Label', 'Search Aliases', 'Status', 'Actions']}>
+              {filteredCastes.length === 0 ? (
+                <tr>
+                  <td colSpan={4} style={{ padding: '24px', textAlign: 'center', color: '#64748b' }}>
+                    No Caste options found matching search.
+                  </td>
+                </tr>
+              ) : (
+                filteredCastes.map((opt) => (
+                  <tr key={opt.id} style={{ opacity: opt.isDisabled ? 0.6 : 1 }}>
+                    <td style={{ fontWeight: 600, color: '#0f172a' }}>{opt.label}</td>
+                    <td>
+                      {opt.aliases && opt.aliases.length > 0 ? (
+                        <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+                          {opt.aliases.map((a: string) => (
+                            <span key={a} style={{ display: 'inline-block', padding: '2px 8px', background: '#f1f5f9', border: '1px solid #e2e8f0', borderRadius: '4px', fontSize: '11px', color: '#475569' }}>
+                              {a}
+                            </span>
+                          ))}
+                        </div>
+                      ) : (
+                        <em style={{ fontSize: '12px', color: '#94a3b8' }}>None</em>
+                      )}
+                    </td>
+                    <td>
+                      <AdminBadge status={opt.isDisabled ? 'REJECTED' : 'APPROVED'}>
+                        {opt.isDisabled ? 'Disabled' : 'Active'}
+                      </AdminBadge>
+                    </td>
+                    <td>
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <AdminButton
+                          variant="secondary"
+                          onClick={() => startEditCaste(opt)}
+                          style={{ padding: '4px 8px', fontSize: '11px' }}
+                        >
+                          Edit
+                        </AdminButton>
+                        <AdminButton
+                          variant={opt.isDisabled ? 'primary' : 'danger'}
+                          onClick={() => handleToggleDisableCaste(opt.id, opt.isDisabled)}
+                          style={{ padding: '4px 8px', fontSize: '11px', minWidth: '70px' }}
+                        >
+                          {opt.isDisabled ? 'Enable' : 'Disable'}
+                        </AdminButton>
+                      </div>
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {filteredCastes.length === 0 ? (
-                    <tr>
-                      <td colSpan={4} style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)' }}>
-                        No Caste options found matching search.
-                      </td>
-                    </tr>
-                  ) : (
-                    filteredCastes.map((opt) => (
-                      <tr key={opt.id} style={{ borderBottom: '1px solid rgba(212,163,89,0.1)', opacity: opt.isDisabled ? 0.6 : 1 }}>
-                        <td style={{ padding: '12px 16px', fontWeight: 'bold' }}>{opt.label}</td>
-                        <td style={{ padding: '12px 16px', color: 'var(--text-muted)' }}>
-                          {opt.aliases && opt.aliases.length > 0 ? (
-                            opt.aliases.map((a: string) => (
-                              <span key={a} style={{ display: 'inline-block', padding: '2px 6px', background: 'var(--soft-cream)', border: '1px solid var(--border-color)', borderRadius: '4px', fontSize: '11px', marginRight: '4px', marginBottom: '2px' }}>
-                                {a}
-                              </span>
-                            ))
-                          ) : (
-                            <em style={{ fontSize: '12px' }}>None</em>
-                          )}
-                        </td>
-                        <td style={{ padding: '12px 16px' }}>
-                          <span style={{ padding: '2px 8px', borderRadius: '12px', fontSize: '11px', fontWeight: 'bold', background: opt.isDisabled ? 'rgba(220,53,69,0.1)' : 'rgba(40,167,69,0.1)', color: opt.isDisabled ? '#dc3545' : '#28a745' }}>
-                            {opt.isDisabled ? 'Disabled' : 'Active'}
-                          </span>
-                        </td>
-                        <td style={{ padding: '12px 16px', textAlign: 'right' }}>
-                          <div style={{ display: 'inline-flex', gap: '8px' }}>
-                            <button
-                              className="btn btn-secondary"
-                              onClick={() => startEditCaste(opt)}
-                              style={{ padding: '4px 8px', fontSize: '11.5px' }}
-                            >
-                              Edit
-                            </button>
-                            <button
-                              className={`btn ${opt.isDisabled ? 'btn-gold' : 'btn-secondary'}`}
-                              onClick={() => handleToggleDisableCaste(opt.id, opt.isDisabled)}
-                              style={{ padding: '4px 8px', fontSize: '11.5px', minWidth: '70px', color: opt.isDisabled ? 'var(--deep-maroon)' : '#dc3545' }}
-                            >
-                              {opt.isDisabled ? 'Enable' : 'Disable'}
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
+                ))
+              )}
+            </AdminTable>
+          </AdminCard>
         </div>
       )}
 
       {/* TAB 3: Locations */}
       {activeTab === 'location' && !isLoading && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '30px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '24px' }}>
           {/* Add Section */}
-          <div className="card-theme-wrapper">
-            <h3 style={{ fontFamily: 'var(--font-serif)', color: 'var(--gold-dark)', marginBottom: '16px' }}>
+          <AdminCard>
+            <h3 style={{ fontSize: '16px', fontWeight: 600, color: '#0f172a', marginBottom: '16px' }}>
               ➕ Add New Location (Hierarchical)
             </h3>
             <form onSubmit={handleLocationSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', flexWrap: 'wrap' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: '12.5px', fontWeight: 'bold', color: 'var(--deep-maroon)', marginBottom: '6px' }}>
-                    State (Level 1) *
-                  </label>
+                  <label className="admin-label">State (Level 1) *</label>
                   <input
                     type="text"
-                    className="form-input"
+                    className="admin-input"
                     value={locState}
                     onChange={(e) => setLocState(e.target.value)}
                     placeholder="e.g. Uttar Pradesh"
@@ -641,12 +606,10 @@ export default function MasterDataAdminPage() {
                   />
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: '12.5px', fontWeight: 'bold', color: 'var(--deep-maroon)', marginBottom: '6px' }}>
-                    District/City (Level 2) *
-                  </label>
+                  <label className="admin-label">District/City (Level 2) *</label>
                   <input
                     type="text"
-                    className="form-input"
+                    className="admin-input"
                     value={locDistrict}
                     onChange={(e) => setLocDistrict(e.target.value)}
                     placeholder="e.g. Lucknow"
@@ -655,12 +618,10 @@ export default function MasterDataAdminPage() {
                   />
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: '12.5px', fontWeight: 'bold', color: 'var(--deep-maroon)', marginBottom: '6px' }}>
-                    Locality/Area (Level 3 - Optional)
-                  </label>
+                  <label className="admin-label">Locality/Area (Level 3 - Optional)</label>
                   <input
                     type="text"
-                    className="form-input"
+                    className="admin-input"
                     value={locLocality}
                     onChange={(e) => setLocLocality(e.target.value)}
                     placeholder="e.g. Hazratganj"
@@ -668,38 +629,37 @@ export default function MasterDataAdminPage() {
                   />
                 </div>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#f8fafc', padding: '12px', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
                 <input
                   type="checkbox"
                   id="locIsHighPriority"
                   checked={locIsHighPriority}
                   onChange={(e) => setLocIsHighPriority(e.target.checked)}
-                  style={{ width: '16px', height: '16px', accentColor: 'var(--gold-accent)' }}
+                  style={{ width: '16px', height: '16px', accentColor: 'var(--primary-brand)' }}
                 />
-                <label htmlFor="locIsHighPriority" style={{ fontSize: '13.5px', color: 'var(--text-dark)' }}>
+                <label htmlFor="locIsHighPriority" style={{ fontSize: '13px', color: '#334155', fontWeight: 500, cursor: 'pointer' }}>
                   Mark as High-Priority Location (Renders at the top of search filters)
                 </label>
               </div>
               <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '8px' }}>
-                <button type="submit" className="btn btn-gold" style={{ padding: '8px 20px', fontSize: '13px' }}>
+                <AdminButton type="submit">
                   Add Location Option
-                </button>
+                </AdminButton>
               </div>
             </form>
-          </div>
+          </AdminCard>
 
           {/* List Section */}
-          <div className="card-theme-wrapper">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
-              <h3 style={{ fontFamily: 'var(--font-serif)', color: 'var(--gold-dark)' }}>
+          <AdminCard style={{ padding: 0, overflow: 'hidden' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 20px', borderBottom: '1px solid #e2e8f0', background: '#f8fafc', flexWrap: 'wrap', gap: '12px' }}>
+              <h3 style={{ fontSize: '15px', fontWeight: 600, color: '#0f172a', margin: 0 }}>
                 Active Locations Options ({filteredLocations.length})
               </h3>
-              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
                 <select
-                  className="form-input"
+                  className="admin-input"
                   value={locationStateFilter}
                   onChange={(e) => setLocationStateFilter(e.target.value)}
-                  style={{ fontSize: '13px', padding: '6px 12px' }}
                 >
                   <option value="">All States</option>
                   {uniqueStates.map((s) => (
@@ -711,96 +671,80 @@ export default function MasterDataAdminPage() {
                 <input
                   type="text"
                   placeholder="Search District/Locality..."
-                  className="form-input"
+                  className="admin-input"
                   value={locationSearch}
                   onChange={(e) => setLocationSearch(e.target.value)}
-                  style={{ maxWidth: '200px', fontSize: '13px', padding: '6px 12px' }}
+                  style={{ width: '200px' }}
                 />
               </div>
             </div>
 
-            <div style={{ overflowX: 'auto' }}>
-              <table className="admin-table" style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13.5px' }}>
-                <thead>
-                  <tr style={{ borderBottom: '1px solid var(--border-color)', textAlign: 'left', backgroundColor: 'rgba(212,163,89,0.05)' }}>
-                    <th style={{ padding: '12px 16px' }}>State (L1)</th>
-                    <th style={{ padding: '12px 16px' }}>District (L2)</th>
-                    <th style={{ padding: '12px 16px' }}>Locality (L3)</th>
-                    <th style={{ padding: '12px 16px', width: '100px' }}>Priority</th>
-                    <th style={{ padding: '12px 16px', width: '100px' }}>Status</th>
-                    <th style={{ padding: '12px 16px', width: '180px', textAlign: 'right' }}>Actions</th>
+            <AdminTable headers={['State (L1)', 'District (L2)', 'Locality (L3)', 'Priority', 'Status', 'Actions']}>
+              {filteredLocations.length === 0 ? (
+                <tr>
+                  <td colSpan={6} style={{ padding: '24px', textAlign: 'center', color: '#64748b' }}>
+                    No Location options found matching filters.
+                  </td>
+                </tr>
+              ) : (
+                filteredLocations.map((opt) => (
+                  <tr key={opt.id} style={{ opacity: opt.isDisabled ? 0.6 : 1 }}>
+                    <td style={{ color: '#475569' }}>{opt.state}</td>
+                    <td style={{ fontWeight: 600, color: '#0f172a' }}>{opt.district}</td>
+                    <td>{opt.locality || <span style={{ color: '#94a3b8', fontSize: '12px', fontStyle: 'italic' }}>All District</span>}</td>
+                    <td>
+                      <span style={{ padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 600, background: opt.isHighPriority ? '#fef3c7' : '#f1f5f9', color: opt.isHighPriority ? '#d97706' : '#64748b' }}>
+                        {opt.isHighPriority ? '⭐ Priority' : 'Normal'}
+                      </span>
+                    </td>
+                    <td>
+                      <AdminBadge status={opt.isDisabled ? 'REJECTED' : 'APPROVED'}>
+                        {opt.isDisabled ? 'Disabled' : 'Active'}
+                      </AdminBadge>
+                    </td>
+                    <td>
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <AdminButton
+                          variant="ghost"
+                          onClick={() => handleToggleLocationPriority(opt.id, opt.isHighPriority)}
+                          style={{ padding: '4px 8px', fontSize: '11px', color: '#d97706' }}
+                        >
+                          ⭐ Toggle
+                        </AdminButton>
+                        <AdminButton
+                          variant={opt.isDisabled ? 'primary' : 'danger'}
+                          onClick={() => handleToggleDisableLocation(opt.id, opt.isDisabled)}
+                          style={{ padding: '4px 8px', fontSize: '11px', minWidth: '70px' }}
+                        >
+                          {opt.isDisabled ? 'Enable' : 'Disable'}
+                        </AdminButton>
+                      </div>
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {filteredLocations.length === 0 ? (
-                    <tr>
-                      <td colSpan={6} style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)' }}>
-                        No Location options found matching filters.
-                      </td>
-                    </tr>
-                  ) : (
-                    filteredLocations.map((opt) => (
-                      <tr key={opt.id} style={{ borderBottom: '1px solid rgba(212,163,89,0.1)', opacity: opt.isDisabled ? 0.6 : 1 }}>
-                        <td style={{ padding: '12px 16px' }}>{opt.state}</td>
-                        <td style={{ padding: '12px 16px', fontWeight: 'bold' }}>{opt.district}</td>
-                        <td style={{ padding: '12px 16px' }}>{opt.locality || <span style={{ color: 'var(--text-muted)', fontSize: '12px' }}>All District</span>}</td>
-                        <td style={{ padding: '12px 16px' }}>
-                          <span style={{ padding: '2px 6px', borderRadius: '4px', fontSize: '10.5px', fontWeight: 'bold', background: opt.isHighPriority ? 'rgba(212,163,89,0.15)' : 'rgba(0,0,0,0.05)', color: opt.isHighPriority ? 'var(--gold-dark)' : 'var(--text-muted)' }}>
-                            {opt.isHighPriority ? '⭐ Priority' : 'Normal'}
-                          </span>
-                        </td>
-                        <td style={{ padding: '12px 16px' }}>
-                          <span style={{ padding: '2px 8px', borderRadius: '12px', fontSize: '11px', fontWeight: 'bold', background: opt.isDisabled ? 'rgba(220,53,69,0.1)' : 'rgba(40,167,69,0.1)', color: opt.isDisabled ? '#dc3545' : '#28a745' }}>
-                            {opt.isDisabled ? 'Disabled' : 'Active'}
-                          </span>
-                        </td>
-                        <td style={{ padding: '12px 16px', textAlign: 'right' }}>
-                          <div style={{ display: 'inline-flex', gap: '8px' }}>
-                            <button
-                              className="btn btn-secondary"
-                              onClick={() => handleToggleLocationPriority(opt.id, opt.isHighPriority)}
-                              style={{ padding: '4px 8px', fontSize: '11.5px', color: 'var(--gold-dark)' }}
-                            >
-                              ⭐ Toggle Priority
-                            </button>
-                            <button
-                              className={`btn ${opt.isDisabled ? 'btn-gold' : 'btn-secondary'}`}
-                              onClick={() => handleToggleDisableLocation(opt.id, opt.isDisabled)}
-                              style={{ padding: '4px 8px', fontSize: '11.5px', minWidth: '70px', color: opt.isDisabled ? 'var(--deep-maroon)' : '#dc3545' }}
-                            >
-                              {opt.isDisabled ? 'Enable' : 'Disable'}
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
+                ))
+              )}
+            </AdminTable>
+          </AdminCard>
         </div>
       )}
 
       {/* TAB 4: Merges & Deduplication */}
       {activeTab === 'merge' && !isLoading && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
           {/* Caste Merge Card */}
-          <div className="card-theme-wrapper">
-            <h3 style={{ fontFamily: 'var(--font-serif)', color: 'var(--gold-dark)', marginBottom: '8px' }}>
+          <AdminCard>
+            <h3 style={{ fontSize: '16px', fontWeight: 600, color: '#0f172a', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
               🔄 Merge Duplicate Castes
             </h3>
-            <p style={{ color: 'var(--text-muted)', fontSize: '12.5px', marginBottom: '20px' }}>
+            <p style={{ color: '#64748b', fontSize: '13px', marginBottom: '24px', lineHeight: 1.5 }}>
               Replaces all occurrences of the duplicate caste in profiles with the target caste. Adds the duplicate as an alias of the target and disables the duplicate.
             </p>
 
             <form onSubmit={handleMergeCastes} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '12.5px', fontWeight: 'bold', color: 'var(--deep-maroon)', marginBottom: '6px' }}>
-                  Select Duplicate Caste (Source to merge out)
-                </label>
+                <label className="admin-label">Select Duplicate Caste (Source to merge out)</label>
                 <select
-                  className="form-input"
+                  className="admin-input"
                   value={casteMergeSource}
                   onChange={(e) => setCasteMergeSource(e.target.value)}
                   required
@@ -818,11 +762,9 @@ export default function MasterDataAdminPage() {
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '12.5px', fontWeight: 'bold', color: 'var(--deep-maroon)', marginBottom: '6px' }}>
-                  Select Correct Caste (Target to keep)
-                </label>
+                <label className="admin-label">Select Correct Caste (Target to keep)</label>
                 <select
-                  className="form-input"
+                  className="admin-input"
                   value={casteMergeTarget}
                   onChange={(e) => setCasteMergeTarget(e.target.value)}
                   required
@@ -839,32 +781,30 @@ export default function MasterDataAdminPage() {
                 </select>
               </div>
 
-              <div style={{ padding: '12px', borderRadius: '6px', backgroundColor: 'rgba(220,53,69,0.05)', border: '1px solid rgba(220,53,69,0.2)', fontSize: '12px', color: '#dc3545' }}>
+              <div style={{ padding: '12px', borderRadius: '6px', backgroundColor: '#fef2f2', border: '1px solid #fecaca', fontSize: '13px', color: '#991b1b', marginTop: '8px' }}>
                 <strong>⚠️ Warning:</strong> This operation is permanent. Profile updates occur immediately.
               </div>
 
-              <button type="submit" className="btn btn-gold" style={{ padding: '10px', width: '100%', fontSize: '13.5px', marginTop: '8px' }}>
+              <AdminButton type="submit" variant="danger" style={{ width: '100%', marginTop: '8px' }}>
                 Merge and Update Castes
-              </button>
+              </AdminButton>
             </form>
-          </div>
+          </AdminCard>
 
           {/* Location Merge Card */}
-          <div className="card-theme-wrapper">
-            <h3 style={{ fontFamily: 'var(--font-serif)', color: 'var(--gold-dark)', marginBottom: '8px' }}>
+          <AdminCard>
+            <h3 style={{ fontSize: '16px', fontWeight: 600, color: '#0f172a', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
               🔄 Merge Duplicate Locations
             </h3>
-            <p style={{ color: 'var(--text-muted)', fontSize: '12.5px', marginBottom: '20px' }}>
+            <p style={{ color: '#64748b', fontSize: '13px', marginBottom: '24px', lineHeight: 1.5 }}>
               Replaces the State/District/Locality structure in matching profiles, disables the duplicate location entry, and safeguards profile search continuity.
             </p>
 
             <form onSubmit={handleMergeLocations} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '12.5px', fontWeight: 'bold', color: 'var(--deep-maroon)', marginBottom: '6px' }}>
-                  Select Duplicate Location (Source to merge out)
-                </label>
+                <label className="admin-label">Select Duplicate Location (Source to merge out)</label>
                 <select
-                  className="form-input"
+                  className="admin-input"
                   value={locMergeSourceId}
                   onChange={(e) => setLocMergeSourceId(e.target.value)}
                   required
@@ -886,11 +826,9 @@ export default function MasterDataAdminPage() {
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '12.5px', fontWeight: 'bold', color: 'var(--deep-maroon)', marginBottom: '6px' }}>
-                  Select Correct Location (Target to keep)
-                </label>
+                <label className="admin-label">Select Correct Location (Target to keep)</label>
                 <select
-                  className="form-input"
+                  className="admin-input"
                   value={locMergeTargetId}
                   onChange={(e) => setLocMergeTargetId(e.target.value)}
                   required
@@ -911,15 +849,15 @@ export default function MasterDataAdminPage() {
                 </select>
               </div>
 
-              <div style={{ padding: '12px', borderRadius: '6px', backgroundColor: 'rgba(220,53,69,0.05)', border: '1px solid rgba(220,53,69,0.2)', fontSize: '12px', color: '#dc3545' }}>
+              <div style={{ padding: '12px', borderRadius: '6px', backgroundColor: '#fef2f2', border: '1px solid #fecaca', fontSize: '13px', color: '#991b1b', marginTop: '8px' }}>
                 <strong>⚠️ Warning:</strong> Profiles matching the source location will have their fields updated to target location coordinates immediately.
               </div>
 
-              <button type="submit" className="btn btn-gold" style={{ padding: '10px', width: '100%', fontSize: '13.5px', marginTop: '8px' }}>
+              <AdminButton type="submit" variant="danger" style={{ width: '100%', marginTop: '8px' }}>
                 Merge and Update Locations
-              </button>
+              </AdminButton>
             </form>
-          </div>
+          </AdminCard>
         </div>
       )}
     </div>

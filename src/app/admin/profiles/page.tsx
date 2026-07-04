@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useApp } from '../../../context/AppContext';
-import { SectionHeading, FloralCorner } from '../../../components/NikahComponents';
+import { AdminPageHeader, AdminCard, AdminBadge, AdminTable, AdminButton, AdminModal } from '../../../components/AdminUI';
 
 interface AdminProfile {
   id: string;
@@ -25,19 +25,6 @@ interface AdminProfile {
   profileImageUrl?: string | null;
   createdAt: string | Date;
 }
-
-const VERIFICATION_COLORS: Record<string, React.CSSProperties> = {
-  PENDING:         { background: '#fef3c7', color: '#92400e' },
-  APPROVED:        { background: '#d1fae5', color: '#065f46' },
-  REJECTED:        { background: '#fee2e2', color: '#991b1b' },
-  NEEDS_FOLLOW_UP: { background: '#ede9fe', color: '#5b21b6' },
-};
-
-const APPROVAL_COLORS: Record<string, React.CSSProperties> = {
-  PENDING:  { background: '#fef3c7', color: '#92400e' },
-  APPROVED: { background: '#d1fae5', color: '#065f46' },
-  REJECTED: { background: '#fee2e2', color: '#991b1b' },
-};
 
 function calcAge(dob: string | Date): string {
   const d = new Date(dob);
@@ -105,7 +92,7 @@ export default function AdminProfilesPage() {
       });
       const data = await res.json();
       if (res.ok) {
-        setSaveMsg('✓ Saved');
+        setSaveMsg('Saved successfully');
         setProfiles(prev => prev.map(p => p.id === profileId ? { ...p, ...updates } : p));
         if (selected?.id === profileId) setSelected(prev => prev ? { ...prev, ...updates } : prev);
       } else {
@@ -140,260 +127,170 @@ export default function AdminProfilesPage() {
   };
 
   return (
-    <div style={{ padding: '20px 0 60px' }} className="font-sans">
-      <SectionHeading
-        title="Profile Management"
-        subtitle="View, edit, approve, reject, and manage all matrimonial profiles in one place."
-        scriptText="Admin Desk"
+    <div className="font-sans">
+      <AdminPageHeader
+        title="Profiles"
+        subtitle="View, edit, approve, reject, and manage all matrimonial profiles."
       />
 
-      {/* Filters */}
-      <div className="card-theme-wrapper" style={{ padding: '20px', marginBottom: '24px' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr repeat(4, 160px)', gap: '14px' }} className="grid-mobile-1">
-          <div>
-            <label className="form-label">Search</label>
-            <input
-              type="text"
-              className="form-control"
-              placeholder="Name, city, phone, biradari…"
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-            />
-          </div>
-          <div>
-            <label className="form-label">Gender</label>
-            <select className="form-control" value={gender} onChange={e => setGender(e.target.value)}>
-              <option value="">All</option>
-              <option value="Male">Male</option>
-              <option value="Female">Female</option>
-            </select>
-          </div>
-          <div>
-            <label className="form-label">State</label>
-            <input
-              type="text"
-              className="form-control"
-              placeholder="e.g. Maharashtra"
-              value={state}
-              onChange={e => setState(e.target.value)}
-            />
-          </div>
-          <div>
-            <label className="form-label">Verification</label>
-            <select className="form-control" value={verificationStatus} onChange={e => setVerificationStatus(e.target.value)}>
-              <option value="">All</option>
-              <option value="PENDING">Pending</option>
-              <option value="APPROVED">Approved</option>
-              <option value="REJECTED">Rejected</option>
-              <option value="NEEDS_FOLLOW_UP">Follow Up</option>
-            </select>
-          </div>
-          <div>
-            <label className="form-label">Approval</label>
-            <select className="form-control" value={approvalStatus} onChange={e => setApprovalStatus(e.target.value)}>
-              <option value="">All</option>
-              <option value="PENDING">Pending</option>
-              <option value="APPROVED">Approved</option>
-              <option value="REJECTED">Rejected</option>
-            </select>
-          </div>
-        </div>
-        <div style={{ marginTop: '10px', fontSize: '12.5px', color: 'var(--text-muted)' }}>
-          {loading ? 'Loading…' : `Showing ${profiles.length} of ${total} profiles`}
-        </div>
-      </div>
-
-      {/* Table */}
-      <div className="card-theme-wrapper" style={{ padding: 0, overflow: 'hidden' }}>
-        {loading ? (
-          <div style={{ textAlign: 'center', padding: '48px', color: 'var(--text-muted)' }}>Loading profiles…</div>
-        ) : profiles.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '48px', color: 'var(--text-muted)' }}>No profiles found.</div>
-        ) : (
-          <div className="table-responsive">
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
-              <thead>
-                <tr style={{ background: 'var(--soft-cream)', borderBottom: '2px solid var(--border-color)', color: 'var(--deep-maroon)', fontWeight: 'bold', height: '44px' }}>
-                  <th style={{ padding: '12px', textAlign: 'left' }}>Profile</th>
-                  <th style={{ padding: '12px', textAlign: 'left' }}>Location</th>
-                  <th style={{ padding: '12px', textAlign: 'left' }}>Profession</th>
-                  <th style={{ padding: '12px', textAlign: 'center' }}>Verification</th>
-                  <th style={{ padding: '12px', textAlign: 'center' }}>Approval</th>
-                  <th style={{ padding: '12px', textAlign: 'center' }}>Paid</th>
-                  <th style={{ padding: '12px', textAlign: 'center' }}>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {profiles.map(profile => (
-                  <tr key={profile.id} style={{ borderBottom: '1px solid var(--border-color)' }} className="table-row-hover">
-                    <td style={{ padding: '12px' }}>
-                      <div style={{ fontWeight: 600, color: 'var(--text-dark)' }}>{profile.fullName}</div>
-                      <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
-                        {profile.gender} · {calcAge(profile.dateOfBirth)} · {profile.maritalStatus}
-                      </div>
-                      <div style={{ fontSize: '10.5px', color: 'var(--text-muted)' }}>{profile.phoneNumber}</div>
-                    </td>
-                    <td style={{ padding: '12px' }}>
-                      <div style={{ fontSize: '13px' }}>{profile.city || '—'}</div>
-                      <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{profile.state || ''}</div>
-                    </td>
-                    <td style={{ padding: '12px' }}>
-                      <div style={{ fontSize: '13px' }}>{profile.occupation}</div>
-                      <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{profile.education}</div>
-                    </td>
-                    <td style={{ padding: '12px', textAlign: 'center' }}>
-                      <span style={{
-                        display: 'inline-block',
-                        padding: '3px 9px',
-                        borderRadius: '10px',
-                        fontSize: '11px',
-                        fontWeight: 600,
-                        ...(VERIFICATION_COLORS[profile.verificationStatus] || {}),
-                      }}>
-                        {profile.verificationStatus?.replace('_', ' ')}
-                      </span>
-                    </td>
-                    <td style={{ padding: '12px', textAlign: 'center' }}>
-                      <span style={{
-                        display: 'inline-block',
-                        padding: '3px 9px',
-                        borderRadius: '10px',
-                        fontSize: '11px',
-                        fontWeight: 600,
-                        ...(APPROVAL_COLORS[profile.adminApprovalStatus] || {}),
-                      }}>
-                        {profile.adminApprovalStatus || 'PENDING'}
-                      </span>
-                    </td>
-                    <td style={{ padding: '12px', textAlign: 'center' }}>
-                      <span style={{
-                        display: 'inline-block',
-                        padding: '3px 8px',
-                        borderRadius: '10px',
-                        fontSize: '11px',
-                        fontWeight: 600,
-                        background: profile.hasPaid ? '#d1fae5' : '#f3f4f6',
-                        color: profile.hasPaid ? '#065f46' : '#6b7280',
-                      }}>
-                        {profile.hasPaid ? 'Paid' : 'Free'}
-                      </span>
-                    </td>
-                    <td style={{ padding: '12px', textAlign: 'center' }}>
-                      <div style={{ display: 'flex', gap: '6px', justifyContent: 'center', flexWrap: 'wrap' }}>
-                        <button
-                          className="btn btn-primary"
-                          style={{ padding: '4px 10px', fontSize: '11px' }}
-                          onClick={() => setSelected(profile)}
-                        >
-                          Manage
-                        </button>
-                        {profile.verificationStatus !== 'APPROVED' && (
-                          <button
-                            className="btn btn-gold"
-                            style={{ padding: '4px 10px', fontSize: '11px' }}
-                            onClick={() => handleUpdate(profile.id, { verificationStatus: 'APPROVED', adminApprovalStatus: 'APPROVED' })}
-                          >
-                            ✓ Approve
-                          </button>
-                        )}
-                        {profile.verificationStatus !== 'REJECTED' && (
-                          <button
-                            className="btn btn-secondary"
-                            style={{ padding: '4px 10px', fontSize: '11px', color: 'var(--deep-maroon)' }}
-                            onClick={() => handleUpdate(profile.id, { verificationStatus: 'REJECTED', adminApprovalStatus: 'REJECTED' })}
-                          >
-                            ✗ Reject
-                          </button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-
-      {/* Detail / Edit Modal */}
-      {selected && (
-        <div className="modal-overlay" onClick={() => setSelected(null)}>
-          <div
-            className="card-theme-wrapper"
-            onClick={e => e.stopPropagation()}
-            style={{
-              maxWidth: '620px',
-              width: '95%',
-              margin: '20px',
-              padding: '36px',
-              border: '2px solid var(--gold-accent)',
-              position: 'relative',
-              maxHeight: '90vh',
-              overflowY: 'auto',
-            }}
-          >
-            <FloralCorner position="tl" color="var(--gold-accent)" />
-            <FloralCorner position="tr" color="var(--gold-accent)" />
-
-            <button
-              onClick={() => setSelected(null)}
-              style={{ position: 'absolute', top: 16, right: 16, fontSize: 24, background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}
-            >×</button>
-
-            <h3 style={{ fontFamily: 'var(--font-serif)', color: 'var(--deep-maroon)', fontSize: '22px', marginBottom: '20px' }}>
-              Manage Profile — {selected.fullName}
-            </h3>
-
-            {saveMsg && (
-              <div style={{ background: saveMsg.startsWith('✓') ? '#d1fae5' : '#fee2e2', color: saveMsg.startsWith('✓') ? '#065f46' : '#991b1b', padding: '8px 14px', borderRadius: '8px', fontSize: '12px', marginBottom: '16px' }}>
-                {saveMsg}
-              </div>
-            )}
-
-            {/* Identity */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginBottom: '20px' }} className="grid-mobile-1">
-              <div>
-                <span style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', display: 'block', marginBottom: 4 }}>Full Name</span>
-                <div style={{ fontWeight: 600 }}>{selected.fullName}</div>
-              </div>
-              <div>
-                <span style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', display: 'block', marginBottom: 4 }}>Phone</span>
-                <a href={`tel:${selected.phoneNumber}`} style={{ color: 'var(--deep-maroon)', fontWeight: 600 }}>{selected.phoneNumber}</a>
-              </div>
-              <div>
-                <span style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', display: 'block', marginBottom: 4 }}>Gender / Age</span>
-                <div>{selected.gender} · {calcAge(selected.dateOfBirth)}</div>
-              </div>
-              <div>
-                <span style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', display: 'block', marginBottom: 4 }}>Location</span>
-                <div>{selected.city}, {selected.state}</div>
-              </div>
-              <div>
-                <span style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', display: 'block', marginBottom: 4 }}>Occupation</span>
-                <div>{selected.occupation}</div>
-              </div>
-              <div>
-                <span style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', display: 'block', marginBottom: 4 }}>Education</span>
-                <div>{selected.education}</div>
-              </div>
-              <div>
-                <span style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', display: 'block', marginBottom: 4 }}>Maslak</span>
-                <div>{selected.maslak || '—'}</div>
-              </div>
-              <div>
-                <span style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', display: 'block', marginBottom: 4 }}>Biradari</span>
-                <div>{selected.biradari || '—'}</div>
-              </div>
+      <AdminCard style={{ marginBottom: '24px' }}>
+        <div className="admin-toolbar">
+          <div className="admin-toolbar-filters">
+            <div>
+              <label className="admin-label">Search</label>
+              <input
+                type="text"
+                className="admin-input"
+                placeholder="Name, phone..."
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                style={{ width: '200px' }}
+              />
             </div>
+            <div>
+              <label className="admin-label">Gender</label>
+              <select className="admin-input" value={gender} onChange={e => setGender(e.target.value)} style={{ width: '120px' }}>
+                <option value="">All</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+              </select>
+            </div>
+            <div>
+              <label className="admin-label">State</label>
+              <input
+                type="text"
+                className="admin-input"
+                placeholder="e.g. Maharashtra"
+                value={state}
+                onChange={e => setState(e.target.value)}
+                style={{ width: '150px' }}
+              />
+            </div>
+            <div>
+              <label className="admin-label">Verification</label>
+              <select className="admin-input" value={verificationStatus} onChange={e => setVerificationStatus(e.target.value)} style={{ width: '140px' }}>
+                <option value="">All</option>
+                <option value="PENDING">Pending</option>
+                <option value="APPROVED">Approved</option>
+                <option value="REJECTED">Rejected</option>
+                <option value="NEEDS_FOLLOW_UP">Follow Up</option>
+              </select>
+            </div>
+            <div>
+              <label className="admin-label">Approval</label>
+              <select className="admin-input" value={approvalStatus} onChange={e => setApprovalStatus(e.target.value)} style={{ width: '140px' }}>
+                <option value="">All</option>
+                <option value="PENDING">Pending</option>
+                <option value="APPROVED">Approved</option>
+                <option value="REJECTED">Rejected</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div style={{ fontSize: '12px', color: '#64748b' }}>
+          {loading ? 'Loading profiles...' : `Showing ${profiles.length} of ${total} profiles`}
+        </div>
+      </AdminCard>
 
-            <hr style={{ borderColor: 'var(--border-color)', margin: '16px 0' }} />
+      {loading ? (
+        <div style={{ textAlign: 'center', padding: '48px', color: '#64748b' }}>Loading...</div>
+      ) : profiles.length === 0 ? (
+        <div style={{ textAlign: 'center', padding: '48px', color: '#64748b', background: '#fff', borderRadius: '8px', border: '1px solid #e2e8f0' }}>No profiles found.</div>
+      ) : (
+        <AdminTable headers={['Profile', 'Location', 'Profession', 'Status', 'Paid', 'Actions']}>
+          {profiles.map(profile => (
+            <tr key={profile.id}>
+              <td>
+                <div style={{ fontWeight: 600, color: '#0f172a' }}>{profile.fullName}</div>
+                <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px' }}>
+                  {profile.gender} · {calcAge(profile.dateOfBirth)} · {profile.maritalStatus}
+                </div>
+                <div style={{ fontSize: '11.5px', color: '#64748b' }}>{profile.phoneNumber}</div>
+              </td>
+              <td>
+                <div style={{ fontWeight: 500 }}>{profile.city || '—'}</div>
+                <div style={{ fontSize: '12px', color: '#64748b' }}>{profile.state || ''}</div>
+              </td>
+              <td>
+                <div style={{ fontWeight: 500 }}>{profile.occupation}</div>
+                <div style={{ fontSize: '12px', color: '#64748b' }}>{profile.education}</div>
+              </td>
+              <td>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-start' }}>
+                  <AdminBadge status={profile.verificationStatus}>V: {profile.verificationStatus}</AdminBadge>
+                  <AdminBadge status={profile.adminApprovalStatus || 'PENDING'}>A: {profile.adminApprovalStatus || 'PENDING'}</AdminBadge>
+                </div>
+              </td>
+              <td>
+                <AdminBadge status={profile.hasPaid ? 'PAID' : 'NEUTRAL'}>
+                  {profile.hasPaid ? 'Paid' : 'Free'}
+                </AdminBadge>
+              </td>
+              <td>
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                  <AdminButton variant="secondary" onClick={() => setSelected(profile)}>
+                    Manage
+                  </AdminButton>
+                  {profile.verificationStatus !== 'APPROVED' && (
+                    <AdminButton variant="ghost" onClick={() => handleUpdate(profile.id, { verificationStatus: 'APPROVED', adminApprovalStatus: 'APPROVED' })} style={{ color: '#166534', border: '1px solid #dcfce7', background: '#f0fdf4' }}>
+                      Approve
+                    </AdminButton>
+                  )}
+                  {profile.verificationStatus !== 'REJECTED' && (
+                    <AdminButton variant="ghost" onClick={() => handleUpdate(profile.id, { verificationStatus: 'REJECTED', adminApprovalStatus: 'REJECTED' })} style={{ color: '#991b1b', border: '1px solid #fecaca', background: '#fef2f2' }}>
+                      Reject
+                    </AdminButton>
+                  )}
+                </div>
+              </td>
+            </tr>
+          ))}
+        </AdminTable>
+      )}
 
-            {/* Admin controls */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginBottom: '20px' }} className="grid-mobile-1">
+      {selected && (
+        <AdminModal title={`Manage Profile: ${selected.fullName}`} isOpen={true} onClose={() => setSelected(null)} width="700px">
+          
+          {saveMsg && (
+            <div style={{ background: saveMsg.includes('failed') || saveMsg.includes('error') ? '#fef2f2' : '#f0fdf4', color: saveMsg.includes('failed') || saveMsg.includes('error') ? '#991b1b' : '#166534', padding: '12px 16px', borderRadius: '6px', fontSize: '13px', marginBottom: '20px', border: `1px solid ${saveMsg.includes('failed') || saveMsg.includes('error') ? '#fecaca' : '#dcfce7'}` }}>
+              {saveMsg}
+            </div>
+          )}
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '24px' }}>
+            <div>
+              <span style={{ fontSize: '11px', color: '#64748b', textTransform: 'uppercase', display: 'block', marginBottom: 4, fontWeight: 600 }}>Phone</span>
+              <div style={{ fontWeight: 500, color: '#0f172a' }}>{selected.phoneNumber}</div>
+            </div>
+            <div>
+              <span style={{ fontSize: '11px', color: '#64748b', textTransform: 'uppercase', display: 'block', marginBottom: 4, fontWeight: 600 }}>Gender / Age</span>
+              <div style={{ fontWeight: 500, color: '#0f172a' }}>{selected.gender} · {calcAge(selected.dateOfBirth)}</div>
+            </div>
+            <div>
+              <span style={{ fontSize: '11px', color: '#64748b', textTransform: 'uppercase', display: 'block', marginBottom: 4, fontWeight: 600 }}>Location</span>
+              <div style={{ fontWeight: 500, color: '#0f172a' }}>{selected.city}, {selected.state}</div>
+            </div>
+            <div>
+              <span style={{ fontSize: '11px', color: '#64748b', textTransform: 'uppercase', display: 'block', marginBottom: 4, fontWeight: 600 }}>Occupation</span>
+              <div style={{ fontWeight: 500, color: '#0f172a' }}>{selected.occupation}</div>
+            </div>
+            <div>
+              <span style={{ fontSize: '11px', color: '#64748b', textTransform: 'uppercase', display: 'block', marginBottom: 4, fontWeight: 600 }}>Education</span>
+              <div style={{ fontWeight: 500, color: '#0f172a' }}>{selected.education}</div>
+            </div>
+            <div>
+              <span style={{ fontSize: '11px', color: '#64748b', textTransform: 'uppercase', display: 'block', marginBottom: 4, fontWeight: 600 }}>Maslak / Biradari</span>
+              <div style={{ fontWeight: 500, color: '#0f172a' }}>{selected.maslak || '—'} / {selected.biradari || '—'}</div>
+            </div>
+          </div>
+
+          <div style={{ borderTop: '1px solid #e2e8f0', margin: '24px -24px', padding: '24px 24px 0' }}>
+            <h4 style={{ margin: '0 0 16px 0', fontSize: '14px', color: '#334155', fontWeight: 600 }}>Admin Controls</h4>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '24px' }}>
               <div>
-                <label className="form-label">Verification Status</label>
+                <label className="admin-label">Verification Status</label>
                 <select
-                  className="form-control"
+                  className="admin-input"
                   value={selected.verificationStatus}
                   onChange={e => setSelected(s => s ? { ...s, verificationStatus: e.target.value } : s)}
                 >
@@ -404,9 +301,9 @@ export default function AdminProfilesPage() {
                 </select>
               </div>
               <div>
-                <label className="form-label">Admin Approval</label>
+                <label className="admin-label">Admin Approval</label>
                 <select
-                  className="form-control"
+                  className="admin-input"
                   value={selected.adminApprovalStatus || 'PENDING'}
                   onChange={e => setSelected(s => s ? { ...s, adminApprovalStatus: e.target.value } : s)}
                 >
@@ -416,9 +313,9 @@ export default function AdminProfilesPage() {
                 </select>
               </div>
               <div>
-                <label className="form-label">Category</label>
+                <label className="admin-label">Category</label>
                 <select
-                  className="form-control"
+                  className="admin-input"
                   value={selected.category || 'normal'}
                   onChange={e => setSelected(s => s ? { ...s, category: e.target.value } : s)}
                 >
@@ -430,9 +327,9 @@ export default function AdminProfilesPage() {
                 </select>
               </div>
               <div>
-                <label className="form-label">Payment Status</label>
+                <label className="admin-label">Payment Status</label>
                 <select
-                  className="form-control"
+                  className="admin-input"
                   value={selected.hasPaid ? 'true' : 'false'}
                   onChange={e => setSelected(s => s ? { ...s, hasPaid: e.target.value === 'true' } : s)}
                 >
@@ -441,36 +338,31 @@ export default function AdminProfilesPage() {
                 </select>
               </div>
             </div>
+          </div>
 
-            <div style={{ display: 'flex', gap: '10px', justifyContent: 'space-between' }}>
-              <button
-                className="btn btn-secondary"
-                style={{ color: 'var(--deep-maroon)', fontSize: '13px' }}
-                onClick={() => handleDelete(selected.id)}
+          <div style={{ display: 'flex', gap: '12px', justifyContent: 'space-between', marginTop: '32px' }}>
+            <AdminButton variant="danger" onClick={() => handleDelete(selected.id)}>
+              Delete Profile
+            </AdminButton>
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <AdminButton variant="secondary" onClick={() => setSelected(null)}>
+                Cancel
+              </AdminButton>
+              <AdminButton
+                variant="primary"
+                disabled={saving}
+                onClick={() => handleUpdate(selected.id, {
+                  verificationStatus: selected.verificationStatus,
+                  adminApprovalStatus: selected.adminApprovalStatus,
+                  category: selected.category,
+                  hasPaid: selected.hasPaid,
+                })}
               >
-                🗑 Delete Profile
-              </button>
-              <div style={{ display: 'flex', gap: '10px' }}>
-                <button className="btn btn-secondary" style={{ fontSize: '13px' }} onClick={() => setSelected(null)}>
-                  Cancel
-                </button>
-                <button
-                  className="btn btn-gold"
-                  style={{ fontSize: '13px' }}
-                  disabled={saving}
-                  onClick={() => handleUpdate(selected.id, {
-                    verificationStatus: selected.verificationStatus,
-                    adminApprovalStatus: selected.adminApprovalStatus,
-                    category: selected.category,
-                    hasPaid: selected.hasPaid,
-                  })}
-                >
-                  {saving ? 'Saving…' : '💾 Save Changes'}
-                </button>
-              </div>
+                {saving ? 'Saving...' : 'Save Changes'}
+              </AdminButton>
             </div>
           </div>
-        </div>
+        </AdminModal>
       )}
     </div>
   );

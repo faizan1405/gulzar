@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import { useApp } from '../context/AppContext';
 import { VerificationRequest } from '../types';
+import { AdminCard, AdminTable, AdminBadge, AdminButton } from './AdminUI';
 
 export const VerificationQueue: React.FC = () => {
   const { adminRequests, handleReviewSubmit } = useApp();
@@ -20,133 +21,127 @@ export const VerificationQueue: React.FC = () => {
   return (
     <div>
       {selectedRequest && selectedRequest.profile && (
-        <div className="card-theme-wrapper" style={{ marginBottom: '30px', border: '1.5px solid var(--gold-accent)' }}>
-          <h3 style={{ fontFamily: 'var(--font-serif)', color: 'var(--gold-dark)', marginBottom: '16px' }}>
-            Reviewing: {selectedRequest.profile.fullName} (ID: {selectedRequest.profileId})
+        <AdminCard style={{ marginBottom: '24px', border: '2px solid var(--primary-brand)', position: 'relative' }}>
+          <h3 style={{ fontFamily: 'var(--font-serif)', color: '#0f172a', fontSize: '20px', marginBottom: '16px' }}>
+            Reviewing: {selectedRequest.profile.fullName} <span style={{ fontSize: '14px', color: '#64748b', fontFamily: 'var(--font-sans)', fontWeight: 400 }}>(ID: {selectedRequest.profileId.substring(0, 8)}...)</span>
           </h3>
           
-          {selectedRequest.profile.profileImageUrl && (
-            <div style={{ marginBottom: '15px', textAlign: 'center' }}>
-              <Image 
-                src={selectedRequest.profile.profileImageUrl} 
-                alt="Uploaded Profile Photo" 
-                width={150}
-                height={150}
-                style={{ objectFit: 'cover', borderRadius: '12px', border: '2px solid var(--border-color)' }}
-              />
-              <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '8px' }}>
-                Image Status: <strong>{selectedRequest.profile.profileImageStatus || 'PENDING'}</strong>
-              </p>
-            </div>
-          )}
+          <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap' }}>
+            {selectedRequest.profile.profileImageUrl && (
+              <div style={{ flexShrink: 0 }}>
+                <Image 
+                  src={selectedRequest.profile.profileImageUrl} 
+                  alt="Uploaded Profile Photo" 
+                  width={150}
+                  height={150}
+                  style={{ objectFit: 'cover', borderRadius: '8px', border: '1px solid #e2e8f0' }}
+                />
+                <div style={{ fontSize: '12px', color: '#64748b', marginTop: '8px', textAlign: 'center' }}>
+                  Image Status: <strong>{selectedRequest.profile.profileImageStatus || 'PENDING'}</strong>
+                </div>
+              </div>
+            )}
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', margin: '15px 0', fontSize: '13.5px', border: '1px solid var(--border-color)', padding: '20px', borderRadius: '8px', backgroundColor: '#fff' }}>
-            <p><strong>Phone:</strong> {selectedRequest.profile.phoneNumber}</p>
-            <p><strong>Location:</strong> {selectedRequest.profile.city}, {selectedRequest.profile.state}</p>
-            <p style={{ gridColumn: 'span 2' }}><strong>Bio:</strong> {selectedRequest.profile.bio}</p>
-            <p style={{ gridColumn: 'span 2' }}><strong>Family Background:</strong> {selectedRequest.profile.familyInfo}</p>
-            <p><strong>Submitted On:</strong> {new Date(selectedRequest.createdAt).toLocaleString()}</p>
-            <p>
-              <strong>Current Status: </strong> 
-              <span style={{ 
-                padding: '2px 8px', 
-                borderRadius: '4px', 
-                fontSize: '11px', 
-                fontWeight: 'bold',
-                backgroundColor: selectedRequest.status === 'APPROVED' ? 'rgba(18, 46, 34, 0.1)' : selectedRequest.status === 'REJECTED' ? 'rgba(230, 92, 92, 0.1)' : 'rgba(240, 190, 50, 0.1)',
-                color: selectedRequest.status === 'APPROVED' ? 'green' : selectedRequest.status === 'REJECTED' ? 'red' : 'orange'
-              }}>
-                {selectedRequest.status}
-              </span>
-            </p>
+            <div style={{ flex: 1, minWidth: '300px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', background: '#f8fafc', padding: '16px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+              <div>
+                <div style={{ fontSize: '11px', color: '#64748b', textTransform: 'uppercase', fontWeight: 600, marginBottom: '4px' }}>Phone</div>
+                <div style={{ fontWeight: 500 }}>{selectedRequest.profile.phoneNumber}</div>
+              </div>
+              <div>
+                <div style={{ fontSize: '11px', color: '#64748b', textTransform: 'uppercase', fontWeight: 600, marginBottom: '4px' }}>Location</div>
+                <div style={{ fontWeight: 500 }}>{selectedRequest.profile.city}, {selectedRequest.profile.state}</div>
+              </div>
+              <div>
+                <div style={{ fontSize: '11px', color: '#64748b', textTransform: 'uppercase', fontWeight: 600, marginBottom: '4px' }}>Submitted On</div>
+                <div style={{ fontWeight: 500 }}>{new Date(selectedRequest.createdAt).toLocaleString()}</div>
+              </div>
+              <div>
+                <div style={{ fontSize: '11px', color: '#64748b', textTransform: 'uppercase', fontWeight: 600, marginBottom: '4px' }}>Current Status</div>
+                <AdminBadge status={selectedRequest.status}>{selectedRequest.status}</AdminBadge>
+              </div>
+              <div style={{ gridColumn: '1 / -1' }}>
+                <div style={{ fontSize: '11px', color: '#64748b', textTransform: 'uppercase', fontWeight: 600, marginBottom: '4px' }}>Bio</div>
+                <div style={{ fontSize: '13px', lineHeight: 1.5 }}>{selectedRequest.profile.bio}</div>
+              </div>
+              <div style={{ gridColumn: '1 / -1' }}>
+                <div style={{ fontSize: '11px', color: '#64748b', textTransform: 'uppercase', fontWeight: 600, marginBottom: '4px' }}>Family Background</div>
+                <div style={{ fontSize: '13px', lineHeight: 1.5 }}>{selectedRequest.profile.familyInfo}</div>
+              </div>
+            </div>
           </div>
 
-          <div className="form-group">
-            <label className="form-label" style={{ fontWeight: 'bold' }}>Phone call verification notes</label>
+          <div style={{ marginTop: '24px' }}>
+            <label className="admin-label">Phone call verification notes</label>
             <textarea
-              className="form-control"
+              className="admin-input"
               rows={3}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Log observations from manual telephone check..."
+              style={{ width: '100%', resize: 'vertical' }}
             />
           </div>
 
-          <div style={{ display: 'flex', gap: '10px', marginTop: '15px', flexWrap: 'wrap' }}>
-            <button onClick={() => onSubmitReview('APPROVED')} className="btn btn-gold" style={{ backgroundColor: 'green', borderColor: 'green' }}>
+          <div style={{ display: 'flex', gap: '12px', marginTop: '24px', flexWrap: 'wrap' }}>
+            <AdminButton onClick={() => onSubmitReview('APPROVED')} style={{ background: '#166534', color: '#fff' }}>
               ✓ Approve Profile
-            </button>
-            <button onClick={() => onSubmitReview('REJECTED')} className="btn btn-primary" style={{ backgroundColor: 'red', borderColor: 'red' }}>
+            </AdminButton>
+            <AdminButton onClick={() => onSubmitReview('REJECTED')} variant="danger">
               ✗ Reject Profile
-            </button>
-            <button onClick={() => onSubmitReview('NEEDS_FOLLOW_UP')} className="btn btn-secondary">
+            </AdminButton>
+            <AdminButton onClick={() => onSubmitReview('NEEDS_FOLLOW_UP')} variant="secondary">
               Needs Follow Up
-            </button>
-            <button onClick={() => { setSelectedRequest(null); setNotes(''); }} className="btn btn-secondary" style={{ marginLeft: 'auto' }}>
+            </AdminButton>
+            <AdminButton onClick={() => { setSelectedRequest(null); setNotes(''); }} variant="ghost" style={{ marginLeft: 'auto' }}>
               Cancel
-            </button>
+            </AdminButton>
           </div>
-        </div>
+        </AdminCard>
       )}
 
-      <div className="table-responsive" style={{ backgroundColor: 'var(--white)', padding: '24px', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '700px' }}>
-          <thead>
-            <tr style={{ borderBottom: '2px solid var(--border-color)', height: '40px', fontSize: '12px', textTransform: 'uppercase', color: 'var(--gold-dark)' }}>
-              <th style={{ padding: '12px 8px' }}>Profile ID</th>
-              <th style={{ padding: '12px 8px' }}>Candidate Name</th>
-              <th style={{ padding: '12px 8px' }}>Phone Check Status</th>
-              <th style={{ padding: '12px 8px' }}>Submitted Date</th>
-              <th style={{ padding: '12px 8px' }}>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {adminRequests.length === 0 ? (
-              <tr>
-                <td colSpan={5} style={{ textAlign: 'center', padding: '30px' }}>
-                  <div className="empty-state">
-                    <h3>No Verification Requests</h3>
-                  </div>
+      <AdminCard style={{ padding: 0, overflow: 'hidden' }}>
+        {adminRequests.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '48px', color: '#64748b' }}>
+            <div style={{ fontSize: '24px', marginBottom: '8px' }}>📞</div>
+            <div style={{ fontSize: '16px', fontWeight: 500, color: '#334155' }}>No Verification Requests</div>
+            <p>The queue is currently empty.</p>
+          </div>
+        ) : (
+          <AdminTable headers={['Profile ID', 'Candidate Name', 'Phone Check Status', 'Submitted Date', 'Actions']}>
+            {adminRequests.map((req) => (
+              <tr key={req.id}>
+                <td>
+                  <code style={{ fontSize: '12px', color: '#475569', background: '#f1f5f9', padding: '2px 6px', borderRadius: '4px' }}>
+                    {req.profileId.substring(0, 8)}...
+                  </code>
+                </td>
+                <td>
+                  <div style={{ fontWeight: 600, color: '#0f172a' }}>{req.profile?.fullName || 'N/A'}</div>
+                </td>
+                <td>
+                  <AdminBadge status={req.status}>{req.status}</AdminBadge>
+                </td>
+                <td>
+                  <div style={{ color: '#475569', fontSize: '13px' }}>{new Date(req.createdAt).toLocaleDateString()}</div>
+                </td>
+                <td>
+                  {req.profile && (
+                    <AdminButton
+                      onClick={() => {
+                        setSelectedRequest(req);
+                        setNotes(req.notes || '');
+                      }}
+                      variant="secondary"
+                    >
+                      Review Call
+                    </AdminButton>
+                  )}
                 </td>
               </tr>
-            ) : (
-              adminRequests.map((req) => (
-                <tr key={req.id} style={{ borderBottom: '1px solid var(--border-color)', fontSize: '13.5px', height: '50px' }}>
-                  <td style={{ padding: '12px 8px' }}><code style={{ fontSize: '12px' }}>{req.profileId.substring(0, 8)}...</code></td>
-                  <td style={{ padding: '12px 8px' }}><strong>{req.profile?.fullName || 'N/A'}</strong></td>
-                  <td style={{ padding: '12px 8px' }}>
-                    <span style={{
-                      padding: '2px 6px',
-                      borderRadius: '4px',
-                      fontSize: '11px',
-                      fontWeight: 'bold',
-                      backgroundColor: req.status === 'APPROVED' ? 'rgba(18, 46, 34, 0.1)' : req.status === 'REJECTED' ? 'rgba(230, 92, 92, 0.1)' : 'rgba(240, 190, 50, 0.1)',
-                      color: req.status === 'APPROVED' ? 'green' : req.status === 'REJECTED' ? 'red' : 'orange'
-                    }}>
-                      {req.status}
-                    </span>
-                  </td>
-                  <td style={{ padding: '12px 8px' }}>{new Date(req.createdAt).toLocaleDateString()}</td>
-                  <td style={{ padding: '12px 8px' }}>
-                    {req.profile && (
-                      <button
-                        onClick={() => {
-                          setSelectedRequest(req);
-                          setNotes(req.notes || '');
-                        }}
-                        className="btn btn-gold"
-                        style={{ padding: '6px 12px', fontSize: '11px' }}
-                      >
-                        Review Call
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+            ))}
+          </AdminTable>
+        )}
+      </AdminCard>
     </div>
   );
 };
