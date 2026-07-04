@@ -152,7 +152,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [reloadTrigger, setReloadTrigger] = useState(0);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  // Starts true (not false): MyAccountPage's own effect runs before this
+  // provider's loadAllData effect within the same commit (child effects fire
+  // before parent effects), so if this defaulted to false, a page could read
+  // a stale "not loading" for one render right as authChecked flips true —
+  // before loadAllData has actually run even once — and act on an empty
+  // profile that was simply never fetched yet.
+  const [isLoading, setIsLoading] = useState(true);
   // Becomes true once the initial /api/auth/session probe resolves — lets
   // pages tell "still checking whether you're logged in" apart from
   // "confirmed logged out" (isLoggedIn starts false either way).

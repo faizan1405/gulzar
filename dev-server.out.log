@@ -1,5 +1,14 @@
 
 > mom-matrimonial@0.1.0 dev
-> next dev --port 3000
+> next dev
 
-[?25h
+▲ Next.js 16.2.9 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.1.34:3000
+- Environments: .env
+✓ Ready in 318ms
+
+prisma:query db.GlobalSettings.aggregate([ { $limit: 1, }, { $project: { _id: 1, adminEmail: 1, adminPhone: 1, emailAlertsEnabled: 1, smsAlertsEnabled: 1, officeAddress: 1, facebookUrl: 1, instagramUrl: 1, youtubeUrl: 1, linkedinUrl: 1, twitterUrl: 1, defaultPreviewImage: 1, updatedAt: 1, }, }, ])
+ GET / 200 in 1552ms (next.js: 152ms, application-code: 1400ms)
+prisma:query db.GlobalSettings.aggregate([ { $limit: 1, }, { $project: { _id: 1, adminEmail: 1, adminPhone: 1, emailAlertsEnabled: 1, smsAlertsEnabled: 1, officeAddress: 1, facebookUrl: 1, instagramUrl: 1, youtubeUrl: 1, linkedinUrl: 1, twitterUrl: 1, defaultPreviewImage: 1, updatedAt: 1, }, }, ])
+ GET / 200 in 51ms (next.js: 2ms, application-code: 49ms)
