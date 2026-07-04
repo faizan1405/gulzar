@@ -453,6 +453,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const handleRegisterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isLoggedIn) {
+      setShowLoginModal(true);
+      return;
+    }
     if (!formData.termsAccepted) {
       setRegistrationError('Please accept the Terms & Conditions before submitting.');
       return;
@@ -470,6 +474,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       });
 
       if (res.ok) {
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('rf_matrimonial_profile_completed', 'true');
+          window.dispatchEvent(new Event('rf_profile_completed'));
+        }
         if (pendingProfileId) {
           alert('Profile saved! Please choose a package to view full profiles.');
           setIsRegistering(false);

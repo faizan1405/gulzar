@@ -1,40 +1,34 @@
 'use client';
 
-import { useEffect } from 'react';
+import React from 'react';
 import { useRouter } from 'next/navigation';
 import { useApp } from '../../context/AppContext';
+import Navbar from '../../components/Navbar';
+import MatrimonialRegistrationForm from '../../components/MatrimonialRegistrationForm';
+import { PremiumFooter } from '../../components/NikahComponents';
 
-// `/register` is a thin entry point. The actual onboarding wizard lives on the
-// home page (driven by AppContext state), so this route funnels the user into
-// the correct step of that flow instead of 404-ing.
 export default function RegisterPage() {
   const router = useRouter();
-  const { isLoggedIn, setShowLoginModal, setIsRegistering, setRegStep } = useApp();
+  const { setIsRegistering } = useApp();
 
-  useEffect(() => {
-    if (isLoggedIn) {
-      // Authenticated users go straight into the onboarding wizard.
-      setIsRegistering(true);
-      setRegStep(1);
+  const handleCancelOrNavigate = (view?: string) => {
+    setIsRegistering(false);
+    if (view && view !== 'home') {
+      router.push('/' + view);
     } else {
-      // Guests must authenticate (Google) before a profile can be created.
-      setShowLoginModal(true);
+      router.push('/');
     }
-    router.replace('/');
-  }, [isLoggedIn, router, setShowLoginModal, setIsRegistering, setRegStep]);
+  };
 
   return (
-    <div
-      style={{
-        minHeight: '60vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontFamily: 'var(--font-sans)',
-        color: 'var(--text-muted)',
-      }}
-    >
-      Redirecting to registration…
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', backgroundColor: 'var(--background)' }}>
+      <Navbar />
+      <main className="flex-grow font-sans" style={{ padding: '40px 16px' }}>
+        <div className="container" style={{ maxWidth: '850px', margin: '0 auto' }}>
+          <MatrimonialRegistrationForm onCancel={() => handleCancelOrNavigate('home')} />
+        </div>
+      </main>
+      <PremiumFooter onNavigate={(view) => handleCancelOrNavigate(view)} />
     </div>
   );
 }

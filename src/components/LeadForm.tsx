@@ -79,12 +79,6 @@ export const LeadForm: React.FC<LeadFormProps> = ({
 
       setSuccessMsg(data.message || 'Alhamdulillah! Inquiry submitted successfully.');
       
-      // Permanently hide registration popup once a visitor successfully registers an inquiry
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('rf_registration_popup_permanently_hidden', 'true');
-        window.dispatchEvent(new Event('rf_registration_success'));
-      }
-
       // Reset non-prefilled fields
       setMessage('');
       setPreferredTime('');

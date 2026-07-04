@@ -3,12 +3,12 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { usePathname } from 'next/navigation';
 import { useApp } from '../context/AppContext';
-import LeadForm from './LeadForm';
+import MatrimonialRegistrationForm from './MatrimonialRegistrationForm';
 import { FloralCorner } from './NikahComponents';
 
 export default function RegistrationPopup() {
   const pathname = usePathname();
-  const { isLoggedIn, authChecked } = useApp();
+  const { userProfile, authChecked, isRegistering } = useApp();
 
   const [isOpen, setIsOpen] = useState(false);
   const [isPermanentlyHidden, setIsPermanentlyHidden] = useState(false);
@@ -20,19 +20,26 @@ export default function RegistrationPopup() {
   const isPermanentlyHiddenRef = useRef(isPermanentlyHidden);
   isPermanentlyHiddenRef.current = isPermanentlyHidden;
 
-  const isLoggedInRef = useRef(isLoggedIn);
-  isLoggedInRef.current = isLoggedIn;
+  // Profile completion detection: check DB profile completion status field
+  const hasCompletedProfile = userProfile?.profileCompletionStatus === 'COMPLETE';
+  const hasCompletedRef = useRef(hasCompletedProfile);
+  hasCompletedRef.current = hasCompletedProfile;
 
-  // Exclude admin pages, auth callback pages, and the registration page itself
+  // Exclude admin pages, auth callback pages, registration page, and my-account dashboard
   const isExcludedPage = !pathname ||
     pathname.startsWith('/admin') ||
     pathname.startsWith('/api/auth') ||
     pathname.startsWith('/auth') ||
     pathname === '/register' ||
-    pathname.startsWith('/register/');
+    pathname.startsWith('/register/') ||
+    pathname === '/my-account' ||
+    pathname.startsWith('/my-account/');
 
   const isExcludedRef = useRef(isExcludedPage);
   isExcludedRef.current = isExcludedPage;
+
+  const isRegisteringRef = useRef(isRegistering);
+  isRegisteringRef.current = isRegistering;
 
   const clearTimer = useCallback(() => {
     if (timerRef.current) {
@@ -44,69 +51,82 @@ export default function RegistrationPopup() {
   // Check localStorage on initial mount
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const hidden = localStorage.getItem('rf_registration_popup_permanently_hidden') === 'true';
-      if (hidden) {
+      const completed = localStorage.getItem('rf_matrimonial_profile_completed') === 'true';
+      if (completed) {
         setIsPermanentlyHidden(true);
       }
     }
   }, []);
 
-  // Stop timer and permanently hide immediately upon successful login
+  // Stop timer and permanently hide immediately upon successful profile registration
   useEffect(() => {
-    if (isLoggedIn) {
+    if (hasCompletedProfile) {
       clearTimer();
       setIsOpen(false);
       setIsPermanentlyHidden(true);
       if (typeof window !== 'undefined') {
-        localStorage.setItem('rf_registration_popup_permanently_hidden', 'true');
+        localStorage.setItem('rf_matrimonial_profile_completed', 'true');
       }
     }
-  }, [isLoggedIn, clearTimer]);
+  }, [hasCompletedProfile, clearTimer]);
 
   const handleRegistrationSuccess = useCallback(() => {
     clearTimer();
     setIsOpen(false);
     setIsPermanentlyHidden(true);
     if (typeof window !== 'undefined') {
-      localStorage.setItem('rf_registration_popup_permanently_hidden', 'true');
+      localStorage.setItem('rf_matrimonial_profile_completed', 'true');
     }
   }, [clearTimer]);
 
-  // Listen for custom registration success events from forms across the site
+  // Listen for custom registration success event when matrimonial profile is completed
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const handleCustomSuccess = () => {
       handleRegistrationSuccess();
     };
-    window.addEventListener('rf_registration_success', handleCustomSuccess);
+    window.addEventListener('rf_profile_completed', handleCustomSuccess);
     return () => {
-      window.removeEventListener('rf_registration_success', handleCustomSuccess);
+      window.removeEventListener('rf_profile_completed', handleCustomSuccess);
     };
   }, [handleRegistrationSuccess]);
 
   const startTimer = useCallback(() => {
     clearTimer();
 
-    // Do not start timer if already open, permanently hidden, logged in, auth not checked yet, or on excluded page
-    if (isOpenRef.current || isPermanentlyHiddenRef.current || isLoggedInRef.current || !authChecked || isExcludedRef.current) {
+    // Do not start timer if already open, permanently hidden, already has completed profile, auth not checked yet, on excluded page, or actively registering on page
+    if (
+      isOpenRef.current ||
+      isPermanentlyHiddenRef.current ||
+      hasCompletedRef.current ||
+      !authChecked ||
+      isExcludedRef.current ||
+      isRegisteringRef.current
+    ) {
       return;
     }
 
     timerRef.current = setTimeout(() => {
       timerRef.current = null;
-      if (!isOpenRef.current && !isPermanentlyHiddenRef.current && !isLoggedInRef.current && !isExcludedRef.current) {
+      if (
+        !isOpenRef.current &&
+        !isPermanentlyHiddenRef.current &&
+        !hasCompletedRef.current &&
+        !isExcludedRef.current &&
+        !isRegisteringRef.current
+      ) {
         setIsOpen(true);
       }
     }, 60000);
   }, [clearTimer, authChecked]);
 
-  // Manage timer lifecycle based on auth state, navigation, and open/hidden status
+  // Manage timer lifecycle based on profile completion state, navigation, and open/hidden status
   useEffect(() => {
     if (!authChecked) return;
 
-    if (isLoggedIn || isPermanentlyHidden || isExcludedPage) {
+    if (hasCompletedProfile || isPermanentlyHidden || isExcludedPage || isRegistering) {
       clearTimer();
-      if (isExcludedPage || isLoggedIn) {
+      if (isExcludedPage || hasCompletedProfile || isRegistering) {
         setIsOpen(false);
       }
       return;
@@ -119,9 +139,9 @@ export default function RegistrationPopup() {
     return () => {
       clearTimer();
     };
-  }, [authChecked, isLoggedIn, isPermanentlyHidden, isExcludedPage, isOpen, startTimer, clearTimer]);
+  }, [authChecked, hasCompletedProfile, isPermanentlyHidden, isExcludedPage, isRegistering, isOpen, startTimer, clearTimer]);
 
-  // If visitor closes without registering, show again after another 60s
+  // If visitor closes without registering, close modal and show again after another 60s
   const handleCloseWithoutRegistering = useCallback(() => {
     setIsOpen(false);
   }, []);
@@ -138,7 +158,18 @@ export default function RegistrationPopup() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, handleCloseWithoutRegistering]);
 
-  if (!isOpen || isLoggedIn || isPermanentlyHidden || isExcludedPage) {
+  // Prevent background page scrolling while modal is open
+  useEffect(() => {
+    if (isOpen && typeof document !== 'undefined') {
+      const originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = originalOverflow;
+      };
+    }
+  }, [isOpen]);
+
+  if (!isOpen || hasCompletedProfile || isPermanentlyHidden || isExcludedPage || isRegistering) {
     return null;
   }
 
@@ -154,10 +185,10 @@ export default function RegistrationPopup() {
       <div
         className="modal-content card-theme-wrapper"
         style={{
-          maxWidth: '560px',
-          width: '94%',
+          maxWidth: '900px',
+          width: '95%',
           maxHeight: '90vh',
-          margin: '20px',
+          margin: '20px auto',
           display: 'flex',
           flexDirection: 'column',
           backgroundColor: 'var(--white)',
@@ -178,7 +209,7 @@ export default function RegistrationPopup() {
           className="modal-header"
           style={{
             borderBottom: '1px solid var(--border-color)',
-            padding: '16px 24px',
+            padding: '16px 28px',
             backgroundColor: 'var(--warm-ivory)',
             display: 'flex',
             justifyContent: 'space-between',
@@ -186,8 +217,8 @@ export default function RegistrationPopup() {
             flexShrink: 0
           }}
         >
-          <span id="reg-popup-title" className="modal-title" style={{ fontSize: '18px', color: 'var(--deep-maroon)', fontWeight: 'bold' }}>
-            Rishte Forever Matrimonial
+          <span id="reg-popup-title" className="modal-title" style={{ fontSize: '20px', color: 'var(--deep-maroon)', fontWeight: 'bold' }}>
+            Register Matrimonial Profile
           </span>
           <button
             type="button"
@@ -197,11 +228,11 @@ export default function RegistrationPopup() {
             style={{
               background: 'none',
               border: 'none',
-              fontSize: '26px',
+              fontSize: '28px',
               cursor: 'pointer',
               color: 'var(--text-muted)',
-              width: '32px',
-              height: '32px',
+              width: '36px',
+              height: '36px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -212,22 +243,9 @@ export default function RegistrationPopup() {
           </button>
         </div>
 
-        {/* Modal Body */}
-        <div className="modal-body" style={{ padding: '24px', overflowY: 'auto', flexGrow: 1 }}>
-          <div style={{ textAlign: 'center', marginBottom: '22px' }}>
-            <span className="script-accent" style={{ display: 'block', marginBottom: '4px', fontSize: '22px' }}>Bismillah</span>
-            <h3 style={{ fontFamily: 'var(--font-serif)', color: 'var(--deep-maroon)', fontSize: '26px', marginBottom: '8px', fontWeight: 'bold' }}>
-              Register Free Today
-            </h3>
-            <p style={{ fontSize: '13.5px', color: 'var(--text-muted)', margin: '0 auto', maxWidth: '440px', lineHeight: '1.5' }}>
-              Welcome! You are browsing as an unregistered visitor. Complete this short form to register your inquiry and get connected with verified Muslim matches.
-            </p>
-          </div>
-
-          <LeadForm
-            defaultInquiryType="General Inquiry"
-            onSuccess={handleRegistrationSuccess}
-          />
+        {/* Modal Body with Scrolling */}
+        <div className="modal-body" style={{ padding: '24px 32px', overflowY: 'auto', flexGrow: 1 }}>
+          <MatrimonialRegistrationForm isModal={true} onCancel={handleCloseWithoutRegistering} />
         </div>
       </div>
     </div>
