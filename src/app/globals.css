@@ -3278,13 +3278,13 @@ input[type="checkbox"] {
     overflow: visible;
   }
 
-  /* Stable 3-column grid with equal 1fr outer columns so logo is dead center */
+  /* Compact centered row layout */
   .nav-container {
     position: relative;
-    display: grid !important;
-    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) !important;
+    display: flex !important;
     align-items: center !important;
-    column-gap: clamp(10px, 1.2vw, 20px);
+    justify-content: center !important;
+    gap: clamp(24px, 2.5vw, 36px) !important;
 
     width: 100%;
     max-width: none;
@@ -3321,25 +3321,24 @@ input[type="checkbox"] {
     display: none !important;
   }
 
-  /* Left column aligned to start */
+  /* Left and right sections sit directly beside logo without stretching or edge pushing */
   .nav-left {
-    grid-column: 1;
-    justify-self: start !important;
     display: flex !important;
     align-items: center !important;
-    justify-content: flex-start;
+    justify-content: flex-end !important;
     padding: 0 !important;
+    margin: 0 !important;
+    flex: 0 0 auto !important;
   }
 
-  /* Right column aligned to end */
   .nav-right {
-    grid-column: 3;
-    justify-self: end !important;
     display: flex !important;
     align-items: center !important;
-    justify-content: flex-end;
-    gap: clamp(6px, 0.8vw, 12px);
+    justify-content: flex-start !important;
+    gap: clamp(16px, 1.5vw, 24px) !important;
     padding: 0 !important;
+    margin: 0 !important;
+    flex: 0 0 auto !important;
   }
 
   .nav-left>.nav-menu-desktop {
@@ -3357,7 +3356,7 @@ input[type="checkbox"] {
   .nav-menu {
     display: flex !important;
     align-items: center !important;
-    gap: clamp(4px, 0.5vw, 8px);
+    gap: clamp(16px, 1.5vw, 24px) !important;
     margin: 0 !important;
     padding: 0 !important;
     list-style: none;
@@ -3429,18 +3428,13 @@ input[type="checkbox"] {
     bottom: auto !important;
   }
 
-  /* Center Column: Logo wrapper cleanly centered without negative margins or absolute offsets */
+  /* Center Column: Logo wrapper cleanly positioned in compact row without auto margins or absolute offsets */
   .logo-arch-wrapper {
-    grid-column: 2;
-    justify-self: center !important;
-    align-self: center !important;
     position: relative;
 
-    width: clamp(140px, 10vw, 175px);
+    width: clamp(160px, 12vw, 185px) !important;
     height: auto;
-    margin: 0 auto !important;
-    margin-top: 0 !important;
-    margin-bottom: 0 !important;
+    margin: 0 !important;
     padding: 0 !important;
     top: auto !important;
     bottom: auto !important;
@@ -3449,7 +3443,7 @@ input[type="checkbox"] {
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    flex: none;
+    flex: 0 0 auto !important;
     z-index: 5;
     overflow: visible;
   }
@@ -3481,8 +3475,8 @@ input[type="checkbox"] {
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    width: 100%;
-    max-width: clamp(125px, 9vw, 155px);
+    width: 100% !important;
+    max-width: clamp(160px, 12vw, 185px) !important;
     margin: 0 !important;
     padding: 0 !important;
     top: auto !important;
@@ -3506,7 +3500,7 @@ input[type="checkbox"] {
     display: inline-flex !important;
     align-items: center !important;
     justify-content: flex-end !important;
-    gap: clamp(4px, 0.5vw, 8px) !important;
+    gap: clamp(8px, 1vw, 12px) !important;
     margin: 0 !important;
     padding: 0 !important;
     flex-shrink: 0;
@@ -3580,14 +3574,14 @@ input[type="checkbox"] {
   }
 
   .nav-container {
-    padding: 4px 12px !important;
-    column-gap: 8px !important;
+    padding: 6px 16px !important;
+    gap: clamp(24px, 2.2vw, 32px) !important;
     min-height: 56px !important;
     border-radius: 18px;
   }
 
   .logo-arch-wrapper {
-    width: 125px !important;
+    width: clamp(160px, 11vw, 175px) !important;
   }
 
   .logo-arch-content {
@@ -3595,11 +3589,11 @@ input[type="checkbox"] {
   }
 
   .logo-link {
-    max-width: 110px !important;
+    max-width: clamp(160px, 11vw, 175px) !important;
   }
 
   .nav-menu {
-    gap: 2px !important;
+    gap: clamp(16px, 1.2vw, 20px) !important;
   }
 
   .nav-link {
@@ -3628,12 +3622,12 @@ input[type="checkbox"] {
   }
 
   .nav-right {
-    gap: 4px !important;
+    gap: clamp(16px, 1.2vw, 20px) !important;
   }
 
   .nav-actions-wrapper,
   .nav-actions-group {
-    gap: 4px !important;
+    gap: 6px !important;
   }
 
   .nav-greeting {
@@ -3669,14 +3663,14 @@ input[type="checkbox"] {
   }
 
   .nav-container {
-    padding: 4px 6px !important;
-    column-gap: 4px !important;
+    padding: 4px 10px !important;
+    gap: clamp(10px, 1.2vw, 16px) !important;
     min-height: 52px !important;
     border-radius: 16px;
   }
 
   .logo-arch-wrapper {
-    width: 105px !important;
+    width: 140px !important;
   }
 
   .logo-arch-content {
@@ -3684,45 +3678,45 @@ input[type="checkbox"] {
   }
 
   .logo-link {
-    max-width: 92px !important;
+    max-width: 140px !important;
   }
 
   .nav-menu {
-    gap: 0px !important;
+    gap: clamp(10px, 1vw, 14px) !important;
   }
 
   .nav-link {
-    padding: 3px 2px !important;
-    font-size: 11.5px !important;
-    gap: 2px !important;
-    height: 28px !important;
-    min-height: 28px !important;
-    max-height: 28px !important;
+    padding: 4px 4px !important;
+    font-size: 12px !important;
+    gap: 4px !important;
+    height: 30px !important;
+    min-height: 30px !important;
+    max-height: 30px !important;
     border-radius: 6px;
   }
 
   .nav-link.active {
-    padding: 3px 2px !important;
+    padding: 4px 4px !important;
   }
 
   .nav-icon,
   .nav-link svg,
   .nav-link img {
-    width: 15.5px !important;
-    height: 15.5px !important;
-    min-width: 15.5px !important;
-    min-height: 15.5px !important;
-    max-width: 15.5px !important;
-    max-height: 15.5px !important;
+    width: 16px !important;
+    height: 16px !important;
+    min-width: 16px !important;
+    min-height: 16px !important;
+    max-width: 16px !important;
+    max-height: 16px !important;
   }
 
   .nav-right {
-    gap: 1px !important;
+    gap: clamp(10px, 1vw, 14px) !important;
   }
 
   .nav-actions-wrapper,
   .nav-actions-group {
-    gap: 1px !important;
+    gap: 4px !important;
   }
 
   .nav-greeting {
@@ -3730,24 +3724,24 @@ input[type="checkbox"] {
   }
 
   .nav-btn {
-    height: 28px !important;
-    min-height: 28px !important;
-    max-height: 28px !important;
-    padding: 0 4px !important;
-    font-size: 10.5px !important;
-    gap: 2px !important;
+    height: 30px !important;
+    min-height: 30px !important;
+    max-height: 30px !important;
+    padding: 0 6px !important;
+    font-size: 11.5px !important;
+    gap: 4px !important;
     border-radius: 6px !important;
   }
 
   .btn-icon,
   .nav-btn svg,
   .nav-btn img {
-    width: 13.5px !important;
-    height: 13.5px !important;
-    min-width: 13.5px !important;
-    min-height: 13.5px !important;
-    max-width: 13.5px !important;
-    max-height: 13.5px !important;
+    width: 14px !important;
+    height: 14px !important;
+    min-width: 14px !important;
+    min-height: 14px !important;
+    max-width: 14px !important;
+    max-height: 14px !important;
   }
 }
 
