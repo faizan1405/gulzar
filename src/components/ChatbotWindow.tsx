@@ -93,6 +93,11 @@ export default function ChatbotWindow({ onClose }: ChatbotWindowProps) {
     }
   };
 
+  const handleSend = (e: React.FormEvent) => {
+    e.preventDefault();
+    sendMessage(input);
+  };
+
   const handleClearChat = () => {
     setMessages([
       {
