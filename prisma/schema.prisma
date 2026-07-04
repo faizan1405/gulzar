@@ -37,6 +37,8 @@ model User {
   image            String?
   role             Role                 @default(USER)
   accountStatus    AccountStatus        @default(ACTIVE)
+  passwordHash     String?
+  requiresPasswordChange Boolean        @default(false)
   accounts         Account[]
   sessions         Session[]
   profile          MatrimonialProfile?

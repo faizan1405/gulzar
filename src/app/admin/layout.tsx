@@ -22,5 +22,19 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     redirect('/admin/login');
   }
 
+  // Check if they need to change their password
+  if (session?.user?.requiresPasswordChange && pathname !== '/admin/change-password') {
+    redirect('/admin/change-password');
+  }
+
+  if (!session?.user?.requiresPasswordChange && pathname === '/admin/change-password') {
+    redirect('/admin');
+  }
+
+  // Do not render AdminLayoutClient wrapper if they are on change-password
+  if (pathname === '/admin/change-password') {
+    return <>{children}</>;
+  }
+
   return <AdminLayoutClient>{children}</AdminLayoutClient>;
 }

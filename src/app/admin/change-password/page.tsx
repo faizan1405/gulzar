@@ -2,36 +2,53 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 
-export default function AdminLoginPage() {
+export default function ChangePasswordPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const router = useRouter();
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters long.');
+      setLoading(false);
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError('Passwords do not match.');
+      setLoading(false);
+      return;
+    }
+
     try {
-      const result = await signIn('credentials', {
-        redirect: false,
-        email,
-        password,
+      const res = await fetch('/api/admin/change-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ newPassword: password }),
       });
 
-      if (result?.error) {
-        setError('Invalid email or password.');
-        setLoading(false);
+      if (res.ok) {
+        // Need to re-authenticate or just reload to trigger layout check and session update
+        // We will sign out the user, requiring them to login with the new password
+        // or just let the API update the DB and reload the page which fetches the new session
+        const { signOut } = await import('next-auth/react');
+        await signOut({ redirect: false });
+        router.push('/admin/login');
       } else {
-        router.push('/admin');
+        const data = await res.json();
+        setError(data.error || 'Failed to update password.');
+        setLoading(false);
       }
     } catch {
-      setError('An error occurred during login. Please try again.');
+      setError('An error occurred. Please try again.');
       setLoading(false);
     }
   };
@@ -48,17 +65,6 @@ export default function AdminLoginPage() {
         fontFamily: 'var(--font-sans)',
       }}
     >
-      <div
-        style={{
-          position: 'fixed',
-          inset: 0,
-          backgroundImage:
-            'radial-gradient(circle at 20% 20%, rgba(184,146,74,0.08) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(184,146,74,0.06) 0%, transparent 50%)',
-          pointerEvents: 'none',
-          zIndex: 0,
-        }}
-      />
-
       <div
         style={{
           width: '100%',
@@ -87,13 +93,13 @@ export default function AdminLoginPage() {
           style={{
             fontFamily: 'var(--font-serif)',
             color: '#6F1D35',
-            fontSize: '28px',
+            fontSize: '24px',
             marginBottom: '8px',
             fontWeight: 700,
             textAlign: 'center',
           }}
         >
-          Rishte Forever Admin
+          Change Password
         </h1>
         
         <p
@@ -105,7 +111,7 @@ export default function AdminLoginPage() {
             textAlign: 'center',
           }}
         >
-          Access the Matrimonial management dashboard. Sign in using your administrator credentials.
+          For security reasons, you must change your temporary password before accessing the admin dashboard.
         </p>
 
         {error && (
@@ -125,16 +131,16 @@ export default function AdminLoginPage() {
           </div>
         )}
 
-        <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div>
             <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#333', marginBottom: '8px' }}>
-              Email Address
+              New Password
             </label>
             <input
-              type="email"
+              type="password"
               required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               disabled={loading}
               style={{
                 width: '100%',
@@ -144,19 +150,19 @@ export default function AdminLoginPage() {
                 fontSize: '15px',
                 outline: 'none',
               }}
-              placeholder="admin@rishteforever.com"
+              placeholder="••••••••"
             />
           </div>
 
           <div>
             <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#333', marginBottom: '8px' }}>
-              Password
+              Confirm Password
             </label>
             <input
               type="password"
               required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
               disabled={loading}
               style={{
                 width: '100%',
@@ -192,7 +198,7 @@ export default function AdminLoginPage() {
               marginTop: '8px',
             }}
           >
-            {loading ? 'Signing in...' : 'Sign in'}
+            {loading ? 'Updating...' : 'Set Password'}
           </button>
         </form>
       </div>
