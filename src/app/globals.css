@@ -3283,7 +3283,7 @@ input[type="checkbox"] {
     position: relative;
     display: grid !important;
     grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) !important;
-    align-items: center;
+    align-items: center !important;
     column-gap: clamp(10px, 1.2vw, 20px);
 
     width: 100%;
@@ -3304,6 +3304,8 @@ input[type="checkbox"] {
   .nav-left,
   .nav-right,
   .nav-menu-desktop {
+    display: flex !important;
+    align-items: center !important;
     min-width: 0;
     margin: 0 !important;
   }
@@ -3311,7 +3313,7 @@ input[type="checkbox"] {
   /* Force desktop links visible on desktop */
   .nav-menu-desktop {
     display: flex !important;
-    align-items: center;
+    align-items: center !important;
     padding: 0 !important;
   }
 
@@ -3323,8 +3325,8 @@ input[type="checkbox"] {
   .nav-left {
     grid-column: 1;
     justify-self: start !important;
-    display: flex;
-    align-items: center;
+    display: flex !important;
+    align-items: center !important;
     justify-content: flex-start;
     padding: 0 !important;
   }
@@ -3333,24 +3335,28 @@ input[type="checkbox"] {
   .nav-right {
     grid-column: 3;
     justify-self: end !important;
-    display: flex;
-    align-items: center;
+    display: flex !important;
+    align-items: center !important;
     justify-content: flex-end;
     gap: clamp(6px, 0.8vw, 12px);
     padding: 0 !important;
   }
 
   .nav-left>.nav-menu-desktop {
+    display: flex !important;
+    align-items: center !important;
     justify-content: flex-start;
   }
 
   .nav-right>.nav-menu-desktop:first-child {
+    display: flex !important;
+    align-items: center !important;
     justify-content: flex-end;
   }
 
   .nav-menu {
     display: flex !important;
-    align-items: center;
+    align-items: center !important;
     gap: clamp(4px, 0.5vw, 8px);
     margin: 0 !important;
     padding: 0 !important;
@@ -3359,8 +3365,8 @@ input[type="checkbox"] {
   }
 
   .nav-menu li {
-    display: flex;
-    align-items: center;
+    display: flex !important;
+    align-items: center !important;
     flex: 0 0 auto;
     margin: 0 !important;
     padding: 0 !important;
@@ -3371,7 +3377,9 @@ input[type="checkbox"] {
     align-items: center !important;
     justify-content: center !important;
     gap: 7px !important;
-    min-height: 36px;
+    height: 36px !important;
+    min-height: 36px !important;
+    max-height: 36px !important;
     margin: 0 !important;
     padding: 8px 6px !important;
 
@@ -3389,11 +3397,21 @@ input[type="checkbox"] {
     padding: 8px 6px !important;
   }
 
+  .nav-link span,
+  .nav-btn span,
+  .nav-menu li span {
+    display: inline-block !important;
+    line-height: 1 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    vertical-align: middle !important;
+  }
+
   /* Consistent icon sizing (19px), flex-shrink 0, vertical centering, no offsets */
   .nav-icon,
   .nav-link svg,
   .nav-link img {
-    display: inline-block !important;
+    display: block !important;
     width: 19px !important;
     height: 19px !important;
     min-width: 19px !important;
@@ -3402,6 +3420,8 @@ input[type="checkbox"] {
     max-height: 19px !important;
     flex-shrink: 0 !important;
     margin: 0 !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
     padding: 0 !important;
     vertical-align: middle !important;
     transform: none !important;
@@ -3419,11 +3439,16 @@ input[type="checkbox"] {
     width: clamp(140px, 10vw, 175px);
     height: auto;
     margin: 0 auto !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
     padding: 0 !important;
+    top: auto !important;
+    bottom: auto !important;
+    transform: none !important;
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
     flex: none;
     z-index: 5;
     overflow: visible;
@@ -3441,29 +3466,37 @@ input[type="checkbox"] {
   .logo-arch-content {
     position: relative;
     z-index: 2;
-    padding: clamp(2px, 0.4vw, 6px) 0 !important;
+    padding: 0 !important;
     margin: 0 !important;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    top: auto !important;
+    bottom: auto !important;
+    transform: none !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
     width: 100%;
   }
 
   .logo-link {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
     width: 100%;
     max-width: clamp(125px, 9vw, 155px);
     margin: 0 !important;
     padding: 0 !important;
+    top: auto !important;
+    bottom: auto !important;
+    transform: none !important;
   }
 
   .logo-link img {
-    display: block;
+    display: block !important;
     width: 100% !important;
     max-width: 100% !important;
     height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
     object-fit: contain;
   }
 
@@ -3521,7 +3554,7 @@ input[type="checkbox"] {
   .btn-icon,
   .nav-btn svg,
   .nav-btn img {
-    display: inline-block !important;
+    display: block !important;
     width: 16px !important;
     height: 16px !important;
     min-width: 16px !important;
@@ -3530,6 +3563,8 @@ input[type="checkbox"] {
     max-height: 16px !important;
     flex-shrink: 0 !important;
     margin: 0 !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
     padding: 0 !important;
     vertical-align: middle !important;
     transform: none !important;
@@ -3556,7 +3591,7 @@ input[type="checkbox"] {
   }
 
   .logo-arch-content {
-    padding: 2px 0 !important;
+    padding: 0 !important;
   }
 
   .logo-link {
@@ -3571,7 +3606,9 @@ input[type="checkbox"] {
     padding: 6px 5px !important;
     font-size: 13px !important;
     gap: 5px !important;
+    height: 32px !important;
     min-height: 32px !important;
+    max-height: 32px !important;
     border-radius: 7px;
   }
 
@@ -3643,7 +3680,7 @@ input[type="checkbox"] {
   }
 
   .logo-arch-content {
-    padding: 2px 0 !important;
+    padding: 0 !important;
   }
 
   .logo-link {
@@ -3658,7 +3695,9 @@ input[type="checkbox"] {
     padding: 3px 2px !important;
     font-size: 11.5px !important;
     gap: 2px !important;
+    height: 28px !important;
     min-height: 28px !important;
+    max-height: 28px !important;
     border-radius: 6px;
   }
 
