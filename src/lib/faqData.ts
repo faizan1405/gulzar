@@ -558,11 +558,22 @@ export function normalizeMessage(message: string): string {
     .trim();
 }
 
-function tokenize(normalized: string): string[] {
-  return normalized.split(' ').filter((t) => t.length > 1 && !STOP_WORDS.has(t));
+/** Very light plural stemming so "photos"/"photo", "numbers"/"number" match. */
+function stem(token: string): string {
+  if (token.length > 3 && token.endsWith('s') && !token.endsWith('ss')) {
+    return token.slice(0, -1);
+  }
+  return token;
 }
 
-/** Score a single FAQ entry against a normalized message + its tokens. */
+function tokenize(normalized: string): string[] {
+  return normalized
+    .split(' ')
+    .filter((t) => t.length > 1 && !STOP_WORDS.has(t))
+    .map(stem);
+}
+
+/** Score a single FAQ entry against a normalized message + its stemmed tokens. */
 function scoreEntry(entry: FaqEntry, normalized: string, tokens: Set<string>): number {
   let score = 0;
 
@@ -572,7 +583,7 @@ function scoreEntry(entry: FaqEntry, normalized: string, tokens: Set<string>): n
     if (!nkw) continue;
     if (nkw.includes(' ')) {
       if (normalized.includes(nkw)) score += 3;
-    } else if (tokens.has(nkw)) {
+    } else if (tokens.has(stem(nkw))) {
       score += 2;
     }
   }
@@ -609,7 +620,9 @@ export function findFaqAnswer(message: string): FaqEntry | null {
   const ranked = rankEntries(message);
   if (!ranked.length) return null;
   const best = ranked[0];
-  if (best.score >= 5) return best.entry;
+  // Threshold tuned so clear questions match while vague/off-topic ones fall
+  // through to the AI provider or the generic reply.
+  if (best.score >= 4) return best.entry;
   return null;
 }
 

@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { getChatbotSuggestions } from '../lib/faqData';
+import { getFallbackResponse } from '../lib/chatbotFallback';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -82,7 +83,6 @@ export default function ChatbotWindow({ onClose }: ChatbotWindowProps) {
       setErrorMsg('Could not reach the assistant. Reverting to fallback answers...');
       
       // Graceful local client fallback if API is fully down
-      const { getFallbackResponse } = require('../lib/chatbotFallback');
       const offlineReply = getFallbackResponse(cleanInput);
       setMessages((prev) => [
         ...prev,
