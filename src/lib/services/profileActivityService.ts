@@ -61,7 +61,7 @@ export async function getViewedProfiles(userId: string, skip = 0, take = 20) {
     select: { id: true }
   });
 
-  if (!userProfile) return { profiles: [], total: 0 };
+  if (!userProfile) return { views: [], total: 0 };
 
   const [views, total] = await Promise.all([
     prisma.profileView.findMany({
