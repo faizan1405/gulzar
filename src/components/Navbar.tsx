@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useApp } from '../context/AppContext';
+import NotificationBell from './NotificationBell';
 
 type IconName =
   | 'home'
@@ -354,6 +355,7 @@ export default function Navbar() {
 
               {isLoggedIn ? (
                 <div className="nav-actions-group">
+                  <NotificationBell />
                   <span className="nav-greeting">Salaam!</span>
                 </div>
               ) : (

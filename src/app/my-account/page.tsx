@@ -360,6 +360,31 @@ export default function MyAccountPage() {
               )}
             </div>
 
+            {/* My Activity */}
+            <div style={{
+              backgroundColor: 'white',
+              borderRadius: '16px',
+              padding: '24px',
+              boxShadow: 'var(--shadow-card)',
+              border: '1px solid var(--border-color)',
+            }}>
+              <h3 style={{ fontSize: '20px', color: 'var(--primary-dark)', marginBottom: '16px' }}>My Activity</h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <Link href="/my-account/viewed-profiles" className="btn btn-secondary" style={{ textAlign: 'center', backgroundColor: 'var(--cream-bg)', border: 'none' }}>
+                  Recently Viewed Profiles
+                </Link>
+                <Link href="/my-account/shortlisted" className="btn btn-secondary" style={{ textAlign: 'center', backgroundColor: 'var(--cream-bg)', border: 'none' }}>
+                  Shortlisted Profiles
+                </Link>
+                <Link href="/my-account/interests" className="btn btn-secondary" style={{ textAlign: 'center', backgroundColor: 'var(--cream-bg)', border: 'none' }}>
+                  Interest Requests
+                </Link>
+                <Link href="/my-account/notifications" className="btn btn-secondary" style={{ textAlign: 'center', backgroundColor: 'var(--cream-bg)', border: 'none' }}>
+                  Notifications
+                </Link>
+              </div>
+            </div>
+
             {/* Quick Links */}
             <div style={{
               backgroundColor: 'white',
