@@ -3,8 +3,24 @@
 import React, { useEffect, useState } from 'react';
 import Navbar from '@/components/Navbar';
 import { SectionHeading, PremiumFooter, ProfileCard } from '@/components/NikahComponents';
+import { useApp } from '@/context/AppContext';
+import { getProfileImage, getThemeClass } from '@/lib/helpers';
 
 export default function InterestsPage() {
+  const {
+    isLoggedIn,
+    hasPaidSubscription,
+    activePackages,
+    highProfileApproved,
+    savedProfiles,
+    toggleSaveProfile,
+    setSelectedProfileForDetails,
+    setShowLoginModal,
+    handleViewProfile,
+    userProfile,
+  } = useApp();
+
+  const isFormComplete = userProfile?.profileCompletionStatus === 'COMPLETE';
   const [activeTab, setActiveTab] = useState<'sent' | 'received'>('received');
   const [requests, setRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -78,11 +94,26 @@ export default function InterestsPage() {
             </div>
           ) : (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '24px' }}>
-              {requests.map((req) => {
+              {requests.map((req, idx) => {
                 const profile = activeTab === 'sent' ? req.receiver : req.sender;
                 return (
                   <div key={req.id} style={{ position: 'relative' }}>
-                    <ProfileCard profile={profile} />
+                    <ProfileCard 
+                      profile={profile}
+                      index={idx}
+                      isLoggedIn={isLoggedIn}
+                      isFormComplete={isFormComplete}
+                      hasPaidSubscription={hasPaidSubscription}
+                      activePackages={activePackages}
+                      highProfileApproved={highProfileApproved}
+                      savedProfiles={savedProfiles}
+                      onToggleSave={toggleSaveProfile}
+                      onViewDetails={setSelectedProfileForDetails}
+                      onViewProfile={handleViewProfile}
+                      onShowLogin={() => setShowLoginModal(true)}
+                      getProfileImage={getProfileImage}
+                      getThemeClass={getThemeClass}
+                    />
                     
                     <div style={{
                       marginTop: '12px',
