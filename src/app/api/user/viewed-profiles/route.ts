@@ -30,7 +30,7 @@ export async function GET(req: NextRequest) {
     const isAdmin = session.user.role === 'ADMIN';
 
     // Redact viewed profiles
-    const redactedViews = (result.views || []).map((v) => ({
+    const redactedViews = (result.views || []).map((v: any) => ({
       ...v,
       viewedProfile: redactProfile(
         v.viewedProfile as any,
