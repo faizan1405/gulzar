@@ -156,10 +156,11 @@ export default function MatrimonialRegistrationForm({
             <div className="form-group">
               <label className="form-label">Date of Birth (Eligible adults &gt;= 18) *</label>
               <input
-                type="date"
+                type="text"
                 className="form-control"
                 value={formData.dateOfBirth}
                 onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
+                placeholder="e.g. 01/01/2000 or any format"
                 required
               />
             </div>
@@ -178,11 +179,11 @@ export default function MatrimonialRegistrationForm({
             <div className="form-group">
               <label className="form-label">Phone Number (Call Verification Required) *</label>
               <input
-                type="tel"
+                type="text"
                 className="form-control"
                 value={formData.phoneNumber}
                 onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
-                placeholder="e.g. +91 9876543210"
+                placeholder="e.g. +91 9876543210 or any format"
                 required
               />
             </div>
