@@ -10,7 +10,7 @@ const FROM_EMAIL = process.env.EMAIL_FROM || 'onboarding@resend.dev';
 
 // --- Base notification senders ---
 
-async function sendEmail(to: string, subject: string, html: string) {
+export async function sendEmail(to: string, subject: string, html: string) {
   if (!process.env.RESEND_API_KEY) {
     console.warn(`[Mock Email] To: ${to} | Subject: ${subject}`);
     return { id: 'mock_email_id' };
@@ -30,7 +30,7 @@ async function sendEmail(to: string, subject: string, html: string) {
   return response.data;
 }
 
-async function sendSMS(to: string, body: string) {
+export async function sendSMS(to: string, body: string) {
   if (SMS_MOCK_ENABLED) {
     console.warn(`[Mock SMS] To: ${to} | Body: ${body}`);
     return { id: 'mock_sms_id' };

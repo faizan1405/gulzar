@@ -9,7 +9,7 @@ import { getProfileImage, getThemeClass } from '@/lib/helpers';
 export default function InterestsPage() {
   const {
     isLoggedIn,
-    hasPaidSubscription,
+    hasPaid300: hasPaidSubscription,
     activePackages,
     highProfileApproved,
     savedProfiles,

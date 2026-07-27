@@ -6,11 +6,11 @@ import { getProfileByUserId, createPackagePurchase } from '@/lib/profileStore';
 export async function POST(req: NextRequest) {
   try {
     const session = await auth();
-    const activeUserId = session.user.id;
-
-    if (!activeUserId) {
+    if (!session?.user?.id) {
       return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
     }
+
+    const activeUserId = session.user.id;
 
     const body = await req.json();
     const packageTypeInput = (body.packageType || 'monthly_membership') as PackageType;

@@ -74,41 +74,14 @@ export default function HomeClient() {
     masterMaslaks,
     masterCastes,
     masterLocations,
+    activePackages,
+    hasPaid300,
+    highProfileApproved,
   } = useSession();
 
-  const [activePurchasedPackages, setActivePurchasedPackages] = useState<string[]>([]);
-
-  useEffect(() => {
-    let cancelled = false;
-    async function loadPurchases() {
-      if (!isLoggedIn) {
-        setActivePurchasedPackages([]);
-        return;
-      }
-      try {
-        const res = await fetch('/api/user/purchases', {
-          headers: { 'Content-Type': 'application/json' },
-        });
-        if (!res.ok) return;
-        const data = await res.json();
-        const pkgs: string[] = Array.isArray(data.purchases)
-          ? data.purchases
-              .filter((p: any) => p.paymentStatus === 'PAID' && p.accessStatus === 'ACTIVE')
-              .map((p: any) => p.packageType)
-          : [];
-        if (!cancelled) setActivePurchasedPackages(pkgs);
-      } catch {
-        // ignore — leave active purchases empty
-      }
-    }
-    loadPurchases();
-    return () => { cancelled = true; };
-  }, [isLoggedIn, userProfile]);
-
-  const hasPaid300 = !!userProfile?.hasPaid || activePurchasedPackages.includes('monthly_membership');
-  const hasGoodProfilePackage = activePurchasedPackages.includes('good_profile_package');
-  const hasSecondMarriagePackage = activePurchasedPackages.includes('second_marriage_package');
-  const hasHighProfilePackage = activePurchasedPackages.includes('high_profile_package');
+  const hasGoodProfilePackage = activePackages.includes('good_profile_package');
+  const hasSecondMarriagePackage = activePackages.includes('second_marriage_package');
+  const hasHighProfilePackage = activePackages.includes('high_profile_package');
 
   const isFormComplete = isLoggedIn && userProfile?.profileCompletionStatus === 'COMPLETE';
 
@@ -816,10 +789,9 @@ export default function HomeClient() {
                           index={index}
                           isLoggedIn={isLoggedIn}
                           isFormComplete={isFormComplete}
-                          hasPaid300={hasPaid300}
-                          hasGoodProfilePackage={hasGoodProfilePackage}
-                          hasSecondMarriagePackage={hasSecondMarriagePackage}
-                          hasHighProfilePackage={hasHighProfilePackage}
+                          hasPaidSubscription={hasPaid300}
+                          activePackages={activePackages}
+                          highProfileApproved={highProfileApproved}
                           savedProfiles={savedProfiles}
                           onToggleSave={toggleSaveProfile}
                           onViewDetails={setSelectedProfileForDetails}

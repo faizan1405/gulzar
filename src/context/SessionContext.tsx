@@ -103,6 +103,11 @@ interface SessionContextType {
 
   // Headers helper for API requests
   getHeaders: () => Record<string, string>;
+
+  // Purchase access (populated by loadAllData)
+  activePackages: string[];
+  hasPaid300: boolean;
+  highProfileApproved: boolean;
 }
 
 const initialFormData = {
@@ -172,6 +177,11 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [adminPurchases, setAdminPurchases] = useState<PackagePurchase[]>([]);
   const [adminAssignments, setAdminAssignments] = useState<CuratedLeadAssignment[]>([]);
   const [isAdminMobileOpen, setIsAdminMobileOpen] = useState(false);
+
+  // Purchase access (populated by loadAllData)
+  const [activePackages, setActivePackages] = useState<string[]>([]);
+  const hasPaid300 = !!userProfile?.hasPaid || activePackages.includes('monthly_membership');
+  const highProfileApproved = !!userProfile?.highProfileApproved;
 
   // Master Data Options
   const [masterMaslaks, setMasterMaslaks] = useState<MaslakOption[]>(() =>
@@ -329,11 +339,18 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
             const resPkg = await fetch('/api/user/purchases', { headers });
             if (resPkg.ok) {
               const pkgData = await resPkg.json();
-              // Package data is used by components for access checks
+              const pkgs: string[] = Array.isArray(pkgData.purchases)
+                ? pkgData.purchases
+                    .filter((p: any) => p.paymentStatus === 'PAID' && p.accessStatus === 'ACTIVE')
+                    .map((p: any) => p.packageType)
+                : [];
+              setActivePackages(pkgs);
             }
           } catch {
             // ignore — purchases will just be empty if DB is down
           }
+        } else {
+          setActivePackages([]);
         }
       } catch (err) {
         console.error('Failed fetching database state', err);
@@ -682,6 +699,10 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
         setAdminAssignments,
         isAdminMobileOpen,
         setIsAdminMobileOpen,
+
+        activePackages,
+        hasPaid300,
+        highProfileApproved,
 
         masterMaslaks,
         setMasterMaslaks,

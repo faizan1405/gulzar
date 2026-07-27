@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
 
     const session = await auth();
 
-    if (!session.user.id) {
+    if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized. Admin role required.' }, { status: 403 });
     }
 

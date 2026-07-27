@@ -10,7 +10,17 @@ import ProfileGrid from '../../components/ProfileGrid';
 import { SectionHeading, PremiumFooter } from '../../components/NikahComponents';
 
 export default function SearchClient() {
+  const searchParams = useSearchParams();
   const { profiles, isLoggedIn, userProfile, isLoading, masterLocations } = useSession();
+
+  const queryState = searchParams.get('state') || undefined;
+  const queryCity = searchParams.get('city') || undefined;
+  const queryLocation = searchParams.get('location') || undefined;
+  const queryCaste = searchParams.get('caste') || undefined;
+  const queryCommunity = searchParams.get('community') || undefined;
+  const queryGender = searchParams.get('gender') || undefined;
+  const queryAgeMin = searchParams.get('ageMin') || undefined;
+  const queryAgeMax = searchParams.get('ageMax') || undefined;
 
   // Parse initial state/city: direct params take priority, then legacy location param
   let initialState = 'All';
