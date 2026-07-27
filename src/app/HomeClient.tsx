@@ -1245,7 +1245,6 @@ export default function HomeClient() {
                 />
                 Continue with Google
               </button>
-            )}
 
               <button
                 onClick={() => setShowLoginModal(false)}

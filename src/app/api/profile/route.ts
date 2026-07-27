@@ -52,15 +52,6 @@ export async function GET(req: NextRequest) {
       paymentStatus: string;
       eligibilityStatus?: string;
     }> = [];
-    
-    // Fetch viewer profile and purchases to check status
-    let viewerHasPaid = false;
-    let viewerPurchases: Array<{
-      id: string;
-      packageType: string;
-      paymentStatus: string;
-      eligibilityStatus?: string;
-    }> = [];
 
     const viewerId = session?.user?.id;
     if (viewerId) {
