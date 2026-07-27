@@ -381,6 +381,11 @@ export async function upsertProfile(
       const { category, ...rest } = data;
       const cleanCategory = category === null ? 'normal' : category;
       const dob = new Date(rest.dateOfBirth);
+      if (isNaN(dob.getTime())) {
+        throw new Error(
+          `Invalid dateOfBirth: "${rest.dateOfBirth}". Expected an ISO date string (e.g. "1995-04-12") or a parseable date.`
+        );
+      }
 
       return await prisma.matrimonialProfile.upsert({
         where: { userId: dbUserId },

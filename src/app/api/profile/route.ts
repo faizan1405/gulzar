@@ -160,6 +160,12 @@ export async function POST(req: NextRequest) {
 
     // 2. Age limit verification (Restricted to eligible adults >= 18)
     const dob = new Date(body.dateOfBirth);
+    if (isNaN(dob.getTime())) {
+      return NextResponse.json(
+        { error: `Invalid date of birth: "${body.dateOfBirth}". Please provide a valid date.` },
+        { status: 400 }
+      );
+    }
     const today = new Date();
     let age = today.getFullYear() - dob.getFullYear();
     const m = today.getMonth() - dob.getMonth();
