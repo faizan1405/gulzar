@@ -37,7 +37,8 @@ import {
   ProfileDetails,
   ChatbotWidget,
   CallButton,
-  WhatsAppButton
+  WhatsAppButton,
+  RegistrationPopup
 } from "../components/ClientDynamicWrappers";
 
 export const metadata: Metadata = {
@@ -63,6 +64,7 @@ export default function RootLayout({
           <ChatbotWidget />
           <CallButton />
           <WhatsAppButton />
+          <RegistrationPopup />
         </SessionProvider>
       </body>
     </html>

@@ -86,7 +86,7 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
 
     return NextResponse.json({ profile: redacted, locked: false });
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Internal Server Error';
-    return NextResponse.json({ error: errorMessage }, { status: 500 });
+    console.error('Failed to fetch profile:', error);
+    return NextResponse.json({ error: 'Internal server error.' }, { status: 500 });
   }
 }

@@ -73,7 +73,7 @@ export async function POST(req: NextRequest) {
       message: 'Payment claim submitted successfully! Admin will confirm your payment shortly.',
     });
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Internal Server Error';
-    return NextResponse.json({ error: errorMessage }, { status: 500 });
+    console.error('Failed to submit payment claim:', error);
+    return NextResponse.json({ error: 'Internal server error.' }, { status: 500 });
   }
 }

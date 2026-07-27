@@ -221,10 +221,41 @@ if (!globalStore.inMemoryLeads) {
   ];
 }
 
+// Startup check: warn if in-memory store has data from a previous session
+const fallbackProfileCount = globalStore.inMemoryProfiles?.length ?? 0;
+const fallbackLeadCount = globalStore.inMemoryLeads?.length ?? 0;
+const fallbackPurchaseCount = globalStore.inMemoryPurchases?.length ?? 0;
+const fallbackRequestCount = globalStore.inMemoryRequests?.length ?? 0;
+if (
+  fallbackProfileCount > 0 ||
+  fallbackLeadCount > 0 ||
+  fallbackPurchaseCount > 0 ||
+  fallbackRequestCount > 0
+) {
+  console.warn(
+    '[FALLBACK STORE] In-memory data detected from previous session — all records were lost during restart. Database is still unavailable.'
+  );
+}
+
 
 // Safely sanitize credentials in connection string from error logs
 export function sanitizeErrorMessage(msg: string): string {
   return msg.replace(/(mongodb\+srv:\/\/|mongodb:\/\/|postgresql:\/\/)[^\s@]+@[^\s/]+/g, '$1***:***@***');
+}
+
+// Log a warning when an operation completes in fallback (in-memory) mode
+export function logFallbackWarning(operation: string): void {
+  console.warn(`[FALLBACK MODE] ${operation} completed in-memory only. Data will be lost on restart.`);
+}
+
+// Return counts of each entity in the in-memory fallback store
+export function getFallbackStats(): { profileCount: number; leadCount: number; purchaseCount: number; notificationCount: number } {
+  return {
+    profileCount: globalStore.inMemoryProfiles?.length ?? 0,
+    leadCount: globalStore.inMemoryLeads?.length ?? 0,
+    purchaseCount: globalStore.inMemoryPurchases?.length ?? 0,
+    notificationCount: globalStore.inMemoryLogs?.length ?? 0,
+  };
 }
 
 // Verify if fallback mode is allowed (never in production mode unless explicitly configured)
@@ -282,6 +313,7 @@ export async function getProfileById(id: string) {
   } else if (!isFallbackAllowed()) {
     throw new Error('Database is offline or not configured.');
   }
+  logFallbackWarning('getProfileById');
   return globalStore.inMemoryProfiles?.find((p) => p.id === id) || null;
 }
 
@@ -303,6 +335,7 @@ export async function getProfileByUserId(userId: string) {
   } else if (!isFallbackAllowed()) {
     throw new Error('Database is offline or not configured.');
   }
+  logFallbackWarning('getProfileByUserId');
   return globalStore.inMemoryProfiles?.find((p) => p.userId === userId) || null;
 }
 
@@ -334,6 +367,7 @@ export async function getAllProfiles() {
   } else if (!isFallbackAllowed()) {
     throw new Error('Database is offline or not configured.');
   }
+  logFallbackWarning('getAllProfiles');
   return globalStore.inMemoryProfiles || [];
 }
 

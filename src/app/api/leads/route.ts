@@ -6,7 +6,14 @@ import { checkRateLimit } from '@/lib/rateLimit';
 // Basic phone validation helper
 function isValidPhone(phone: string): boolean {
   const cleanPhone = phone.replace(/\s+/g, '').replace(/[-+()]/g, '');
-  return cleanPhone.length >= 10 && /^\d+$/.test(cleanPhone);
+  if (cleanPhone.length < 10 || !/^\d+$/.test(cleanPhone)) return false;
+  // Reject all-same digits (e.g., 0000000000)
+  if (/^([0-9])\1{9,}$/.test(cleanPhone)) return false;
+  // Reject simple sequential patterns (e.g., 1234567890, 0987654321)
+  const seqAsc = '01234567890123456789';
+  const seqDesc = '98765432109876543210';
+  if (seqAsc.includes(cleanPhone.slice(0, 11)) || seqDesc.includes(cleanPhone.slice(0, 11))) return false;
+  return true;
 }
 
 // Basic HTML sanitization helper

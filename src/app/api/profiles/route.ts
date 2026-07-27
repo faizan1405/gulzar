@@ -2,13 +2,31 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { getAllProfiles, getProfileByUserId, getUserPurchases } from '@/lib/profileStore';
 import { redactProfile } from '@/lib/profilePrivacy';
+import { checkRateLimit } from '@/lib/rateLimit';
+import {
+  hasPaidAccess,
+  hasSecondMarriagePackage,
+  hasHighProfilePackage,
+  hasGoodProfilePackage,
+  hasStandardPackage,
+} from '@/lib/packageAccess';
 
 // Get all verified profiles
 export async function GET(req: NextRequest) {
   try {
     const session = await auth();
 
+    // Rate limit by user (when logged in) or IP
+    const ip = (req as any).ip || req.headers.get('x-forwarded-for') || 'anonymous';
     const viewerId = session?.user?.id;
+    const rateLimitKey = viewerId ? `profiles-list:${viewerId}` : `profiles-list:${ip}`;
+    if (checkRateLimit(rateLimitKey, 30, 60 * 1000)) {
+      return NextResponse.json(
+        { error: 'Too many requests. Please slow down.' },
+        { status: 429 }
+      );
+    }
+
     const isAdmin = session?.user?.role === 'ADMIN';
 
     let viewerHasPaid = false;
@@ -31,14 +49,11 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    function hasPaid300Check() {
-      return viewerPurchases.some(p => p.packageType === 'monthly_membership' && p.paymentStatus === 'PAID');
-    }
-
-    const hasStandardPkg = viewerHasPaid || hasPaid300Check();
-    const hasSecondMarriagePkg = viewerPurchases.some(p => p.packageType === 'second_marriage_package' && p.paymentStatus === 'PAID');
-    const hasHighProfilePkg = viewerPurchases.some(p => p.packageType === 'high_profile_package' && p.paymentStatus === 'PAID' && p.eligibilityStatus === 'APPROVED');
-    const hasGoodProfilePkg = viewerPurchases.some(p => p.packageType === 'good_profile_package' && p.paymentStatus === 'PAID');
+    const hasStandardPkg = hasPaidAccess({ hasPaid: viewerHasPaid }, viewerPurchases) ||
+      hasStandardPackage(viewerPurchases);
+    const hasSecondMarriagePkg = hasSecondMarriagePackage(viewerPurchases);
+    const hasHighProfilePkg = hasHighProfilePackage(viewerPurchases);
+    const hasGoodProfilePkg = hasGoodProfilePackage(viewerPurchases);
 
     // Fetch all profiles from the database
     const allProfiles = await getAllProfiles();
@@ -61,7 +76,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ profiles: redactedProfiles });
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Internal Server Error';
-    return NextResponse.json({ error: errorMessage }, { status: 500 });
+    console.error('Failed to fetch profiles:', error);
+    return NextResponse.json({ error: 'Internal server error.' }, { status: 500 });
   }
 }

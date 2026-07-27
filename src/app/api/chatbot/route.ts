@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { CHATBOT_SYSTEM_PROMPT } from '../../../lib/chatbotPrompt';
-import { getFallbackResponse } from '../../../lib/chatbotFallback';
+import { CHATBOT_SYSTEM_PROMPT } from '@/lib/chatbotPrompt';
+import { getFallbackResponse } from '@/lib/chatbotFallback';
+import { safeJsonBody } from '@/lib/requestUtils';
 import {
   getGuardrailResponse,
   findFaqAnswer,
   getRelevantFaqContext,
-} from '../../../lib/faqData';
+} from '@/lib/faqData';
 
 // Basic in-memory rate limiting map
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
@@ -49,7 +50,9 @@ export async function POST(req: NextRequest) {
     }
 
     // 2. Parse and Validate Input
-    const body = await req.json();
+    const bodyOrResponse = await safeJsonBody(req, { maxSizeKB: 50 });
+    if (bodyOrResponse instanceof Response) return bodyOrResponse;
+    const body = bodyOrResponse;
     const { history } = body;
     message = typeof body?.message === 'string' ? body.message : '';
 
@@ -110,6 +113,22 @@ export async function POST(req: NextRequest) {
       : CHATBOT_SYSTEM_PROMPT;
 
     // 7. Call External AI Provider
+    async function timedFetch(url: string, options: RequestInit): Promise<Response> {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30_000);
+      try {
+        const response = await fetch(url, { ...options, signal: controller.signal });
+        clearTimeout(timeoutId);
+        return response;
+      } catch (err) {
+        clearTimeout(timeoutId);
+        if (err instanceof Error && err.name === 'AbortError') {
+          throw new Error('AI_SERVICE_TIMEOUT');
+        }
+        throw err;
+      }
+    }
+
     if (provider === 'gemini') {
       const geminiModel = model || 'gemini-1.5-flash';
       const url = `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent?key=${apiKey}`;
@@ -120,42 +139,52 @@ export async function POST(req: NextRequest) {
         role: h.role === 'assistant' ? 'model' : 'user',
         parts: [{ text: h.content }]
       }));
-      
+
       // Append current message
       contents.push({
         role: 'user',
         parts: [{ text: message }]
       });
 
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents,
-          systemInstruction: {
-            parts: [{ text: systemPrompt }]
-          },
-          generationConfig: {
-            maxOutputTokens: 800,
-            temperature: 0.7
-          }
-        }),
-      });
+      try {
+        const response = await timedFetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents,
+            systemInstruction: {
+              parts: [{ text: systemPrompt }]
+            },
+            generationConfig: {
+              maxOutputTokens: 800,
+              temperature: 0.7
+            }
+          }),
+        });
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Gemini API Error Response:', errorText);
-        throw new Error(`Gemini API returned status ${response.status}`);
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('Gemini API Error Response:', errorText);
+          throw new Error(`Gemini API returned status ${response.status}`);
+        }
+
+        const data = await response.json();
+        const aiReply = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+        if (!aiReply) {
+          throw new Error('Empty response from Gemini API.');
+        }
+
+        return NextResponse.json({ text: aiReply });
+      } catch (err) {
+        if (err instanceof Error && err.message === 'AI_SERVICE_TIMEOUT') {
+          return NextResponse.json(
+            { error: 'AI service timed out. Please try again.' },
+            { status: 504 }
+          );
+        }
+        throw err;
       }
-
-      const data = await response.json();
-      const aiReply = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-
-      if (!aiReply) {
-        throw new Error('Empty response from Gemini API.');
-      }
-
-      return NextResponse.json({ text: aiReply });
     }
 
     if (provider === 'openai') {
@@ -171,34 +200,44 @@ export async function POST(req: NextRequest) {
         { role: 'user', content: message }
       ];
 
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`
-        },
-        body: JSON.stringify({
-          model: openaiModel,
-          messages,
-          max_tokens: 800,
-          temperature: 0.7
-        })
-      });
+      try {
+        const response = await timedFetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`
+          },
+          body: JSON.stringify({
+            model: openaiModel,
+            messages,
+            max_tokens: 800,
+            temperature: 0.7
+          })
+        });
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('OpenAI API Error Response:', errorText);
-        throw new Error(`OpenAI API returned status ${response.status}`);
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('OpenAI API Error Response:', errorText);
+          throw new Error(`OpenAI API returned status ${response.status}`);
+        }
+
+        const data = await response.json();
+        const aiReply = data?.choices?.[0]?.message?.content;
+
+        if (!aiReply) {
+          throw new Error('Empty response from OpenAI API.');
+        }
+
+        return NextResponse.json({ text: aiReply });
+      } catch (err) {
+        if (err instanceof Error && err.message === 'AI_SERVICE_TIMEOUT') {
+          return NextResponse.json(
+            { error: 'AI service timed out. Please try again.' },
+            { status: 504 }
+          );
+        }
+        throw err;
       }
-
-      const data = await response.json();
-      const aiReply = data?.choices?.[0]?.message?.content;
-
-      if (!aiReply) {
-        throw new Error('Empty response from OpenAI API.');
-      }
-
-      return NextResponse.json({ text: aiReply });
     }
 
     // Default catch for invalid provider configurations
@@ -210,7 +249,7 @@ export async function POST(req: NextRequest) {
     const fallbackText = getFallbackResponse(message);
     return NextResponse.json({
       text: fallbackText,
-      errorDetails: error instanceof Error ? error.message : 'Unknown error'
+      errorDetails: 'Service temporarily unavailable. Please try again later.'
     });
   }
 }

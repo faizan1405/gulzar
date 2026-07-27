@@ -61,7 +61,7 @@ export async function getViewedProfiles(userId: string, skip = 0, take = 20) {
     select: { id: true }
   });
 
-  if (!userProfile) return { views: [], total: 0 };
+  if (!userProfile) return { views: [], total: 0, profileId: '' };
 
   const [views, total] = await Promise.all([
     prisma.profileView.findMany({
@@ -78,7 +78,7 @@ export async function getViewedProfiles(userId: string, skip = 0, take = 20) {
     })
   ]);
 
-  return { views, total };
+  return { views, total, profileId: userProfile.id };
 }
 
 export async function removeViewedProfile(userId: string, viewedProfileId: string) {
@@ -168,7 +168,7 @@ export async function getShortlistedProfiles(userId: string, skip = 0, take = 20
     select: { id: true }
   });
 
-  if (!userProfile) return { shortlists: [], total: 0 };
+  if (!userProfile) return { shortlists: [], total: 0, profileId: '' };
 
   const [shortlists, total] = await Promise.all([
     prisma.shortlist.findMany({
@@ -185,7 +185,7 @@ export async function getShortlistedProfiles(userId: string, skip = 0, take = 20
     })
   ]);
 
-  return { shortlists, total };
+  return { shortlists, total, profileId: userProfile.id };
 }
 
 export async function checkIsShortlisted(userId: string, targetProfileId: string) {

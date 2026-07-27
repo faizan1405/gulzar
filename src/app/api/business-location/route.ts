@@ -2,8 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { defaultBusinessLocation, validateSocialUrl } from '@/lib/businessLocation';
 
-export const dynamic = 'force-dynamic';
-
 export async function GET(req: NextRequest) {
   try {
     const settings = await prisma.globalSettings.findFirst();
@@ -34,7 +32,8 @@ export async function GET(req: NextRequest) {
       twitterUrl,
       defaultPreviewImage
     });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error) {
+    console.error('Failed to fetch business location:', error);
+    return NextResponse.json({ error: 'Internal server error.' }, { status: 500 });
   }
 }

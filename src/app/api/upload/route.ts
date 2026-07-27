@@ -1,63 +1,55 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { put } from '@vercel/blob';
 import { auth } from '@/auth';
-import { updateProfileImage } from '@/lib/profileStore';
+import { uploadToS3 } from '@/lib/upload';
+import { checkRateLimit } from '@/lib/rateLimit';
 
-export async function POST(request: NextRequest) {
+// Maximum file size: 5MB
+const MAX_FILE_SIZE = 5 * 1024 * 1024;
+const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
+
+export async function POST(req: NextRequest) {
   try {
     const session = await auth();
 
     if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized. Please log in.' }, { status: 401 });
+      return NextResponse.json({ error: 'Authentication Required' }, { status: 401 });
     }
 
-    const formData = await request.formData();
-    const file = formData.get('file') as File;
+    const formData = await req.formData();
+    const file = formData.get('file') as File | null;
 
     if (!file) {
-      return NextResponse.json({ error: 'No file provided' }, { status: 400 });
+      return NextResponse.json({ error: 'No file provided.' }, { status: 400 });
     }
 
-    // 1. Validate MIME type
-    const validMimeTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
-    if (!validMimeTypes.includes(file.type)) {
-      return NextResponse.json({ error: 'Invalid file type. Only JPG, PNG, and WebP are allowed.' }, { status: 400 });
+    // Validate file type
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      return NextResponse.json(
+        { error: 'Invalid file type. Only JPEG, PNG, and WebP are allowed.' },
+        { status: 400 }
+      );
     }
 
-    // 2. Validate file size (e.g., 4MB limit)
-    const MAX_SIZE_MB = 4;
-    if (file.size > MAX_SIZE_MB * 1024 * 1024) {
-      return NextResponse.json({ error: `File size exceeds the ${MAX_SIZE_MB}MB limit.` }, { status: 400 });
+    // Validate file size
+    if (file.size > MAX_FILE_SIZE) {
+      return NextResponse.json(
+        { error: 'File too large. Maximum size is 5MB.' },
+        { status: 400 }
+      );
     }
 
-    // 2.5 Verify Token exists
-    const blobToken = process.env.BLOB_READ_WRITE_TOKEN;
-    if (!blobToken || blobToken === 'blob_token' || blobToken === 'REAL_VERCEL_BLOB_READ_WRITE_TOKEN_HERE') {
-      return NextResponse.json({ error: 'Upload storage is not configured. Please set BLOB_READ_WRITE_TOKEN.' }, { status: 500 });
+    // Rate limit per user
+    const ip = (req as any).ip || req.headers.get('x-forwarded-for') || 'anonymous';
+    if (checkRateLimit(`upload:${session.user.id}:${ip}`, 5, 60 * 1000)) {
+      return NextResponse.json({ error: 'Too many uploads. Please try again later.' }, { status: 429 });
     }
 
-    // 3. Upload to Vercel Blob
-    const blob = await put(file.name, file, {
-      access: 'public',
-      token: process.env.BLOB_READ_WRITE_TOKEN, // Ensure this handles missing token if possible
-    });
+    // Upload to S3
+    const result = await uploadToS3(file);
 
-    // 4. Save the blob URL to the user's MatrimonialProfile
-    const updatedProfile = await updateProfileImage(session.user.id, blob.url, null);
-
-    if (!updatedProfile) {
-       return NextResponse.json({ error: 'User profile not found. Please complete profile registration first.' }, { status: 404 });
-    }
-
-    return NextResponse.json({ 
-      success: true, 
-      url: blob.url,
-      message: 'Profile photo uploaded successfully. Pending admin approval.' 
-    });
-
+    return NextResponse.json({ url: result.url });
   } catch (error) {
     console.error('Upload error:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Upload failed';
-    return NextResponse.json({ error: errorMessage }, { status: 500 });
+    return NextResponse.json({ error: 'Upload failed. Please try again.' }, { status: 500 });
   }
 }

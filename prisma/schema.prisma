@@ -213,6 +213,7 @@ model PackagePurchase {
   paymentReferenceId String?
   userSubmittedTxnId String?
   upiTransactionId   String?
+  razorpayOrderId    String?             // Razorpay order ID for online payments
   paymentMode        String             @default("UPI")
   paymentStatus           PaymentStatus      @default(PENDING)
   purchaseDate            DateTime           @default(now())

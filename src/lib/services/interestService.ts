@@ -154,7 +154,7 @@ export async function getSentInterests(userId: string, skip = 0, take = 20) {
     select: { id: true }
   });
 
-  if (!senderProfile) return { requests: [], total: 0 };
+  if (!senderProfile) return { requests: [], total: 0, profileId: '' };
 
   const [requests, total] = await Promise.all([
     prisma.interestRequest.findMany({
@@ -171,7 +171,7 @@ export async function getSentInterests(userId: string, skip = 0, take = 20) {
     })
   ]);
 
-  return { requests, total };
+  return { requests, total, profileId: senderProfile.id };
 }
 
 export async function getReceivedInterests(userId: string, skip = 0, take = 20) {
@@ -180,7 +180,7 @@ export async function getReceivedInterests(userId: string, skip = 0, take = 20) 
     select: { id: true }
   });
 
-  if (!receiverProfile) return { requests: [], total: 0 };
+  if (!receiverProfile) return { requests: [], total: 0, profileId: '' };
 
   const [requests, total] = await Promise.all([
     prisma.interestRequest.findMany({
@@ -197,5 +197,5 @@ export async function getReceivedInterests(userId: string, skip = 0, take = 20) 
     })
   ]);
 
-  return { requests, total };
+  return { requests, total, profileId: receiverProfile.id };
 }

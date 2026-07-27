@@ -4,9 +4,11 @@ import { getVerificationRequests, updateVerificationStatus, getAuditLogs } from 
 import { prisma } from '@/lib/db';
 import { notifyVerificationStatus } from '@/lib/notifications';
 import { VerificationStatus } from '@prisma/client';
+import { checkRateLimit } from '@/lib/rateLimit';
+import { logAudit } from '@/lib/audit';
 
 // Helper to check if admin
-async function isAdmin(req: NextRequest) {
+async function isAdmin(): Promise<boolean> {
   const session = await auth();
   return session?.user?.role === 'ADMIN';
 }
@@ -14,7 +16,7 @@ async function isAdmin(req: NextRequest) {
 // Get all verification requests
 export async function GET(req: NextRequest) {
   try {
-    if (!(await isAdmin(req))) {
+    if (!(await isAdmin())) {
       return NextResponse.json({ error: 'Unauthorized. Admin role required.' }, { status: 403 });
     }
 
@@ -29,15 +31,15 @@ export async function GET(req: NextRequest) {
     const requests = await getVerificationRequests();
     return NextResponse.json({ requests });
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Internal Server Error';
-    return NextResponse.json({ error: errorMessage }, { status: 500 });
+    console.error('Failed to fetch verification requests:', error);
+    return NextResponse.json({ error: 'Internal server error.' }, { status: 500 });
   }
 }
 
 // Update verification status
 export async function POST(req: NextRequest) {
   try {
-    if (!(await isAdmin(req))) {
+    if (!(await isAdmin())) {
       return NextResponse.json({ error: 'Unauthorized. Admin role required.' }, { status: 403 });
     }
 
@@ -45,6 +47,11 @@ export async function POST(req: NextRequest) {
 
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized. User ID required.' }, { status: 401 });
+    }
+
+    // Rate limit admin mutations: 20/min
+    if (checkRateLimit(`admin-verification:${session?.user?.id}`, 20, 60 * 1000)) {
+      return NextResponse.json({ error: 'Too many requests. Please slow down.' }, { status: 429 });
     }
 
     const body = await req.json();
@@ -71,12 +78,23 @@ export async function POST(req: NextRequest) {
         notifyVerificationStatus(userEmail, profile.phoneNumber, profile.fullName, status);
       }
     } catch (e) {
-      console.error('Failed to notify verification status', e);
+      console.error(
+        `[NOTIFY FAILED] Verification notification failed for profileId=${profileId} status=${status}:`,
+        e
+      );
     }
+
+    await logAudit({
+      actorUserId: session?.user?.id || 'unknown',
+      action: 'ADMIN_VERIFY_PROFILE',
+      targetType: 'MatrimonialProfile',
+      targetId: profileId,
+      metadata: status,
+    });
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Internal Server Error';
-    return NextResponse.json({ error: errorMessage }, { status: 500 });
+    console.error('Failed to update verification status:', error);
+    return NextResponse.json({ error: 'Internal server error.' }, { status: 500 });
   }
 }

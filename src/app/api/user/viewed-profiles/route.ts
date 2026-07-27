@@ -3,6 +3,13 @@ import { auth } from '@/auth';
 import { getViewedProfiles, removeViewedProfile, clearAllViewedProfiles, recordProfileView } from '@/lib/services/profileActivityService';
 import { redactProfile } from '@/lib/profilePrivacy';
 import { prisma } from '@/lib/db';
+import {
+  hasPaidAccess,
+  hasStandardPackage,
+  hasSecondMarriagePackage,
+  hasHighProfilePackage,
+  hasGoodProfilePackage,
+} from '@/lib/packageAccess';
 
 export async function GET(req: NextRequest) {
   try {
@@ -18,15 +25,16 @@ export async function GET(req: NextRequest) {
     const result = await getViewedProfiles(session.user.id, skip, take);
     
     // Check viewer's package for privacy redaction
-    const viewerProfile = await prisma.matrimonialProfile.findUnique({
-      where: { userId: session.user.id },
-      include: { purchases: { where: { paymentStatus: 'PAID', accessStatus: 'ACTIVE' } } }
-    });
+    const viewerPurchases = result.profileId
+      ? await prisma.packagePurchase.findMany({
+          where: { profileId: result.profileId, paymentStatus: 'PAID', accessStatus: 'ACTIVE' }
+        })
+      : [];
 
-    const hasStandardPkg = viewerProfile?.purchases?.some(p => p.packageType === 'monthly_membership') || false;
-    const hasSecondMarriagePkg = viewerProfile?.purchases?.some(p => p.packageType === 'second_marriage_package') || false;
-    const hasHighProfilePkg = viewerProfile?.purchases?.some(p => p.packageType === 'high_profile_package' && p.eligibilityStatus === 'APPROVED') || false;
-    const hasGoodProfilePkg = viewerProfile?.purchases?.some(p => p.packageType === 'good_profile_package') || false;
+    const hasStandardPkg = hasStandardPackage(viewerPurchases);
+    const hasSecondMarriagePkg = hasSecondMarriagePackage(viewerPurchases);
+    const hasHighProfilePkg = hasHighProfilePackage(viewerPurchases);
+    const hasGoodProfilePkg = hasGoodProfilePackage(viewerPurchases);
     const isAdmin = session.user.role === 'ADMIN';
 
     // Redact viewed profiles

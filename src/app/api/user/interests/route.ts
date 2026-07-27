@@ -3,12 +3,44 @@ import { auth } from '@/auth';
 import { getSentInterests, getReceivedInterests, sendInterest, respondToInterest, withdrawInterest } from '@/lib/services/interestService';
 import { redactProfile } from '@/lib/profilePrivacy';
 import { prisma } from '@/lib/db';
+import { checkRateLimit } from '@/lib/rateLimit';
+import { logAudit } from '@/lib/audit';
+import {
+  hasPaidAccess,
+  hasStandardPackage,
+  hasSecondMarriagePackage,
+  hasHighProfilePackage,
+  hasGoodProfilePackage,
+} from '@/lib/packageAccess';
+
+// Simple in-memory rate limiter for interest POST requests (max 10/min per user)
+const interestPostRateLimitMap = new Map<string, { count: number; resetTime: number }>();
+function checkInterestPostRateLimit(userId: string): boolean {
+  const now = Date.now();
+  const limit = 10;
+  const windowMs = 60 * 1000;
+  const record = interestPostRateLimitMap.get(userId);
+  if (!record || now > record.resetTime) {
+    interestPostRateLimitMap.set(userId, { count: 1, resetTime: now + windowMs });
+    return false;
+  }
+  record.count += 1;
+  return record.count > limit;
+}
 
 export async function GET(req: NextRequest) {
   try {
     const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Rate limit GET by user ID
+    if (checkRateLimit(`interests-get:${session.user.id}`, 30, 60 * 1000)) {
+      return NextResponse.json(
+        { error: 'Too many requests. Please slow down.' },
+        { status: 429 }
+      );
     }
 
     const { searchParams } = new URL(req.url);
@@ -24,15 +56,16 @@ export async function GET(req: NextRequest) {
     }
 
     // Check viewer's package for privacy redaction
-    const viewerProfile = await prisma.matrimonialProfile.findUnique({
-      where: { userId: session.user.id },
-      include: { purchases: { where: { paymentStatus: 'PAID', accessStatus: 'ACTIVE' } } }
-    });
+    const viewerPurchases = result.profileId
+      ? await prisma.packagePurchase.findMany({
+          where: { profileId: result.profileId, paymentStatus: 'PAID', accessStatus: 'ACTIVE' }
+        })
+      : [];
 
-    const hasStandardPkg = viewerProfile?.purchases?.some(p => p.packageType === 'monthly_membership') || false;
-    const hasSecondMarriagePkg = viewerProfile?.purchases?.some(p => p.packageType === 'second_marriage_package') || false;
-    const hasHighProfilePkg = viewerProfile?.purchases?.some(p => p.packageType === 'high_profile_package' && p.eligibilityStatus === 'APPROVED') || false;
-    const hasGoodProfilePkg = viewerProfile?.purchases?.some(p => p.packageType === 'good_profile_package') || false;
+    const hasStandardPkg = hasStandardPackage(viewerPurchases);
+    const hasSecondMarriagePkg = hasSecondMarriagePackage(viewerPurchases);
+    const hasHighProfilePkg = hasHighProfilePackage(viewerPurchases);
+    const hasGoodProfilePkg = hasGoodProfilePackage(viewerPurchases);
     const isAdmin = session.user.role === 'ADMIN';
 
     // Redact profiles
@@ -70,19 +103,40 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    if (checkInterestPostRateLimit(session.user.id)) {
+      return NextResponse.json(
+        { error: 'Too many requests. Please wait a minute.' },
+        { status: 429 }
+      );
+    }
+
     const body = await req.json();
     const { action, receiverProfileId, message, requestId } = body;
+
+    // Input length limits
+    if (typeof message === 'string' && message.length > 2000) {
+      return NextResponse.json({ error: 'Message too long (max 2000 characters).' }, { status: 400 });
+    }
 
     let result;
     if (action === 'SEND') {
       if (!receiverProfileId) return NextResponse.json({ error: 'receiverProfileId required' }, { status: 400 });
       result = await sendInterest(session.user.id, receiverProfileId, message);
+      if (result.success) {
+        await logAudit({ actorUserId: session.user.id, action: 'INTEREST_SEND', targetType: 'Interest', targetId: receiverProfileId, metadata: null });
+      }
     } else if (action === 'ACCEPT' || action === 'REJECT') {
       if (!requestId) return NextResponse.json({ error: 'requestId required' }, { status: 400 });
       result = await respondToInterest(session.user.id, requestId, action);
+      if (result.success) {
+        await logAudit({ actorUserId: session.user.id, action: `INTEREST_${action}`, targetType: 'Interest', targetId: requestId, metadata: null });
+      }
     } else if (action === 'WITHDRAW') {
       if (!requestId) return NextResponse.json({ error: 'requestId required' }, { status: 400 });
       result = await withdrawInterest(session.user.id, requestId);
+      if (result.success) {
+        await logAudit({ actorUserId: session.user.id, action: 'INTEREST_WITHDRAW', targetType: 'Interest', targetId: requestId, metadata: null });
+      }
     } else {
       return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
     }

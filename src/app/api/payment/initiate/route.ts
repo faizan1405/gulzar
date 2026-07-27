@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { PREMIUM_PACKAGES, PackageType } from '@/lib/packages';
 import { getProfileByUserId, createPackagePurchase } from '@/lib/profileStore';
+import { safeJsonBody } from '@/lib/requestUtils';
 
 export async function POST(req: NextRequest) {
   try {
@@ -12,7 +13,9 @@ export async function POST(req: NextRequest) {
 
     const activeUserId = session.user.id;
 
-    const body = await req.json();
+    const bodyOrResponse = await safeJsonBody(req, { maxSizeKB: 20 });
+    if (bodyOrResponse instanceof Response) return bodyOrResponse;
+    const body = bodyOrResponse;
     const packageTypeInput = (body.packageType || 'monthly_membership') as PackageType;
 
     const pkgDef = PREMIUM_PACKAGES[packageTypeInput];
@@ -53,7 +56,7 @@ export async function POST(req: NextRequest) {
       qrCodeUrl: process.env.NEXT_PUBLIC_UPI_QR || '/images/upi-qr.png.jpeg',
     });
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Internal Server Error';
-    return NextResponse.json({ error: errorMessage }, { status: 500 });
+    console.error('Failed to initiate payment:', error);
+    return NextResponse.json({ error: 'Internal server error.' }, { status: 500 });
   }
 }

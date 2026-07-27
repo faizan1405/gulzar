@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
-import { updateLead, deleteLead } from '@/lib/profileStore';
+import { updateLead, deleteLead, logFallbackWarning } from '@/lib/profileStore';
+import { checkRateLimit } from '@/lib/rateLimit';
+import { logAudit } from '@/lib/audit';
 
-async function isAdmin() {
+async function isAdmin(): Promise<boolean> {
   const session = await auth();
   return session?.user?.role === 'ADMIN';
 }
@@ -14,6 +16,13 @@ export async function PATCH(
   try {
     if (!(await isAdmin())) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    }
+
+    const session = await auth();
+
+    // Rate limit admin mutations: 20/min
+    if (checkRateLimit(`admin-leads-patch:${session?.user?.id || 'anon'}`, 20, 60 * 1000)) {
+      return NextResponse.json({ error: 'Too many requests. Please slow down.' }, { status: 429 });
     }
 
     const { id } = await params;
@@ -30,6 +39,14 @@ export async function PATCH(
     if (!updated) {
       return NextResponse.json({ error: 'Lead not found.' }, { status: 404 });
     }
+
+    await logAudit({
+      actorUserId: session?.user?.id || 'unknown',
+      action: 'ADMIN_UPDATE_LEAD',
+      targetType: 'Lead',
+      targetId: id,
+      metadata: JSON.stringify(updateData),
+    });
 
     return NextResponse.json({ success: true, lead: updated });
   } catch (error: any) {
@@ -50,11 +67,26 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
+    const session = await auth();
+
+    // Rate limit admin mutations: 20/min
+    if (checkRateLimit(`admin-leads-delete:${session?.user?.id || 'anon'}`, 20, 60 * 1000)) {
+      return NextResponse.json({ error: 'Too many requests. Please slow down.' }, { status: 429 });
+    }
+
     const { id } = await params;
     const deleted = await deleteLead(id);
     if (!deleted) {
       return NextResponse.json({ error: 'Lead not found or delete failed.' }, { status: 404 });
     }
+
+    await logAudit({
+      actorUserId: session?.user?.id || 'unknown',
+      action: 'ADMIN_DELETE_LEAD',
+      targetType: 'Lead',
+      targetId: id,
+      metadata: null,
+    });
 
     return NextResponse.json({ success: true, message: 'Lead deleted successfully.' });
   } catch (error: any) {

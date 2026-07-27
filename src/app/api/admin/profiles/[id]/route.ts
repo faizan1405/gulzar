@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/db';
-import { getValidObjectId, isFallbackAllowed } from '@/lib/profileStore';
+import { getValidObjectId, isFallbackAllowed, logFallbackWarning } from '@/lib/profileStore';
+import { checkRateLimit } from '@/lib/rateLimit';
+import { logAudit } from '@/lib/audit';
 
-async function isAdmin(req: NextRequest) {
+async function isAdmin(): Promise<boolean> {
   const session = await auth();
   return session?.user?.role === 'ADMIN';
 }
@@ -13,8 +15,15 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    if (!(await isAdmin(req))) {
+    if (!(await isAdmin())) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    }
+
+    const session = await auth();
+
+    // Rate limit admin mutations: 30/min
+    if (checkRateLimit(`admin-profiles-patch:${session?.user?.id || 'anon'}`, 30, 60 * 1000)) {
+      return NextResponse.json({ error: 'Too many requests. Please slow down.' }, { status: 429 });
     }
 
     const { id } = await params;
@@ -52,10 +61,19 @@ export async function PATCH(
         where: { id: dbId },
         data: updateData,
       });
+
+      await logAudit({
+        actorUserId: session?.user?.id || 'unknown',
+        action: 'ADMIN_UPDATE_PROFILE',
+        targetType: 'MatrimonialProfile',
+        targetId: id,
+        metadata: JSON.stringify({ fields: Object.keys(updateData) }),
+      });
+
       return NextResponse.json({ success: true, profile: updated });
     } catch (dbErr: any) {
       if (!isFallbackAllowed()) throw dbErr;
-      // In-memory fallback: return success so UI doesn't break when DB is unavailable
+      logFallbackWarning('Profile update');
       return NextResponse.json({ success: true, profile: { id, ...updateData } });
     }
   } catch (error: any) {
@@ -69,8 +87,15 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    if (!(await isAdmin(req))) {
+    if (!(await isAdmin())) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    }
+
+    const session = await auth();
+
+    // Rate limit admin mutations: 10/min
+    if (checkRateLimit(`admin-profiles-delete:${session?.user?.id || 'anon'}`, 10, 60 * 1000)) {
+      return NextResponse.json({ error: 'Too many requests. Please slow down.' }, { status: 429 });
     }
 
     const { id } = await params;
@@ -78,9 +103,19 @@ export async function DELETE(
     try {
       const dbId = getValidObjectId(id);
       await prisma.matrimonialProfile.delete({ where: { id: dbId } });
+
+      await logAudit({
+        actorUserId: session?.user?.id || 'unknown',
+        action: 'ADMIN_DELETE_PROFILE',
+        targetType: 'MatrimonialProfile',
+        targetId: id,
+        metadata: null,
+      });
+
       return NextResponse.json({ success: true });
     } catch (dbErr: any) {
       if (!isFallbackAllowed()) throw dbErr;
+      logFallbackWarning('Profile deletion');
       return NextResponse.json({ success: true });
     }
   } catch (error: any) {

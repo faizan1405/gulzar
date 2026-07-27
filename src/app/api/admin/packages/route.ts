@@ -12,6 +12,8 @@ import {
   rejectPaymentClaim,
 } from '@/lib/profileStore';
 import { ApprovalStatus, PaymentStatus } from '@prisma/client';
+import { checkRateLimit } from '@/lib/rateLimit';
+import { logAudit } from '@/lib/audit';
 
 async function isAdmin(req: NextRequest) {
   const session = await auth();
@@ -35,8 +37,8 @@ export async function GET(req: NextRequest) {
     const purchases = await getAllPurchases();
     return NextResponse.json({ purchases });
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Internal Server Error';
-    return NextResponse.json({ error: errorMessage }, { status: 500 });
+    console.error('Failed to fetch packages/purchases:', error);
+    return NextResponse.json({ error: 'Internal server error.' }, { status: 500 });
   }
 }
 
@@ -54,6 +56,11 @@ export async function POST(req: NextRequest) {
 
     const adminUserId = session.user.id;
 
+    // Rate limit admin mutations: 30/min
+    if (checkRateLimit(`admin-packages:${adminUserId}`, 30, 60 * 1000)) {
+      return NextResponse.json({ error: 'Too many requests. Please slow down.' }, { status: 429 });
+    }
+
     const body = await req.json();
     const { action } = body;
 
@@ -63,6 +70,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: 'Missing profiles' }, { status: 400 });
       }
       const assignment = await assignCuratedLead(buyerProfileId, leadProfileId);
+      await logAudit({ actorUserId: adminUserId, action: 'ADMIN_ASSIGN_LEAD', targetType: 'CuratedAssignment', targetId: assignment.id, metadata: `${buyerProfileId} -> ${leadProfileId}` });
       return NextResponse.json({ success: true, assignment });
     }
 
@@ -72,6 +80,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: 'Missing parameters' }, { status: 400 });
       }
       const updated = await updateCuratedLeadStatus(assignmentId, status);
+      await logAudit({ actorUserId: adminUserId, action: 'ADMIN_UPDATE_LEAD_STATUS', targetType: 'CuratedAssignment', targetId: assignmentId, metadata: status });
       return NextResponse.json({ success: true, assignment: updated });
     }
 
@@ -81,6 +90,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: 'Missing parameters' }, { status: 400 });
       }
       const updated = await updateHighProfileEligibility(purchaseId, status as ApprovalStatus, notes || '', adminUserId);
+      await logAudit({ actorUserId: adminUserId, action: 'ADMIN_UPDATE_ELIGIBILITY', targetType: 'PackagePurchase', targetId: purchaseId, metadata: status });
       return NextResponse.json({ success: true, purchase: updated });
     }
 
@@ -90,6 +100,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: 'Missing parameters' }, { status: 400 });
       }
       const updated = await confirmMarriage(purchaseId, confirmed, adminUserId);
+      await logAudit({ actorUserId: adminUserId, action: 'ADMIN_CONFIRM_MARRIAGE', targetType: 'PackagePurchase', targetId: purchaseId, metadata: String(confirmed) });
       return NextResponse.json({ success: true, purchase: updated });
     }
 
@@ -128,6 +139,7 @@ export async function POST(req: NextRequest) {
         } catch (e) {
           console.error('Membership notification failed after UPI confirmation:', e);
         }
+        await logAudit({ actorUserId: adminUserId, action: 'ADMIN_APPROVE_PAYMENT', targetType: 'PackagePurchase', targetId: purchaseId, metadata: 'Payment claim approved and package activated' });
         return NextResponse.json({ success: true, purchase: updated, message: 'Payment approved and package activated!' });
       } else {
         const { rejectionNotes } = body;
@@ -135,13 +147,14 @@ export async function POST(req: NextRequest) {
         if (!updated) {
           return NextResponse.json({ error: 'Purchase not found' }, { status: 404 });
         }
+        await logAudit({ actorUserId: adminUserId, action: 'ADMIN_REJECT_PAYMENT', targetType: 'PackagePurchase', targetId: purchaseId, metadata: 'Payment claim rejected' });
         return NextResponse.json({ success: true, purchase: updated, message: 'Payment rejected.' });
       }
     }
 
     return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Internal Server Error';
-    return NextResponse.json({ error: errorMessage }, { status: 500 });
+    console.error('Failed to process package admin action:', error);
+    return NextResponse.json({ error: 'Internal server error.' }, { status: 500 });
   }
 }

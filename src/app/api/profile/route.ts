@@ -1,10 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
-import { getProfileByUserId, upsertProfile, getUserPurchases, testDbConnection, getValidObjectId } from '@/lib/profileStore';
+import { getProfileByUserId, getUserPurchases, testDbConnection, getValidObjectId, upsertProfile } from '@/lib/profileStore';
 import { prisma } from '@/lib/db';
 import { redactProfile } from '@/lib/profilePrivacy';
 import { notifyRegistration, notifyAdminNewProfile } from '@/lib/notifications';
 import { checkRateLimit } from '@/lib/rateLimit';
+import { escapeHTML } from '@/lib/sanitize';
+import {
+  hasPaidAccess,
+  hasSecondMarriagePackage,
+  hasHighProfilePackage,
+  hasGoodProfilePackage,
+  hasStandardPackage,
+} from '@/lib/packageAccess';
 
 // Get user profile
 export async function GET(req: NextRequest) {
@@ -28,7 +36,7 @@ export async function GET(req: NextRequest) {
 
     // Identify profile categories
     const profileCat = (profile as any).category || '';
-    const isSecondMarriage = profile.maritalStatus !== 'Single' || profileCat === 'second_marriage';
+    const isSecondMarriage = (profile.maritalStatus !== 'Single' && profileCat !== '') || profileCat === 'second_marriage';
     const isHighProfile = 
       profileCat === 'high_profile' ||
       profile.occupation.toLowerCase().includes('doctor') ||
@@ -62,14 +70,11 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    const hasStandardPkg = viewerHasPaid || hasPaid300Check();
-    const hasSecondMarriagePkg = viewerPurchases.some(p => p.packageType === 'second_marriage_package' && p.paymentStatus === 'PAID');
-    const hasHighProfilePkg = viewerPurchases.some(p => p.packageType === 'high_profile_package' && p.paymentStatus === 'PAID' && p.eligibilityStatus === 'APPROVED');
-    const hasGoodProfilePkg = viewerPurchases.some(p => p.packageType === 'good_profile_package' && p.paymentStatus === 'PAID');
-
-    function hasPaid300Check() {
-      return viewerPurchases.some(p => p.packageType === 'monthly_membership' && p.paymentStatus === 'PAID');
-    }
+    const hasStandardPkg = hasPaidAccess({ hasPaid: viewerHasPaid }, viewerPurchases) ||
+      hasStandardPackage(viewerPurchases);
+    const hasSecondMarriagePkg = hasSecondMarriagePackage(viewerPurchases);
+    const hasHighProfilePkg = hasHighProfilePackage(viewerPurchases);
+    const hasGoodProfilePkg = hasGoodProfilePackage(viewerPurchases);
 
     // Enforce privacy constraints
     const redactedProfile = redactProfile(
@@ -103,8 +108,8 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ profile: redactedProfile });
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Internal Server Error';
-    return NextResponse.json({ error: errorMessage }, { status: 500 });
+    console.error('Failed to fetch profile:', error);
+    return NextResponse.json({ error: 'Internal server error.' }, { status: 500 });
   }
 }
 
@@ -147,14 +152,34 @@ export async function POST(req: NextRequest) {
       'country',
       'education',
       'occupation',
-      'annualIncomeRange',
-      'familyInfo',
-      'bio'
+      'annualIncomeRange'
     ];
 
     for (const field of requiredFields) {
       if (!body[field]) {
         return NextResponse.json({ error: `Field '${field}' is required.` }, { status: 400 });
+      }
+    }
+
+    // 1b. Input length limits
+    const lengthLimits: Record<string, number> = {
+      fullName: 100,
+      city: 100,
+      areaOrLocality: 200,
+      state: 100,
+      country: 100,
+      education: 200,
+      occupation: 200,
+      annualIncomeRange: 100,
+      familyInfo: 2000,
+      bio: 5000,
+    };
+    for (const [field, maxLen] of Object.entries(lengthLimits)) {
+      if (typeof body[field] === 'string' && body[field].length > maxLen) {
+        return NextResponse.json(
+          { error: `Field '${field}' exceeds maximum length of ${maxLen} characters.` },
+          { status: 400 }
+        );
       }
     }
 
@@ -177,7 +202,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Registration is restricted to eligible adults (18 years and older).' }, { status: 400 });
     }
 
-    // 3. Save profile
+    // 3. Sanitize text inputs to prevent XSS
+    const textFields = ['fullName', 'city', 'areaOrLocality', 'state', 'country', 'education', 'occupation', 'annualIncomeRange', 'familyInfo', 'bio'];
+    for (const field of textFields) {
+      if (body[field]) {
+        body[field] = escapeHTML(String(body[field]));
+      }
+    }
+
+    // 4. Save profile
     const profile = await upsertProfile(session.user.id, body);
 
     if (!profile) {
@@ -190,12 +223,15 @@ export async function POST(req: NextRequest) {
       notifyRegistration(userEmail, profile.phoneNumber, profile.fullName);
       notifyAdminNewProfile(profile);
     } catch (e) {
-      console.error('Registration notifications failed to fire:', e);
+      console.error(
+        `[NOTIFY FAILED] Registration notification failed for profileId=${profile.id} email=${session?.user?.email || 'unknown'}:`,
+        e
+      );
     }
 
     return NextResponse.json({ success: true, profile });
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Internal Server Error';
-    return NextResponse.json({ error: errorMessage }, { status: 500 });
+    console.error('Failed to create/update profile:', error);
+    return NextResponse.json({ error: 'Internal server error.' }, { status: 500 });
   }
 }

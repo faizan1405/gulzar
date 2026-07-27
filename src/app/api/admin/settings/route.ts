@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/db';
+import { checkRateLimit } from '@/lib/rateLimit';
+import { logAudit } from '@/lib/audit';
 
-async function isAdmin() {
+async function isAdmin(): Promise<boolean> {
   const session = await auth();
   return session?.user?.role === 'ADMIN';
 }
@@ -24,8 +26,9 @@ export async function GET(req: NextRequest) {
     }
 
     return NextResponse.json({ settings });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error) {
+    console.error('Failed to fetch global settings:', error);
+    return NextResponse.json({ error: 'Internal server error.' }, { status: 500 });
   }
 }
 
@@ -33,6 +36,13 @@ export async function POST(req: NextRequest) {
   try {
     if (!(await isAdmin())) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    }
+
+    const session = await auth();
+
+    // Rate limit admin mutations: 15/min
+    if (checkRateLimit(`admin-settings:${session?.user?.id || 'anon'}`, 15, 60 * 1000)) {
+      return NextResponse.json({ error: 'Too many requests. Please slow down.' }, { status: 429 });
     }
 
     const body = await req.json();
@@ -87,8 +97,17 @@ export async function POST(req: NextRequest) {
       });
     }
 
+    await logAudit({
+      actorUserId: session?.user?.id || 'unknown',
+      action: 'ADMIN_UPDATE_SETTINGS',
+      targetType: 'GlobalSettings',
+      targetId: settings.id,
+      metadata: 'Global settings update',
+    });
+
     return NextResponse.json({ success: true, settings });
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error('Failed to update global settings:', error);
+    return NextResponse.json({ error: 'Internal server error.' }, { status: 500 });
   }
 }
