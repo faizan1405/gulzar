@@ -15,14 +15,14 @@ import {
   mergeLocations
 } from '@/lib/profileStore';
 
-async function isAdmin(req: NextRequest) {
+async function isAdmin() {
   const session = await auth();
   return session?.user?.role === 'ADMIN';
 }
 
 export async function GET(req: NextRequest) {
   try {
-    if (!(await isAdmin(req))) {
+    if (!(await isAdmin())) {
       return NextResponse.json({ error: 'Unauthorized. Admin role required.' }, { status: 403 });
     }
     const options = await getMasterDataOptions();
@@ -35,7 +35,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    if (!(await isAdmin(req))) {
+    if (!(await isAdmin())) {
       return NextResponse.json({ error: 'Unauthorized. Admin role required.' }, { status: 403 });
     }
 

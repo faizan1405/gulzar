@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Navbar from '../../components/Navbar';
 import Image from 'next/image';
-import { SectionHeading, FloralCorner, PremiumFooter } from '../../components/NikahComponents';
+import { SectionHeading, PremiumFooter } from '../../components/NikahComponents';
 import LeadForm from '../../components/LeadForm';
 import { BusinessLocation, defaultBusinessLocation } from '../../lib/businessLocation';
 import { getSupportWhatsAppLink } from '../../lib/whatsapp';
@@ -161,9 +161,7 @@ export default function ContactClient() {
             </div>
 
             <div className="card-theme-wrapper" style={{ gridColumn: 'span 2', padding: '32px' }}>
-              <FloralCorner position="tl" color="var(--gold-accent)" />
-              <FloralCorner position="tr" color="var(--gold-accent)" />
-              <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '20px', color: 'var(--deep-maroon)', marginBottom: '16px' }}>Send Support Message</h3>
+                                          <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '20px', color: 'var(--deep-maroon)', marginBottom: '16px' }}>Send Support Message</h3>
               <LeadForm defaultInquiryType="General Inquiry" />
             </div>
           </div>

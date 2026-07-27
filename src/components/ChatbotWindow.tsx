@@ -1,11 +1,16 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
+import Link from 'next/link';
+import { getChatbotSuggestions } from '../lib/faqData';
+import { getFallbackResponse } from '../lib/chatbotFallback';
 
 interface Message {
   role: 'user' | 'assistant';
   content: string;
 }
+
+const SUGGESTIONS = getChatbotSuggestions();
 
 interface ChatbotWindowProps {
   onClose: () => void;
@@ -33,10 +38,9 @@ export default function ChatbotWindow({ onClose }: ChatbotWindowProps) {
     scrollToBottom();
   }, [messages, isLoading]);
 
-  const handleSend = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const cleanInput = input.trim();
-    if (!cleanInput) return;
+  const sendMessage = async (rawText: string) => {
+    const cleanInput = rawText.trim();
+    if (!cleanInput || isLoading) return;
     if (cleanInput.length > 1000) {
       setErrorMsg('Message is too long (maximum 1000 characters).');
       return;
@@ -46,6 +50,7 @@ export default function ChatbotWindow({ onClose }: ChatbotWindowProps) {
     setErrorMsg(null);
 
     // 1. Add User Message to UI
+    const historyForRequest = messages;
     const updatedMessages: Message[] = [...messages, { role: 'user', content: cleanInput }];
     setMessages(updatedMessages);
     setInput('');
@@ -58,7 +63,7 @@ export default function ChatbotWindow({ onClose }: ChatbotWindowProps) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           message: cleanInput,
-          history: messages // Pass existing history
+          history: historyForRequest // Pass existing history
         }),
       });
 
@@ -78,7 +83,6 @@ export default function ChatbotWindow({ onClose }: ChatbotWindowProps) {
       setErrorMsg('Could not reach the assistant. Reverting to fallback answers...');
       
       // Graceful local client fallback if API is fully down
-      const { getFallbackResponse } = require('../lib/chatbotFallback');
       const offlineReply = getFallbackResponse(cleanInput);
       setMessages((prev) => [
         ...prev,
@@ -87,6 +91,11 @@ export default function ChatbotWindow({ onClose }: ChatbotWindowProps) {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleSend = (e: React.FormEvent) => {
+    e.preventDefault();
+    sendMessage(input);
   };
 
   const handleClearChat = () => {
@@ -178,6 +187,32 @@ export default function ChatbotWindow({ onClose }: ChatbotWindowProps) {
         )}
         
         <div ref={messagesEndRef} />
+      </div>
+
+      {/* Suggested questions — shown at the start of a conversation */}
+      {messages.length <= 1 && !isLoading && (
+        <div className="chatbot-suggestions">
+          <span className="chatbot-suggestions-label">Popular questions</span>
+          <div className="chatbot-suggestions-list">
+            {SUGGESTIONS.map((s) => (
+              <button
+                key={s.id}
+                type="button"
+                className="chatbot-suggestion-chip"
+                onClick={() => sendMessage(s.question)}
+              >
+                {s.question}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Link to the full FAQ page */}
+      <div className="chatbot-faq-link-row">
+        <Link href="/faq" className="chatbot-faq-link" onClick={onClose}>
+          Browse all FAQs →
+        </Link>
       </div>
 
       {/* Input Footer */}

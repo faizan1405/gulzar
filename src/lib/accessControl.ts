@@ -93,10 +93,14 @@ export function canViewFullProfile(
 export function buildProfilePreview(profile: Record<string, unknown>) {
   const dob = profile.dateOfBirth ? new Date(profile.dateOfBirth as string) : null;
   const age = dob ? Math.floor((Date.now() - dob.getTime()) / (365.25 * 24 * 60 * 60 * 1000)) : null;
-  const bio = profile.bio as string | undefined;
+  const category = (profile.category as string) ?? 'normal';
 
+  // Every active/approved profile — normal or premium category alike — must
+  // show its real candidate name in the limited preview. Only contact/private
+  // fields are protected here, never identity.
   return {
     id: profile.id,
+    fullName: profile.fullName,
     gender: profile.gender,
     age,
     city: profile.city ?? null,
@@ -104,10 +108,10 @@ export function buildProfilePreview(profile: Record<string, unknown>) {
     maslak: profile.maslak ?? null,
     biradari: profile.biradari ?? null,
     maritalStatus: profile.maritalStatus ?? null,
-    category: profile.category ?? 'normal',
+    category,
     verificationStatus: profile.verificationStatus,
     themeColor: profile.themeColor ?? null,
-    bio: bio ? bio.substring(0, 100) + (bio.length > 100 ? '...' : '') : null,
+    // No contact, education, occupation, income, precise location or photo.
     isLocked: true,
   };
 }

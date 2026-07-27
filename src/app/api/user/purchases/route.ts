@@ -8,12 +8,12 @@ export async function GET(req: NextRequest) {
     const activeUserId = session?.user?.id;
 
     if (!activeUserId) {
-      return NextResponse.json({ packages: [], hasPaid: false });
+      return NextResponse.json({ packages: [], hasPaid: false, highProfileApproved: false });
     }
 
     const profile = await getProfileByUserId(activeUserId);
     if (!profile) {
-      return NextResponse.json({ packages: [], hasPaid: false });
+      return NextResponse.json({ packages: [], hasPaid: false, highProfileApproved: false });
     }
 
     const purchases = await getUserPurchases(profile.id);
@@ -26,11 +26,18 @@ export async function GET(req: NextRequest) {
       )
       .map(p => p.packageType);
 
+    const isHpApproved = purchases.some(p => 
+      p.packageType === 'high_profile_package' && 
+      p.paymentStatus === 'PAID' && 
+      p.eligibilityStatus === 'APPROVED'
+    );
+
     return NextResponse.json({
       packages: [...new Set(activePackageTypes)],
       hasPaid: profile.hasPaid,
+      highProfileApproved: isHpApproved,
     });
   } catch {
-    return NextResponse.json({ packages: [], hasPaid: false });
+    return NextResponse.json({ packages: [], hasPaid: false, highProfileApproved: false });
   }
 }

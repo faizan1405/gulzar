@@ -2,7 +2,11 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+<<<<<<<< HEAD:src/context/SessionContext.tsx
 import dynamic from 'next/dynamic';
+========
+import { signIn } from 'next-auth/react';
+>>>>>>>> 7a336b811732afadabe86bd40ec8d4222cc996e8:src/context/AppContext.tsx
 import { DEFAULT_MASLAKS, DEFAULT_CASTES, DEFAULT_LOCATIONS } from '../lib/masterData';
 import {
   Profile,
@@ -15,10 +19,14 @@ import {
   LocationOption
 } from '../types';
 
+<<<<<<<< HEAD:src/context/SessionContext.tsx
 // Lazy-load the UPI modal — only needed when a user clicks "Buy"
 const UPIPaymentModal = dynamic(() => import('../components/UPIPaymentModal'), { ssr: false });
 
 interface SessionContextType {
+========
+interface AppContextType {
+>>>>>>>> 7a336b811732afadabe86bd40ec8d4222cc996e8:src/context/AppContext.tsx
   // Gated profile view flow
   pendingProfileId: string | null;
   setPendingProfileId: (val: string | null) => void;
@@ -27,6 +35,18 @@ interface SessionContextType {
   // Session States
   isLoggedIn: boolean;
   setIsLoggedIn: (val: boolean) => void;
+<<<<<<<< HEAD:src/context/SessionContext.tsx
+========
+  isAdmin: boolean;
+  setIsAdmin: (val: boolean) => void;
+  activePackages: string[];
+  setActivePackages: React.Dispatch<React.SetStateAction<string[]>>;
+  highProfileApproved: boolean;
+  setHighProfileApproved: (val: boolean) => void;
+  hasPaidSubscription: boolean; // DB-backed membership state
+  referralRate: number;
+  setReferralRate: (val: number) => void;
+>>>>>>>> 7a336b811732afadabe86bd40ec8d4222cc996e8:src/context/AppContext.tsx
   showLoginModal: boolean;
   setShowLoginModal: (val: boolean) => void;
   reloadTrigger: number;
@@ -35,6 +55,8 @@ interface SessionContextType {
   setIsMobileMenuOpen: (val: boolean) => void;
   isLoading: boolean;
   setIsLoading: (val: boolean) => void;
+  authChecked: boolean;
+  profileLoadError: string;
 
   // Profile List / Search Filters / Details
   profiles: Profile[];
@@ -47,6 +69,13 @@ interface SessionContextType {
   // Current User Profile Form & Registration State
   userProfile: Profile | null;
   setUserProfile: (val: Profile | null) => void;
+  accountData: {
+    name?: string | null;
+    email?: string | null;
+    phone?: string | null;
+    createdAt?: string | Date | null;
+    providers?: string[];
+  } | null;
   isRegistering: boolean;
   setIsRegistering: (val: boolean) => void;
   regStep: number;
@@ -131,25 +160,54 @@ const initialFormData = {
   familyOrigin: '',
 };
 
+<<<<<<<< HEAD:src/context/SessionContext.tsx
 const SessionContext = createContext<SessionContextType | undefined>(undefined);
 
 export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+========
+const AppContext = createContext<AppContextType | undefined>(undefined);
+
+export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+>>>>>>>> 7a336b811732afadabe86bd40ec8d4222cc996e8:src/context/AppContext.tsx
   const router = useRouter();
 
   // --- States ---
   const [pendingProfileId, setPendingProfileId] = useState<string | null>(null);
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+<<<<<<<< HEAD:src/context/SessionContext.tsx
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [reloadTrigger, setReloadTrigger] = useState(0);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+========
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [activePackages, setActivePackages] = useState<string[]>([]);
+  const [highProfileApproved, setHighProfileApproved] = useState(false);
+  const [referralRate, setReferralRate] = useState(21);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [reloadTrigger, setReloadTrigger] = useState(0);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  // Starts true (not false): MyAccountPage's own effect runs before this
+  // provider's loadAllData effect within the same commit (child effects fire
+  // before parent effects), so if this defaulted to false, a page could read
+  // a stale "not loading" for one render right as authChecked flips true —
+  // before loadAllData has actually run even once — and act on an empty
+  // profile that was simply never fetched yet.
+  const [isLoading, setIsLoading] = useState(true);
+  // Becomes true once the initial /api/auth/session probe resolves — lets
+  // pages tell "still checking whether you're logged in" apart from
+  // "confirmed logged out" (isLoggedIn starts false either way).
+  const [authChecked, setAuthChecked] = useState(false);
+  const [profileLoadError, setProfileLoadError] = useState('');
+>>>>>>>> 7a336b811732afadabe86bd40ec8d4222cc996e8:src/context/AppContext.tsx
 
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [savedProfiles, setSavedProfiles] = useState<string[]>([]);
   const [selectedProfileForDetails, setSelectedProfileForDetails] = useState<Profile | null>(null);
 
   const [userProfile, setUserProfile] = useState<Profile | null>(null);
+  const [accountData, setAccountData] = useState<any>(null);
   const [isRegistering, setIsRegistering] = useState(false);
   const [regStep, setRegStep] = useState(1);
   const [registrationError, setRegistrationError] = useState('');
@@ -193,10 +251,17 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
   // Tracks isLoading transitions to run post-load logic for the gated profile flow
   const wasLoadingRef = useRef(false);
 
+<<<<<<<< HEAD:src/context/SessionContext.tsx
   // Detect a real NextAuth (Google) session on first mount
   useEffect(() => {
     if (isLoggedIn) return;
+========
+  // Computed state for active monthly membership
+  const hasPaidSubscription = !!(userProfile?.hasPaid || activePackages.includes('monthly_membership'));
+>>>>>>>> 7a336b811732afadabe86bd40ec8d4222cc996e8:src/context/AppContext.tsx
 
+  // Detect a real NextAuth (Google) session on mount
+  useEffect(() => {
     async function detectRealSession() {
       try {
         const res = await fetch('/api/auth/session');
@@ -204,14 +269,21 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
           const session = await res.json();
           if (session?.user) {
             setIsLoggedIn(true);
+<<<<<<<< HEAD:src/context/SessionContext.tsx
+========
+            setIsAdmin(session.user.role === 'ADMIN');
+>>>>>>>> 7a336b811732afadabe86bd40ec8d4222cc996e8:src/context/AppContext.tsx
           }
         }
       } catch {
-        // no session or network error — stay logged out
+        // no session — stay logged out
+      } finally {
+        setAuthChecked(true);
       }
     }
 
     detectRealSession();
+<<<<<<<< HEAD:src/context/SessionContext.tsx
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -222,24 +294,51 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   // Fetch all data
   useEffect(() => {
+========
+  }, []);
+
+  // Fetch all data. Waits for the initial session probe (authChecked) so this
+  // never runs with a stale, not-yet-resolved isLoggedIn value — otherwise a
+  // logged-in user's data briefly resolves as "logged out", flips back once
+  // the real session lands, and any page gating on that first pass mis-fires.
+  useEffect(() => {
+    if (!authChecked) return;
+
+>>>>>>>> 7a336b811732afadabe86bd40ec8d4222cc996e8:src/context/AppContext.tsx
     async function loadAllData() {
       setIsLoading(true);
+      setProfileLoadError('');
       try {
+<<<<<<<< HEAD:src/context/SessionContext.tsx
         const headers = getHeaders();
 
         // 1. Fetch current user profile
         if (isLoggedIn) {
           const res = await fetch('/api/profile', { headers });
+========
+        // 1. Fetch current user profile
+        if (isLoggedIn) {
+          const res = await fetch('/api/profile');
+          if (!res.ok) {
+            throw new Error(`Unable to load your profile (status ${res.status}).`);
+          }
+>>>>>>>> 7a336b811732afadabe86bd40ec8d4222cc996e8:src/context/AppContext.tsx
           const data = await res.json();
+          if (data.user) {
+            setAccountData(data.user);
+          }
           if (data.profile) {
             setUserProfile(data.profile);
+<<<<<<<< HEAD:src/context/SessionContext.tsx
             if (data.profile.hasPaid) {
               // hasPaid is tracked in userProfile
             }
+========
+>>>>>>>> 7a336b811732afadabe86bd40ec8d4222cc996e8:src/context/AppContext.tsx
             setFormData({
               fullName: data.profile.fullName || '',
               gender: data.profile.gender || 'Female',
-              dateOfBirth: data.profile.dateOfBirth ? new Date(data.profile.dateOfBirth).toISOString().substring(0, 10) : '',
+              dateOfBirth: data.profile.dateOfBirth ? new Date(data.profile.dateOfBirth).toISOString().slice(0, 10) : '',
               maritalStatus: data.profile.maritalStatus || 'Single',
               phoneNumber: data.profile.phoneNumber || '',
               city: data.profile.city || '',
@@ -270,25 +369,47 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
               familyOrigin: data.profile.familyOrigin || '',
             });
 
+<<<<<<<< HEAD:src/context/SessionContext.tsx
             // If profile exists but is incomplete, show the registration wizard
             if (data.profile.profileCompletionStatus !== 'COMPLETE') {
               setIsRegistering(true);
               setRegStep(1);
             } else {
               setIsRegistering(false);
+========
+            // Even if profile exists but is incomplete, do NOT automatically open the wizard
+            setIsRegistering(false);
+
+            // Sync active packages from DB into state (so page-refresh preserves access)
+            try {
+              const resPkg = await fetch('/api/user/purchases');
+              if (resPkg.ok) {
+                const pkgData = await resPkg.json();
+                if (pkgData.packages && pkgData.packages.length > 0) {
+                  setActivePackages(prev => Array.from(new Set([...prev, ...pkgData.packages])));
+                }
+                setHighProfileApproved(pkgData.highProfileApproved || false);
+              }
+            } catch {
+              // ignore — purchases will just be empty if DB is down
+>>>>>>>> 7a336b811732afadabe86bd40ec8d4222cc996e8:src/context/AppContext.tsx
             }
           } else {
             setUserProfile(null);
-            setIsRegistering(true);
-            setRegStep(1);
+            setIsRegistering(false);
           }
         } else {
           setUserProfile(null);
+          setAccountData(null);
           setIsRegistering(false);
         }
 
         // 2. Fetch public profiles
+<<<<<<<< HEAD:src/context/SessionContext.tsx
         const resProfiles = await fetch('/api/profiles', { headers });
+========
+        const resProfiles = await fetch('/api/profiles');
+>>>>>>>> 7a336b811732afadabe86bd40ec8d4222cc996e8:src/context/AppContext.tsx
         const dataProfiles = await resProfiles.json();
         if (dataProfiles.profiles) {
           setProfiles(dataProfiles.profiles);
@@ -298,7 +419,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
             const searchParams = new URLSearchParams(window.location.search);
             const profileId = searchParams.get('profile');
             if (profileId) {
-              const matched = dataProfiles.profiles.find((p: any) => p.id === profileId);
+              const matched = dataProfiles.profiles.find((p: Profile) => p.id === profileId);
               if (matched) {
                 setSelectedProfileForDetails(matched);
               }
@@ -306,6 +427,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
           }
         }
 
+<<<<<<<< HEAD:src/context/SessionContext.tsx
         // 3. Fetch user purchases (for package access checks on client side)
         if (isLoggedIn && userProfile) {
           try {
@@ -316,35 +438,97 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
             }
           } catch {
             // ignore — purchases will just be empty if DB is down
+========
+        // 3. Fetch admin dashboards if logged in user is admin
+        if (isAdmin) {
+          const resReq = await fetch('/api/admin/verification');
+          if (resReq.ok) {
+            const dataReq = await resReq.json();
+            if (dataReq.requests) {
+              setAdminRequests(dataReq.requests);
+            }
+          }
+
+          const resLogs = await fetch('/api/admin/verification?mode=audit');
+          if (resLogs.ok) {
+            const dataLogs = await resLogs.json();
+            if (dataLogs.logs) {
+              setAuditLogs(dataLogs.logs);
+            }
+          }
+
+          const resPurchases = await fetch('/api/admin/packages');
+          if (resPurchases.ok) {
+            const dataPurchases = await resPurchases.json();
+            if (dataPurchases.purchases) {
+              setAdminPurchases(dataPurchases.purchases);
+            }
+          }
+
+          const resAssignments = await fetch('/api/admin/packages?mode=assignments');
+          if (resAssignments.ok) {
+            const dataAssignments = await resAssignments.json();
+            if (dataAssignments.assignments) {
+              setAdminAssignments(dataAssignments.assignments);
+            }
+          }
+
+          const resMaster = await fetch('/api/admin/master-data');
+          if (resMaster.ok) {
+            const dataMaster = await resMaster.json();
+            setMasterMaslaks(dataMaster.maslaks || []);
+            setMasterCastes(dataMaster.castes || []);
+            setMasterLocations(dataMaster.locations || []);
+>>>>>>>> 7a336b811732afadabe86bd40ec8d4222cc996e8:src/context/AppContext.tsx
           }
         }
       } catch (err) {
         console.error('Failed fetching database state', err);
+        setProfileLoadError(err instanceof Error ? err.message : 'Failed to load account data.');
       } finally {
         setIsLoading(false);
       }
     }
 
     loadAllData();
+<<<<<<<< HEAD:src/context/SessionContext.tsx
   }, [isLoggedIn, reloadTrigger, getHeaders, userProfile]);
+========
+  }, [authChecked, isLoggedIn, reloadTrigger, isAdmin]);
+>>>>>>>> 7a336b811732afadabe86bd40ec8d4222cc996e8:src/context/AppContext.tsx
 
   // After loadAllData completes, continue any pending gated profile flow
   useEffect(() => {
     if (wasLoadingRef.current && !isLoading && isLoggedIn && pendingProfileId) {
-      // isLoading just went from true → false while logged in with a pending profile
       if (!userProfile || userProfile.profileCompletionStatus !== 'COMPLETE') {
-        // Onboarding wizard will show (isRegistering was set by loadAllData).
-        // Keep pendingProfileId so handleRegisterSubmit can pick it up.
         wasLoadingRef.current = isLoading;
         return;
       }
+<<<<<<<< HEAD:src/context/SessionContext.tsx
       // Has full access — open the profile
+========
+      
+      const hasStandardPkg = hasPaidSubscription;
+      if (!hasStandardPkg) {
+        router.push(`/premium?returnProfile=${pendingProfileId}`);
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setPendingProfileId(null);
+        wasLoadingRef.current = isLoading;
+        return;
+      }
+      
+>>>>>>>> 7a336b811732afadabe86bd40ec8d4222cc996e8:src/context/AppContext.tsx
       const matched = profiles.find(p => p.id === pendingProfileId);
       if (matched) setSelectedProfileForDetails(matched);
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setPendingProfileId(null);
     }
     wasLoadingRef.current = isLoading;
+<<<<<<<< HEAD:src/context/SessionContext.tsx
   }, [isLoading, isLoggedIn, pendingProfileId, userProfile, profiles]);
+========
+  }, [isLoading, isLoggedIn, pendingProfileId, userProfile, hasPaidSubscription, profiles, router]);
+>>>>>>>> 7a336b811732afadabe86bd40ec8d4222cc996e8:src/context/AppContext.tsx
 
   const handleViewProfile = useCallback((profile: Profile) => {
     if (!isLoggedIn) {
@@ -356,18 +540,28 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
       setPendingProfileId(profile.id);
       setIsRegistering(true);
       setRegStep(1);
-      // Navigate home so the onboarding wizard (in HomeClient) is visible
       if (typeof window !== 'undefined' && window.location.pathname !== '/') {
         router.push('/');
       }
       return;
     }
+<<<<<<<< HEAD:src/context/SessionContext.tsx
     setSelectedProfileForDetails(profile);
   }, [isLoggedIn, userProfile, router]);
+========
+
+    const hasStandardPkg = hasPaidSubscription;
+    if (!hasStandardPkg) {
+      setPendingProfileId(profile.id);
+      router.push(`/premium?returnProfile=${profile.id}`);
+      return;
+    }
+    setSelectedProfileForDetails(profile);
+  }, [isLoggedIn, userProfile, hasPaidSubscription, router]);
+>>>>>>>> 7a336b811732afadabe86bd40ec8d4222cc996e8:src/context/AppContext.tsx
 
   const handleGoogleLogin = () => {
-    setIsLoggedIn(true);
-    setShowLoginModal(false);
+    signIn('google');
   };
 
   const toggleSaveProfile = (id: string) => {
@@ -378,6 +572,10 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   const handleRegisterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isLoggedIn) {
+      setShowLoginModal(true);
+      return;
+    }
     if (!formData.termsAccepted) {
       setRegistrationError('Please accept the Terms & Conditions before submitting.');
       return;
@@ -390,11 +588,19 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
     try {
       const res = await fetch('/api/profile', {
         method: 'POST',
+<<<<<<<< HEAD:src/context/SessionContext.tsx
         headers: getHeaders(),
+========
+        headers: { 'Content-Type': 'application/json' },
+>>>>>>>> 7a336b811732afadabe86bd40ec8d4222cc996e8:src/context/AppContext.tsx
         body: JSON.stringify(formData),
       });
 
       if (res.ok) {
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('rf_matrimonial_profile_completed', 'true');
+          window.dispatchEvent(new Event('rf_profile_completed'));
+        }
         if (pendingProfileId) {
           alert('Profile saved! Please choose a package to view full profiles.');
           setIsRegistering(false);
@@ -415,7 +621,11 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   };
 
+<<<<<<<< HEAD:src/context/SessionContext.tsx
   const handleUPIPayment = async (packageType: string, amountInRupees = 300, planName = 'Standard Monthly Membership') => {
+========
+  const handleRazorpayCheckout = async (packageType: string, amountInRupees = 1, planName = 'Standard Monthly Membership') => {
+>>>>>>>> 7a336b811732afadabe86bd40ec8d4222cc996e8:src/context/AppContext.tsx
     if (!isLoggedIn) {
       setShowLoginModal(true);
       return;
@@ -424,7 +634,11 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
     try {
       const res = await fetch('/api/payment/initiate', {
         method: 'POST',
+<<<<<<<< HEAD:src/context/SessionContext.tsx
         headers: getHeaders(),
+========
+        headers: { 'Content-Type': 'application/json' },
+>>>>>>>> 7a336b811732afadabe86bd40ec8d4222cc996e8:src/context/AppContext.tsx
         body: JSON.stringify({ packageType }),
       });
 
@@ -434,6 +648,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
         return;
       }
 
+<<<<<<<< HEAD:src/context/SessionContext.tsx
       // Open the UPI payment modal
       setUpiModalData({
         purchaseId: data.purchaseId,
@@ -445,6 +660,77 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
       setShowUPIModal(true);
     } catch {
       alert('Network error initiating payment.');
+========
+      const { orderId, amount, currency, keyId } = data;
+
+      const options = {
+        key: keyId,
+        amount: amount,
+        currency: currency,
+        name: 'Rishte Forever',
+        description: `${planName} (₹${amountInRupees})`,
+        image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=100&h=100',
+        order_id: orderId,
+        handler: async function (response: { razorpay_payment_id?: string; razorpay_signature?: string }) {
+          try {
+            const verifyRes = await fetch('/api/payment/verify', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                orderId: orderId,
+                paymentId: response.razorpay_payment_id || '',
+                signature: response.razorpay_signature || '',
+              }),
+            });
+
+            const verifyData = await verifyRes.json();
+            if (verifyData.success) {
+              const returnId = pendingProfileId;
+              setPendingProfileId(null);
+              alert(`Alhamdulillah! Payment verified and your ${planName} is now active.${returnId ? '\n\nRedirecting you to the selected profile.' : ''}`);
+              setReloadTrigger((prev) => prev + 1);
+              if (returnId) {
+                router.push(`/?profile=${returnId}`);
+              }
+            } else {
+              alert(verifyData.error || 'Payment verification failed.');
+            }
+          } catch {
+            alert('Network error verifying payment.');
+          }
+        },
+        prefill: {
+          name: formData.fullName || 'User Name',
+          contact: formData.phoneNumber || '+919999999999',
+        },
+        theme: {
+          color: '#6F1D35',
+        },
+      };
+
+      const loadScript = () => {
+        return new Promise((resolve) => {
+          const script = document.createElement('script');
+          script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+          script.onload = () => resolve(true);
+          script.onerror = () => resolve(false);
+          document.body.appendChild(script);
+        });
+      };
+
+      const loaded = await loadScript();
+      if (!loaded) {
+        alert('Failed to load Razorpay payment widget. Check network connection.');
+        return;
+      }
+
+      /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+      const rzp = new (window as any).Razorpay(options);
+      rzp.open();
+    } catch (err) {
+      console.error('Checkout error:', err);
+      alert('Failed starting payment flow.');
+>>>>>>>> 7a336b811732afadabe86bd40ec8d4222cc996e8:src/context/AppContext.tsx
     }
   };
 
@@ -453,7 +739,11 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
     try {
       const res = await fetch('/api/admin/verification', {
         method: 'POST',
+<<<<<<<< HEAD:src/context/SessionContext.tsx
         headers: getHeaders(),
+========
+        headers: { 'Content-Type': 'application/json' },
+>>>>>>>> 7a336b811732afadabe86bd40ec8d4222cc996e8:src/context/AppContext.tsx
         body: JSON.stringify({
           profileId: request.profile.id,
           status,
@@ -481,7 +771,11 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
     try {
       const res = await fetch('/api/admin/packages', {
         method: 'POST',
+<<<<<<<< HEAD:src/context/SessionContext.tsx
         headers: getHeaders(),
+========
+        headers: { 'Content-Type': 'application/json' },
+>>>>>>>> 7a336b811732afadabe86bd40ec8d4222cc996e8:src/context/AppContext.tsx
         body: JSON.stringify({
           action: 'assign_lead',
           buyerProfileId: buyerId,
@@ -504,7 +798,11 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
     try {
       const res = await fetch('/api/admin/packages', {
         method: 'POST',
+<<<<<<<< HEAD:src/context/SessionContext.tsx
         headers: getHeaders(),
+========
+        headers: { 'Content-Type': 'application/json' },
+>>>>>>>> 7a336b811732afadabe86bd40ec8d4222cc996e8:src/context/AppContext.tsx
         body: JSON.stringify({
           action: 'update_lead_status',
           assignmentId,
@@ -527,7 +825,11 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
     try {
       const res = await fetch('/api/admin/packages', {
         method: 'POST',
+<<<<<<<< HEAD:src/context/SessionContext.tsx
         headers: getHeaders(),
+========
+        headers: { 'Content-Type': 'application/json' },
+>>>>>>>> 7a336b811732afadabe86bd40ec8d4222cc996e8:src/context/AppContext.tsx
         body: JSON.stringify({
           action: 'update_eligibility',
           purchaseId,
@@ -551,7 +853,11 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
     try {
       const res = await fetch('/api/admin/packages', {
         method: 'POST',
+<<<<<<<< HEAD:src/context/SessionContext.tsx
         headers: getHeaders(),
+========
+        headers: { 'Content-Type': 'application/json' },
+>>>>>>>> 7a336b811732afadabe86bd40ec8d4222cc996e8:src/context/AppContext.tsx
         body: JSON.stringify({
           action: 'confirm_marriage',
           purchaseId,
@@ -574,7 +880,11 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
     try {
       const res = await fetch('/api/admin/packages', {
         method: 'POST',
+<<<<<<<< HEAD:src/context/SessionContext.tsx
         headers: getHeaders(),
+========
+        headers: { 'Content-Type': 'application/json' },
+>>>>>>>> 7a336b811732afadabe86bd40ec8d4222cc996e8:src/context/AppContext.tsx
         body: JSON.stringify({
           action: 'update_success_fee_status',
           purchaseId,
@@ -597,7 +907,11 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
     try {
       const res = await fetch('/api/admin/master-data', {
         method: 'POST',
+<<<<<<<< HEAD:src/context/SessionContext.tsx
         headers: getHeaders(),
+========
+        headers: { 'Content-Type': 'application/json' },
+>>>>>>>> 7a336b811732afadabe86bd40ec8d4222cc996e8:src/context/AppContext.tsx
         body: JSON.stringify(actionData)
       });
       if (res.ok) {
@@ -614,7 +928,11 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
   };
 
   return (
+<<<<<<<< HEAD:src/context/SessionContext.tsx
     <SessionContext.Provider
+========
+    <AppContext.Provider
+>>>>>>>> 7a336b811732afadabe86bd40ec8d4222cc996e8:src/context/AppContext.tsx
       value={{
         pendingProfileId,
         setPendingProfileId,
@@ -622,6 +940,18 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
         isLoggedIn,
         setIsLoggedIn,
+<<<<<<<< HEAD:src/context/SessionContext.tsx
+========
+        isAdmin,
+        setIsAdmin,
+        activePackages,
+        setActivePackages,
+        highProfileApproved,
+        setHighProfileApproved,
+        hasPaidSubscription,
+        referralRate,
+        setReferralRate,
+>>>>>>>> 7a336b811732afadabe86bd40ec8d4222cc996e8:src/context/AppContext.tsx
         showLoginModal,
         setShowLoginModal,
         reloadTrigger,
@@ -630,6 +960,8 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
         setIsMobileMenuOpen,
         isLoading,
         setIsLoading,
+        authChecked,
+        profileLoadError,
 
         profiles,
         setProfiles,
@@ -640,6 +972,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
         userProfile,
         setUserProfile,
+        accountData,
         isRegistering,
         setIsRegistering,
         regStep,
@@ -683,6 +1016,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
       }}
     >
       {children}
+<<<<<<<< HEAD:src/context/SessionContext.tsx
     </SessionContext.Provider>
   );
 };
@@ -691,6 +1025,16 @@ export const useSession = () => {
   const context = useContext(SessionContext);
   if (context === undefined) {
     throw new Error('useSession must be used within a SessionProvider');
+========
+    </AppContext.Provider>
+  );
+};
+
+export const useApp = () => {
+  const context = useContext(AppContext);
+  if (context === undefined) {
+    throw new Error('useApp must be used within an AppProvider');
+>>>>>>>> 7a336b811732afadabe86bd40ec8d4222cc996e8:src/context/AppContext.tsx
   }
 
   return context;
