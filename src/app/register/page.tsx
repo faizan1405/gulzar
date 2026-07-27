@@ -2,14 +2,14 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import { useApp } from '../../context/AppContext';
+import { useSession } from '../../context/SessionContext';
 import Navbar from '../../components/Navbar';
 import MatrimonialRegistrationForm from '../../components/MatrimonialRegistrationForm';
 import { PremiumFooter } from '../../components/NikahComponents';
 
 export default function RegisterPage() {
   const router = useRouter();
-  const { setIsRegistering } = useApp();
+  const { setIsRegistering } = useSession();
 
   const handleCancelOrNavigate = (view?: string) => {
     setIsRegistering(false);

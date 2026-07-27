@@ -2,13 +2,13 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { usePathname } from 'next/navigation';
-import { useApp } from '../context/AppContext';
+import { useSession } from '../context/SessionContext';
 import MatrimonialRegistrationForm from './MatrimonialRegistrationForm';
 
 
 export default function RegistrationPopup() {
   const pathname = usePathname();
-  const { userProfile, authChecked, isRegistering } = useApp();
+  const { userProfile, authChecked, isRegistering } = useSession();
 
   const [isOpen, setIsOpen] = useState(false);
   const [isPermanentlyHidden, setIsPermanentlyHidden] = useState(false);

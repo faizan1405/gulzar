@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import Navbar from '@/components/Navbar';
 import { SectionHeading, PremiumFooter, ProfileCard } from '@/components/NikahComponents';
-import { useApp } from '@/context/AppContext';
+import { useSession } from '@/context/SessionContext';
 import { getProfileImage, getThemeClass } from '@/lib/helpers';
 
 export default function InterestsPage() {
@@ -18,7 +18,7 @@ export default function InterestsPage() {
     setShowLoginModal,
     handleViewProfile,
     userProfile,
-  } = useApp();
+  } = useSession();
 
   const isFormComplete = userProfile?.profileCompletionStatus === 'COMPLETE';
   const [activeTab, setActiveTab] = useState<'sent' | 'received'>('received');

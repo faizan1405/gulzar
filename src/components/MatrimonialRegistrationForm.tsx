@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useApp } from '../context/AppContext';
+import { useSession } from '../context/SessionContext';
 import SearchableCombobox from './SearchableCombobox';
 import { DEFAULT_FIQHS } from '../lib/masterData';
 
@@ -38,7 +38,7 @@ export default function MatrimonialRegistrationForm({
     masterCastes,
     masterLocations,
     masterMaslaks,
-  } = useApp();
+  } = useSession();
 
   const [isSubmittingForm, setIsSubmittingForm] = React.useState(false);
 
