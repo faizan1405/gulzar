@@ -417,12 +417,21 @@ export async function upsertProfile(
 
   // Fallback
   const existingIndex = globalStore.inMemoryProfiles?.findIndex((p) => p.userId === userId) ?? -1;
+  const fallbackDob = new Date(data.dateOfBirth);
+  if (isNaN(fallbackDob.getTime())) {
+    const fallbackMsg = `Invalid dateOfBirth in fallback path: "${data.dateOfBirth}"`;
+    console.error(fallbackMsg);
+    if (!isFallbackAllowed()) {
+      throw new Error(fallbackMsg);
+    }
+    return null;
+  }
   const profileData = {
     id: `p-${Date.now()}`,
     userId,
     fullName: data.fullName,
     gender: data.gender,
-    dateOfBirth: new Date(data.dateOfBirth),
+    dateOfBirth: fallbackDob,
     maritalStatus: data.maritalStatus,
     phoneNumber: data.phoneNumber,
     city: data.city || null,

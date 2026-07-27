@@ -57,6 +57,10 @@ export default function MatrimonialRegistrationForm({
         return;
       }
       const dob = new Date(formData.dateOfBirth);
+      if (isNaN(dob.getTime())) {
+        setRegistrationError('Please provide a valid date of birth.');
+        return;
+      }
       const today = new Date();
       let age = today.getFullYear() - dob.getFullYear();
       const m = today.getMonth() - dob.getMonth();
@@ -154,13 +158,12 @@ export default function MatrimonialRegistrationForm({
               </select>
             </div>
             <div className="form-group">
-              <label className="form-label">Date of Birth (Eligible adults &gt;= 18) *</label>
+              <label className="form-label">Date of Birth (Must be 18+ years) *</label>
               <input
-                type="text"
+                type="date"
                 className="form-control"
                 value={formData.dateOfBirth}
                 onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
-                placeholder="e.g. 01/01/2000 or any format"
                 required
               />
             </div>

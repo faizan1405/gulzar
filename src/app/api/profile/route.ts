@@ -180,6 +180,10 @@ export async function POST(req: NextRequest) {
     // 3. Save profile
     const profile = await upsertProfile(session.user.id, body);
 
+    if (!profile) {
+      return NextResponse.json({ error: 'Profile could not be saved. Please try again.' }, { status: 500 });
+    }
+
     // 4. Send Notifications (fire-and-forget)
     try {
       const userEmail = session?.user?.email || null;
