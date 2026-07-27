@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useSimulator } from '../../../context/SimulatorContext';
+import { useSession } from '../../../context/SessionContext';
 
 export default function PremiumPackagesPage() {
   const {
@@ -13,7 +13,7 @@ export default function PremiumPackagesPage() {
     handleUpdateHPStatus,
     handleConfirmMarriage,
     handleUpdateSuccessFee
-  } = useSimulator();
+  } = useSession();
 
   const [assignBuyerId, setAssignBuyerId] = useState('');
   const [assignLeadId, setAssignLeadId] = useState('');
@@ -65,7 +65,6 @@ export default function PremiumPackagesPage() {
                   return { name: pkgType, base: 0, gst: 0, total: 0 };
                 };
                 const details = getPriceDetails(purchase.packageType);
-                const isDemo = purchase.razorpayOrderId?.startsWith('order_sim_');
 
                 return (
                   <tr key={purchase.id} style={{ borderBottom: '1px solid var(--border-color)', fontSize: '13.5px' }}>
@@ -108,10 +107,10 @@ export default function PremiumPackagesPage() {
                         borderRadius: '4px',
                         fontSize: '11px',
                         fontWeight: 'bold',
-                        backgroundColor: isDemo ? 'rgba(150, 150, 150, 0.1)' : 'rgba(0, 100, 255, 0.1)',
-                        color: isDemo ? '#666' : '#0055ff'
+                        backgroundColor: 'rgba(0, 100, 255, 0.1)',
+                        color: '#0055ff'
                       }}>
-                        {isDemo ? 'Demo (Simulator)' : 'Razorpay'}
+                        Razorpay
                       </span>
                     </td>
                     <td style={{ padding: '12px 8px' }}>{new Date(purchase.purchaseDate).toLocaleDateString()}</td>

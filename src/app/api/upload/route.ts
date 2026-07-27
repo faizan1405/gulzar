@@ -6,12 +6,8 @@ import { updateProfileImage } from '@/lib/profileStore';
 export async function POST(request: NextRequest) {
   try {
     const session = await auth();
-    const simulatedUserId = request.headers.get('x-simulator-user-id');
-    const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
-    
-    const activeUserId = session?.user?.id || (isDemoMode ? simulatedUserId : null);
 
-    if (!activeUserId) {
+    if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized. Please log in.' }, { status: 401 });
     }
 
@@ -47,7 +43,7 @@ export async function POST(request: NextRequest) {
     });
 
     // 4. Save the blob URL to the user's MatrimonialProfile
-    const updatedProfile = await updateProfileImage(activeUserId, blob.url, null);
+    const updatedProfile = await updateProfileImage(session.user.id, blob.url, null);
 
     if (!updatedProfile) {
        return NextResponse.json({ error: 'User profile not found. Please complete profile registration first.' }, { status: 404 });

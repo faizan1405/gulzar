@@ -8,14 +8,12 @@ import crypto from 'crypto';
 export async function POST(req: NextRequest) {
   try {
     const session = await auth();
-    const simulatedUserId = req.headers.get('x-simulator-user-id');
-    const activeUserId = session?.user?.id || simulatedUserId;
 
-    if (!activeUserId) {
+    if (!session?.user?.id) {
       return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
     }
 
-    const { orderId, paymentId, signature, isSimulated } = await req.json();
+    const { orderId, paymentId, signature } = await req.json();
 
     if (!orderId || !paymentId) {
       return NextResponse.json({ error: 'Missing payment details' }, { status: 400 });
@@ -30,32 +28,6 @@ export async function POST(req: NextRequest) {
         success: true,
         message: 'Payment already verified.',
         purchase: existingPurchase
-      });
-    }
-
-    if (isSimulated || orderId.startsWith('order_sim_')) {
-      console.warn('⚠️ [SIMULATOR MODE] Verifying Mock Payment. This is for testing only. Not real Razorpay payment.');
-      const purchase = await verifyPackagePurchase(orderId, paymentId);
-      
-      try {
-        if (purchase) {
-          const dbPurchase = await prisma.packagePurchase.findUnique({
-            where: { id: purchase.id },
-            include: { profile: { include: { user: true } } }
-          });
-          if (dbPurchase && dbPurchase.profile) {
-            const userEmail = dbPurchase.profile.user?.email || null;
-            notifyMembership(userEmail, dbPurchase.profile.phoneNumber, dbPurchase.profile.fullName, dbPurchase.packageType);
-          }
-        }
-      } catch (e) {
-        console.error('Membership notification failed', e);
-      }
-
-      return NextResponse.json({
-        success: true,
-        message: 'Mock payment verified successfully (for testing only. Not real Razorpay payment).',
-        purchase,
       });
     }
 

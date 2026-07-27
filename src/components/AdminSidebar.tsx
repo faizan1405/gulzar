@@ -1,14 +1,15 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useSimulator } from '../context/SimulatorContext';
+import { useSession } from '../context/SessionContext';
 
 export const AdminSidebar: React.FC = () => {
   const pathname = usePathname();
-  const { referralRate, setReferralRate, isAdminMobileOpen, setIsAdminMobileOpen } = useSimulator();
+  const { isAdminMobileOpen, setIsAdminMobileOpen } = useSession();
+  const [referralRate, setReferralRate] = useState(20);
 
   const handleLinkClick = () => {
     setIsAdminMobileOpen(false);

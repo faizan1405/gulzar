@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { useSimulator } from '../../../context/SimulatorContext';
+import { useSession } from '../../../context/SessionContext';
 import { SectionHeading, FloralCorner } from '../../../components/NikahComponents';
 
 interface AdminProfile {
@@ -47,7 +47,7 @@ function calcAge(dob: string | Date): string {
 }
 
 export default function AdminProfilesPage() {
-  const { getSimulatorHeaders } = useSimulator();
+  const { reloadTrigger, setReloadTrigger } = useSession();
 
   const [profiles, setProfiles] = useState<AdminProfile[]>([]);
   const [loading, setLoading] = useState(true);
@@ -65,6 +65,8 @@ export default function AdminProfilesPage() {
   const [saving, setSaving] = useState(false);
   const [saveMsg, setSaveMsg] = useState('');
 
+  const getHeaders = () => ({ 'Content-Type': 'application/json' } as Record<string, string>);
+
   const fetchProfiles = useCallback(async () => {
     setLoading(true);
     try {
@@ -76,7 +78,7 @@ export default function AdminProfilesPage() {
       if (approvalStatus) q.set('approvalStatus', approvalStatus);
 
       const res = await fetch(`/api/admin/profiles?${q}`, {
-        headers: getSimulatorHeaders(),
+        headers: getHeaders(),
       });
       if (res.ok) {
         const data = await res.json();
@@ -88,11 +90,11 @@ export default function AdminProfilesPage() {
     } finally {
       setLoading(false);
     }
-  }, [search, gender, state, verificationStatus, approvalStatus, getSimulatorHeaders]);
+  }, [search, gender, state, verificationStatus, approvalStatus]);
 
   useEffect(() => {
     fetchProfiles();
-  }, [fetchProfiles]);
+  }, [fetchProfiles, reloadTrigger]);
 
   const handleUpdate = async (profileId: string, updates: Record<string, any>) => {
     setSaving(true);
@@ -100,7 +102,7 @@ export default function AdminProfilesPage() {
     try {
       const res = await fetch(`/api/admin/profiles/${profileId}`, {
         method: 'PATCH',
-        headers: { ...getSimulatorHeaders(), 'Content-Type': 'application/json' },
+        headers: { ...getHeaders(), 'Content-Type': 'application/json' },
         body: JSON.stringify(updates),
       });
       const data = await res.json();
@@ -124,7 +126,7 @@ export default function AdminProfilesPage() {
     try {
       const res = await fetch(`/api/admin/profiles/${profileId}`, {
         method: 'DELETE',
-        headers: getSimulatorHeaders(),
+        headers: getHeaders(),
       });
       if (res.ok) {
         setProfiles(prev => prev.filter(p => p.id !== profileId));

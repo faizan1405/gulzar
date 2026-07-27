@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useSimulator } from '../../../context/SimulatorContext';
+import { useSession } from '../../../context/SessionContext';
 import { MaslakOption, CasteOption, LocationOption } from '../../../types';
 
 export default function MasterDataAdminPage() {
@@ -11,7 +11,7 @@ export default function MasterDataAdminPage() {
     masterLocations,
     submitMasterAction,
     isLoading
-  } = useSimulator();
+  } = useSession();
 
   // Active tab state
   const [activeTab, setActiveTab] = useState<'maslak' | 'caste' | 'location' | 'merge'>('maslak');

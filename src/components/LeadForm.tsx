@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useSimulator } from '../context/SimulatorContext';
+import { useSession } from '../context/SessionContext';
 
 interface LeadFormProps {
   defaultInquiryType?: string;
@@ -12,7 +12,7 @@ export const LeadForm: React.FC<LeadFormProps> = ({
   defaultInquiryType = 'General Inquiry',
   onSuccess
 }) => {
-  const { userProfile, isLoggedIn, getSimulatorHeaders, setReloadTrigger } = useSimulator();
+  const { userProfile, isLoggedIn, setReloadTrigger } = useSession();
 
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
@@ -56,7 +56,7 @@ export const LeadForm: React.FC<LeadFormProps> = ({
     }
 
     try {
-      const headers = getSimulatorHeaders();
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
       const res = await fetch('/api/leads', {
         method: 'POST',
         headers,

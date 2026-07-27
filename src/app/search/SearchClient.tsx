@@ -3,26 +3,14 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
-import { useSimulator } from '../../context/SimulatorContext';
+import { useSession } from '../../context/SessionContext';
 import Navbar from '../../components/Navbar';
 import ProfileFilters from '../../components/ProfileFilters';
 import ProfileGrid from '../../components/ProfileGrid';
 import { SectionHeading, PremiumFooter } from '../../components/NikahComponents';
 
 export default function SearchClient() {
-  const { profiles, isLoggedIn, userProfile, isLoading } = useSimulator();
-  
-  const searchParams = useSearchParams();
-  const queryLocation = searchParams?.get('location');
-  const queryGender = searchParams?.get('gender');
-  const queryAgeMin = searchParams?.get('ageMin');
-  const queryAgeMax = searchParams?.get('ageMax');
-  const queryState = searchParams?.get('state');
-  const queryCity = searchParams?.get('city');
-  const queryCommunity = searchParams?.get('community');
-  const queryCaste = searchParams?.get('caste');
-
-  const { masterLocations } = useSimulator();
+  const { profiles, isLoggedIn, userProfile, isLoading, masterLocations } = useSession();
 
   // Parse initial state/city: direct params take priority, then legacy location param
   let initialState = 'All';

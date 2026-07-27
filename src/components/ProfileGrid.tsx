@@ -1,7 +1,7 @@
 'use client';
 
-import React from 'react';
-import { useSimulator } from '../context/SimulatorContext';
+import React, { useState, useEffect } from 'react';
+import { useSession } from '../context/SessionContext';
 import { Profile } from '../types';
 import { ProfileCard } from './NikahComponents';
 import { getProfileImage, getThemeClass } from '../lib/helpers';
@@ -14,16 +14,36 @@ interface ProfileGridProps {
 export const ProfileGrid: React.FC<ProfileGridProps> = ({ filteredProfiles, isFiltered = true }) => {
   const {
     isLoggedIn,
-    hasPaid300,
-    simulatedPackages,
-    simulatedHighProfileApproved,
     savedProfiles,
     toggleSaveProfile,
     setSelectedProfileForDetails,
     setShowLoginModal,
     handleViewProfile,
     userProfile,
-  } = useSimulator();
+  } = useSession();
+
+  const [purchases, setPurchases] = useState<string[]>([]);
+  const [highProfileApproved, setHighProfileApproved] = useState(false);
+
+  useEffect(() => {
+    if (!isLoggedIn) return;
+    async function loadPurchases() {
+      try {
+        const res = await fetch('/api/user/purchases');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.purchases) {
+            setPurchases(data.purchases.map((p: any) => p.packageType));
+            const hpPkg = data.purchases.find((p: any) => p.packageType === 'high_profile_package');
+            setHighProfileApproved(hpPkg?.eligibilityStatus === 'APPROVED');
+          }
+        }
+      } catch {
+        // purchases will just stay empty
+      }
+    }
+    loadPurchases();
+  }, [isLoggedIn]);
 
   const isFormComplete = userProfile?.profileCompletionStatus === 'COMPLETE';
 
@@ -149,9 +169,9 @@ export const ProfileGrid: React.FC<ProfileGridProps> = ({ filteredProfiles, isFi
           index={idx}
           isLoggedIn={isLoggedIn}
           isFormComplete={isFormComplete}
-          hasPaid300={hasPaid300}
-          simulatedPackages={simulatedPackages}
-          simulatedHighProfileApproved={simulatedHighProfileApproved}
+          hasPaid300={purchases.includes('monthly_membership')}
+          simulatedPackages={purchases}
+          simulatedHighProfileApproved={highProfileApproved}
           savedProfiles={savedProfiles}
           onToggleSave={toggleSaveProfile}
           onViewDetails={setSelectedProfileForDetails}

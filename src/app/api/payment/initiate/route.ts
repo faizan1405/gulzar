@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
-import Razorpay from 'razorpay';
 import { PREMIUM_PACKAGES, PackageType } from '@/lib/packages';
 import { getProfileByUserId, createPackagePurchase } from '@/lib/profileStore';
 
 export async function POST(req: NextRequest) {
   try {
     const session = await auth();
+    const activeUserId = session.user.id;
 
-    if (!session?.user?.id) {
+    if (!activeUserId) {
       return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
     }
 
@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid package type' }, { status: 400 });
     }
 
-    const profile = await getProfileByUserId(session.user.id);
+    const profile = await getProfileByUserId(activeUserId);
     if (!profile) {
       return NextResponse.json({ error: 'Please create your matrimonial profile card first.' }, { status: 400 });
     }
@@ -28,47 +28,29 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Please complete your matrimonial profile form before purchasing a package.' }, { status: 400 });
     }
 
-    const baseAmount = pkgDef.basePrice;
-    const gstAmount = baseAmount * pkgDef.gstRate;
-    const totalAmount = baseAmount + gstAmount;
-    const totalAmountPaise = Math.round(totalAmount * 100);
+    const totalAmount = pkgDef.totalAmount;
 
-    const keyId = process.env.RAZORPAY_KEY_ID;
-    const keySecret = process.env.RAZORPAY_KEY_SECRET;
-
-    if (!keyId || !keySecret || keyId.includes('dummy') || keySecret.includes('dummy')) {
-      return NextResponse.json({ error: 'Payment service is not configured. Please contact support.' }, { status: 500 });
-    }
-
-    const razorpayInstance = new Razorpay({
-      key_id: keyId,
-      key_secret: keySecret,
-    });
-
-    const order = await razorpayInstance.orders.create({
-      amount: totalAmountPaise,
-      currency: 'INR',
-      receipt: `receipt_sub_${profile.id}_${Date.now()}`,
-    });
-
-    // Create pending purchase record in DB
-    await createPackagePurchase({
+    // Create a pending purchase record
+    const purchase = await createPackagePurchase({
       profileId: profile.id,
       packageType: packageTypeInput,
-      basePrice: baseAmount,
+      basePrice: pkgDef.basePrice,
       gstRate: pkgDef.gstRate,
       totalAmount: totalAmount,
       billingType: pkgDef.billingType,
       successFeeAmount: pkgDef.successFeeAmount,
-      razorpayOrderId: order.id,
     });
+
+    const referenceId = purchase.paymentReferenceId || purchase.id;
 
     return NextResponse.json({
       success: true,
-      orderId: order.id,
-      amount: order.amount,
-      currency: order.currency,
-      keyId,
+      purchaseId: referenceId,
+      amount: totalAmount,
+      packageName: pkgDef.name,
+      upiId: process.env.NEXT_PUBLIC_UPI_ID || '9873721207-13@ybl',
+      payeeName: process.env.NEXT_PUBLIC_UPI_PAYEE_NAME || 'Rishte Forever',
+      qrCodeUrl: process.env.NEXT_PUBLIC_UPI_QR || '/images/upi-qr.png.jpeg',
     });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Internal Server Error';

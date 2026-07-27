@@ -2,14 +2,9 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
-import { useSimulator } from '../../../context/SimulatorContext';
 
 export default function AdminLoginPage() {
-  const router = useRouter();
-  const { setIsAdminMode } = useSimulator();
-  const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -22,11 +17,6 @@ export default function AdminLoginPage() {
       setError('Sign-in failed. Please try again.');
       setLoading(false);
     }
-  };
-
-  const handleDemoAdmin = () => {
-    setIsAdminMode(true);
-    router.push('/admin');
   };
 
   return (
@@ -145,7 +135,6 @@ export default function AdminLoginPage() {
             transition: 'all 0.2s',
             opacity: loading ? 0.7 : 1,
             boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-            marginBottom: isDemoMode ? '16px' : '0',
           }}
         >
           {/* Google G icon */}
@@ -157,33 +146,6 @@ export default function AdminLoginPage() {
           </svg>
           {loading ? 'Signing in...' : 'Sign in with Google'}
         </button>
-
-        {/* Demo mode shortcut */}
-        {isDemoMode && (
-          <>
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px',
-                margin: '16px 0',
-                color: 'var(--text-muted)',
-                fontSize: '12px',
-              }}
-            >
-              <div style={{ flex: 1, height: '1px', background: 'var(--border-color)' }} />
-              <span>or demo access</span>
-              <div style={{ flex: 1, height: '1px', background: 'var(--border-color)' }} />
-            </div>
-            <button
-              onClick={handleDemoAdmin}
-              className="btn btn-gold"
-              style={{ width: '100%', padding: '13px', fontSize: '14px', fontWeight: 600 }}
-            >
-              🎭 Enter as Demo Admin
-            </button>
-          </>
-        )}
 
         {/* Footer note */}
         <p

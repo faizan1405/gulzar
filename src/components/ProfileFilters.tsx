@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useSimulator } from '../context/SimulatorContext';
+import { useSession } from '../context/SessionContext';
 
 interface ProfileFiltersProps {
   selectedGender: string;
@@ -38,7 +38,7 @@ export const ProfileFilters: React.FC<ProfileFiltersProps> = ({
   setSelectedCaste,
   totalResults
 }) => {
-  const { masterMaslaks, masterCastes, masterLocations } = useSimulator();
+  const { masterMaslaks, masterCastes, masterLocations } = useSession();
 
   const handleClearFilters = () => {
     setSelectedGender('No preference');

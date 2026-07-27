@@ -1,10 +1,10 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
-import { useSimulator } from '../context/SimulatorContext';
+import { useSession } from '../components/SessionContext';
 import { getProfileImage, getThemeClass } from '../lib/helpers';
 import Navbar from '../components/Navbar';
 import HeroSection from '../components/HeroSection';
@@ -41,7 +41,6 @@ const THEME_COLORS = [
 
 export default function HomeClient() {
   const router = useRouter();
-  const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
   const [inquiryPackage, setInquiryPackage] = React.useState<string | null>(null);
   const [quickGender, setQuickGender] = React.useState('');
   const [quickAgeMin, setQuickAgeMin] = React.useState('');
@@ -53,9 +52,6 @@ export default function HomeClient() {
   const [quickAgeError, setQuickAgeError] = React.useState(false);
   const {
     isLoggedIn,
-    hasPaid300,
-    simulatedPackages,
-    simulatedHighProfileApproved,
     showLoginModal,
     setShowLoginModal,
     handleGoogleLogin,
@@ -68,7 +64,7 @@ export default function HomeClient() {
     formData,
     setFormData,
     handleRegisterSubmit,
-    handleRazorpayCheckout,
+    handleUPIPayment,
     profiles,
     savedProfiles,
     toggleSaveProfile,
@@ -79,7 +75,41 @@ export default function HomeClient() {
     masterMaslaks,
     masterCastes,
     masterLocations,
-  } = useSimulator();
+  } = useSession();
+
+  const [activePurchasedPackages, setActivePurchasedPackages] = useState<string[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function loadPurchases() {
+      if (!isLoggedIn) {
+        setActivePurchasedPackages([]);
+        return;
+      }
+      try {
+        const res = await fetch('/api/user/purchases', {
+          headers: { 'Content-Type': 'application/json' },
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        const pkgs: string[] = Array.isArray(data.purchases)
+          ? data.purchases
+              .filter((p: any) => p.paymentStatus === 'PAID' && p.accessStatus === 'ACTIVE')
+              .map((p: any) => p.packageType)
+          : [];
+        if (!cancelled) setActivePurchasedPackages(pkgs);
+      } catch {
+        // ignore — leave active purchases empty
+      }
+    }
+    loadPurchases();
+    return () => { cancelled = true; };
+  }, [isLoggedIn, userProfile]);
+
+  const hasPaid300 = !!userProfile?.hasPaid || activePurchasedPackages.includes('monthly_membership');
+  const hasGoodProfilePackage = activePurchasedPackages.includes('good_profile_package');
+  const hasSecondMarriagePackage = activePurchasedPackages.includes('second_marriage_package');
+  const hasHighProfilePackage = activePurchasedPackages.includes('high_profile_package');
 
   const isFormComplete = isLoggedIn && userProfile?.profileCompletionStatus === 'COMPLETE';
 
@@ -793,8 +823,9 @@ export default function HomeClient() {
                           isLoggedIn={isLoggedIn}
                           isFormComplete={isFormComplete}
                           hasPaid300={hasPaid300}
-                          simulatedPackages={simulatedPackages}
-                          simulatedHighProfileApproved={simulatedHighProfileApproved}
+                          hasGoodProfilePackage={hasGoodProfilePackage}
+                          hasSecondMarriagePackage={hasSecondMarriagePackage}
+                          hasHighProfilePackage={hasHighProfilePackage}
                           savedProfiles={savedProfiles}
                           onToggleSave={toggleSaveProfile}
                           onViewDetails={setSelectedProfileForDetails}
@@ -957,7 +988,7 @@ export default function HomeClient() {
                     features={['Browse normal verified profiles', 'Unblur matrimonial photos', 'Access candidate mobile numbers']}
                     isActive={hasPaid300}
                     ctaText="Buy Monthly Membership"
-                    onActivate={() => handleRazorpayCheckout('monthly_membership', 300, 'Standard Monthly Membership')}
+                    onActivate={() => handleUPIPayment('monthly_membership', 300, 'Standard Monthly Membership')}
                     onInquire={() => setInquiryPackage('₹300 Monthly Membership')}
                     whatsappMessage="Assalamu Alaikum, I want to know more about the ₹300 monthly membership on Rishte Forever."
                     imageUrl="/images/monthly_active.png"
@@ -972,9 +1003,9 @@ export default function HomeClient() {
                     gstRate={0.18}
                     billingText="one-time base"
                     features={['Verified profile suggestions', 'Basic matchmaking support', 'Privacy-safe profile sharing', '1 year service validity']}
-                    isActive={simulatedPackages.includes('good_profile_package')}
+                    isActive={hasGoodProfilePackage}
                     ctaText="Buy Good Profile Package"
-                    onActivate={() => handleRazorpayCheckout('good_profile_package', 5500, 'Good Profile Package')}
+                    onActivate={() => handleUPIPayment('good_profile_package', 5500, 'Good Profile Package')}
                     onInquire={() => setInquiryPackage('₹5,500 Good Profiles Package')}
                     whatsappMessage="Assalamu Alaikum, I am interested in the ₹5,500 Good Profiles Package on Rishte Forever. Please guide me."
                     badgeText="Starter"
@@ -1000,9 +1031,9 @@ export default function HomeClient() {
                       'Privacy-safe contact assistance',
                       '1 year service validity'
                     ]}
-                    isActive={simulatedPackages.includes('second_marriage_package')}
+                    isActive={hasSecondMarriagePackage}
                     ctaText="Buy Silver Plan"
-                    onActivate={() => handleRazorpayCheckout('second_marriage_package', 11000, 'Silver Plan')}
+                    onActivate={() => handleUPIPayment('second_marriage_package', 11000, 'Silver Plan')}
                     onInquire={() => setInquiryPackage('₹11,000 Silver Plan')}
                     whatsappMessage="Assalamu Alaikum, I am interested in the ₹11,000 Silver Plan on Rishte Forever. Please guide me."
                     badgeText="Most Balanced"
@@ -1030,9 +1061,9 @@ export default function HomeClient() {
                       'Privacy-safe contact assistance',
                       '1 year service validity'
                     ]}
-                    isActive={simulatedPackages.includes('high_profile_package')}
+                    isActive={hasHighProfilePackage}
                     ctaText="Buy Gold Package"
-                    onActivate={() => handleRazorpayCheckout('high_profile_package', 21000, 'Gold Package')}
+                    onActivate={() => handleUPIPayment('high_profile_package', 21000, 'Gold Package')}
                     onInquire={() => setInquiryPackage('₹21,000 Gold Package')}
                     whatsappMessage="Assalamu Alaikum, I am interested in the ₹21,000 Gold Package on Rishte Forever. Please guide me."
                     badgeText="Premium Choice"
@@ -1175,7 +1206,7 @@ export default function HomeClient() {
 
       <PremiumFooter onNavigate={handleNavigate} />
 
-      {/* Google Login Simulator Modal */}
+      {/* Google Login Modal */}
       {showLoginModal && (
         <div className="modal-overlay font-sans">
           <div className="card-theme-wrapper" style={{ maxWidth: '400px', width: '90%', margin: '20px' }}>
@@ -1214,32 +1245,7 @@ export default function HomeClient() {
                 />
                 Continue with Google
               </button>
-
-              {isDemoMode && (
-                <>
-                  <div
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '10px',
-                      margin: '16px 0',
-                      color: 'var(--text-muted)',
-                      fontSize: '12px',
-                    }}
-                  >
-                    <div style={{ flex: 1, height: '1px', background: 'var(--border-color)' }} />
-                    <span>or demo access</span>
-                    <div style={{ flex: 1, height: '1px', background: 'var(--border-color)' }} />
-                  </div>
-                  <button
-                    onClick={handleGoogleLogin}
-                    className="btn btn-gold"
-                    style={{ width: '100%', fontWeight: 600 }}
-                  >
-                    🎭 Continue as Demo User
-                  </button>
-                </>
-              )}
+            )}
 
               <button
                 onClick={() => setShowLoginModal(false)}

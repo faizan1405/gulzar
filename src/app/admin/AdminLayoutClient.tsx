@@ -1,21 +1,16 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { useSimulator } from '../../context/SimulatorContext';
+import { useSession } from '../../context/SessionContext';
 import AdminSidebar from '../../components/AdminSidebar';
 
 export default function AdminLayoutClient({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const {
-    isAdminMobileOpen,
-    setIsAdminMobileOpen,
-    setIsAdminMode
-  } = useSimulator();
+  const { isAdminMobileOpen, setIsAdminMobileOpen } = useSession();
 
   const handleExitAdmin = () => {
-    setIsAdminMode(false);
     router.push('/');
   };
 

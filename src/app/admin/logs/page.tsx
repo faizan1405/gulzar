@@ -1,10 +1,10 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useSimulator } from '../../../context/SimulatorContext';
+import { useSession } from '../../../context/SessionContext';
 
 export default function VerificationLogsPage() {
-  const { auditLogs } = useSimulator();
+  const { auditLogs } = useSession();
   const [logSearchQuery, setLogSearchQuery] = useState('');
   const [logActionFilter, setLogActionFilter] = useState('All');
 

@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useSimulator } from '../../context/SimulatorContext';
+import { useSession } from '../../context/SessionContext';
 import Navbar from '../../components/Navbar';
 import Image from 'next/image';
 import { SectionHeading, PremiumPlanCard, PremiumFooter, FloralCorner } from '../../components/NikahComponents';
@@ -12,19 +12,49 @@ export default function PremiumClient() {
   const router = useRouter();
   const {
     isLoggedIn,
-    hasPaid300,
-    simulatedPackages,
-    handleRazorpayCheckout,
+    handleUPIPayment,
     pendingProfileId,
     userProfile,
     setIsRegistering,
     setRegStep,
     setShowLoginModal,
-  } = useSimulator();
+  } = useSession();
 
   const isFormComplete = isLoggedIn && userProfile?.profileCompletionStatus === 'COMPLETE';
-
   const [inquiryPackage, setInquiryPackage] = useState<string | null>(null);
+  const [activePurchasedPackages, setActivePurchasedPackages] = useState<string[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function loadPurchases() {
+      if (!isLoggedIn) {
+        setActivePurchasedPackages([]);
+        return;
+      }
+      try {
+        const res = await fetch('/api/user/purchases', {
+          headers: { 'Content-Type': 'application/json' },
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        const pkgs: string[] = Array.isArray(data.purchases)
+          ? data.purchases
+              .filter((p: any) => p.paymentStatus === 'PAID' && p.accessStatus === 'ACTIVE')
+              .map((p: any) => p.packageType)
+          : [];
+        if (!cancelled) setActivePurchasedPackages(pkgs);
+      } catch {
+        // ignore
+      }
+    }
+    loadPurchases();
+    return () => { cancelled = true; };
+  }, [isLoggedIn, userProfile]);
+
+  const hasPaid300 = !!userProfile?.hasPaid || activePurchasedPackages.includes('monthly_membership');
+  const hasGoodProfilePackage = activePurchasedPackages.includes('good_profile_package');
+  const hasSecondMarriagePackage = activePurchasedPackages.includes('second_marriage_package');
+  const hasHighProfilePackage = activePurchasedPackages.includes('high_profile_package');
 
   const handleCompleteForm = () => {
     if (!isLoggedIn) {
@@ -100,7 +130,7 @@ export default function PremiumClient() {
               features={['Browse normal verified profiles', 'Unblur matrimonial photos', 'Access candidate mobile numbers']}
               isActive={hasPaid300}
               ctaText="Buy Monthly Membership"
-              onActivate={() => handleRazorpayCheckout('monthly_membership', 300, 'Standard Monthly Membership')}
+              onActivate={() => handleUPIPayment('monthly_membership', 300, 'Standard Monthly Membership')}
               onInquire={() => setInquiryPackage('₹300 Monthly Membership')}
               whatsappMessage="Assalamu Alaikum, I want to know more about the ₹300 monthly membership on Rishte Forever."
               imageUrl="/images/monthly_active.png"
@@ -115,9 +145,9 @@ export default function PremiumClient() {
               gstRate={0.18}
               billingText="one-time base"
               features={['Verified profile suggestions', 'Basic matchmaking support', 'Privacy-safe profile sharing', '1 year service validity']}
-              isActive={simulatedPackages.includes('good_profile_package')}
+              isActive={hasGoodProfilePackage}
               ctaText="Buy Good Profile Package"
-              onActivate={() => handleRazorpayCheckout('good_profile_package', 5500, 'Good Profile Package')}
+              onActivate={() => handleUPIPayment('good_profile_package', 5500, 'Good Profile Package')}
               onInquire={() => setInquiryPackage('₹5,500 Good Profiles Package')}
               whatsappMessage="Assalamu Alaikum, I am interested in the ₹5,500 Good Profiles Package on Rishte Forever. Please guide me."
               badgeText="Starter"
@@ -143,9 +173,9 @@ export default function PremiumClient() {
                 'Privacy-safe contact assistance',
                 '1 year service validity'
               ]}
-              isActive={simulatedPackages.includes('second_marriage_package')}
+              isActive={hasSecondMarriagePackage}
               ctaText="Buy Silver Plan"
-              onActivate={() => handleRazorpayCheckout('second_marriage_package', 11000, 'Silver Plan')}
+              onActivate={() => handleUPIPayment('second_marriage_package', 11000, 'Silver Plan')}
               onInquire={() => setInquiryPackage('₹11,000 Silver Plan')}
               whatsappMessage="Assalamu Alaikum, I am interested in the ₹11,000 Silver Plan on Rishte Forever. Please guide me."
               badgeText="Most Balanced"
@@ -173,9 +203,9 @@ export default function PremiumClient() {
                 'Privacy-safe contact assistance',
                 '1 year service validity'
               ]}
-              isActive={simulatedPackages.includes('high_profile_package')}
+              isActive={hasHighProfilePackage}
               ctaText="Buy Gold Package"
-              onActivate={() => handleRazorpayCheckout('high_profile_package', 21000, 'Gold Package')}
+              onActivate={() => handleUPIPayment('high_profile_package', 21000, 'Gold Package')}
               onInquire={() => setInquiryPackage('₹21,000 Gold Package')}
               whatsappMessage="Assalamu Alaikum, I am interested in the ₹21,000 Gold Package on Rishte Forever. Please guide me."
               badgeText="Premium Choice"

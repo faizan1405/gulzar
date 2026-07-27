@@ -198,8 +198,10 @@ model PackagePurchase {
   totalAmount             Float
   billingType             String             // "MONTHLY" or "ONE_TIME"
   successFeeAmount        Float              @default(0)
-  razorpayOrderId         String?            @unique
-  razorpayPaymentId       String?
+  paymentReferenceId String?
+  userSubmittedTxnId String?
+  upiTransactionId   String?
+  paymentMode        String             @default("UPI")
   paymentStatus           PaymentStatus      @default(PENDING)
   purchaseDate            DateTime           @default(now())
   expiryDate              DateTime?          // For monthly memberships

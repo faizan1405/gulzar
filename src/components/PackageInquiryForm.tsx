@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useSimulator } from '../context/SimulatorContext';
+import { useSession } from '../context/SessionContext';
 
 interface PackageInquiryFormProps {
   defaultPackage?: string;
@@ -14,7 +14,7 @@ export const PackageInquiryForm: React.FC<PackageInquiryFormProps> = ({
   onSuccess,
   onCancel
 }) => {
-  const { userProfile, isLoggedIn, getSimulatorHeaders, setReloadTrigger } = useSimulator();
+  const { userProfile, isLoggedIn, getHeaders, setReloadTrigger } = useSession();
 
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
@@ -49,7 +49,7 @@ export const PackageInquiryForm: React.FC<PackageInquiryFormProps> = ({
     const sourcePage = typeof window !== 'undefined' ? window.location.pathname : '/premium';
 
     try {
-      const headers = getSimulatorHeaders();
+      const headers = getHeaders();
       const res = await fetch('/api/leads', {
         method: 'POST',
         headers,

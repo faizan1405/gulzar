@@ -20,7 +20,6 @@ export default function ChatbotWindow({ onClose }: ChatbotWindowProps) {
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [isDemo, setIsDemo] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -68,7 +67,6 @@ export default function ChatbotWindow({ onClose }: ChatbotWindowProps) {
       }
 
       const data = await response.json();
-      setIsDemo(!!data.isDemo);
 
       // 3. Add Assistant Reply
       setMessages((prev) => [
@@ -82,7 +80,6 @@ export default function ChatbotWindow({ onClose }: ChatbotWindowProps) {
       // Graceful local client fallback if API is fully down
       const { getFallbackResponse } = require('../lib/chatbotFallback');
       const offlineReply = getFallbackResponse(cleanInput);
-      setIsDemo(true);
       setMessages((prev) => [
         ...prev,
         { role: 'assistant', content: offlineReply }
@@ -113,7 +110,7 @@ export default function ChatbotWindow({ onClose }: ChatbotWindowProps) {
             <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
               <span className="chatbot-status-indicator"></span>
               <span className="chatbot-status-text">
-                {isDemo ? 'Demo Mode' : 'Online'}
+                Online
               </span>
             </div>
           </div>

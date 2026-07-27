@@ -4,7 +4,7 @@ import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useSimulator } from '../context/SimulatorContext';
+import { useSession } from '../context/SessionContext';
 
 export const Navbar: React.FC = () => {
   const pathname = usePathname();
@@ -12,15 +12,13 @@ export const Navbar: React.FC = () => {
   const {
     isLoggedIn,
     setIsLoggedIn,
-    setHasPaid300,
-    setSimulatedPackages,
     setIsRegistering,
     setRegStep,
     setShowLoginModal,
     isMobileMenuOpen,
     setIsMobileMenuOpen,
     userProfile
-  } = useSimulator();
+  } = useSession();
 
   const handleEditProfile = () => {
     router.push('/my-account');
@@ -35,8 +33,6 @@ export const Navbar: React.FC = () => {
 
   const handleLogout = () => {
     setIsLoggedIn(false);
-    setHasPaid300(false);
-    setSimulatedPackages([]);
     setIsRegistering(false);
     router.push('/');
   };

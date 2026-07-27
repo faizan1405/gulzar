@@ -56,7 +56,6 @@ export function initFallbackOptions() {
   }
 }
 
-import { rawDemoProfiles } from './demoProfiles';
 
 // In-Memory Fallback State (if database is offline/unconfigured)
 const MOCK_PROFILES_DB: Array<{
@@ -98,46 +97,7 @@ const MOCK_PROFILES_DB: Array<{
   noMaslakPreference: boolean;
   willingToRelocate: boolean;
   category?: string | null;
-}> = rawDemoProfiles.map(p => ({
-  id: p.id,
-  userId: p.userId,
-  fullName: p.fullName,
-  gender: p.gender,
-  dateOfBirth: new Date(p.dateOfBirth),
-  maritalStatus: p.maritalStatus,
-  phoneNumber: p.phoneNumber,
-  city: p.city,
-  areaOrLocality: p.locality,
-  state: p.state,
-  country: p.country,
-  latitude: null,
-  longitude: null,
-  education: p.education,
-  occupation: p.occupation,
-  annualIncomeRange: p.annualIncomeRange,
-  familyInfo: p.familyInfo,
-  bio: p.bio,
-  themeColor: p.themeColor,
-  verificationStatus: p.verificationStatus as VerificationStatus,
-  profileCompletionStatus: p.profileCompletionStatus as ProfileCompletionStatus,
-  adminApprovalStatus: p.verificationStatus === 'APPROVED' ? 'APPROVED' : (p.verificationStatus === 'REJECTED' ? 'REJECTED' : 'PENDING'),
-  hasPaid: p.hasPaid,
-  createdAt: new Date(p.regDate),
-  updatedAt: new Date(p.regDate),
-  maslak: p.maslak,
-  fiqh: p.fiqh,
-  biradari: p.biradari,
-  biradariAliases: [],
-  district: p.city,
-  locality: p.locality,
-  preferredLocations: [p.state],
-  sameCastePreference: false,
-  sameMaslakPreference: false,
-  noCastePreference: true,
-  noMaslakPreference: true,
-  willingToRelocate: true,
-  category: p.category,
-}));
+}> = [];
 
 
 
@@ -181,8 +141,10 @@ const MOCK_PURCHASES: Array<{
   totalAmount: number;
   billingType: string;
   successFeeAmount: number;
-  razorpayOrderId: string | null;
-  razorpayPaymentId: string | null;
+  paymentReferenceId: string | null;
+  userSubmittedTxnId: string | null;
+  upiTransactionId: string | null;
+  paymentMode: string;
   paymentStatus: PaymentStatus;
   purchaseDate: Date;
   expiryDate: Date | null;
@@ -344,9 +306,9 @@ export async function getProfileByUserId(userId: string) {
   return globalStore.inMemoryProfiles?.find((p) => p.userId === userId) || null;
 }
 
-// Expose the bundled demo profiles (used as a public showcase fallback)
-export function getDemoProfiles() {
-  return MOCK_PROFILES_DB;
+// Expose an empty profile array for fallback use
+export function getEmptyProfiles() {
+  return [];
 }
 
 export async function getAllProfiles() {
@@ -356,12 +318,10 @@ export async function getAllProfiles() {
       const dbProfiles = await prisma.matrimonialProfile.findMany({
         orderBy: { createdAt: 'desc' },
       });
-      // If the database is reachable but has no profiles yet (e.g. this
-      // environment was never seeded), serve the bundled demo profiles so the
-      // public directory and featured section are never empty. Once real
-      // profiles exist this branch never runs, so nothing is duplicated.
+      // If the database is reachable but has no profiles yet,
+      // serve an empty array — profiles should come from real user registrations.
       if (dbProfiles.length === 0) {
-        return MOCK_PROFILES_DB;
+        return [];
       }
       return dbProfiles;
     } catch (e) {
@@ -715,19 +675,27 @@ export async function createPackagePurchase(data: {
   totalAmount: number;
   billingType: string;
   successFeeAmount: number;
-  razorpayOrderId: string;
+  paymentReferenceId?: string;
 }) {
   const isDb = await testDbConnection();
   const dbProfileId = getValidObjectId(data.profileId);
   const purchaseData = {
-    ...data,
     profileId: dbProfileId,
+    packageType: data.packageType,
+    basePrice: data.basePrice,
+    gstRate: data.gstRate,
+    totalAmount: data.totalAmount,
+    billingType: data.billingType,
+    successFeeAmount: data.successFeeAmount,
+    paymentReferenceId: data.paymentReferenceId || `REF_${Date.now()}`,
+    userSubmittedTxnId: null as string | null,
+    upiTransactionId: null as string | null,
+    paymentMode: 'UPI' as const,
     paymentStatus: 'PENDING' as PaymentStatus,
     accessStatus: 'ACTIVE',
     eligibilityStatus: data.packageType === 'high_profile_package' ? ('PENDING' as ApprovalStatus) : ('APPROVED' as ApprovalStatus),
     marriageConfirmation: 'PENDING',
     successFeePaymentStatus: 'PENDING' as PaymentStatus,
-    razorpayPaymentId: null,
     expiryDate: null,
     internalNotes: '',
   };
@@ -762,6 +730,19 @@ export async function createPackagePurchase(data: {
 }
 
 export async function verifyPackagePurchase(orderId: string, paymentId: string) {
+  // Backwards-compatible alias used by older callers.
+  // New code should call `activatePackageByAdmin` or `activatePackage` directly.
+  return activatePackageByAdmin(orderId, paymentId);
+}
+
+/**
+ * Admin confirms a UPI payment — sets paymentStatus to PAID, expiry, hasPaid, etc.
+ * Looks up the purchase by its `paymentReferenceId` (passed from /api/payment/initiate).
+ */
+export async function activatePackageByAdmin(
+  referenceId: string,
+  upiTransactionId: string | null
+) {
   const isDb = await testDbConnection();
   const monthlyExpiry = new Date();
   monthlyExpiry.setMonth(monthlyExpiry.getMonth() + 1); // 1 month for monthly plan
@@ -775,7 +756,7 @@ export async function verifyPackagePurchase(orderId: string, paymentId: string) 
   if (isDb) {
     try {
       const purchase = await prisma.packagePurchase.findFirst({
-        where: { razorpayOrderId: orderId },
+        where: { paymentReferenceId: referenceId },
       });
 
       if (!purchase) return null;
@@ -787,7 +768,7 @@ export async function verifyPackagePurchase(orderId: string, paymentId: string) 
         where: { id: purchase.id },
         data: {
           paymentStatus: 'PAID' as PaymentStatus,
-          razorpayPaymentId: paymentId,
+          upiTransactionId: upiTransactionId,
           expiryDate: getExpiryForPackage(purchase.packageType),
         },
       });
@@ -805,7 +786,7 @@ export async function verifyPackagePurchase(orderId: string, paymentId: string) 
           action: `PAYMENT_VERIFIED_${purchase.packageType}`,
           targetType: 'PackagePurchase',
           targetId: purchase.id,
-          metadata: JSON.stringify({ orderId, paymentId }),
+          metadata: JSON.stringify({ referenceId, upiTransactionId }),
         },
       });
 
@@ -822,11 +803,11 @@ export async function verifyPackagePurchase(orderId: string, paymentId: string) 
   }
 
   // Fallback
-  const purchase = globalStore.inMemoryPurchases?.find((p) => p.razorpayOrderId === orderId);
+  const purchase = globalStore.inMemoryPurchases?.find((p) => p.paymentReferenceId === referenceId);
   if (purchase) {
     if (purchase.paymentStatus === 'PAID') return purchase; // idempotent
     purchase.paymentStatus = 'PAID' as PaymentStatus;
-    purchase.razorpayPaymentId = paymentId;
+    (purchase as any).upiTransactionId = upiTransactionId;
     purchase.expiryDate = getExpiryForPackage(purchase.packageType);
     purchase.updatedAt = new Date();
 
@@ -843,7 +824,143 @@ export async function verifyPackagePurchase(orderId: string, paymentId: string) 
       action: `PAYMENT_VERIFIED_${purchase.packageType}`,
       targetType: 'PackagePurchase',
       targetId: purchase.id,
-      metadata: JSON.stringify({ orderId, paymentId }),
+      metadata: JSON.stringify({ referenceId, upiTransactionId }),
+      createdAt: new Date(),
+    });
+  }
+  return purchase || null;
+}
+
+/**
+ * User claims they have paid — saves their submitted UPI txn id and notifies admin.
+ * Does NOT mark the purchase as PAID. Admin must confirm.
+ */
+export async function submitUserPaymentClaim(
+  referenceId: string,
+  userSubmittedTxnId: string | null,
+  submittedPhone: string | null,
+  submittedName: string | null
+) {
+  const isDb = await testDbConnection();
+  const updatedNotes = `User claimed paid at ${new Date().toISOString()}` +
+    (userSubmittedTxnId ? ` | Txn ID: ${userSubmittedTxnId}` : '') +
+    (submittedName ? ` | Name: ${submittedName}` : '') +
+    (submittedPhone ? ` | Phone: ${submittedPhone}` : '');
+
+  if (isDb) {
+    try {
+      const purchase = await prisma.packagePurchase.findFirst({
+        where: { paymentReferenceId: referenceId },
+      });
+      if (!purchase) return null;
+
+      const updatedPurchase = await prisma.packagePurchase.update({
+        where: { id: purchase.id },
+        data: {
+          userSubmittedTxnId: userSubmittedTxnId,
+          internalNotes: updatedNotes,
+        },
+      });
+
+      await prisma.auditLog.create({
+        data: {
+          actorUserId: null,
+          action: `PAYMENT_CLAIM_SUBMITTED_${purchase.packageType}`,
+          targetType: 'PackagePurchase',
+          targetId: purchase.id,
+          metadata: JSON.stringify({ referenceId, userSubmittedTxnId }),
+        },
+      });
+
+      return updatedPurchase;
+    } catch (e) {
+      const msg = sanitizeErrorMessage(e instanceof Error ? e.message : String(e));
+      if (!isFallbackAllowed()) {
+        throw new Error(`Database write failed: ${msg}`);
+      }
+      console.error('Database write failed, using fallback', msg);
+    }
+  } else if (!isFallbackAllowed()) {
+    throw new Error('Database is offline or not configured.');
+  }
+
+  // Fallback
+  const purchase = globalStore.inMemoryPurchases?.find((p) => p.paymentReferenceId === referenceId);
+  if (purchase) {
+    (purchase as any).userSubmittedTxnId = userSubmittedTxnId;
+    purchase.internalNotes = updatedNotes;
+    purchase.updatedAt = new Date();
+
+    globalStore.inMemoryLogs?.unshift({
+      id: `log-${Date.now()}`,
+      actorUserId: 'system',
+      action: `PAYMENT_CLAIM_SUBMITTED_${purchase.packageType}`,
+      targetType: 'PackagePurchase',
+      targetId: purchase.id,
+      metadata: JSON.stringify({ referenceId, userSubmittedTxnId }),
+      createdAt: new Date(),
+    });
+  }
+  return purchase || null;
+}
+
+/**
+ * Admin rejects a payment claim — marks status as FAILED.
+ */
+export async function rejectPaymentClaim(referenceId: string, adminNotes: string, adminId: string) {
+  const isDb = await testDbConnection();
+
+  if (isDb) {
+    try {
+      const purchase = await prisma.packagePurchase.findFirst({
+        where: { paymentReferenceId: referenceId },
+      });
+      if (!purchase) return null;
+
+      const updatedPurchase = await prisma.packagePurchase.update({
+        where: { id: purchase.id },
+        data: {
+          paymentStatus: 'FAILED' as PaymentStatus,
+          internalNotes: `${purchase.internalNotes || ''}\n[REJECTED by admin ${adminId}]: ${adminNotes}`,
+        },
+      });
+
+      await prisma.auditLog.create({
+        data: {
+          actorUserId: getValidObjectId(adminId) as any,
+          action: `PAYMENT_REJECTED_${purchase.packageType}`,
+          targetType: 'PackagePurchase',
+          targetId: purchase.id,
+          metadata: JSON.stringify({ referenceId, adminNotes }),
+        },
+      });
+
+      return updatedPurchase;
+    } catch (e) {
+      const msg = sanitizeErrorMessage(e instanceof Error ? e.message : String(e));
+      if (!isFallbackAllowed()) {
+        throw new Error(`Database write failed: ${msg}`);
+      }
+      console.error('Database write failed, using fallback', msg);
+    }
+  } else if (!isFallbackAllowed()) {
+    throw new Error('Database is offline or not configured.');
+  }
+
+  // Fallback
+  const purchase = globalStore.inMemoryPurchases?.find((p) => p.paymentReferenceId === referenceId);
+  if (purchase) {
+    purchase.paymentStatus = 'FAILED' as PaymentStatus;
+    purchase.internalNotes = `${purchase.internalNotes || ''}\n[REJECTED by admin ${adminId}]: ${adminNotes}`;
+    purchase.updatedAt = new Date();
+
+    globalStore.inMemoryLogs?.unshift({
+      id: `log-${Date.now()}`,
+      actorUserId: adminId,
+      action: `PAYMENT_REJECTED_${purchase.packageType}`,
+      targetType: 'PackagePurchase',
+      targetId: purchase.id,
+      metadata: JSON.stringify({ referenceId, adminNotes }),
       createdAt: new Date(),
     });
   }

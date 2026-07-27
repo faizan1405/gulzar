@@ -5,9 +5,7 @@ import { getValidObjectId, isFallbackAllowed } from '@/lib/profileStore';
 
 async function isAdmin(req: NextRequest) {
   const session = await auth();
-  const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
-  const simulatedAdmin = isDemoMode && req.headers.get('x-simulator-admin') === 'true';
-  return session?.user?.role === 'ADMIN' || simulatedAdmin;
+  return session?.user?.role === 'ADMIN';
 }
 
 export async function PATCH(
@@ -57,7 +55,7 @@ export async function PATCH(
       return NextResponse.json({ success: true, profile: updated });
     } catch (dbErr: any) {
       if (!isFallbackAllowed()) throw dbErr;
-      // In-memory fallback: return success so UI doesn't break in demo mode
+      // In-memory fallback: return success so UI doesn't break when DB is unavailable
       return NextResponse.json({ success: true, profile: { id, ...updateData } });
     }
   } catch (error: any) {

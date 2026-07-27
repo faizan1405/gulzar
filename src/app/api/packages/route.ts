@@ -7,9 +7,7 @@ import { PREMIUM_PACKAGES } from '@/lib/packages';
 export async function GET(req: NextRequest) {
   try {
     const session = await auth();
-    const simulatedUserId = req.headers.get('x-simulator-user-id');
-    const simulatedLoggedIn = req.headers.get('x-simulator-logged-in') === 'true';
-    const activeUserId = session?.user?.id || (simulatedLoggedIn ? simulatedUserId : null);
+    const activeUserId = session?.user?.id;
 
     // Determine if this user has completed their profile form
     let formComplete = false;

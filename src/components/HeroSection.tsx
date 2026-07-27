@@ -3,7 +3,7 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { useSimulator } from '../context/SimulatorContext';
+import { useSession } from '../context/SessionContext';
 
 export const HeroSection: React.FC = () => {
   const router = useRouter();
@@ -12,7 +12,7 @@ export const HeroSection: React.FC = () => {
     setIsRegistering,
     setRegStep,
     setShowLoginModal
-  } = useSimulator();
+  } = useSession();
 
   const handleFindMatch = () => {
     router.push('/search');

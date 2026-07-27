@@ -7,15 +7,15 @@ import {
   updateCuratedLeadStatus,
   updateHighProfileEligibility,
   confirmMarriage,
-  updateSuccessFeeStatus
+  updateSuccessFeeStatus,
+  activatePackageByAdmin,
+  rejectPaymentClaim,
 } from '@/lib/profileStore';
 import { ApprovalStatus, PaymentStatus } from '@prisma/client';
 
 async function isAdmin(req: NextRequest) {
   const session = await auth();
-  const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
-  const simulatedAdmin = isDemoMode && req.headers.get('x-simulator-admin') === 'true';
-  return session?.user?.role === 'ADMIN' || simulatedAdmin;
+  return session?.user?.role === 'ADMIN';
 }
 
 export async function GET(req: NextRequest) {
@@ -47,8 +47,12 @@ export async function POST(req: NextRequest) {
     }
 
     const session = await auth();
-    const simulatedAdminId = req.headers.get('x-simulator-admin-id') || 'simulated-admin-id';
-    const adminUserId = session?.user?.id || simulatedAdminId;
+
+    if (!session.user.id) {
+      return NextResponse.json({ error: 'Unauthorized. Admin role required.' }, { status: 403 });
+    }
+
+    const adminUserId = session.user.id;
 
     const body = await req.json();
     const { action } = body;
@@ -96,6 +100,43 @@ export async function POST(req: NextRequest) {
       }
       const updated = await updateSuccessFeeStatus(purchaseId, status as PaymentStatus, adminUserId);
       return NextResponse.json({ success: true, purchase: updated });
+    }
+
+    // NEW: Admin approves the user's UPI payment claim — activates the package
+    if (action === 'confirm_payment') {
+      const { purchaseId, upiTransactionId, approve } = body;
+      if (!purchaseId || approve === undefined) {
+        return NextResponse.json({ error: 'Missing parameters' }, { status: 400 });
+      }
+      if (approve) {
+        const updated = await activatePackageByAdmin(purchaseId, upiTransactionId || null);
+        if (!updated) {
+          return NextResponse.json({ error: 'Purchase not found' }, { status: 404 });
+        }
+        // Send user notification that their package is now active
+        try {
+          const { prisma } = await import('@/lib/db');
+          const fullPurchase = await prisma.packagePurchase.findUnique({
+            where: { id: updated.id },
+            include: { profile: { include: { user: true } } },
+          });
+          if (fullPurchase && fullPurchase.profile) {
+            const { notifyMembership } = await import('@/lib/notifications');
+            const userEmail = fullPurchase.profile.user?.email || null;
+            notifyMembership(userEmail, fullPurchase.profile.phoneNumber, fullPurchase.profile.fullName, fullPurchase.packageType);
+          }
+        } catch (e) {
+          console.error('Membership notification failed after UPI confirmation:', e);
+        }
+        return NextResponse.json({ success: true, purchase: updated, message: 'Payment approved and package activated!' });
+      } else {
+        const { rejectionNotes } = body;
+        const updated = await rejectPaymentClaim(purchaseId, rejectionNotes || 'Payment not received', adminUserId);
+        if (!updated) {
+          return NextResponse.json({ error: 'Purchase not found' }, { status: 404 });
+        }
+        return NextResponse.json({ success: true, purchase: updated, message: 'Payment rejected.' });
+      }
     }
 
     return NextResponse.json({ error: 'Invalid action' }, { status: 400 });

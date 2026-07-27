@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { useSimulator } from '../context/SimulatorContext';
+import { useSession } from '../context/SessionContext';
 import { getProfileImage } from '../lib/helpers';
 import { VerifiedBadge, FloralCorner } from './NikahComponents';
 import ProfileInterestForm from './ProfileInterestForm';
@@ -14,16 +14,37 @@ export const ProfileDetails: React.FC = () => {
     selectedProfileForDetails,
     setSelectedProfileForDetails,
     isLoggedIn,
-    hasPaid300,
-    simulatedPackages,
-    simulatedHighProfileApproved,
     setShowLoginModal,
     userProfile,
     handleViewProfile,
-  } = useSimulator();
+  } = useSession();
 
   const router = useRouter();
   const [showInterestForm, setShowInterestForm] = useState(false);
+  const [purchases, setPurchases] = useState<string[]>([]);
+  const [highProfileApproved, setHighProfileApproved] = useState(false);
+
+  // Fetch real purchase data when logged in
+  useEffect(() => {
+    if (!isLoggedIn) return;
+    async function loadPurchases() {
+      try {
+        const res = await fetch('/api/user/purchases');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.purchases) {
+            const pkgTypes = data.purchases.map((p: any) => p.packageType);
+            setPurchases(pkgTypes);
+            const hpPkg = data.purchases.find((p: any) => p.packageType === 'high_profile_package');
+            setHighProfileApproved(hpPkg?.eligibilityStatus === 'APPROVED');
+          }
+        }
+      } catch {
+        // ignore — purchases will stay empty
+      }
+    }
+    loadPurchases();
+  }, [isLoggedIn]);
 
   // Reset form when modal closes
   React.useEffect(() => {
@@ -36,9 +57,9 @@ export const ProfileDetails: React.FC = () => {
 
 
   const profileCat = (selectedProfileForDetails as any).category || '';
-  
+
   const isSecMarriage = selectedProfileForDetails.maritalStatus !== 'Single' || profileCat === 'second_marriage';
-  const isHighProf = 
+  const isHighProf =
     profileCat === 'high_profile' ||
     selectedProfileForDetails.occupation.toLowerCase().includes('doctor') ||
     selectedProfileForDetails.occupation.toLowerCase().includes('engineer') ||
@@ -46,13 +67,13 @@ export const ProfileDetails: React.FC = () => {
     selectedProfileForDetails.annualIncomeRange.includes('₹10 LPA') ||
     selectedProfileForDetails.annualIncomeRange.includes('₹15 LPA') ||
     selectedProfileForDetails.annualIncomeRange.includes('Above');
-  
+
   const isGoodProfile = profileCat === 'good_profile';
 
-  const hasPaidMonthly = hasPaid300 || simulatedPackages.includes('monthly_membership');
-  const hasSecMarriageAccess = simulatedPackages.includes('second_marriage_package');
-  const hasHighProfAccess = simulatedPackages.includes('high_profile_package') && simulatedHighProfileApproved;
-  const hasGoodProfileAccess = simulatedPackages.includes('good_profile_package');
+  const hasPaidMonthly = purchases.includes('monthly_membership');
+  const hasSecMarriageAccess = purchases.includes('second_marriage_package');
+  const hasHighProfAccess = purchases.includes('high_profile_package') && highProfileApproved;
+  const hasGoodProfileAccess = purchases.includes('good_profile_package');
   const isFormComplete = isLoggedIn && userProfile?.profileCompletionStatus === 'COMPLETE';
 
   let modalBlur = !isLoggedIn;

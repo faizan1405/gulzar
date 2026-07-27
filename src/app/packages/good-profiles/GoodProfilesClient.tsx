@@ -1,21 +1,49 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useSimulator } from '../../../context/SimulatorContext';
+import { useSession } from '../../../context/SessionContext';
 import Navbar from '../../../components/Navbar';
 import ProfileGrid from '../../../components/ProfileGrid';
 import { SectionHeading, PremiumFooter, PremiumPlanCard, FloralCorner } from '../../../components/NikahComponents';
 import PackageInquiryForm from '../../../components/PackageInquiryForm';
 
 export default function GoodProfilesClient() {
-  const { profiles, isLoggedIn, simulatedPackages, handleRazorpayCheckout, userProfile, setIsRegistering, setRegStep, setShowLoginModal } = useSimulator();
+  const { profiles, isLoggedIn, handleUPIPayment, userProfile, setIsRegistering, setRegStep, setShowLoginModal } = useSession();
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
   const [showInquiry, setShowInquiry] = useState(false);
+  const [activePurchasedPackages, setActivePurchasedPackages] = useState<string[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function loadPurchases() {
+      if (!isLoggedIn) {
+        setActivePurchasedPackages([]);
+        return;
+      }
+      try {
+        const res = await fetch('/api/user/purchases', {
+          headers: { 'Content-Type': 'application/json' },
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        const pkgs: string[] = Array.isArray(data.purchases)
+          ? data.purchases
+              .filter((p: any) => p.paymentStatus === 'PAID' && p.accessStatus === 'ACTIVE')
+              .map((p: any) => p.packageType)
+          : [];
+        if (!cancelled) setActivePurchasedPackages(pkgs);
+      } catch {
+        // ignore
+      }
+    }
+    loadPurchases();
+    return () => { cancelled = true; };
+  }, [isLoggedIn, userProfile]);
 
   const isFormComplete = isLoggedIn && userProfile?.profileCompletionStatus === 'COMPLETE';
-  const isPackageActive = simulatedPackages.includes('good_profile_package');
+  const isPackageActive = activePurchasedPackages.includes('good_profile_package');
 
   const handleCompleteForm = () => {
     if (!isLoggedIn) {
@@ -108,7 +136,7 @@ export default function GoodProfilesClient() {
                 <button
                   className="btn btn-gold"
                   style={{ width: '100%', padding: '12px', fontSize: '15px' }}
-                  onClick={() => handleRazorpayCheckout('good_profile_package', 5500, 'Good Profile Package')}
+                  onClick={() => handleUPIPayment('good_profile_package', 5500, 'Good Profile Package')}
                   disabled={isPackageActive}
                 >
                   {isPackageActive ? 'Package Active ✅' : 'Buy Good Profile Package'}

@@ -1,13 +1,13 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { useSimulator } from '../../../context/SimulatorContext';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useSession } from '../../../context/SessionContext';
 import { Lead } from '../../../types';
 import { getWhatsAppLink } from '../../../lib/whatsapp';
 import { SectionHeading, FloralCorner } from '../../../components/NikahComponents';
 
 export default function AdminLeadsPage() {
-  const { getSimulatorHeaders, reloadTrigger, setReloadTrigger } = useSimulator();
+  const { getHeaders, reloadTrigger, setReloadTrigger } = useSession();
 
   const [leads, setLeads] = useState<Lead[]>([]);
   const [search, setSearch] = useState('');
@@ -34,7 +34,7 @@ export default function AdminLeadsPage() {
         if (packageFilter) queryParams.set('interestedPackage', packageFilter);
 
         const url = `/api/admin/leads?${queryParams.toString()}`;
-        const headers = getSimulatorHeaders();
+        const headers = getHeaders();
 
         const res = await fetch(url, { headers });
         if (res.ok) {
@@ -48,7 +48,7 @@ export default function AdminLeadsPage() {
       }
     }
     fetchLeads();
-  }, [search, statusFilter, typeFilter, packageFilter, reloadTrigger, getSimulatorHeaders]);
+  }, [search, statusFilter, typeFilter, packageFilter, reloadTrigger, getHeaders]);
 
   // Handle opening lead details
   const handleOpenLead = (lead: Lead) => {
@@ -64,7 +64,7 @@ export default function AdminLeadsPage() {
     try {
       const res = await fetch(`/api/admin/leads/${leadId}`, {
         method: 'PATCH',
-        headers: getSimulatorHeaders(),
+        headers: getHeaders(),
         body: JSON.stringify(updateData)
       });
       const data = await res.json();
@@ -89,7 +89,7 @@ export default function AdminLeadsPage() {
     try {
       const res = await fetch(`/api/admin/leads/${leadId}`, {
         method: 'DELETE',
-        headers: getSimulatorHeaders()
+        headers: getHeaders()
       });
       if (res.ok) {
         if (selectedLead && selectedLead.id === leadId) {

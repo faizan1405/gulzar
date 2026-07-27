@@ -53,14 +53,16 @@ export async function GET(req: NextRequest) {
       eligibilityStatus?: string;
     }> = [];
     
-    // Support simulator headers
-    const simulatedUserId = req.headers.get('x-simulator-user-id');
-    const simulatedPaid = req.headers.get('x-simulator-paid') === 'true';
-    const simulatedPackagesHeader = req.headers.get('x-simulator-packages') || '';
-    const simulatedPackages = simulatedPackagesHeader.split(',').map(p => p.trim());
-    const simulatedHighProfileApproved = req.headers.get('x-simulator-high-profile-approved') === 'true';
+    // Fetch viewer profile and purchases to check status
+    let viewerHasPaid = false;
+    let viewerPurchases: Array<{
+      id: string;
+      packageType: string;
+      paymentStatus: string;
+      eligibilityStatus?: string;
+    }> = [];
 
-    const viewerId = session?.user?.id || simulatedUserId;
+    const viewerId = session?.user?.id;
     if (viewerId) {
       const viewerProfile = await getProfileByUserId(viewerId);
       if (viewerProfile) {
@@ -69,10 +71,10 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    const hasStandardPkg = viewerHasPaid || hasPaid300Check() || simulatedPaid || simulatedPackages.includes('monthly_membership');
-    const hasSecondMarriagePkg = viewerPurchases.some(p => p.packageType === 'second_marriage_package' && p.paymentStatus === 'PAID') || simulatedPackages.includes('second_marriage_package');
-    const hasHighProfilePkg = viewerPurchases.some(p => p.packageType === 'high_profile_package' && p.paymentStatus === 'PAID' && p.eligibilityStatus === 'APPROVED') || (simulatedPackages.includes('high_profile_package') && simulatedHighProfileApproved);
-    const hasGoodProfilePkg = viewerPurchases.some(p => p.packageType === 'good_profile_package' && p.paymentStatus === 'PAID') || simulatedPackages.includes('good_profile_package');
+    const hasStandardPkg = viewerHasPaid || hasPaid300Check();
+    const hasSecondMarriagePkg = viewerPurchases.some(p => p.packageType === 'second_marriage_package' && p.paymentStatus === 'PAID');
+    const hasHighProfilePkg = viewerPurchases.some(p => p.packageType === 'high_profile_package' && p.paymentStatus === 'PAID' && p.eligibilityStatus === 'APPROVED');
+    const hasGoodProfilePkg = viewerPurchases.some(p => p.packageType === 'good_profile_package' && p.paymentStatus === 'PAID');
 
     function hasPaid300Check() {
       return viewerPurchases.some(p => p.packageType === 'monthly_membership' && p.paymentStatus === 'PAID');
@@ -125,12 +127,8 @@ export async function POST(req: NextRequest) {
     }
 
     const session = await auth();
-    
-    // Support simulated login as well for easy testing
-    const simulatedUserId = req.headers.get('x-simulator-user-id');
-    const activeUserId = session?.user?.id || simulatedUserId;
 
-    if (!activeUserId) {
+    if (!session?.user?.id) {
       return NextResponse.json({ error: 'Authentication Required' }, { status: 401 });
     }
 
@@ -183,7 +181,7 @@ export async function POST(req: NextRequest) {
     }
 
     // 3. Save profile
-    const profile = await upsertProfile(activeUserId, body);
+    const profile = await upsertProfile(session.user.id, body);
 
     // 4. Send Notifications (fire-and-forget)
     try {

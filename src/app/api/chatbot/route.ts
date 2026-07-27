@@ -75,7 +75,7 @@ export async function POST(req: NextRequest) {
     // 4. Return Fallback Response if API key is not provided
     if (!apiKey || apiKey.trim() === '') {
       const fallbackText = getFallbackResponse(message);
-      return NextResponse.json({ text: fallbackText, isDemo: true });
+      return NextResponse.json({ text: fallbackText });
     }
 
     // 5. Call External AI Provider
@@ -124,9 +124,9 @@ export async function POST(req: NextRequest) {
         throw new Error('Empty response from Gemini API.');
       }
 
-      return NextResponse.json({ text: aiReply, isDemo: false });
-    } 
-    
+      return NextResponse.json({ text: aiReply });
+    }
+
     if (provider === 'openai') {
       const openaiModel = model || 'gpt-4o-mini';
       const url = 'https://api.openai.com/v1/chat/completions';
@@ -167,21 +167,20 @@ export async function POST(req: NextRequest) {
         throw new Error('Empty response from OpenAI API.');
       }
 
-      return NextResponse.json({ text: aiReply, isDemo: false });
+      return NextResponse.json({ text: aiReply });
     }
 
     // Default catch for invalid provider configurations
     throw new Error(`Unsupported provider: ${provider}`);
 
   } catch (error) {
-    // If the API call fails, log the error and fall back gracefully to the demo replies.
+    // If the API call fails, log the error and fall back gracefully.
     console.error('Chatbot route execution error, reverting to fallback mode:', error);
     const body = await req.json().catch(() => ({}));
     const message = body?.message || '';
     const fallbackText = getFallbackResponse(message);
-    return NextResponse.json({ 
-      text: fallbackText, 
-      isDemo: true,
+    return NextResponse.json({
+      text: fallbackText,
       errorDetails: error instanceof Error ? error.message : 'Unknown error'
     });
   }

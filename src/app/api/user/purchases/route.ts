@@ -5,8 +5,7 @@ import { getProfileByUserId, getUserPurchases } from '@/lib/profileStore';
 export async function GET(req: NextRequest) {
   try {
     const session = await auth();
-    const simulatedUserId = req.headers.get('x-simulator-user-id');
-    const activeUserId = session?.user?.id || simulatedUserId;
+    const activeUserId = session?.user?.id;
 
     if (!activeUserId) {
       return NextResponse.json({ packages: [], hasPaid: false });

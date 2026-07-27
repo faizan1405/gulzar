@@ -2,14 +2,14 @@
 
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
-import { useSimulator } from '../../context/SimulatorContext';
+import { useSession } from '../../context/SessionContext';
 import Navbar from '../../components/Navbar';
 import { SectionHeading, PremiumFooter, DecorativeArch } from '../../components/NikahComponents';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 export default function MyAccountPage() {
-  const { isLoggedIn, userProfile, hasPaid300, simulatedPackages, setIsRegistering, setRegStep } = useSimulator();
+  const { isLoggedIn, userProfile, hasPaid300, simulatedPackages, setIsRegistering, setRegStep } = useSession();
   const router = useRouter();
 
   useEffect(() => {
@@ -43,10 +43,6 @@ export default function MyAccountPage() {
       const res = await fetch('/api/upload', {
         method: 'POST',
         body: formData,
-        // Using simulator headers to mimic the active session in demo mode
-        headers: process.env.NEXT_PUBLIC_DEMO_MODE === 'true' && userProfile ? {
-          'x-simulator-user-id': userProfile.id
-        } : {}
       });
 
       const data = await res.json();
@@ -221,7 +217,7 @@ export default function MyAccountPage() {
 
               {simulatedPackages.length > 0 && (
                 <div style={{ marginBottom: '24px', backgroundColor: '#fdfbf7', padding: '16px', borderRadius: '8px', border: '1px solid var(--gold-accent)' }}>
-                  <p style={{ color: 'var(--text-secondary)', marginBottom: '8px', fontWeight: 'bold' }}>Premium Packages (Simulator)</p>
+                  <p style={{ color: 'var(--text-secondary)', marginBottom: '8px', fontWeight: 'bold' }}>Premium Packages</p>
                   <ul style={{ listStyleType: 'disc', paddingLeft: '20px', fontSize: '15px', color: 'var(--primary-dark)' }}>
                     {simulatedPackages.map((pkg) => (
                       <li key={pkg} style={{ textTransform: 'capitalize' }}>

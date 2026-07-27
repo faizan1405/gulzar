@@ -2,9 +2,9 @@ export type PackageType = 'monthly_membership' | 'good_profile_package' | 'secon
 
 /**
  * Single source of truth for the package keys used across the entire app — the
- * demo simulator bar, access-control checks, privacy redaction, the payment
- * flow and the API headers all key off these EXACT strings. They must stay in
- * sync with the Prisma `PackageType` enum and the keys of `PREMIUM_PACKAGES`.
+ * access-control checks, privacy redaction, the payment flow and the API all key
+ * off these EXACT strings. They must stay in sync with the Prisma `PackageType`
+ * enum and the keys of `PREMIUM_PACKAGES`.
  *
  * IMPORTANT: the customer-facing UI labels intentionally differ from the keys.
  * Always reference the key, never the label, in logic:

@@ -14,11 +14,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   }
 
   const session = await auth();
-  const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
-
-  // In demo deployments every visitor may open the admin showcase.
-  // In production a genuine ADMIN session is required.
-  const isAdmin = session?.user?.role === 'ADMIN' || isDemoMode;
+  const isAdmin = session?.user?.role === 'ADMIN';
 
   if (!isAdmin) {
     redirect('/admin/login');

@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useSimulator } from '../context/SimulatorContext';
+import { useSession } from '../context/SessionContext';
 
 export const AdminOverview: React.FC = () => {
   const {
@@ -10,7 +10,7 @@ export const AdminOverview: React.FC = () => {
     adminPurchases,
     adminAssignments,
     auditLogs
-  } = useSimulator();
+  } = useSession();
 
   const totalProfiles = profiles.length;
   const pendingVerifications = adminRequests.filter((r) => r.status === 'PENDING').length;

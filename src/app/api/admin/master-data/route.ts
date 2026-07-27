@@ -17,9 +17,7 @@ import {
 
 async function isAdmin(req: NextRequest) {
   const session = await auth();
-  const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
-  const simulatedAdmin = isDemoMode && req.headers.get('x-simulator-admin') === 'true';
-  return session?.user?.role === 'ADMIN' || simulatedAdmin;
+  return session?.user?.role === 'ADMIN';
 }
 
 export async function GET(req: NextRequest) {
