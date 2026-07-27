@@ -371,7 +371,7 @@ export const FAQ_DATA: FaqEntry[] = [
     question: 'How do I pay for a package?',
     answer:
       'Payments are handled securely on the official Premium/Packages page through the checkout provided there. Never share card, UPI or banking details in chat or with anyone claiming to represent us.',
-    keywords: ['how to pay', 'payment', 'checkout', 'pay package', 'buy package', 'purchase', 'razorpay'],
+    keywords: ['how to pay', 'payment', 'checkout', 'pay package', 'buy package', 'purchase'],
   },
   {
     id: 'when-package-activates',

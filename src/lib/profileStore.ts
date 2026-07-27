@@ -380,16 +380,19 @@ export async function upsertProfile(
       const dbUserId = getValidObjectId(userId);
       const { category, ...rest } = data;
       const cleanCategory = category === null ? 'normal' : category;
-      
+      const dob = new Date(rest.dateOfBirth);
+
       return await prisma.matrimonialProfile.upsert({
         where: { userId: dbUserId },
         update: {
           ...rest,
+          dateOfBirth: dob,
           ...(cleanCategory !== undefined ? { category: cleanCategory } : {}),
           profileCompletionStatus: 'COMPLETE' as ProfileCompletionStatus,
         },
         create: {
           ...rest,
+          dateOfBirth: dob,
           category: cleanCategory || 'normal',
           userId: dbUserId,
           profileCompletionStatus: 'COMPLETE' as ProfileCompletionStatus,
