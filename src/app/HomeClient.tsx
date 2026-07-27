@@ -240,7 +240,7 @@ export default function HomeClient() {
                 </div>
               )}
 
-              <form onSubmit={handleRegisterSubmit}>
+              <form onSubmit={handleRegisterSubmit} noValidate>
                 {regStep === 1 && (
                   <div>
                     <div className="form-group">
@@ -610,7 +610,7 @@ export default function HomeClient() {
                         type="checkbox"
                         style={{ marginTop: '4px' }}
                         checked={formData.terms}
-                        onChange={(e) => setFormData({ ...formData, terms: e.target.checked })}
+                        onChange={(e) => setFormData({ ...formData, terms: e.target.checked, termsAccepted: e.target.checked })}
                         required
                       />
                       <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
@@ -626,7 +626,7 @@ export default function HomeClient() {
                       type="checkbox"
                       style={{ marginTop: '4px' }}
                       checked={formData.termsAccepted}
-                      onChange={(e) => setFormData({ ...formData, termsAccepted: e.target.checked })}
+                      onChange={(e) => setFormData({ ...formData, termsAccepted: e.target.checked, terms: e.target.checked, consent: e.target.checked })}
                     />
                     <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
                       I agree to the <a href="/terms-and-conditions" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--primary-brand)', textDecoration: 'underline' }}>Terms &amp; Conditions</a> and <a href="/privacy-policy" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--primary-brand)', textDecoration: 'underline' }}>Privacy Policy</a>.
