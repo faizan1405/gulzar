@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { useSession } from '../context/SessionContext';
 import { getProfileImage } from '../lib/helpers';
-import { VerifiedBadge, FloralCorner } from './NikahComponents';
+import { VerifiedBadge } from './NikahComponents';
 import ProfileInterestForm from './ProfileInterestForm';
 
 
@@ -127,9 +127,6 @@ export const ProfileDetails: React.FC = () => {
           <button className="modal-close-btn" onClick={() => setSelectedProfileForDetails(null)}>×</button>
         </div>
         <div className="modal-body" style={{ position: 'relative', minHeight: '300px' }}>
-          <FloralCorner position="tl" color="var(--gold-light)" />
-          <FloralCorner position="tr" color="var(--gold-light)" />
-
           {showInterestForm ? (
             <div style={{ padding: '10px 0' }}>
               <h3 style={{ fontFamily: 'var(--font-serif)', color: 'var(--deep-maroon)', fontSize: '20px', marginBottom: '16px', textAlign: 'center' }}>

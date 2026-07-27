@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useSession } from '../../../context/SessionContext';
 import { Lead } from '../../../types';
 import { getWhatsAppLink } from '../../../lib/whatsapp';
-import { SectionHeading, FloralCorner } from '../../../components/NikahComponents';
+import { SectionHeading } from '../../../components/NikahComponents';
 
 const STATUS_COLORS: Record<string, React.CSSProperties> = {
   new:        { background: '#d1fae5', color: '#065f46' },
@@ -231,8 +231,6 @@ export default function AdminZaichaPage() {
       {selected && (
         <div className="modal-overlay" onClick={() => setSelected(null)}>
           <div className="card-theme-wrapper" onClick={e => e.stopPropagation()} style={{ maxWidth: '560px', width: '95%', margin: '20px', padding: '36px', border: '2px solid var(--gold-accent)', position: 'relative', maxHeight: '90vh', overflowY: 'auto' }}>
-            <FloralCorner position="tl" color="var(--gold-accent)" />
-            <FloralCorner position="tr" color="var(--gold-accent)" />
             <button onClick={() => setSelected(null)} style={{ position: 'absolute', top: 16, right: 16, fontSize: 24, background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}>×</button>
 
             <h3 style={{ fontFamily: 'var(--font-serif)', color: 'var(--deep-maroon)', fontSize: '22px', marginBottom: '20px' }}>

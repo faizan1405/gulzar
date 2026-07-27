@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useSession } from '../../../context/SessionContext';
 import { Lead } from '../../../types';
 import { getWhatsAppLink } from '../../../lib/whatsapp';
-import { SectionHeading, FloralCorner } from '../../../components/NikahComponents';
+import { SectionHeading } from '../../../components/NikahComponents';
 
 export default function AdminLeadsPage() {
   const { getHeaders, reloadTrigger, setReloadTrigger } = useSession();
@@ -332,8 +332,6 @@ export default function AdminLeadsPage() {
       {selectedLead && (
         <div className="modal-overlay font-sans" onClick={() => setSelectedLead(null)}>
           <div className="card-theme-wrapper" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '600px', width: '95%', margin: '20px', padding: '36px', border: '2px solid var(--gold-accent)', position: 'relative' }}>
-            <FloralCorner position="tl" color="var(--gold-accent)" />
-            <FloralCorner position="tr" color="var(--gold-accent)" />
             <button
               onClick={() => setSelectedLead(null)}
               style={{

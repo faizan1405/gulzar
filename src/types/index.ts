@@ -76,8 +76,10 @@ export interface PackagePurchase {
   totalAmount: number;
   billingType: string;
   successFeeAmount: number;
-  razorpayOrderId: string | null;
-  razorpayPaymentId: string | null;
+  paymentReferenceId: string | null;
+  userSubmittedTxnId: string | null;
+  upiTransactionId: string | null;
+  paymentMode: string;
   paymentStatus: string;
   purchaseDate: string;
   expiryDate: string | null;

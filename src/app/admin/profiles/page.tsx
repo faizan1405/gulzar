@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useSession } from '../../../context/SessionContext';
-import { SectionHeading, FloralCorner } from '../../../components/NikahComponents';
+import { SectionHeading } from '../../../components/NikahComponents';
 
 interface AdminProfile {
   id: string;
@@ -333,9 +333,6 @@ export default function AdminProfilesPage() {
               overflowY: 'auto',
             }}
           >
-            <FloralCorner position="tl" color="var(--gold-accent)" />
-            <FloralCorner position="tr" color="var(--gold-accent)" />
-
             <button
               onClick={() => setSelected(null)}
               style={{ position: 'absolute', top: 16, right: 16, fontSize: 24, background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}

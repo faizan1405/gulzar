@@ -1412,18 +1412,20 @@ async function main() {
             totalAmount: total,
             billingType: pData.packageType === 'monthly_membership' ? 'MONTHLY' : 'ONE_TIME',
             successFeeAmount: pData.packageType === 'high_profile_package' ? 25000 : (pData.packageType === 'good_profile_package' ? 21000 : 0),
-            razorpayOrderId: `order_test_${matProfile.id}`,
-            razorpayPaymentId: `pay_test_${matProfile.id}`,
+            paymentReferenceId: `ref_test_${matProfile.id}`,
+            userSubmittedTxnId: `utr_test_${matProfile.id}`,
+            upiTransactionId: `txn_test_${matProfile.id}`,
+            paymentMode: 'UPI',
             paymentStatus: PaymentStatus.PAID,
             purchaseDate: pData.regDate,
             expiryDate: pData.packageType === 'monthly_membership' ? new Date(pData.regDate.getTime() + 30 * 24 * 60 * 60 * 1000) : null,
             accessStatus: 'ACTIVE',
-            eligibilityStatus: pData.packageType === 'high_profile_package' 
-              ? (pData.verification === 'APPROVED' ? ApprovalStatus.APPROVED : ApprovalStatus.PENDING) 
+            eligibilityStatus: pData.packageType === 'high_profile_package'
+              ? (pData.verification === 'APPROVED' ? ApprovalStatus.APPROVED : ApprovalStatus.PENDING)
               : ApprovalStatus.APPROVED,
             marriageConfirmation: 'PENDING',
             successFeePaymentStatus: PaymentStatus.PENDING,
-            internalNotes: 'Automated demo seed payment.',
+            internalNotes: 'Automated seed payment via UPI.',
             createdAt: pData.regDate,
             updatedAt: pData.regDate,
           },
@@ -1436,7 +1438,7 @@ async function main() {
             action: `PAYMENT_VERIFIED_${pData.packageType}`,
             targetType: 'PackagePurchase',
             targetId: purchase.id,
-            metadata: JSON.stringify({ orderId: purchase.razorpayOrderId, paymentId: purchase.razorpayPaymentId }),
+            metadata: JSON.stringify({ upiTransactionId: purchase.upiTransactionId, userSubmittedTxnId: purchase.userSubmittedTxnId }),
             createdAt: pData.regDate,
           },
         });

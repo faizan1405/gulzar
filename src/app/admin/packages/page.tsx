@@ -3,6 +3,25 @@
 import React, { useState } from 'react';
 import { useSession } from '../../../context/SessionContext';
 
+async function callAdminAction(action: string, payload: Record<string, any>) {
+  try {
+    const res = await fetch('/api/admin/packages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action, ...payload }),
+    });
+    const data = await res.json();
+    if (!res.ok || !data.success) {
+      alert(data.error || 'Action failed');
+      return null;
+    }
+    return data;
+  } catch {
+    alert('Network error performing admin action');
+    return null;
+  }
+}
+
 export default function PremiumPackagesPage() {
   const {
     profiles,
@@ -12,15 +31,55 @@ export default function PremiumPackagesPage() {
     handleUpdateLeadStatus,
     handleUpdateHPStatus,
     handleConfirmMarriage,
-    handleUpdateSuccessFee
+    handleUpdateSuccessFee,
+    setReloadTrigger,
   } = useSession();
 
   const [assignBuyerId, setAssignBuyerId] = useState('');
   const [assignLeadId, setAssignLeadId] = useState('');
+  const [rejectingId, setRejectingId] = useState<string | null>(null);
+  const [rejectNotes, setRejectNotes] = useState('');
+  const [upiTxnInput, setUpiTxnInput] = useState<Record<string, string>>({});
 
   const onAssign = async () => {
     await handleAssignLead(assignBuyerId, assignLeadId);
     setAssignLeadId('');
+  };
+
+  const onApprovePayment = async (purchaseId: string) => {
+    const upiTxn = upiTxnInput[purchaseId] || '';
+    if (!upiTxn.trim()) {
+      if (!confirm('No UPI Transaction ID entered. Approve without UPI Txn ID?')) {
+        return;
+      }
+    }
+    const result = await callAdminAction('confirm_payment', {
+      purchaseId,
+      approve: true,
+      upiTransactionId: upiTxn.trim() || null,
+    });
+    if (result?.success) {
+      alert('✅ Payment approved! Package activated and user notified.');
+      setReloadTrigger((prev: number) => prev + 1);
+    }
+  };
+
+  const onRejectPayment = async (purchaseId: string) => {
+    if (!rejectNotes.trim()) {
+      alert('Please enter rejection notes.');
+      return;
+    }
+    const result = await callAdminAction('confirm_payment', {
+      purchaseId,
+      approve: false,
+      rejectionNotes: rejectNotes.trim(),
+    });
+    if (result?.success) {
+      alert('❌ Payment rejected.');
+      setRejectingId(null);
+      setRejectNotes('');
+      setReloadTrigger((prev: number) => prev + 1);
+    }
   };
 
   return (
@@ -96,10 +155,19 @@ export default function PremiumPackagesPage() {
                     </td>
                     <td style={{ padding: '12px 8px' }}>
                       <div style={{ fontSize: '11px', fontFamily: 'monospace' }}>
-                        Ord: {purchase.razorpayOrderId || 'N/A'}
+                        Txn: {(purchase as any).upiTransactionId || (purchase as any).paymentReferenceId || 'N/A'}
                         <br />
-                        Pay: {purchase.razorpayPaymentId || 'N/A'}
+                        User Ref: {(purchase as any).userSubmittedTxnId || 'N/A'}
                       </div>
+                      {purchase.paymentStatus === 'PENDING' && (
+                        <input
+                          type="text"
+                          placeholder="Enter UPI Txn ID"
+                          value={upiTxnInput[purchase.id] || ''}
+                          onChange={(e) => setUpiTxnInput(prev => ({ ...prev, [purchase.id]: e.target.value }))}
+                          style={{ marginTop: '4px', width: '100%', padding: '3px 6px', fontSize: '11px' }}
+                        />
+                      )}
                     </td>
                     <td style={{ padding: '12px 8px' }}>
                       <span style={{
@@ -107,15 +175,33 @@ export default function PremiumPackagesPage() {
                         borderRadius: '4px',
                         fontSize: '11px',
                         fontWeight: 'bold',
-                        backgroundColor: 'rgba(0, 100, 255, 0.1)',
-                        color: '#0055ff'
+                        backgroundColor: 'rgba(0, 150, 80, 0.1)',
+                        color: '#009650'
                       }}>
-                        Razorpay
+                        UPI
                       </span>
                     </td>
                     <td style={{ padding: '12px 8px' }}>{new Date(purchase.purchaseDate).toLocaleDateString()}</td>
                     <td style={{ padding: '12px 8px' }}>
-                      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', maxWidth: '250px' }}>
+                      <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', maxWidth: '250px', flexDirection: 'column' }}>
+                        {purchase.paymentStatus === 'PENDING' && (
+                          <div style={{ display: 'flex', gap: '4px' }}>
+                            <button onClick={() => onApprovePayment(purchase.id)} className="btn btn-secondary" style={{ padding: '4px 8px', fontSize: '10px', backgroundColor: '#009650', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Approve</button>
+                            <button onClick={() => setRejectingId(purchase.id)} className="btn btn-primary" style={{ padding: '4px 8px', fontSize: '10px', backgroundColor: '#dc2626', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Reject</button>
+                          </div>
+                        )}
+                        {rejectingId === purchase.id && (
+                          <div style={{ marginTop: '4px' }}>
+                            <textarea
+                              value={rejectNotes}
+                              onChange={(e) => setRejectNotes(e.target.value)}
+                              placeholder="Rejection reason"
+                              style={{ width: '100%', fontSize: '10px', padding: '3px' }}
+                              rows={2}
+                            />
+                            <button onClick={() => onRejectPayment(purchase.id)} className="btn btn-primary" style={{ padding: '3px 8px', fontSize: '10px', marginTop: '2px', backgroundColor: '#dc2626', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Confirm Reject</button>
+                          </div>
+                        )}
                         {purchase.packageType === 'high_profile_package' && (
                           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', padding: '4px', border: '1px solid #eee', borderRadius: '4px' }}>
                             <span style={{ fontSize: '10px', color: '#666' }}>HP Eligibility:</span>

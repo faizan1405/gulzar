@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
-import { useSession } from '../components/SessionContext';
+import { useSession } from '../context/SessionContext';
 import { getProfileImage, getThemeClass } from '../lib/helpers';
 import Navbar from '../components/Navbar';
 import HeroSection from '../components/HeroSection';
@@ -12,7 +12,6 @@ import SearchableCombobox from '../components/SearchableCombobox';
 import { DEFAULT_FIQHS } from '../lib/masterData';
 
 import {
-  FloralCorner,
   BismillahCalligraphy,
   SectionHeading,
   QuranVerseBlock,
@@ -210,11 +209,6 @@ export default function HomeClient() {
           /* Multi-step onboarding/edit profile wizard */
           <section style={{ padding: '60px 0' }} className="container font-sans">
             <div className="card-theme-wrapper reg-wizard-card">
-              <FloralCorner position="tl" color="var(--gold-accent)" />
-              <FloralCorner position="tr" color="var(--gold-accent)" />
-              <FloralCorner position="bl" color="var(--gold-accent)" />
-              <FloralCorner position="br" color="var(--gold-accent)" />
-
               <div style={{ textAlign: 'center', marginBottom: '24px' }}>
                 <span className="script-accent" style={{ display: 'block', marginBottom: '4px' }}>Bismillah</span>
                 <h2 style={{ fontFamily: 'var(--font-serif)', color: 'var(--deep-maroon)', fontSize: '32px', marginBottom: '8px' }}>
@@ -1210,11 +1204,6 @@ export default function HomeClient() {
       {showLoginModal && (
         <div className="modal-overlay font-sans">
           <div className="card-theme-wrapper" style={{ maxWidth: '400px', width: '90%', margin: '20px' }}>
-            <FloralCorner position="tl" color="var(--gold-accent)" />
-            <FloralCorner position="tr" color="var(--gold-accent)" />
-            <FloralCorner position="bl" color="var(--gold-accent)" />
-            <FloralCorner position="br" color="var(--gold-accent)" />
-
             <div style={{ textAlign: 'center', padding: '10px 0' }}>
               <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '24px', color: 'var(--deep-maroon)', marginBottom: '12px', fontWeight: 'bold' }}>
                 Join Rishte Forever
@@ -1262,8 +1251,6 @@ export default function HomeClient() {
       {inquiryPackage && (
         <div className="modal-overlay font-sans" onClick={() => setInquiryPackage(null)}>
           <div className="card-theme-wrapper" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '500px', width: '90%', margin: '20px', border: '2px solid var(--gold-accent)', padding: '32px', position: 'relative' }}>
-            <FloralCorner position="tl" color="var(--gold-accent)" />
-            <FloralCorner position="tr" color="var(--gold-accent)" />
             <button
               onClick={() => setInquiryPackage(null)}
               style={{
