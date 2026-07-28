@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 import { PREMIUM_PACKAGES, PACKAGE_KEYS } from '@/lib/packages';
 import { prisma } from '@/lib/db';
+import { auth } from '@/auth';
 import JsonLd from '@/components/JsonLd';
 
 export const dynamic = 'force-dynamic';
@@ -67,6 +68,23 @@ const PACKAGE_BADGE: Record<string, string> = {
 };
 
 export default async function PackagesPage() {
+  const session = await auth();
+
+  // Determine if this user has completed their profile form
+  let formComplete = false;
+  if (session?.user?.id) {
+    try {
+      const profile = await prisma.matrimonialProfile.findUnique({
+        where: { userId: session.user.id },
+        select: { profileCompletionStatus: true },
+      });
+      formComplete = profile?.profileCompletionStatus === 'COMPLETE';
+    } catch {
+      // DB unavailable — treat as incomplete
+    }
+  }
+
+  const canShowPrices = formComplete;
   const packageList = [
     PREMIUM_PACKAGES[PACKAGE_KEYS.MONTHLY],
     PREMIUM_PACKAGES[PACKAGE_KEYS.GOOD_PROFILE],
@@ -85,11 +103,13 @@ export default async function PackagesPage() {
         '@type': 'Service',
         name: pkg.name,
         description: pkg.benefits.join(', '),
-        offers: {
-          '@type': 'Offer',
-          price: pkg.basePrice,
-          priceCurrency: 'INR',
-        },
+        ...(canShowPrices ? {
+          offers: {
+            '@type': 'Offer',
+            price: pkg.basePrice,
+            priceCurrency: 'INR',
+          },
+        } : {}),
       },
     })),
   };
@@ -134,12 +154,20 @@ export default async function PackagesPage() {
                   {isMonthly ? 'Per month access' : 'One-time, 1 year validity'}
                 </p>
                 <div className="mt-4">
-                  <span className="text-3xl font-bold text-slate-900">₹{pkg.totalAmount.toLocaleString('en-IN')}</span>
-                  {pkg.gstRate > 0 && (
-                    <span className="ml-1 text-xs text-slate-500">incl. GST</span>
+                  {canShowPrices ? (
+                    <>
+                      <span className="text-3xl font-bold text-slate-900">₹{pkg.totalAmount.toLocaleString('en-IN')}</span>
+                      {pkg.gstRate > 0 && (
+                        <span className="ml-1 text-xs text-slate-500">incl. GST</span>
+                      )}
+                    </>
+                  ) : (
+                    <p className="text-sm text-slate-500">
+                      Pricing available after profile completion
+                    </p>
                   )}
                 </div>
-                {pkg.successFeeAmount > 0 && (
+                {canShowPrices && pkg.successFeeAmount > 0 && (
                   <p className="mt-1 text-xs text-slate-500">
                     Success fee: ₹{pkg.successFeeAmount.toLocaleString('en-IN')}
                   </p>

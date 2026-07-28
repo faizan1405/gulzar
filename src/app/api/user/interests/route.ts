@@ -3,8 +3,10 @@ import { auth } from '@/auth';
 import { getSentInterests, getReceivedInterests, sendInterest, respondToInterest, withdrawInterest } from '@/lib/services/interestService';
 import { redactProfile } from '@/lib/profilePrivacy';
 import { prisma } from '@/lib/db';
-import { checkRateLimit } from '@/lib/rateLimit';
+import { checkRateLimitByName, buildRateLimitHeaders } from '@/lib/rateLimit';
 import { logAudit } from '@/lib/audit';
+import { csrfGuard } from '@/lib/csrfGuard';
+import { safeJsonBody } from '@/lib/requestUtils';
 import {
   hasPaidAccess,
   hasStandardPackage,
@@ -12,21 +14,6 @@ import {
   hasHighProfilePackage,
   hasGoodProfilePackage,
 } from '@/lib/packageAccess';
-
-// Simple in-memory rate limiter for interest POST requests (max 10/min per user)
-const interestPostRateLimitMap = new Map<string, { count: number; resetTime: number }>();
-function checkInterestPostRateLimit(userId: string): boolean {
-  const now = Date.now();
-  const limit = 10;
-  const windowMs = 60 * 1000;
-  const record = interestPostRateLimitMap.get(userId);
-  if (!record || now > record.resetTime) {
-    interestPostRateLimitMap.set(userId, { count: 1, resetTime: now + windowMs });
-    return false;
-  }
-  record.count += 1;
-  return record.count > limit;
-}
 
 export async function GET(req: NextRequest) {
   try {
@@ -36,10 +23,11 @@ export async function GET(req: NextRequest) {
     }
 
     // Rate limit GET by user ID
-    if (checkRateLimit(`interests-get:${session.user.id}`, 30, 60 * 1000)) {
+    const iResult = await checkRateLimitByName('interestsGet', session.user.id);
+    if (!iResult.allowed) {
       return NextResponse.json(
         { error: 'Too many requests. Please slow down.' },
-        { status: 429 }
+        { status: 429, headers: buildRateLimitHeaders(iResult) }
       );
     }
 
@@ -98,19 +86,25 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
+    const csrfResult = await csrfGuard(req);
+    if (csrfResult) return csrfResult;
+
     const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    if (checkInterestPostRateLimit(session.user.id)) {
+    const ipResult = await checkRateLimitByName('interestsPost', session.user.id);
+    if (!ipResult.allowed) {
       return NextResponse.json(
         { error: 'Too many requests. Please wait a minute.' },
-        { status: 429 }
+        { status: 429, headers: buildRateLimitHeaders(ipResult) }
       );
     }
 
-    const body = await req.json();
+    const bodyOrResponse = await safeJsonBody(req, { maxSizeKB: 10 });
+    if (bodyOrResponse instanceof Response) return bodyOrResponse;
+    const body = bodyOrResponse as any;
     const { action, receiverProfileId, message, requestId } = body;
 
     // Input length limits

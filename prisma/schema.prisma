@@ -30,23 +30,24 @@ enum VerificationStatus {
 }
 
 model User {
-  id               String               @id @default(auto()) @map("_id") @db.ObjectId
-  name             String?
-  email            String?              @unique
-  emailVerified    DateTime?
-  image            String?
-  role             Role                 @default(USER)
-  accountStatus    AccountStatus        @default(ACTIVE)
-  passwordHash     String?
-  requiresPasswordChange Boolean        @default(false)
-  accounts         Account[]
-  sessions         Session[]
-  profile          MatrimonialProfile?
-  auditLogs        AuditLog[]           @relation("ActorUser")
-  assignedRequests VerificationRequest[] @relation("AdminRequests")
-  notifications    Notification[]
-  createdAt        DateTime             @default(now())
-  updatedAt        DateTime             @updatedAt
+  id                        String            @id @default(auto()) @map("_id") @db.ObjectId
+  name                      String?
+  email                     String?           @unique
+  emailVerified             DateTime?
+  image                     String?
+  role                      Role              @default(USER)
+  accountStatus             AccountStatus     @default(ACTIVE)
+  passwordHash              String?
+  requiresPasswordChange    Boolean           @default(false)
+  tokenVersion              Int               @default(1) // Incremented to invalidate existing sessions
+  accounts                  Account[]
+  sessions                  Session[]
+  profile                   MatrimonialProfile?
+  auditLogs                 AuditLog[]        @relation("ActorUser")
+  assignedRequests          VerificationRequest[] @relation("AdminRequests")
+  notifications             Notification[]
+  createdAt                 DateTime          @default(now())
+  updatedAt                 DateTime          @updatedAt
 }
 
 model Account {
@@ -225,6 +226,9 @@ model PackagePurchase {
   internalNotes           String?
   createdAt               DateTime           @default(now())
   updatedAt               DateTime           @updatedAt
+
+  @@index([profileId, paymentStatus, accessStatus])
+  @@index([purchaseDate])
 }
 
 model CuratedLeadAssignment {
@@ -238,6 +242,7 @@ model CuratedLeadAssignment {
   updatedAt       DateTime           @updatedAt
 
   @@unique([buyerProfileId, leadProfileId])
+  @@index([status, assignedAt])
 }
 
 model VerificationRequest {
@@ -251,6 +256,8 @@ model VerificationRequest {
   verifiedAt      DateTime?
   createdAt       DateTime           @default(now())
   updatedAt       DateTime           @updatedAt
+
+  @@index([profileId, createdAt])
 }
 
 model AuditLog {
@@ -262,6 +269,16 @@ model AuditLog {
   targetId    String?
   metadata    String?  // Safe stringified JSON metadata
   createdAt   DateTime @default(now())
+
+  @@index([actorUserId, createdAt])
+}
+
+model RateLimitEntry {
+  id         String   @id @map("_id")
+  windowStart DateTime @default(now())
+  count      Int      @default(1)
+
+  @@index([windowStart])
 }
 
 model NotificationLog {
@@ -306,6 +323,8 @@ model Lead {
   adminNotes          String?
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
+
+  @@index([status, createdAt])
 }
 
 model ProfileView {
@@ -319,6 +338,7 @@ model ProfileView {
   viewCount       Int                @default(1)
 
   @@unique([viewerId, viewedProfileId])
+  @@index([viewedProfileId, lastViewedAt])
 }
 
 model Shortlist {
@@ -330,6 +350,7 @@ model Shortlist {
   createdAt       DateTime           @default(now())
 
   @@unique([userId, profileId])
+  @@index([userId, createdAt])
 }
 
 enum InterestStatus {
@@ -353,6 +374,7 @@ model InterestRequest {
   withdrawnAt     DateTime?
 
   @@unique([senderId, receiverId])
+  @@index([receiverId, updatedAt])
 }
 
 model Notification {
@@ -369,4 +391,6 @@ model Notification {
   createdAt       DateTime @default(now())
   readAt          DateTime?
   expiresAt       DateTime?
+
+  @@index([userId, isRead, createdAt])
 }

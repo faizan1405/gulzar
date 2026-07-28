@@ -2,17 +2,34 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { submitUserPaymentClaim } from '@/lib/profileStore';
 import { prisma } from '@/lib/db';
+import { escapeHTML } from '@/lib/sanitize';
+import { csrfGuard } from '@/lib/csrfGuard';
+import { safeJsonBody } from '@/lib/requestUtils';
+import { checkRateLimitByName, buildRateLimitHeaders } from '@/lib/rateLimit';
 
 export async function POST(req: NextRequest) {
   try {
+    const csrfResult = await csrfGuard(req);
+    if (csrfResult) return csrfResult;
+
     const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
     }
 
-    const activeUserId = session.user.id;
+    const payResult = await checkRateLimitByName('interestsPost', session.user.id);
+    if (!payResult.allowed) {
+      return NextResponse.json(
+        { error: 'Too many requests. Please slow down.' },
+        { status: 429, headers: buildRateLimitHeaders(payResult) }
+      );
+    }
 
-    const { purchaseId, userSubmittedTxnId, userName, userPhone } = await req.json();
+    const bodyOrResponse = await safeJsonBody(req, { maxSizeKB: 50 });
+    if (bodyOrResponse instanceof Response) return bodyOrResponse;
+    const body = bodyOrResponse as any;
+
+    const { purchaseId, userSubmittedTxnId, userName, userPhone } = body;
 
     if (!purchaseId) {
       return NextResponse.json({ error: 'Missing purchaseId' }, { status: 400 });
@@ -40,16 +57,20 @@ export async function POST(req: NextRequest) {
       if (settings?.adminEmail && settings.emailAlertsEnabled) {
         const packageLabel = purchase.packageType.replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase());
         const subject = `New UPI Payment Claim - ${packageLabel} - ₹${purchase.totalAmount}`;
+        const safeUserName = escapeHTML(userName || 'Not provided');
+        const safeUserPhone = escapeHTML(userPhone || 'Not provided');
+        const safeTxnId = escapeHTML(userSubmittedTxnId || 'Not provided');
+        const safePackageLabel = escapeHTML(packageLabel);
         const body = `
           <h2>New Payment Claim Received</h2>
           <p>A user has submitted a UPI payment claim. Please verify in your UPI app and approve/reject from the admin panel.</p>
           <hr/>
-          <p><strong>Package:</strong> ${packageLabel}</p>
-          <p><strong>Amount:</strong> ₹${purchase.totalAmount}</p>
-          <p><strong>Name:</strong> ${userName || 'Not provided'}</p>
-          <p><strong>Phone:</strong> ${userPhone || 'Not provided'}</p>
-          <p><strong>UPI Transaction ID:</strong> ${userSubmittedTxnId || 'Not provided'}</p>
-          <p><strong>Purchase Reference:</strong> ${purchaseId}</p>
+          <p><strong>Package:</strong> ${safePackageLabel}</p>
+          <p><strong>Amount:</strong> ₹${escapeHTML(String(purchase.totalAmount))}</p>
+          <p><strong>Name:</strong> ${safeUserName}</p>
+          <p><strong>Phone:</strong> ${safeUserPhone}</p>
+          <p><strong>UPI Transaction ID:</strong> ${safeTxnId}</p>
+          <p><strong>Purchase Reference:</strong> ${escapeHTML(purchaseId)}</p>
           <hr/>
           <p><a href="${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/admin/packages">Go to Admin Panel &rarr;</a></p>
         `;

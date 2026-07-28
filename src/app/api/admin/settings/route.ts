@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/db';
-import { checkRateLimit } from '@/lib/rateLimit';
+import { checkRateLimitByName, buildRateLimitHeaders } from '@/lib/rateLimit';
 import { logAudit } from '@/lib/audit';
+import { csrfGuard } from '@/lib/csrfGuard';
+import { safeJsonBody } from '@/lib/requestUtils';
 
 async function isAdmin(): Promise<boolean> {
   const session = await auth();
@@ -13,6 +15,14 @@ export async function GET(req: NextRequest) {
   try {
     if (!(await isAdmin())) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    }
+
+    const session = await auth();
+    const sResult = await checkRateLimitByName('profiles', session?.user?.id || 'anon');
+    if (!sResult.allowed) {
+      return NextResponse.json({ error: 'Too many requests. Please slow down.' }, {
+        status: 429, headers: buildRateLimitHeaders(sResult),
+      });
     }
 
     let settings = await prisma.globalSettings.findFirst();
@@ -34,6 +44,9 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
+    const csrfResult = await csrfGuard(req);
+    if (csrfResult) return csrfResult;
+
     if (!(await isAdmin())) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
@@ -41,11 +54,16 @@ export async function POST(req: NextRequest) {
     const session = await auth();
 
     // Rate limit admin mutations: 15/min
-    if (checkRateLimit(`admin-settings:${session?.user?.id || 'anon'}`, 15, 60 * 1000)) {
-      return NextResponse.json({ error: 'Too many requests. Please slow down.' }, { status: 429 });
+    const sResult = await checkRateLimitByName('adminMutation', session?.user?.id || 'anon');
+    if (!sResult.allowed) {
+      return NextResponse.json({ error: 'Too many requests. Please slow down.' }, {
+        status: 429, headers: buildRateLimitHeaders(sResult),
+      });
     }
 
-    const body = await req.json();
+    const bodyOrResponse = await safeJsonBody(req, { maxSizeKB: 10 });
+    if (bodyOrResponse instanceof Response) return bodyOrResponse;
+    const body = bodyOrResponse as any;
     const { 
       adminEmail, 
       adminPhone, 

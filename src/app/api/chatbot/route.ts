@@ -2,54 +2,39 @@ import { NextRequest, NextResponse } from 'next/server';
 import { CHATBOT_SYSTEM_PROMPT } from '@/lib/chatbotPrompt';
 import { getFallbackResponse } from '@/lib/chatbotFallback';
 import { safeJsonBody } from '@/lib/requestUtils';
+import { checkRateLimitByName, buildRateLimitHeaders } from '@/lib/rateLimit';
 import {
   getGuardrailResponse,
   findFaqAnswer,
   getRelevantFaqContext,
 } from '@/lib/faqData';
-
-// Basic in-memory rate limiting map
-const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
-
-function checkRateLimit(ip: string): boolean {
-  const now = Date.now();
-  const limit = 30; // Max 30 requests per minute
-  const windowMs = 60 * 1000;
-
-  const record = rateLimitMap.get(ip);
-  if (!record) {
-    rateLimitMap.set(ip, { count: 1, resetTime: now + windowMs });
-    return false;
-  }
-
-  if (now > record.resetTime) {
-    rateLimitMap.set(ip, { count: 1, resetTime: now + windowMs });
-    return false;
-  }
-
-  record.count += 1;
-  if (record.count > limit) {
-    return true;
-  }
-  return false;
-}
+import { auth } from '@/auth';
+import { csrfGuard } from '@/lib/csrfGuard';
 
 export async function POST(req: NextRequest) {
+  const csrfResult = await csrfGuard(req);
+  if (csrfResult) return csrfResult;
+
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+  }
+
+  // Rate limit by user ID (not IP)
+  const cbResult = await checkRateLimitByName('chatbot', session.user.id);
+  if (!cbResult.allowed) {
+    return NextResponse.json(
+      { error: 'Too many requests. Please try again in a minute.' },
+      { status: 429, headers: buildRateLimitHeaders(cbResult) }
+    );
+  }
+
   // Captured here so the catch block can build a graceful fallback without
   // re-reading the request body (the stream can only be consumed once).
   let message = '';
 
   try {
-    // 1. Get Client IP for Rate Limiting
-    const ip = (req as any).ip || req.headers.get('x-forwarded-for') || 'anonymous';
-    if (checkRateLimit(ip)) {
-      return NextResponse.json(
-        { error: 'Too many requests. Please try again in a minute.' },
-        { status: 429 }
-      );
-    }
-
-    // 2. Parse and Validate Input
+    // 1. Parse and Validate Input
     const bodyOrResponse = await safeJsonBody(req, { maxSizeKB: 50 });
     if (bodyOrResponse instanceof Response) return bodyOrResponse;
     const body = bodyOrResponse;
@@ -79,7 +64,6 @@ export async function POST(req: NextRequest) {
         );
       }
     }
-
 
     // 3. Mandatory guardrails first — these always win, no AI call.
     const guardrail = getGuardrailResponse(message);
@@ -163,8 +147,7 @@ export async function POST(req: NextRequest) {
         });
 
         if (!response.ok) {
-          const errorText = await response.text();
-          console.error('Gemini API Error Response:', errorText);
+          console.error(`Gemini API returned status ${response.status}`);
           throw new Error(`Gemini API returned status ${response.status}`);
         }
 
@@ -216,8 +199,7 @@ export async function POST(req: NextRequest) {
         });
 
         if (!response.ok) {
-          const errorText = await response.text();
-          console.error('OpenAI API Error Response:', errorText);
+          console.error(`OpenAI API returned status ${response.status}`);
           throw new Error(`OpenAI API returned status ${response.status}`);
         }
 
@@ -244,12 +226,10 @@ export async function POST(req: NextRequest) {
     throw new Error(`Unsupported provider: ${provider}`);
 
   } catch (error) {
-    // If the API call fails, log the error and fall back gracefully.
     console.error('Chatbot route execution error, reverting to fallback mode:', error);
     const fallbackText = getFallbackResponse(message);
     return NextResponse.json({
       text: fallbackText,
-      errorDetails: 'Service temporarily unavailable. Please try again later.'
     });
   }
 }

@@ -17,7 +17,9 @@ try {
     console.error('Prisma connection error event:', err.message);
   });
   anyPrisma.on('connect', () => {
-    console.log('Prisma connected to database.');
+    if (process.env.NODE_ENV !== 'production') {
+      console.info('Prisma connected to database.');
+    }
   });
 
   if (process.env.NODE_ENV !== 'production') {

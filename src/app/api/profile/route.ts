@@ -4,8 +4,10 @@ import { getProfileByUserId, getUserPurchases, testDbConnection, getValidObjectI
 import { prisma } from '@/lib/db';
 import { redactProfile } from '@/lib/profilePrivacy';
 import { notifyRegistration, notifyAdminNewProfile } from '@/lib/notifications';
-import { checkRateLimit } from '@/lib/rateLimit';
+import { checkRateLimitByName, checkRateLimit, buildRateLimitHeaders } from '@/lib/rateLimit';
 import { escapeHTML } from '@/lib/sanitize';
+import { csrfGuard } from '@/lib/csrfGuard';
+import { safeJsonBody } from '@/lib/requestUtils';
 import {
   hasPaidAccess,
   hasSecondMarriagePackage,
@@ -18,17 +20,21 @@ import {
 export async function GET(req: NextRequest) {
   try {
     const session = await auth();
-    const { searchParams } = new URL(req.url);
-    const userId = searchParams.get('userId');
 
-    // Default to the current logged-in user if no specific ID is requested
-    const targetUserId = userId || session?.user?.id;
-
-    if (!targetUserId) {
+    if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const profile = await getProfileByUserId(targetUserId);
+    // Rate limit by user ID (not IP)
+    const pvResult = await checkRateLimit(`profile:${session.user.id}:get`, 60, 60_000);
+    if (!pvResult.allowed) {
+      return NextResponse.json(
+        { error: 'Too many requests. Please slow down.' },
+        { status: 429, headers: buildRateLimitHeaders(pvResult) }
+      );
+    }
+
+    const profile = await getProfileByUserId(session.user.id);
 
     if (!profile) {
       return NextResponse.json({ profile: null }, { status: 200 });
@@ -36,41 +42,11 @@ export async function GET(req: NextRequest) {
 
     // Identify profile categories
     const profileCat = (profile as any).category || '';
-    const isSecondMarriage = (profile.maritalStatus !== 'Single' && profileCat !== '') || profileCat === 'second_marriage';
-    const isHighProfile = 
-      profileCat === 'high_profile' ||
-      profile.occupation.toLowerCase().includes('doctor') ||
-      profile.occupation.toLowerCase().includes('engineer') ||
-      profile.occupation.toLowerCase().includes('business') ||
-      profile.annualIncomeRange.includes('₹10 LPA') ||
-      profile.annualIncomeRange.includes('₹15 LPA') ||
-      profile.annualIncomeRange.includes('Above');
 
-    const isGoodProfile = profileCat === 'good_profile';
+    // Fetch viewer purchases (always the owner here)
+    const viewerPurchases = await getUserPurchases(profile.id);
 
-    // Security check: is the current user allowed to see private fields?
-    const isOwner = session?.user?.id === targetUserId;
-    const isAdmin = session?.user?.role === 'ADMIN';
-
-    // Fetch viewer profile and purchases to check status
-    let viewerHasPaid = false;
-    let viewerPurchases: Array<{
-      id: string;
-      packageType: string;
-      paymentStatus: string;
-      eligibilityStatus?: string;
-    }> = [];
-
-    const viewerId = session?.user?.id;
-    if (viewerId) {
-      const viewerProfile = await getProfileByUserId(viewerId);
-      if (viewerProfile) {
-        viewerHasPaid = viewerProfile.hasPaid;
-        viewerPurchases = await getUserPurchases(viewerProfile.id);
-      }
-    }
-
-    const hasStandardPkg = hasPaidAccess({ hasPaid: viewerHasPaid }, viewerPurchases) ||
+    const hasStandardPkg = hasPaidAccess({ hasPaid: profile.hasPaid ?? false }, viewerPurchases) ||
       hasStandardPackage(viewerPurchases);
     const hasSecondMarriagePkg = hasSecondMarriagePackage(viewerPurchases);
     const hasHighProfilePkg = hasHighProfilePackage(viewerPurchases);
@@ -83,26 +59,27 @@ export async function GET(req: NextRequest) {
       hasSecondMarriagePkg,
       hasHighProfilePkg,
       hasGoodProfilePkg,
-      isOwner,
-      isAdmin
+      true, // isOwner
+      false // isAdmin
     );
 
-    // Log access where appropriate
-    if (viewerId) {
-      const isDb = await testDbConnection();
-      const actionMsg = `VIEW_PROFILE_ATTEMPT_${targetUserId}`;
-      if (isDb) {
-        try {
+    // Log access
+    if (session?.user?.id) {
+      try {
+        const isDb = await testDbConnection();
+        if (isDb) {
           await prisma.auditLog.create({
             data: {
-              actorUserId: getValidObjectId(viewerId),
-              action: actionMsg,
+              actorUserId: getValidObjectId(session.user.id),
+              action: 'VIEW_OWN_PROFILE',
               targetType: 'MatrimonialProfile',
-              targetId: targetUserId,
-              metadata: JSON.stringify({ isOwner, isAdmin }),
-            }
+              targetId: session.user.id,
+              metadata: null,
+            },
           });
-        } catch {}
+        }
+      } catch {
+        // audit failures must not break the flow
       }
     }
 
@@ -116,11 +93,8 @@ export async function GET(req: NextRequest) {
 // Create or update matrimonial profile
 export async function POST(req: NextRequest) {
   try {
-    const ip = (req as any).ip || req.headers.get('x-forwarded-for') || 'anonymous';
-    // Max 10 profile updates per minute per IP
-    if (checkRateLimit(ip, 10, 60 * 1000)) {
-      return NextResponse.json({ error: 'Too many requests. Please try again later.' }, { status: 429 });
-    }
+    const csrfResult = await csrfGuard(req);
+    if (csrfResult) return csrfResult;
 
     const session = await auth();
 
@@ -128,7 +102,17 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Authentication Required' }, { status: 401 });
     }
 
-    const body = await req.json();
+    // Max 10 profile updates per minute per user ID
+    const puResult = await checkRateLimit(`profile:${session.user.id}:update`, 10, 60_000);
+    if (!puResult.allowed) {
+      return NextResponse.json({ error: 'Too many requests. Please try again later.' }, {
+        status: 429, headers: buildRateLimitHeaders(puResult),
+      });
+    }
+
+    const bodyOrResponse = await safeJsonBody(req, { maxSizeKB: 100 });
+    if (bodyOrResponse instanceof Response) return bodyOrResponse;
+    const body = bodyOrResponse as any;
 
     if (body._honey) {
       // Honeypot check for bots pretending to be authenticated

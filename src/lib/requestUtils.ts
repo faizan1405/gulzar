@@ -14,7 +14,7 @@ export interface JsonBodyOptions {
 export async function safeJsonBody(
   req: Request,
   opts: JsonBodyOptions = { maxSizeKB: 100 }
-): Promise<any | null> {
+): Promise<any | Response> {
   const maxSizeBytes = opts.maxSizeKB * 1024;
 
   // Check Content-Length header if present

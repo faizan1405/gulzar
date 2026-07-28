@@ -14,8 +14,10 @@ import {
   mergeCastes,
   mergeLocations
 } from '@/lib/profileStore';
-import { checkRateLimit } from '@/lib/rateLimit';
+import { checkRateLimitByName, buildRateLimitHeaders } from '@/lib/rateLimit';
 import { logAudit } from '@/lib/audit';
+import { csrfGuard } from '@/lib/csrfGuard';
+import { safeJsonBody } from '@/lib/requestUtils';
 
 async function isAdmin() {
   const session = await auth();
@@ -27,6 +29,15 @@ export async function GET(req: NextRequest) {
     if (!(await isAdmin())) {
       return NextResponse.json({ error: 'Unauthorized. Admin role required.' }, { status: 403 });
     }
+
+    const session = await auth();
+    const rlResult = await checkRateLimitByName('profiles', session?.user?.id || 'anon');
+    if (!rlResult.allowed) {
+      return NextResponse.json({ error: 'Too many requests. Please slow down.' }, {
+        status: 429, headers: buildRateLimitHeaders(rlResult),
+      });
+    }
+
     const options = await getMasterDataOptions();
     return NextResponse.json(options);
   } catch (error) {
@@ -37,18 +48,26 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
+    const csrfResult = await csrfGuard(req);
+    if (csrfResult) return csrfResult;
+
     if (!(await isAdmin())) {
       return NextResponse.json({ error: 'Unauthorized. Admin role required.' }, { status: 403 });
     }
 
-    const body = await req.json();
+    const bodyOrResponse = await safeJsonBody(req, { maxSizeKB: 10 });
+    if (bodyOrResponse instanceof Response) return bodyOrResponse;
+    const body = bodyOrResponse as any;
     const { action } = body;
 
     const session = await auth();
 
     // Rate limit admin mutations: 30/min
-    if (checkRateLimit(`admin-master-data:${session?.user?.id || 'anon'}`, 30, 60 * 1000)) {
-      return NextResponse.json({ error: 'Too many requests. Please slow down.' }, { status: 429 });
+    const mdResult = await checkRateLimitByName('adminMutation', session?.user?.id || 'anon');
+    if (!mdResult.allowed) {
+      return NextResponse.json({ error: 'Too many requests. Please slow down.' }, {
+        status: 429, headers: buildRateLimitHeaders(mdResult),
+      });
     }
 
     if (!action) {

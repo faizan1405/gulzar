@@ -64,7 +64,7 @@ export default function NotificationsPage() {
       }
     }
     
-    if (notif.actionUrl) {
+    if (notif.actionUrl && notif.actionUrl.startsWith('/')) {
       window.location.href = notif.actionUrl;
     }
   };

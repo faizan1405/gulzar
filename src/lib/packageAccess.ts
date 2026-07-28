@@ -18,7 +18,6 @@ export function hasPaidAccess(
   purchases: PackagePurchaseLite[] | null | undefined
 ): boolean {
   if (!user && !purchases) return false;
-  if (user?.hasPaid) return true;
   if (!purchases || !Array.isArray(purchases)) return false;
   return purchases.some(
     (p) =>

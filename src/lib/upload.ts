@@ -1,4 +1,7 @@
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+
+const ALLOWED_IMAGE_EXTENSIONS = new Set(['jpg', 'jpeg', 'png', 'webp', 'gif']);
 
 let s3: S3Client | null = null;
 
@@ -29,7 +32,11 @@ export async function uploadToS3(file: File): Promise<{ url: string }> {
   const region = process.env.AWS_S3_REGION;
   const client = getS3Client();
 
-  const ext = file.name.split('.').pop() || 'jpg';
+  const rawExt = file.name.split('.').pop()?.toLowerCase() || 'jpg';
+  if (!ALLOWED_IMAGE_EXTENSIONS.has(rawExt)) {
+    throw new Error(`Invalid file type. Allowed: ${[...ALLOWED_IMAGE_EXTENSIONS].join(', ')}`);
+  }
+  const ext = rawExt;
   const key = `uploads/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
   const arrayBuffer = await file.arrayBuffer();
 
@@ -39,9 +46,16 @@ export async function uploadToS3(file: File): Promise<{ url: string }> {
       Key: key,
       Body: Buffer.from(arrayBuffer),
       ContentType: file.type,
+      ACL: 'private',
     })
   );
 
-  const publicUrl = `https://${bucket}.s3.${region}.amazonaws.com/${key}`;
-  return { url: publicUrl };
+  // Generate a pre-signed URL for secure, time-limited access
+  const signedUrl = await getSignedUrl(
+    client,
+    new GetObjectCommand({ Bucket: bucket, Key: key }),
+    { expiresIn: 3600 }
+  );
+
+  return { url: signedUrl };
 }

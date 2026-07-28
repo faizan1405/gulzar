@@ -22,8 +22,11 @@ export function escapeHTML(input: string): string {
 
 /**
  * Sanitize an object's text fields by escaping HTML in each specified field.
+ * Only top-level string fields are processed — nested objects/arrays are not
+ * recursively traversed. Pass flat field names only.
+ *
  * @param data - The object containing fields to sanitize.
- * @param fields - Array of field names to escape.
+ * @param fields - Array of top-level field names to escape.
  * @returns A new object with sanitized fields.
  */
 export function sanitizeFields<T extends Record<string, unknown>>(

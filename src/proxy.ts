@@ -1,23 +1,75 @@
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { getToken } from 'next-auth/jwt';
+import { prisma } from '@/lib/db';
+import { corsPreflightResponse, applyCors } from '@/lib/cors';
 
-// Next.js 16 renamed `middleware` -> `proxy`. This runs only on /admin routes
-// and forwards the request path UPSTREAM (via request headers) so the admin
-// server-component layout can tell whether the current route is the login page
-// and skip the auth gate for it (preventing a redirect loop).
-//
-// NOTE: headers must be passed through `NextResponse.next({ request: { headers } })`
-// to reach Server Components — setting them on the response only exposes them to
-// the browser, not to `headers()` during render.
-export function proxy(request: NextRequest) {
+export async function proxy(request: NextRequest) {
+  const origin = request.headers.get('origin');
+  const pathname = request.nextUrl.pathname;
+
+  // Handle CORS preflight early
+  if (request.method === 'OPTIONS') {
+    return corsPreflightResponse(origin);
+  }
+
+  // Admin route protection
+  if (pathname.startsWith('/admin')) {
+    const token = await getToken({ req: request });
+    if (!token || token.role !== 'ADMIN') {
+      const loginUrl = new URL('/login', request.url);
+      loginUrl.searchParams.set('callbackUrl', pathname);
+      return NextResponse.redirect(loginUrl);
+    }
+
+    // Block suspended admins
+    if (token.accountStatus === 'SUSPENDED') {
+      return NextResponse.redirect(new URL('/suspended', request.url));
+    }
+
+    // Invalidate session if tokenVersion has changed (password changed elsewhere)
+    const sessionTokenVersion = (token.tokenVersion as number) || 1;
+    const dbUser = await prisma.user.findUnique({
+      where: { id: token.sub as string },
+      select: { tokenVersion: true },
+    });
+    if (dbUser && dbUser.tokenVersion !== sessionTokenVersion) {
+      return NextResponse.redirect(new URL('/login?reason=session_expired', request.url));
+    }
+  }
+
+  // Forward pathname via x-pathname header
   const requestHeaders = new Headers(request.headers);
-  requestHeaders.set('x-pathname', request.nextUrl.pathname);
+  requestHeaders.set('x-pathname', pathname);
+  const response = NextResponse.next({ request: { headers: requestHeaders } });
 
-  return NextResponse.next({
-    request: { headers: requestHeaders },
-  });
+  // Apply CORS headers to all API responses
+  if (pathname.startsWith('/api')) {
+    applyCors(response, origin);
+
+    // CSRF token cookie initialization
+    const csrfToken = crypto.randomUUID();
+    response.cookies.set('x-csrf-token', csrfToken, {
+      httpOnly: true,
+      sameSite: 'strict',
+      secure: process.env.NODE_ENV === 'production',
+      path: '/',
+      maxAge: 60 * 60 * 24,
+    });
+
+    // Non-httpOnly copy for client-side JS to read
+    response.cookies.set('x-csrf-token-client', csrfToken, {
+      sameSite: 'strict',
+      secure: process.env.NODE_ENV === 'production',
+      path: '/',
+      maxAge: 60 * 60 * 24,
+    });
+  } else {
+    applyCors(response, origin);
+  }
+
+  return response;
 }
 
 export const config = {
-  matcher: ['/admin/:path*'],
+  matcher: ['/admin/:path*', '/api/:path*'],
 };

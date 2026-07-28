@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { uploadToS3 } from '@/lib/upload';
-import { checkRateLimit } from '@/lib/rateLimit';
+import { checkRateLimit, checkRateLimitByName, buildRateLimitHeaders } from '@/lib/rateLimit';
+import { csrfGuard } from '@/lib/csrfGuard';
 
 // Maximum file size: 5MB
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
@@ -9,6 +10,9 @@ const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
 
 export async function POST(req: NextRequest) {
   try {
+    const csrfResult = await csrfGuard(req);
+    if (csrfResult) return csrfResult;
+
     const session = await auth();
 
     if (!session?.user?.id) {
@@ -40,8 +44,11 @@ export async function POST(req: NextRequest) {
 
     // Rate limit per user
     const ip = (req as any).ip || req.headers.get('x-forwarded-for') || 'anonymous';
-    if (checkRateLimit(`upload:${session.user.id}:${ip}`, 5, 60 * 1000)) {
-      return NextResponse.json({ error: 'Too many uploads. Please try again later.' }, { status: 429 });
+    const upResult = await checkRateLimit(`upload:${session.user.id}:${ip}`, 5, 60_000);
+    if (!upResult.allowed) {
+      return NextResponse.json({ error: 'Too many uploads. Please try again later.' }, {
+        status: 429, headers: buildRateLimitHeaders(upResult),
+      });
     }
 
     // Upload to S3

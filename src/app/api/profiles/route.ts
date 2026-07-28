@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { getAllProfiles, getProfileByUserId, getUserPurchases } from '@/lib/profileStore';
 import { redactProfile } from '@/lib/profilePrivacy';
-import { checkRateLimit } from '@/lib/rateLimit';
+import { checkRateLimit, checkRateLimitByName, buildRateLimitHeaders } from '@/lib/rateLimit';
 import {
   hasPaidAccess,
   hasSecondMarriagePackage,
@@ -20,10 +20,11 @@ export async function GET(req: NextRequest) {
     const ip = (req as any).ip || req.headers.get('x-forwarded-for') || 'anonymous';
     const viewerId = session?.user?.id;
     const rateLimitKey = viewerId ? `profiles-list:${viewerId}` : `profiles-list:${ip}`;
-    if (checkRateLimit(rateLimitKey, 30, 60 * 1000)) {
+    const plResult = await checkRateLimit(rateLimitKey, 30, 60 * 1000);
+    if (!plResult.allowed) {
       return NextResponse.json(
         { error: 'Too many requests. Please slow down.' },
-        { status: 429 }
+        { status: 429, headers: buildRateLimitHeaders(plResult) }
       );
     }
 
@@ -59,7 +60,7 @@ export async function GET(req: NextRequest) {
     const allProfiles = await getAllProfiles();
 
     // Only return approved profiles for public browsing, unless admin
-    let visibleProfiles = allProfiles.filter(p => p.verificationStatus === 'APPROVED' || isAdmin);
+    const visibleProfiles = allProfiles.filter(p => p.verificationStatus === 'APPROVED' || isAdmin);
 
     const redactedProfiles = visibleProfiles.map(profile => {
       const isOwner = viewerId === profile.userId;
@@ -74,7 +75,15 @@ export async function GET(req: NextRequest) {
       );
     });
 
-    return NextResponse.json({ profiles: redactedProfiles });
+    let skip = parseInt(req.nextUrl.searchParams.get('skip') || '0');
+    let take = parseInt(req.nextUrl.searchParams.get('take') || '50');
+    if (skip < 0 || isNaN(skip)) skip = 0;
+    if (take < 1 || take > 100) take = 50;
+
+    const total = redactedProfiles.length;
+    const paged = redactedProfiles.slice(skip, skip + take);
+
+    return NextResponse.json({ profiles: paged, total, skip, take });
   } catch (error) {
     console.error('Failed to fetch profiles:', error);
     return NextResponse.json({ error: 'Internal server error.' }, { status: 500 });

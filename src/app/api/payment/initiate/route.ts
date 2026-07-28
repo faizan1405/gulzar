@@ -3,9 +3,13 @@ import { auth } from '@/auth';
 import { PREMIUM_PACKAGES, PackageType } from '@/lib/packages';
 import { getProfileByUserId, createPackagePurchase } from '@/lib/profileStore';
 import { safeJsonBody } from '@/lib/requestUtils';
+import { csrfGuard } from '@/lib/csrfGuard';
 
 export async function POST(req: NextRequest) {
   try {
+    const csrfResult = await csrfGuard(req);
+    if (csrfResult) return csrfResult;
+
     const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Authentication required' }, { status: 401 });

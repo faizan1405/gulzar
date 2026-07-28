@@ -2,8 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/db';
 import { getValidObjectId } from '@/lib/profileStore';
-import { checkRateLimit } from '@/lib/rateLimit';
+import { checkRateLimitByName, buildRateLimitHeaders } from '@/lib/rateLimit';
 import { logAudit } from '@/lib/audit';
+import { csrfGuard } from '@/lib/csrfGuard';
+import { safeJsonBody } from '@/lib/requestUtils';
 
 async function isAdmin() {
   const session = await auth();
@@ -42,6 +44,9 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const csrfResult = await csrfGuard(req);
+    if (csrfResult) return csrfResult;
+
     if (!(await isAdmin())) {
       return NextResponse.json({ error: 'Unauthorized. Admin role required.' }, { status: 403 });
     }
@@ -49,12 +54,17 @@ export async function PATCH(
     const session = await auth();
 
     // Rate limit admin mutations: 20/min
-    if (checkRateLimit(`admin-packages-patch:${session?.user?.id || 'anon'}`, 20, 60 * 1000)) {
-      return NextResponse.json({ error: 'Too many requests. Please slow down.' }, { status: 429 });
+    const apResult = await checkRateLimitByName('adminMutation', session?.user?.id || 'anon');
+    if (!apResult.allowed) {
+      return NextResponse.json({ error: 'Too many requests. Please slow down.' }, {
+        status: 429, headers: buildRateLimitHeaders(apResult),
+      });
     }
 
     const { id } = await params;
-    const body = await req.json();
+    const bodyOrResponse = await safeJsonBody(req, { maxSizeKB: 50 });
+    if (bodyOrResponse instanceof Response) return bodyOrResponse;
+    const body = bodyOrResponse as any;
 
     // The Prisma PackagePurchase model supports these fields directly:
     //   basePrice, totalAmount, gstRate, billingType, successFeeAmount,
@@ -115,19 +125,25 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const csrfResult = await csrfGuard(_req);
+    if (csrfResult) return csrfResult;
+
     if (!(await isAdmin())) {
       return NextResponse.json({ error: 'Unauthorized. Admin role required.' }, { status: 403 });
     }
 
     const session = await auth();
 
-    // Rate limit admin mutations: 10/min
-    if (checkRateLimit(`admin-packages-delete:${session?.user?.id || 'anon'}`, 10, 60 * 1000)) {
-      return NextResponse.json({ error: 'Too many requests. Please slow down.' }, { status: 429 });
+    // Rate limit admin deletions: 10/min
+    const adResult = await checkRateLimitByName('adminDelete', session?.user?.id || 'anon');
+    if (!adResult.allowed) {
+      return NextResponse.json({ error: 'Too many requests. Please slow down.' }, {
+        status: 429, headers: buildRateLimitHeaders(adResult),
+      });
     }
 
     const { id } = await params;
-    const dbId = getValidObjectId(id);
+    const dbId = getValidObjectId(id)!;
 
     await prisma.packagePurchase.delete({ where: { id: dbId } });
 

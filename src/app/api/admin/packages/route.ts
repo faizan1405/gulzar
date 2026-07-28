@@ -12,30 +12,49 @@ import {
   rejectPaymentClaim,
 } from '@/lib/profileStore';
 import { ApprovalStatus, PaymentStatus } from '@prisma/client';
-import { checkRateLimit } from '@/lib/rateLimit';
+import { checkRateLimitByName, buildRateLimitHeaders } from '@/lib/rateLimit';
 import { logAudit } from '@/lib/audit';
+import { csrfGuard } from '@/lib/csrfGuard';
+import { safeJsonBody } from '@/lib/requestUtils';
 
-async function isAdmin(req: NextRequest) {
+async function requireAdmin(req: NextRequest) {
   const session = await auth();
-  return session?.user?.role === 'ADMIN';
+  if (!session?.user || session.user.role !== 'ADMIN') {
+    return { error: NextResponse.json({ error: 'Unauthorized. Admin role required.' }, { status: 403 }), session: null };
+  }
+  return { error: null, session };
 }
 
 export async function GET(req: NextRequest) {
   try {
-    if (!(await isAdmin(req))) {
-      return NextResponse.json({ error: 'Unauthorized. Admin role required.' }, { status: 403 });
+    const admin = await requireAdmin(req);
+    if (admin.error) return admin.error;
+
+    const session = admin.session;
+    const rlResult = await checkRateLimitByName('profiles', session?.user?.id || 'anon');
+    if (!rlResult.allowed) {
+      return NextResponse.json({ error: 'Too many requests. Please slow down.' }, {
+        status: 429, headers: buildRateLimitHeaders(rlResult),
+      });
     }
 
     const { searchParams } = new URL(req.url);
     const mode = searchParams.get('mode');
 
+    let skip = parseInt(searchParams.get('skip') || '0');
+    let take = parseInt(searchParams.get('take') || '50');
+    if (skip < 0 || isNaN(skip)) skip = 0;
+    if (take < 1 || take > 100) take = 50;
+
     if (mode === 'assignments') {
       const assignments = await getCuratedAssignments();
-      return NextResponse.json({ assignments });
+      return NextResponse.json({ assignments, total: assignments.length, skip: 0, take: assignments.length });
     }
 
     const purchases = await getAllPurchases();
-    return NextResponse.json({ purchases });
+    const total = purchases.length;
+    const paged = purchases.slice(skip, skip + take);
+    return NextResponse.json({ purchases: paged, total, skip, take });
   } catch (error) {
     console.error('Failed to fetch packages/purchases:', error);
     return NextResponse.json({ error: 'Internal server error.' }, { status: 500 });
@@ -44,12 +63,12 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    if (!(await isAdmin(req))) {
-      return NextResponse.json({ error: 'Unauthorized. Admin role required.' }, { status: 403 });
-    }
+    const csrfResult = await csrfGuard(req);
+    if (csrfResult) return csrfResult;
 
-    const session = await auth();
-
+    const admin = await requireAdmin(req);
+    if (admin.error) return admin.error;
+    const session = admin.session;
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized. Admin role required.' }, { status: 403 });
     }
@@ -57,11 +76,16 @@ export async function POST(req: NextRequest) {
     const adminUserId = session.user.id;
 
     // Rate limit admin mutations: 30/min
-    if (checkRateLimit(`admin-packages:${adminUserId}`, 30, 60 * 1000)) {
-      return NextResponse.json({ error: 'Too many requests. Please slow down.' }, { status: 429 });
+    const pkgResult = await checkRateLimitByName('adminMutation', adminUserId);
+    if (!pkgResult.allowed) {
+      return NextResponse.json({ error: 'Too many requests. Please slow down.' }, {
+        status: 429, headers: buildRateLimitHeaders(pkgResult),
+      });
     }
 
-    const body = await req.json();
+    const bodyOrResponse = await safeJsonBody(req, { maxSizeKB: 50 });
+    if (bodyOrResponse instanceof Response) return bodyOrResponse;
+    const body = bodyOrResponse as any;
     const { action } = body;
 
     if (action === 'assign_lead') {

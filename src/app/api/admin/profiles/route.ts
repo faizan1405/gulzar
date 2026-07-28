@@ -21,6 +21,11 @@ export async function GET(req: NextRequest) {
     const approvalStatus = searchParams.get('approvalStatus') || '';
     const hasPaid = searchParams.get('hasPaid') || '';
 
+    let skip = parseInt(searchParams.get('skip') || '0');
+    let take = parseInt(searchParams.get('take') || '50');
+    if (skip < 0 || isNaN(skip)) skip = 0;
+    if (take < 1 || take > 100) take = 50;
+
     let profiles = await getAllProfiles();
 
     if (gender) profiles = profiles.filter((p: any) => p.gender === gender);
@@ -44,8 +49,11 @@ export async function GET(req: NextRequest) {
 
     profiles.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
-    return NextResponse.json({ profiles, total: profiles.length });
-  } catch (error: any) {
+    const total = profiles.length;
+    const paged = profiles.slice(skip, skip + take);
+
+    return NextResponse.json({ profiles: paged, total, skip, take });
+  } catch (error) {
     console.error('Admin profiles GET failed:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

@@ -15,6 +15,10 @@ type RouteContext = { params: Promise<{ id: string }> };
 export async function GET(req: NextRequest, { params }: RouteContext) {
   const { id } = await params;
 
+  if (!id || typeof id !== 'string' || id.length < 12) {
+    return NextResponse.json({ error: 'Invalid profile ID.' }, { status: 400 });
+  }
+
   try {
     const targetProfile = await getProfileById(id);
 
@@ -55,7 +59,7 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
       }
     }
 
-    const access = canViewFullProfile(viewerProfile, viewerPurchases);
+    const access = canViewFullProfile(viewerProfile, viewerPurchases, viewerProfile?.id);
 
     if (!access.allowed) {
       const message =
@@ -64,7 +68,7 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
         LOCK_MESSAGES.NO_PACKAGE;
 
       return NextResponse.json({
-        profile: buildProfilePreview(targetProfile as Record<string, unknown>),
+        profile: buildProfilePreview(targetProfile as unknown as Record<string, unknown>),
         locked: true,
         reason: access.reason,
         message,

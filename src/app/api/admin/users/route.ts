@@ -2,8 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/db';
 import { Role } from '@prisma/client';
-import { checkRateLimit } from '@/lib/rateLimit';
+import { checkRateLimitByName, buildRateLimitHeaders } from '@/lib/rateLimit';
 import { logAudit } from '@/lib/audit';
+import { csrfGuard } from '@/lib/csrfGuard';
+import { safeJsonBody } from '@/lib/requestUtils';
 
 async function isAdmin() {
   const session = await auth();
@@ -16,9 +18,22 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized. Admin role required.' }, { status: 403 });
     }
 
+    const session = await auth();
+    const rlResult = await checkRateLimitByName('profiles', session?.user?.id || 'anon');
+    if (!rlResult.allowed) {
+      return NextResponse.json({ error: 'Too many requests. Please slow down.' }, {
+        status: 429, headers: buildRateLimitHeaders(rlResult),
+      });
+    }
+
     const { searchParams } = new URL(req.url);
     const search = searchParams.get('search') || '';
     const roleFilter = searchParams.get('role') as Role | null;
+
+    let skip = parseInt(searchParams.get('skip') || '0');
+    let take = parseInt(searchParams.get('take') || '50');
+    if (skip < 0 || isNaN(skip)) skip = 0;
+    if (take < 1 || take > 100) take = 50;
 
     const where: any = {};
 
@@ -33,20 +48,29 @@ export async function GET(req: NextRequest) {
       where.role = roleFilter;
     }
 
-    const users = await prisma.user.findMany({
-      where,
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        role: true,
-        createdAt: true,
-        requiresPasswordChange: true,
-      },
-      orderBy: { createdAt: 'desc' },
-    });
+    const [users, total] = await Promise.all([
+      prisma.user.findMany({
+        where,
+        skip,
+        take,
+        orderBy: { createdAt: 'desc' },
+      }),
+      prisma.user.count({ where }),
+    ]);
 
-    return NextResponse.json(users);
+    return NextResponse.json({
+      users: users.map((u) => ({
+        id: u.id,
+        name: u.name,
+        email: u.email,
+        role: u.role,
+        createdAt: u.createdAt,
+        requiresPasswordChange: u.requiresPasswordChange,
+      })),
+      total,
+      skip,
+      take,
+    });
   } catch (error) {
     console.error('Admin users GET failed:', error);
     return NextResponse.json({ error: 'Internal server error.' }, { status: 500 });
@@ -55,6 +79,9 @@ export async function GET(req: NextRequest) {
 
 export async function PATCH(req: NextRequest) {
   try {
+    const csrfResult = await csrfGuard(req);
+    if (csrfResult) return csrfResult;
+
     if (!(await isAdmin())) {
       return NextResponse.json({ error: 'Unauthorized. Admin role required.' }, { status: 403 });
     }
@@ -62,11 +89,16 @@ export async function PATCH(req: NextRequest) {
     const session = await auth();
 
     // Rate limit admin mutations: 20/min
-    if (checkRateLimit(`admin-users-patch:${session?.user?.id || 'anon'}`, 20, 60 * 1000)) {
-      return NextResponse.json({ error: 'Too many requests. Please slow down.' }, { status: 429 });
+    const uResult = await checkRateLimitByName('adminMutation', session?.user?.id || 'anon');
+    if (!uResult.allowed) {
+      return NextResponse.json({ error: 'Too many requests. Please slow down.' }, {
+        status: 429, headers: buildRateLimitHeaders(uResult),
+      });
     }
 
-    const body = await req.json();
+    const bodyOrResponse = await safeJsonBody(req, { maxSizeKB: 10 });
+    if (bodyOrResponse instanceof Response) return bodyOrResponse;
+    const body = bodyOrResponse as any;
     const { id, role, requiresPasswordChange, name } = body;
 
     if (!id) {

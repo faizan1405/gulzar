@@ -167,7 +167,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [selectedProfileForDetails, setSelectedProfileForDetails] = useState<Profile | null>(null);
 
   const [userProfile, setUserProfile] = useState<Profile | null>(null);
-  const [accountData, setAccountData] = useState<any>(null);
+  const [accountData, setAccountData] = useState<{ name?: string; email?: string; phone?: string; createdAt?: string | Date | null; providers?: string[] } | null>(null);
   const [isRegistering, setIsRegistering] = useState(false);
   const [regStep, setRegStep] = useState(1);
   const [registrationError, setRegistrationError] = useState('');
@@ -217,6 +217,9 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const wasLoadingRef = useRef(false);
 
   // Detect a real NextAuth (Google) session on first mount
+  const [userRole, setUserRole] = useState<string | null>(null);
+  const isAdmin = userRole === 'ADMIN';
+
   useEffect(() => {
     if (isLoggedIn) return;
     async function detectRealSession() {
@@ -226,6 +229,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
           const session = await res.json();
           if (session?.user) {
             setIsLoggedIn(true);
+            if (session.user.role) setUserRole(session.user.role);
           }
         }
       } catch {
@@ -373,7 +377,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
       // Has full access — open the profile
       const matched = profiles.find(p => p.id === pendingProfileId);
       if (matched) setSelectedProfileForDetails(matched);
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+       
       setPendingProfileId(null);
     }
     wasLoadingRef.current = isLoading;

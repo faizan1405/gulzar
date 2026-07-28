@@ -10,6 +10,8 @@ import {
   hasHighProfilePackage,
   hasGoodProfilePackage,
 } from '@/lib/packageAccess';
+import { csrfGuard } from '@/lib/csrfGuard';
+import { safeJsonBody } from '@/lib/requestUtils';
 
 export async function GET(req: NextRequest) {
   try {
@@ -19,8 +21,10 @@ export async function GET(req: NextRequest) {
     }
 
     const { searchParams } = new URL(req.url);
-    const skip = parseInt(searchParams.get('skip') || '0');
-    const take = parseInt(searchParams.get('take') || '20');
+    let skip = parseInt(searchParams.get('skip') || '0');
+    let take = parseInt(searchParams.get('take') || '20');
+    if (skip < 0 || isNaN(skip)) skip = 0;
+    if (take < 1 || take > 50) take = 20;
 
     const result = await getViewedProfiles(session.user.id, skip, take);
     
@@ -60,12 +64,18 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
+    const csrfResult = await csrfGuard(req);
+    if (csrfResult) return csrfResult;
+
     const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { viewedProfileId } = await req.json();
+    const bodyOrResponse = await safeJsonBody(req, { maxSizeKB: 10 });
+    if (bodyOrResponse instanceof Response) return bodyOrResponse;
+    const body = bodyOrResponse as any;
+    const { viewedProfileId } = body;
     if (!viewedProfileId) {
       return NextResponse.json({ error: 'viewedProfileId is required' }, { status: 400 });
     }
@@ -84,6 +94,9 @@ export async function POST(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   try {
+    const csrfResult = await csrfGuard(req);
+    if (csrfResult) return csrfResult;
+
     const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

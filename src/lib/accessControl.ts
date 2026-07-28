@@ -1,3 +1,5 @@
+import { PaymentStatus, PackageType, ApprovalStatus } from '@prisma/client';
+
 export const LOCK_MESSAGES = {
   NOT_LOGGED_IN: 'Please login or register to view this profile.',
   FORM_INCOMPLETE: 'Complete your details first to continue.',
@@ -25,46 +27,60 @@ interface MinimalPurchase {
   accessStatus: string;
   expiryDate?: Date | string | null;
   eligibilityStatus?: string;
+  profileId?: string;
+  marriageConfirmation?: string;
 }
 
 export function hasCompletedOnboarding(profile: MinimalProfile | null): boolean {
   return profile?.profileCompletionStatus === 'COMPLETE';
 }
 
-export function hasActivePackage(purchases: MinimalPurchase[]): boolean {
+function isActivePaid(pkg: PackageType, purchases: MinimalPurchase[]): boolean {
+  const now = new Date();
+  return purchases.some(p =>
+    p.packageType === pkg &&
+    p.paymentStatus === PaymentStatus.PAID &&
+    p.accessStatus === 'ACTIVE' &&
+    (p.expiryDate == null || new Date(p.expiryDate) > now)
+  );
+}
+
+function isEligibleForPremiumPackage(pkg: PackageType, purchases: MinimalPurchase[]): boolean {
+  if (pkg !== 'good_profile_package' && pkg !== 'high_profile_package') return true;
+  return purchases.some(p =>
+    p.packageType === pkg &&
+    p.eligibilityStatus === ApprovalStatus.APPROVED &&
+    p.marriageConfirmation === 'CONFIRMED' &&
+    p.paymentStatus === PaymentStatus.PAID &&
+    p.accessStatus === 'ACTIVE'
+  );
+}
+
+export function hasActivePackage(
+  purchases: MinimalPurchase[],
+  profileId?: string
+): boolean {
   const now = new Date();
   return purchases.some(p => {
-    if (p.paymentStatus !== 'PAID' || p.accessStatus !== 'ACTIVE') return false;
+    if (p.paymentStatus !== PaymentStatus.PAID || p.accessStatus !== 'ACTIVE') return false;
+    // Purchases must belong to the viewer's own profile
+    if (profileId && p.profileId && p.profileId !== profileId) return false;
     if (p.expiryDate == null) return true;
     return new Date(p.expiryDate) > now;
   });
 }
 
 export function getViewerPackageAccess(
-  viewerProfile: { hasPaid: boolean } | null,
+  viewerProfile: { hasPaid: boolean; id?: string } | null,
   purchases: MinimalPurchase[]
 ) {
-  const now = new Date();
+  const viewerProfileId = viewerProfile?.id;
 
-  function isActivePaid(pkg: string) {
-    return purchases.some(p =>
-      p.packageType === pkg &&
-      p.paymentStatus === 'PAID' &&
-      p.accessStatus === 'ACTIVE' &&
-      (p.expiryDate == null || new Date(p.expiryDate) > now)
-    );
-  }
-
-  const hasMonthly = (viewerProfile?.hasPaid ?? false) || isActivePaid('monthly_membership');
-  const hasGoodProfile = isActivePaid('good_profile_package');
-  const hasSecondMarriage = isActivePaid('second_marriage_package');
-  const hasHighProfile = purchases.some(p =>
-    p.packageType === 'high_profile_package' &&
-    p.paymentStatus === 'PAID' &&
-    p.accessStatus === 'ACTIVE' &&
-    p.eligibilityStatus === 'APPROVED' &&
-    (p.expiryDate == null || new Date(p.expiryDate) > now)
-  );
+  const hasMonthly = (viewerProfile?.hasPaid ?? false) || isActivePaid('monthly_membership', purchases);
+  const hasGoodProfile = isEligibleForPremiumPackage('good_profile_package', purchases);
+  const hasSecondMarriage = isActivePaid('second_marriage_package', purchases);
+  const hasHighProfile = isActivePaid('high_profile_package', purchases) &&
+    isEligibleForPremiumPackage('high_profile_package', purchases);
 
   return {
     hasStandard: hasMonthly,
@@ -76,7 +92,8 @@ export function getViewerPackageAccess(
 
 export function canViewFullProfile(
   viewerProfile: MinimalProfile | null,
-  viewerPurchases: MinimalPurchase[]
+  viewerPurchases: MinimalPurchase[],
+  viewerProfileId?: string
 ): { allowed: boolean; reason: LockReason } {
   if (!viewerProfile) {
     return { allowed: false, reason: LOCK_REASONS.NOT_LOGGED_IN };
@@ -84,7 +101,7 @@ export function canViewFullProfile(
   if (!hasCompletedOnboarding(viewerProfile)) {
     return { allowed: false, reason: LOCK_REASONS.FORM_INCOMPLETE };
   }
-  if (!hasActivePackage(viewerPurchases)) {
+  if (!hasActivePackage(viewerPurchases, viewerProfileId)) {
     return { allowed: false, reason: LOCK_REASONS.NO_PACKAGE };
   }
   return { allowed: true, reason: LOCK_REASONS.ALLOWED };

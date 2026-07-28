@@ -39,7 +39,11 @@ function envInt(key: string, fallback: number): number {
 function envBool(key: string, fallback: boolean): boolean {
   const raw = process.env[key];
   if (raw === undefined || raw === '') return fallback;
-  return raw.toLowerCase() !== 'false' && raw !== '0';
+  const val = raw.toLowerCase().trim();
+  if (val === 'false' || val === '0' || val === 'no' || val === 'off' || val === 'null' || val === 'undefined') {
+    return false;
+  }
+  return true;
 }
 
 /** Like envInt but also enforces a minimum value. */
@@ -122,6 +126,14 @@ export const RATE_LIMITS = {
   adminDelete: { limit: envIntMin('RATE_LIMIT_ADMIN_DELETE', 10, 3), windowMs: 60_000 },
   /** Password change — very strict */
   changePassword: { limit: envIntMin('RATE_LIMIT_CHANGE_PASSWORD', 5, 1), windowMs: 3_600_000 },
+  /** Chatbot messages — 30/min per user */
+  chatbot: { limit: envIntMin('RATE_LIMIT_CHATBOT', 30, 5), windowMs: 60_000 },
+  /** File uploads — 5/min per user+IP */
+  upload: { limit: envIntMin('RATE_LIMIT_UPLOAD', 5, 1), windowMs: 60_000 },
+  /** Lead form submissions — 5/min per IP */
+  leads: { limit: envIntMin('RATE_LIMIT_LEADS', 5, 1), windowMs: 60_000 },
+  /** Profile listings — 30/min */
+  profiles: { limit: envIntMin('RATE_LIMIT_PROFILES', 30, 5), windowMs: 60_000 },
 } as const;
 
 /* ------------------------------------------------------------------ */

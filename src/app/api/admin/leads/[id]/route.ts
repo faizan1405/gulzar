@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { updateLead, deleteLead, logFallbackWarning } from '@/lib/profileStore';
-import { checkRateLimit } from '@/lib/rateLimit';
+import { checkRateLimitByName, buildRateLimitHeaders } from '@/lib/rateLimit';
 import { logAudit } from '@/lib/audit';
+import { csrfGuard } from '@/lib/csrfGuard';
+import { safeJsonBody } from '@/lib/requestUtils';
 
 async function isAdmin(): Promise<boolean> {
   const session = await auth();
@@ -14,6 +16,9 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const csrfResult = await csrfGuard(req);
+    if (csrfResult) return csrfResult;
+
     if (!(await isAdmin())) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
@@ -21,12 +26,17 @@ export async function PATCH(
     const session = await auth();
 
     // Rate limit admin mutations: 20/min
-    if (checkRateLimit(`admin-leads-patch:${session?.user?.id || 'anon'}`, 20, 60 * 1000)) {
-      return NextResponse.json({ error: 'Too many requests. Please slow down.' }, { status: 429 });
+    const leadResult = await checkRateLimitByName('adminMutation', session?.user?.id || 'anon');
+    if (!leadResult.allowed) {
+      return NextResponse.json({ error: 'Too many requests. Please slow down.' }, {
+        status: 429, headers: buildRateLimitHeaders(leadResult),
+      });
     }
 
     const { id } = await params;
-    const body = await req.json();
+    const bodyOrResponse = await safeJsonBody(req, { maxSizeKB: 10 });
+    if (bodyOrResponse instanceof Response) return bodyOrResponse;
+    const body = bodyOrResponse as any;
     const { status, priority, adminNotes } = body;
 
     // Validate parameters
@@ -63,15 +73,21 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const csrfResult = await csrfGuard(req);
+    if (csrfResult) return csrfResult;
+
     if (!(await isAdmin())) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
     const session = await auth();
 
-    // Rate limit admin mutations: 20/min
-    if (checkRateLimit(`admin-leads-delete:${session?.user?.id || 'anon'}`, 20, 60 * 1000)) {
-      return NextResponse.json({ error: 'Too many requests. Please slow down.' }, { status: 429 });
+    // Rate limit admin deletions: 10/min
+    const delResult = await checkRateLimitByName('adminDelete', session?.user?.id || 'anon');
+    if (!delResult.allowed) {
+      return NextResponse.json({ error: 'Too many requests. Please slow down.' }, {
+        status: 429, headers: buildRateLimitHeaders(delResult),
+      });
     }
 
     const { id } = await params;

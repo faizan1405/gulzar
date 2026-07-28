@@ -16,6 +16,7 @@ declare module 'next-auth' {
       role: 'USER' | 'ADMIN';
       accountStatus: 'ACTIVE' | 'SUSPENDED';
       requiresPasswordChange: boolean;
+      tokenVersion: number;
     };
   }
 
@@ -23,11 +24,26 @@ declare module 'next-auth' {
     role?: 'USER' | 'ADMIN';
     accountStatus?: 'ACTIVE' | 'SUSPENDED';
     requiresPasswordChange?: boolean;
+    tokenVersion?: number;
   }
 }
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
+  secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET,
+  trustHost: true,
+  useSecureCookies: process.env.NODE_ENV === 'production',
+  cookies: {
+    sessionToken: {
+      name: process.env.NODE_ENV === 'production' ? '__Secure-authjs.session-token' : 'authjs.session-token',
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',
+      },
+    },
+  },
   providers: [
     Google({
       clientId: process.env.AUTH_GOOGLE_ID || 'dummy_id',
@@ -49,6 +65,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (!user || user.role !== 'ADMIN') return null;
         if (!user.passwordHash) return null;
 
+        if (user.accountStatus === 'SUSPENDED') return null;
+
         const isValid = await bcrypt.compare(credentials.password as string, user.passwordHash);
         if (!isValid) return null;
 
@@ -58,6 +76,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   ],
   session: {
     strategy: 'jwt',
+    maxAge: 60 * 60 * 24, // 24 hours
   },
   callbacks: {
     async session({ session, token }) {
@@ -66,6 +85,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.role = (token.role as 'USER' | 'ADMIN') || 'USER';
         session.user.accountStatus = (token.accountStatus as 'ACTIVE' | 'SUSPENDED') || 'ACTIVE';
         session.user.requiresPasswordChange = token.requiresPasswordChange as boolean || false;
+        session.user.tokenVersion = (token.tokenVersion as number) || 1;
       }
       return session;
     },
@@ -74,6 +94,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.role = user.role;
         token.accountStatus = user.accountStatus;
         token.requiresPasswordChange = user.requiresPasswordChange;
+        token.tokenVersion = user.tokenVersion;
       }
       return token;
     },

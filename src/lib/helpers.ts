@@ -19,9 +19,13 @@ export const getProfileImage = (gender: string, index: number): string => {
 export const getThemeClass = (color: string): string => {
   if (!color) return 'theme-emerald';
   if (color.includes('hsl(')) {
-    if (color.includes('150')) return 'theme-emerald';
-    if (color.includes('345')) return 'theme-crimson';
-    if (color.includes('42')) return 'theme-gold';
+    const hueMatch = color.match(/hsl\((\d+)/);
+    if (hueMatch) {
+      const hue = parseInt(hueMatch[1], 10);
+      if (hue === 150) return 'theme-emerald';
+      if (hue === 345) return 'theme-crimson';
+      if (hue === 42) return 'theme-gold';
+    }
     return 'theme-navy';
   }
   return `theme-${color}`;

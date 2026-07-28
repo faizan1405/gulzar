@@ -3,6 +3,51 @@ import { Profile } from '../types';
 // Masked placeholder used everywhere a real phone number must NOT be exposed.
 const MASKED_PHONE = '+91-XXXXX-XXXXX';
 
+// Explicit shape of a redacted/locked profile. Every field that callers may
+// receive is enumerated here — adding a new sensitive field to `Profile` will
+// NOT silently expose it through the redaction path because the function's
+// return type forces us to declare which fields the API actually returns.
+type RedactedProfile = Pick<
+  Profile,
+  | 'id'
+  | 'fullName'
+  | 'gender'
+  | 'maritalStatus'
+  | 'city'
+  | 'state'
+  | 'country'
+  | 'bio'
+  | 'themeColor'
+  | 'profileCompletionStatus'
+  | 'createdAt'
+  | 'category'
+  | 'maslak'
+  | 'fiqh'
+  | 'biradari'
+  | 'district'
+  | 'sameCastePreference'
+  | 'sameMaslakPreference'
+  | 'noCastePreference'
+  | 'noMaslakPreference'
+  | 'willingToRelocate'
+> & {
+  dateOfBirth?: string | Date | null;
+  areaOrLocality?: string | null;
+  education?: string;
+  occupation?: string;
+  annualIncomeRange?: string;
+  familyInfo?: string;
+  partnerPref?: string;
+  phoneNumber: string;
+  latitude?: number | null;
+  longitude?: number | null;
+  preferredLocations: string[];
+  isLocked: boolean;
+  isLockedCategory?: string;
+  profileImageUrl?: string;
+  profileImageStatus?: string;
+};
+
 /**
  * Server-side privacy gate. Unauthorized viewers must NEVER receive protected
  * fields (real photo URL, phone/contact, full bio, education, occupation,
@@ -23,7 +68,7 @@ export function redactProfile(
   viewerHasGoodProfilePkg: boolean,
   isOwner: boolean,
   isAdmin: boolean
-) {
+): RedactedProfile {
   const profileCat = profile.category || '';
 
   // Identify profile categories strictly from the stable, admin-assigned
@@ -56,17 +101,15 @@ export function redactProfile(
     };
   }
 
-  // Premium-category locked shell: the candidate's name, age and caste/community
-  // stay visible (the allowed limited-preview fields — required for every
-  // profile, premium or not) but every sensitive field (photo, phone, exact
-  // address, education, occupation, income, family info, bio) is stripped
-  // because the viewer has not unlocked this profile's package.
+  // Premium-category locked shell: the candidate's name, age (derived from DOB)
+  // and caste/community stay visible, but sensitive fields are stripped.
+  // dateOfBirth is NOT exposed — age is computeable from it.
   function premiumLockedShell(lockedCategory: string, bioMsg: string) {
     return {
       id: profile.id,
       fullName: profile.fullName,
       gender: profile.gender,
-      dateOfBirth: profile.dateOfBirth,
+      dateOfBirth: undefined,
       maritalStatus: profile.maritalStatus,
       city: profile.city,
       areaOrLocality: null,
@@ -79,7 +122,6 @@ export function redactProfile(
       partnerPref: undefined,
       bio: bioMsg,
       themeColor: profile.themeColor,
-      verificationStatus: profile.verificationStatus,
       profileCompletionStatus: profile.profileCompletionStatus,
       createdAt: profile.createdAt,
       phoneNumber: MASKED_PHONE,
@@ -97,7 +139,7 @@ export function redactProfile(
       willingToRelocate: profile.willingToRelocate,
       profileImageUrl: undefined,
       profileImageStatus: undefined,
-    } as unknown as Profile;
+    } as unknown as RedactedProfile;
   }
 
   if (isGoodProfile && !isAuthorizedForGoodProfile) {
@@ -122,15 +164,15 @@ export function redactProfile(
   }
 
   if (!isAuthorizedForStandard) {
-    // Guest / logged-in-without-subscription: expose ONLY name, age (via DOB),
-    // gender, marital status, caste/community and coarse city/state. Everything
-    // sensitive (photo, phone, contact, education, occupation, income, precise
-    // locality, family info, bio) is removed from the payload.
+    // Guest / logged-in-without-subscription: expose ONLY name, age (derived from
+    // DOB server-side), gender, marital status, caste/community and coarse
+    // city/state. dateOfBirth is NOT exposed — it enables age calculation.
+    // verificationStatus is NOT exposed — it leaks verification state.
     return {
       id: profile.id,
       fullName: profile.fullName,
       gender: profile.gender,
-      dateOfBirth: profile.dateOfBirth,
+      dateOfBirth: undefined,
       maritalStatus: profile.maritalStatus,
       city: profile.city,
       areaOrLocality: null,
@@ -143,7 +185,6 @@ export function redactProfile(
       partnerPref: undefined,
       bio: 'Unlock this profile by subscribing to our monthly membership.',
       themeColor: profile.themeColor,
-      verificationStatus: profile.verificationStatus,
       profileCompletionStatus: profile.profileCompletionStatus,
       createdAt: profile.createdAt,
       phoneNumber: MASKED_PHONE,
@@ -162,17 +203,15 @@ export function redactProfile(
       willingToRelocate: profile.willingToRelocate,
       profileImageUrl: undefined,
       profileImageStatus: undefined,
-    } as unknown as Profile;
+    } as unknown as RedactedProfile;
   }
 
   // Authorized viewer (non owner/admin): show full profile but only reveal the
   // real photo once it has passed admin approval.
   if (!isOwner && !isAdmin && profile.profileImageStatus !== 'APPROVED') {
-    return {
-      ...profile,
-      profileImageUrl: undefined,
-    } as Profile;
+    const redacted = { ...profile, profileImageUrl: undefined } as unknown as RedactedProfile;
+    return redacted;
   }
 
-  return profile;
+  return profile as unknown as RedactedProfile;
 }

@@ -3,8 +3,10 @@ import { auth } from '@/auth';
 import { getShortlistedProfiles, toggleShortlist } from '@/lib/services/profileActivityService';
 import { redactProfile } from '@/lib/profilePrivacy';
 import { prisma } from '@/lib/db';
-import { checkRateLimit } from '@/lib/rateLimit';
+import { checkRateLimit, checkRateLimitByName, buildRateLimitHeaders } from '@/lib/rateLimit';
 import { logAudit } from '@/lib/audit';
+import { csrfGuard } from '@/lib/csrfGuard';
+import { safeJsonBody } from '@/lib/requestUtils';
 import {
   hasPaidAccess,
   hasStandardPackage,
@@ -14,19 +16,7 @@ import {
 } from '@/lib/packageAccess';
 
 // Simple in-memory rate limiter for shortlist POST requests (max 10/min per user)
-const shortlistPostRateLimitMap = new Map<string, { count: number; resetTime: number }>();
-function checkShortlistPostRateLimit(userId: string): boolean {
-  const now = Date.now();
-  const limit = 10;
-  const windowMs = 60 * 1000;
-  const record = shortlistPostRateLimitMap.get(userId);
-  if (!record || now > record.resetTime) {
-    shortlistPostRateLimitMap.set(userId, { count: 1, resetTime: now + windowMs });
-    return false;
-  }
-  record.count += 1;
-  return record.count > limit;
-}
+// Using centralized rateLimitByName for consistency.
 
 export async function GET(req: NextRequest) {
   try {
@@ -36,16 +26,19 @@ export async function GET(req: NextRequest) {
     }
 
     // Rate limit GET by user ID
-    if (checkRateLimit(`shortlist-get:${session.user.id}`, 30, 60 * 1000)) {
+    const slResult = await checkRateLimitByName('shortlistGet', session.user.id);
+    if (!slResult.allowed) {
       return NextResponse.json(
         { error: 'Too many requests. Please slow down.' },
-        { status: 429 }
+        { status: 429, headers: buildRateLimitHeaders(slResult) }
       );
     }
 
     const { searchParams } = new URL(req.url);
-    const skip = parseInt(searchParams.get('skip') || '0');
-    const take = parseInt(searchParams.get('take') || '20');
+    let skip = parseInt(searchParams.get('skip') || '0');
+    let take = parseInt(searchParams.get('take') || '20');
+    if (skip < 0 || isNaN(skip)) skip = 0;
+    if (take < 1 || take > 50) take = 20;
 
     const result = await getShortlistedProfiles(session.user.id, skip, take);
 
@@ -85,19 +78,26 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
+    const csrfResult = await csrfGuard(req);
+    if (csrfResult) return csrfResult;
+
     const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    if (checkShortlistPostRateLimit(session.user.id)) {
+    const spResult = await checkRateLimitByName('shortlistPost', session.user.id);
+    if (!spResult.allowed) {
       return NextResponse.json(
         { error: 'Too many requests. Please wait a minute.' },
-        { status: 429 }
+        { status: 429, headers: buildRateLimitHeaders(spResult) }
       );
     }
 
-    const { targetProfileId } = await req.json();
+    const bodyOrResponse = await safeJsonBody(req, { maxSizeKB: 10 });
+    if (bodyOrResponse instanceof Response) return bodyOrResponse;
+    const body = bodyOrResponse as any;
+    const { targetProfileId } = body;
     if (!targetProfileId) {
       return NextResponse.json({ error: 'targetProfileId is required' }, { status: 400 });
     }

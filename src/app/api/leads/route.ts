@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createLead, getAllLeads } from '@/lib/profileStore';
 import { notifyAdminNewLead } from '@/lib/notifications';
-import { checkRateLimit } from '@/lib/rateLimit';
+import { checkRateLimit, buildRateLimitHeaders } from '@/lib/rateLimit';
+import { csrfGuard } from '@/lib/csrfGuard';
+import { safeJsonBody } from '@/lib/requestUtils';
 
 // Basic phone validation helper
 function isValidPhone(phone: string): boolean {
@@ -26,15 +28,21 @@ function sanitizeText(str: string): string {
 
 export async function POST(req: NextRequest) {
   try {
+    const csrfResult = await csrfGuard(req);
+    if (csrfResult) return csrfResult;
+
     const ip = (req as any).ip || req.headers.get('x-forwarded-for') || 'anonymous';
-    if (checkRateLimit(ip, 5, 60 * 1000)) {
+    const leadResult = await checkRateLimit(`leads:${ip}`, 5, 60 * 1000);
+    if (!leadResult.allowed) {
       return NextResponse.json(
         { error: 'Too many requests. Please try again later.' },
-        { status: 429 }
+        { status: 429, headers: buildRateLimitHeaders(leadResult) }
       );
     }
 
-    const body = await req.json();
+    const bodyOrResponse = await safeJsonBody(req, { maxSizeKB: 10 });
+    if (bodyOrResponse instanceof Response) return bodyOrResponse;
+    const body = bodyOrResponse as any;
     const {
       fullName,
       phone,

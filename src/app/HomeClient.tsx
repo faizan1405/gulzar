@@ -655,7 +655,7 @@ export default function HomeClient() {
               </p>
 
               <button
-                onClick={() => signIn('google', { callbackUrl: window.location.href })}
+                onClick={() => signIn('google', { callbackUrl: window.location.pathname })}
                 className="btn btn-primary"
                 style={{
                   width: '100%',
