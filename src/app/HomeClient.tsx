@@ -138,7 +138,6 @@ export default function HomeClient() {
                   <label className="form-label">Min Age</label>
                   <select
                     className="form-control"
-                    style={{ backgroundColor: 'var(--warm-ivory)' }}
                     value={quickAgeMin}
                     onChange={(e) => { setQuickAgeMin(e.target.value); setQuickAgeError(false); }}
                   >
@@ -152,7 +151,6 @@ export default function HomeClient() {
                   <label className="form-label">Max Age</label>
                   <select
                     className="form-control"
-                    style={{ backgroundColor: 'var(--warm-ivory)' }}
                     value={quickAgeMax}
                     onChange={(e) => { setQuickAgeMax(e.target.value); setQuickAgeError(false); }}
                   >
@@ -166,7 +164,6 @@ export default function HomeClient() {
                   <label className="form-label">State</label>
                   <select
                     className="form-control"
-                    style={{ backgroundColor: 'var(--warm-ivory)' }}
                     value={quickState}
                     onChange={(e) => { setQuickState(e.target.value); setQuickCity(''); }}
                   >
@@ -180,7 +177,6 @@ export default function HomeClient() {
                   <label className="form-label">City</label>
                   <select
                     className="form-control"
-                    style={{ backgroundColor: 'var(--warm-ivory)' }}
                     value={quickCity}
                     onChange={(e) => setQuickCity(e.target.value)}
                     disabled={!quickState}
@@ -199,7 +195,6 @@ export default function HomeClient() {
                   <label className="form-label">Community</label>
                   <select
                     className="form-control"
-                    style={{ backgroundColor: 'var(--warm-ivory)' }}
                     value={quickCommunity}
                     onChange={(e) => setQuickCommunity(e.target.value)}
                   >
@@ -213,7 +208,6 @@ export default function HomeClient() {
                   <label className="form-label">Caste / Biradari</label>
                   <select
                     className="form-control"
-                    style={{ backgroundColor: 'var(--warm-ivory)' }}
                     value={quickCaste}
                     onChange={(e) => setQuickCaste(e.target.value)}
                   >

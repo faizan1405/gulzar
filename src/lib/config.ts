@@ -74,18 +74,10 @@ export const AUTH_URL = env('AUTH_URL', SITE_URL);
 export const DATABASE_URL = env('DATABASE_URL', '');
 
 /* ------------------------------------------------------------------ */
-/*  AWS S3 / Storage                                                 */
-/* ------------------------------------------------------------------ */
-
-export const AWS_REGION = env('AWS_REGION', 'ap-south-1');
-export const S3_BUCKET = env('S3_BUCKET', '');
-export const S3_ACL = env('AWS_S3_ACL', 'public-read');
-
-/* ------------------------------------------------------------------ */
 /*  Razorpay                                                         */
 /* ------------------------------------------------------------------ */
 
-export const RAZORPAY_KEY_ID = env('NEXT_PUBLIC_RAZORPAY_KEY_ID', '');
+export const RAZORPAY_KEY_ID = env('RAZORPAY_KEY_ID', '');
 export const RAZORPAY_KEY_SECRET = env('RAZORPAY_KEY_SECRET', '');
 
 /* ------------------------------------------------------------------ */

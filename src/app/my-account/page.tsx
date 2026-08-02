@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import Image from 'next/image';
 import { useSession } from '../../context/SessionContext';
 import Navbar from '../../components/Navbar';
@@ -22,46 +22,6 @@ export default function MyAccountPage() {
     setIsRegistering(true);
     setRegStep(1);
     router.push('/');
-  };
-
-  const [uploading, setUploading] = useState(false);
-  const [uploadError, setUploadError] = useState('');
-  const [uploadSuccess, setUploadSuccess] = useState('');
-
-  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setUploading(true);
-    setUploadError('');
-    setUploadSuccess('');
-
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-
-      const res = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      });
-
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error || 'Upload failed');
-      }
-
-      setUploadSuccess(data.message || 'Photo uploaded successfully!');
-      
-      // Update local profile state
-      if (userProfile) {
-        (userProfile as any).profileImageUrl = data.url;
-        (userProfile as any).profileImageStatus = 'PENDING';
-      }
-    } catch (err: any) {
-      setUploadError(err.message || 'An error occurred during upload.');
-    } finally {
-      setUploading(false);
-    }
   };
 
   if (!isLoggedIn || !userProfile) {
@@ -142,13 +102,13 @@ export default function MyAccountPage() {
             }}>
               <h3 style={{ fontSize: '20px', color: 'var(--primary-dark)', marginBottom: '16px' }}>Profile Photo</h3>
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
-                <div style={{ 
-                  width: '120px', 
-                  height: '120px', 
-                  borderRadius: '50%', 
-                  backgroundColor: 'var(--cream-bg)', 
-                  display: 'flex', 
-                  alignItems: 'center', 
+                <div style={{
+                  width: '120px',
+                  height: '120px',
+                  borderRadius: '50%',
+                  backgroundColor: 'var(--cream-bg)',
+                  display: 'flex',
+                  alignItems: 'center',
                   justifyContent: 'center',
                   overflow: 'hidden',
                   border: '2px dashed var(--border-color)'
@@ -158,28 +118,6 @@ export default function MyAccountPage() {
                   ) : (
                     <span style={{ fontSize: '32px', color: 'var(--text-muted)' }}>📷</span>
                   )}
-                </div>
-
-                <div style={{ textAlign: 'center', width: '100%' }}>
-                  <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '8px' }}>
-                    {(userProfile as any).profileImageStatus === 'PENDING' ? 'Your photo is pending admin approval.' : 
-                     (userProfile as any).profileImageStatus === 'REJECTED' ? 'Your previous photo was rejected.' : 
-                     'Upload a clear, front-facing photo.'}
-                  </p>
-                  
-                  <label className="btn btn-secondary" style={{ display: 'inline-block', cursor: 'pointer', opacity: uploading ? 0.7 : 1 }}>
-                    {uploading ? 'Uploading...' : 'Choose Photo'}
-                    <input 
-                      type="file" 
-                      accept="image/jpeg,image/png,image/webp" 
-                      onChange={handlePhotoUpload} 
-                      disabled={uploading}
-                      style={{ display: 'none' }} 
-                    />
-                  </label>
-                  
-                  {uploadError && <p style={{ color: 'red', fontSize: '12px', marginTop: '12px' }}>{uploadError}</p>}
-                  {uploadSuccess && <p style={{ color: 'green', fontSize: '12px', marginTop: '12px' }}>{uploadSuccess}</p>}
                 </div>
               </div>
             </div>
