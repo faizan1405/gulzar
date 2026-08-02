@@ -7,6 +7,11 @@ export async function proxy(request: NextRequest) {
   const origin = request.headers.get('origin');
   const pathname = request.nextUrl.pathname;
 
+  // Skip NextAuth routes — let the auth handler process OAuth callbacks cleanly
+  if (pathname.startsWith('/api/auth/')) {
+    return NextResponse.next();
+  }
+
   // Handle CORS preflight early
   if (request.method === 'OPTIONS') {
     return corsPreflightResponse(origin);
@@ -76,5 +81,9 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/admin/:path*', '/api/:path*', '/premium'],
+  matcher: [
+    '/admin/:path*',
+    '/api/:path*',
+    '/premium',
+  ],
 };
