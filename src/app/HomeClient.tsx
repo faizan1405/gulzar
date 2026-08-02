@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 import { useSession } from '../context/SessionContext';
@@ -54,10 +55,6 @@ export default function HomeClient() {
     highProfileApproved,
   } = useSession();
 
-  const hasGoodProfilePackage = activePackages.includes('good_profile_package');
-  const hasSecondMarriagePackage = activePackages.includes('second_marriage_package');
-  const hasHighProfilePackage = activePackages.includes('high_profile_package');
-
   const isFormComplete = isLoggedIn && userProfile?.profileCompletionStatus === 'COMPLETE';
 
   const activeMaslaks = masterMaslaks.filter(m => !m.isDisabled).sort((a, b) => a.label.localeCompare(b.label));
@@ -85,10 +82,6 @@ export default function HomeClient() {
     if (quickCommunity) params.set('community', quickCommunity);
     if (quickCaste) params.set('caste', quickCaste);
     router.push(`/search?${params.toString()}`);
-  };
-
-  const handleCompleteForm = () => {
-    router.push('/register');
   };
 
   const handleNavigate = (view: string) => {
@@ -364,112 +357,102 @@ export default function HomeClient() {
           </div>
         </section>
 
-        {/* Premium Packages */}
+        {/* Packages Overview */}
         <section className="home-section home-section-cream">
           <div className="container">
             <SectionHeading
-              title="Tailored Membership Packages"
-              subtitle="Activate standard view permissions or request curated 1-on-1 matches. Transparent fees with dynamic GST billing."
-              scriptText="Choose Your Plan"
+              title="Rishta Plans"
+              subtitle="Choose the plan that fits your journey. All include manual phone verification, privacy-safe browsing, and 1-year validity."
+              scriptText="Memberships"
             />
 
-            <p className="swipe-hint" aria-hidden="true">Swipe to compare plans →</p>
             <div className="packages-grid">
               <PremiumPlanCard
                 title="Monthly Membership"
                 price={300}
                 gstRate={0.18}
-                billingText="monthly"
-                features={['Browse normal verified profiles', 'Unblur matrimonial photos', 'Access candidate mobile numbers']}
-                isActive={hasPaid300}
-                ctaText="Buy Monthly Membership"
+                billingText="Monthly billing"
+                features={[
+                  'Browse verified profiles',
+                  'View profile photos',
+                  'Access contact numbers',
+                  '1 month validity',
+                ]}
+                badgeText="Starter"
+                planTier="basic"
+                imageUrl="/images/monthly_active.png"
+                ctaText="Start Monthly Membership"
                 onActivate={() => handleUPIPayment('monthly_membership', 300, 'Standard Monthly Membership')}
                 onInquire={() => setInquiryPackage('₹300 Monthly Membership')}
                 whatsappMessage="Assalamu Alaikum, I want to know more about the ₹300 monthly membership on Rishte Forever."
-                imageUrl="/images/monthly_active.png"
-                hidePrices={!isFormComplete}
-                isLoggedIn={isLoggedIn}
-                onCompleteForm={handleCompleteForm}
-                onShowLogin={() => setShowLoginModal(true)}
               />
               <PremiumPlanCard
                 title="Good Profile Package"
                 price={5500}
                 gstRate={0.18}
-                billingText="one-time base"
-                features={['Verified profile suggestions', 'Basic matchmaking support', 'Privacy-safe profile sharing', '1 year service validity']}
-                isActive={hasGoodProfilePackage}
-                ctaText="Buy Good Profile Package"
+                billingText="One-time, 1 year validity"
+                features={[
+                  'Verified profile suggestions',
+                  'Basic matchmaking support',
+                  'Privacy-safe profile sharing',
+                  '1 year service validity',
+                ]}
+                badgeText="Popular"
+                planTier="basic"
+                imageUrl="/images/good_profile.png"
+                ctaText="Choose Good Profile Package"
                 onActivate={() => handleUPIPayment('good_profile_package', 5500, 'Good Profile Package')}
                 onInquire={() => setInquiryPackage('₹5,500 Good Profiles Package')}
                 whatsappMessage="Assalamu Alaikum, I am interested in the ₹5,500 Good Profiles Package on Rishte Forever. Please guide me."
-                badgeText="Starter"
-                planTier="basic"
-                imageUrl="/images/good_profile.png"
-                hidePrices={!isFormComplete}
-                isLoggedIn={isLoggedIn}
-                onCompleteForm={handleCompleteForm}
-                onShowLogin={() => setShowLoginModal(true)}
               />
               <PremiumPlanCard
                 title="Silver Plan"
                 price={11000}
                 gstRate={0.18}
-                billingText="one-time fee"
+                billingText="One-time, 1 year validity"
                 features={[
-                  'Everything in Basic Package',
-                  'More verified profile suggestions',
+                  'Verified profile suggestions',
                   'Priority matchmaking support',
-                  'Profile shortlisting assistance',
+                  'Profile shortlisting',
                   'Family coordination support',
-                  'Regular follow-up support',
-                  'Privacy-safe contact assistance',
-                  '1 year service validity'
+                  '1 year service validity',
                 ]}
-                isActive={hasSecondMarriagePackage}
-                ctaText="Buy Silver Plan"
+                badgeText="Recommended"
+                planTier="silver"
+                imageUrl="/images/second_marriage.png"
+                ctaText="Choose Silver Plan"
                 onActivate={() => handleUPIPayment('second_marriage_package', 11000, 'Silver Plan')}
                 onInquire={() => setInquiryPackage('₹11,000 Silver Plan')}
                 whatsappMessage="Assalamu Alaikum, I am interested in the ₹11,000 Silver Plan on Rishte Forever. Please guide me."
-                badgeText="Most Balanced"
-                planTier="silver"
-                imageUrl="/images/second_marriage.png"
-                hidePrices={!isFormComplete}
-                isLoggedIn={isLoggedIn}
-                onCompleteForm={handleCompleteForm}
-                onShowLogin={() => setShowLoginModal(true)}
               />
               <PremiumPlanCard
                 title="Gold Package"
                 price={21000}
                 gstRate={0.18}
-                billingText="one-time base"
+                billingText="One-time, 1 year validity"
                 features={[
-                  'Everything in Silver Plan',
                   'Premium verified profile suggestions',
-                  'High-priority matchmaking assistance',
-                  'Personalized profile shortlisting',
-                  'Dedicated support assistance',
-                  'Family meeting coordination support',
-                  'Biodata/profile presentation guidance',
-                  'Regular follow-up and progress updates',
-                  'Privacy-safe contact assistance',
-                  '1 year service validity'
+                  'High-priority matchmaking',
+                  'Personalized shortlisting',
+                  'Family meeting support',
+                  '1 year service validity',
                 ]}
-                isActive={hasHighProfilePackage}
-                ctaText="Buy Gold Package"
-                onActivate={() => handleUPIPayment('high_profile_package', 21000, 'Gold Package')}
-                onInquire={() => setInquiryPackage('₹21,000 Gold Package')}
-                whatsappMessage="Assalamu Alaikum, I am interested in the ₹21,000 Gold Package on Rishte Forever. Please guide me."
                 badgeText="Premium Choice"
                 planTier="gold"
                 imageUrl="/images/high_profile.png"
-                hidePrices={!isFormComplete}
-                isLoggedIn={isLoggedIn}
-                onCompleteForm={handleCompleteForm}
-                onShowLogin={() => setShowLoginModal(true)}
+                ctaText="Choose Gold Package"
+                onActivate={() => handleUPIPayment('high_profile_package', 21000, 'Gold Package')}
+                onInquire={() => setInquiryPackage('₹21,000 Gold Package')}
+                whatsappMessage="Assalamu Alaikum, I am interested in the ₹21,000 Gold Package on Rishte Forever. Please guide me."
               />
             </div>
+
+            <p style={{ textAlign: 'center', marginTop: '32px', fontSize: '15px', color: 'var(--text-muted)' }}>
+              Need help choosing?{' '}
+              <Link href="/packages" className="nav-link-gold" style={{ textDecoration: 'underline', fontWeight: 600 }}>
+                View all plans and compare features →
+              </Link>
+            </p>
           </div>
         </section>
 
