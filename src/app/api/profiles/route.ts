@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
-import { getAllProfiles, getProfileByUserId, getUserPurchases } from '@/lib/profileStore';
+import { getAllProfilesRaw, getProfileByUserId, getUserPurchases } from '@/lib/profileStore';
 import { redactProfile } from '@/lib/profilePrivacy';
 import { checkRateLimit, checkRateLimitByName, buildRateLimitHeaders } from '@/lib/rateLimit';
 import {
@@ -57,7 +57,7 @@ export async function GET(req: NextRequest) {
     const hasGoodProfilePkg = hasGoodProfilePackage(viewerPurchases);
 
     // Fetch all profiles from the database
-    const allProfiles = await getAllProfiles();
+    const allProfiles = await getAllProfilesRaw();
 
     // Only return approved profiles for public browsing, unless admin
     const visibleProfiles = allProfiles.filter(p => p.verificationStatus === 'APPROVED' || isAdmin);

@@ -210,14 +210,30 @@ export function isFallbackAllowed(): boolean {
   return true;
 }
 
+/** Clear in-memory fallback data. Call this when the database becomes
+ *  available again to prevent stale in-memory records from shadowing
+ *  newly-persisted database rows. */
+export function clearStaleFallbackData(): void {
+  inMemoryProfiles = [];
+  inMemoryRequests = [];
+  inMemoryLogs = [];
+  inMemoryPurchases = [];
+  inMemoryCuratedLeads = [];
+  inMemoryLeads.length = 0;
+  console.log('[FALLBACK STORE] Cleared stale in-memory data after DB reconnection.');
+}
+
 /** Check if MongoDB DB is reachable, caching result */
 export async function testDbConnection() {
-  if (isDbConnected !== undefined) {
+  if (isDbConnected !== undefined && isDbConnected) {
     return isDbConnected;
   }
   try {
     await prisma.user.findFirst({ select: { id: true } });
     isDbConnected = true;
+    if (isDbConnected) {
+      clearStaleFallbackData();
+    }
     console.log('MongoDB connection active.');
   } catch (error) {
     isDbConnected = false;

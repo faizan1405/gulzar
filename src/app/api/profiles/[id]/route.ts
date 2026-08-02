@@ -12,7 +12,7 @@ import {
 
 type RouteContext = { params: Promise<{ id: string }> };
 
-export async function GET(req: NextRequest, { params }: RouteContext) {
+export async function GET(_req: NextRequest, { params }: RouteContext) {
   const { id } = await params;
 
   if (!id || typeof id !== 'string' || id.length < 12) {

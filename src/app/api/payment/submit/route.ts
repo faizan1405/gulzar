@@ -39,6 +39,20 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Please provide at least your name or phone number.' }, { status: 400 });
     }
 
+    // Cross-check: ensure the purchase belongs to the authenticated user
+    const existingPurchase = await prisma.packagePurchase.findFirst({
+      where: { paymentReferenceId: purchaseId },
+      include: { profile: { select: { userId: true } } }
+    });
+
+    if (!existingPurchase) {
+      return NextResponse.json({ error: 'Purchase not found. Please try again or contact support.' }, { status: 404 });
+    }
+
+    if (existingPurchase.profile?.userId !== session.user.id) {
+      return NextResponse.json({ error: 'Unauthorized. This purchase does not belong to you.' }, { status: 403 });
+    }
+
     // Submit the user's payment claim
     const purchase = await submitUserPaymentClaim(
       purchaseId,

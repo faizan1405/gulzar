@@ -156,6 +156,9 @@ export default function MatrimonialRegistrationForm({
                 <option value="Female">Female</option>
                 <option value="Male">Male</option>
               </select>
+              <small className="text-muted" style={{ display: 'block', marginTop: '4px', fontSize: '0.85em' }}>
+                Please select carefully. Changing gender later may require admin approval.
+              </small>
             </div>
             <div className="form-group">
               <label className="form-label">Date of Birth (Must be 18+ years) *</label>

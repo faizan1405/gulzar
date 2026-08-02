@@ -8,6 +8,7 @@ import {
   logFallbackWarning,
   inMemoryProfiles,
 } from './fallbackStore';
+import { redactProfile } from './profilePrivacy';
 
 /* ------------------------------------------------------------------ */
 /*  Profile CRUD                                                       */
@@ -63,7 +64,30 @@ export function getEmptyProfiles() {
   return [];
 }
 
+/**
+ * Returns ALL profiles from the database with all sensitive fields redacted by default.
+ * Use `getAllProfilesRaw()` for admin contexts that need full data.
+ */
 export async function getAllProfiles() {
+  const dbProfiles = await getAllProfilesRaw();
+  return dbProfiles.map((p) =>
+    redactProfile(
+      p as any,
+      false, // viewerHasStandardPkg
+      false, // viewerHasSecondMarriagePkg
+      false, // viewerHasHighProfilePkg
+      false, // viewerHasGoodProfilePkg
+      false, // isOwner
+      false  // isAdmin
+    )
+  );
+}
+
+/**
+ * Admin/internal helper that returns ALL profiles WITHOUT redaction.
+ * Callers MUST handle privacy/redaction themselves.
+ */
+export async function getAllProfilesRaw() {
   const isDb = await testDbConnection();
   if (isDb) {
     try {
@@ -84,7 +108,7 @@ export async function getAllProfiles() {
   } else if (!isFallbackAllowed()) {
     throw new Error('Database is offline or not configured.');
   }
-  logFallbackWarning('getAllProfiles');
+  logFallbackWarning('getAllProfilesRaw');
   return inMemoryProfiles || [];
 }
 

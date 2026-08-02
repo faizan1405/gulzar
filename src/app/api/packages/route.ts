@@ -1,10 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { getProfileByUserId } from '@/lib/profileStore';
 import { PREMIUM_PACKAGES } from '@/lib/packages';
 
 // Public packages API — returns names/features always, prices only after form completion
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     const session = await auth();
     const activeUserId = session?.user?.id;

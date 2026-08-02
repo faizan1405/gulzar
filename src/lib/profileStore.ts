@@ -36,6 +36,7 @@ export {
   getProfileByUserId,
   getEmptyProfiles,
   getAllProfiles,
+  getAllProfilesRaw,
   upsertProfile,
   markUserAsPaid,
   updateProfileImage,

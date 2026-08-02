@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { getProfileByUserId, getUserPurchases } from '@/lib/profileStore';
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     const session = await auth();
     const activeUserId = session?.user?.id;

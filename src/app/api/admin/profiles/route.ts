@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
-import { getAllProfiles } from '@/lib/profileStore';
+import { getAllProfilesRaw } from '@/lib/profileStore';
 
 async function isAdmin() {
   const session = await auth();
@@ -26,7 +26,7 @@ export async function GET(req: NextRequest) {
     if (skip < 0 || isNaN(skip)) skip = 0;
     if (take < 1 || take > 100) take = 50;
 
-    let profiles = await getAllProfiles();
+    let profiles = await getAllProfilesRaw();
 
     if (gender) profiles = profiles.filter((p: any) => p.gender === gender);
     if (state) profiles = profiles.filter((p: any) => p.state?.toLowerCase().includes(state.toLowerCase()));

@@ -8,12 +8,12 @@ import { logAudit } from '@/lib/audit';
 import { csrfGuard } from '@/lib/csrfGuard';
 import { safeJsonBody } from '@/lib/requestUtils';
 import {
-  hasPaidAccess,
   hasStandardPackage,
   hasSecondMarriagePackage,
   hasHighProfilePackage,
   hasGoodProfilePackage,
 } from '@/lib/packageAccess';
+import type { ShortlistResult } from '@/types';
 
 // Simple in-memory rate limiter for shortlist POST requests (max 10/min per user)
 // Using centralized rateLimitByName for consistency.
@@ -40,7 +40,7 @@ export async function GET(req: NextRequest) {
     if (skip < 0 || isNaN(skip)) skip = 0;
     if (take < 1 || take > 50) take = 20;
 
-    const result = await getShortlistedProfiles(session.user.id, skip, take);
+    const result: ShortlistResult = await getShortlistedProfiles(session.user.id, skip, take);
 
     // Check viewer's package for privacy redaction
     const viewerPurchases = result.profileId

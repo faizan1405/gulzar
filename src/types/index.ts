@@ -152,3 +152,21 @@ export interface Lead {
   updatedAt: string;
 }
 
+export interface InterestResult {
+  requests: any[];
+  total: number;
+  profileId: string;
+}
+
+export interface ShortlistResult {
+  shortlists: any[];
+  total: number;
+  profileId: string;
+}
+
+export interface ViewedProfileResult {
+  views: any[];
+  total: number;
+  profileId: string;
+}
+

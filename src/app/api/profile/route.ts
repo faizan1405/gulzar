@@ -4,8 +4,7 @@ import { getProfileByUserId, getUserPurchases, testDbConnection, getValidObjectI
 import { prisma } from '@/lib/db';
 import { redactProfile } from '@/lib/profilePrivacy';
 import { notifyRegistration, notifyAdminNewProfile } from '@/lib/notifications';
-import { checkRateLimitByName, checkRateLimit, buildRateLimitHeaders } from '@/lib/rateLimit';
-import { escapeHTML } from '@/lib/sanitize';
+import { checkRateLimit, buildRateLimitHeaders } from '@/lib/rateLimit';
 import { csrfGuard } from '@/lib/csrfGuard';
 import { safeJsonBody } from '@/lib/requestUtils';
 import {
@@ -17,7 +16,7 @@ import {
 } from '@/lib/packageAccess';
 
 // Get user profile
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     const session = await auth();
 
@@ -78,8 +77,8 @@ export async function GET(req: NextRequest) {
             },
           });
         }
-      } catch {
-        // audit failures must not break the flow
+      } catch (err) {
+        console.error('[AUDIT LOG FAILED]', err);
       }
     }
 
@@ -186,15 +185,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Registration is restricted to eligible adults (18 years and older).' }, { status: 400 });
     }
 
-    // 3. Sanitize text inputs to prevent XSS
-    const textFields = ['fullName', 'city', 'areaOrLocality', 'state', 'country', 'education', 'occupation', 'annualIncomeRange', 'familyInfo', 'bio'];
-    for (const field of textFields) {
-      if (body[field]) {
-        body[field] = escapeHTML(String(body[field]));
-      }
-    }
-
-    // 4. Save profile
+    // 2. Age limit verification (Restricted to eligible adults >= 18)
     const profile = await upsertProfile(session.user.id, body);
 
     if (!profile) {

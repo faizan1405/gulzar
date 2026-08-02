@@ -3,6 +3,14 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 const ALLOWED_IMAGE_EXTENSIONS = new Set(['jpg', 'jpeg', 'png', 'webp', 'gif']);
 
+const EXTENSION_TO_MIME_TYPE: Record<string, string> = {
+  jpg: 'image/jpeg',
+  jpeg: 'image/jpeg',
+  png: 'image/png',
+  webp: 'image/webp',
+  gif: 'image/gif',
+};
+
 let s3: S3Client | null = null;
 
 function getS3Client(): S3Client {
@@ -45,7 +53,7 @@ export async function uploadToS3(file: File): Promise<{ url: string }> {
       Bucket: bucket,
       Key: key,
       Body: Buffer.from(arrayBuffer),
-      ContentType: file.type,
+      ContentType: EXTENSION_TO_MIME_TYPE[ext] || file.type,
       ACL: 'private',
     })
   );

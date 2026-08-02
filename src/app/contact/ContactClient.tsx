@@ -8,6 +8,7 @@ import { SectionHeading, PremiumFooter } from '../../components/NikahComponents'
 import LeadForm from '../../components/LeadForm';
 import { BusinessLocation, defaultBusinessLocation } from '../../lib/businessLocation';
 import { getSupportWhatsAppLink } from '../../lib/whatsapp';
+import { SUPPORT_EMAIL } from '@/lib/faqData';
 
 export default function ContactClient() {
   const router = useRouter();
@@ -81,7 +82,7 @@ export default function ContactClient() {
                     Chat on WhatsApp
                   </a>
                 </div>
-                <p style={{ fontSize: '14px', color: 'var(--text-muted)' }}>✉️ Verification Dept: support@rishteforever.in</p>
+                <p style={{ fontSize: '14px', color: 'var(--text-muted)' }}>✉️ Verification Dept: {SUPPORT_EMAIL}</p>
                 
                 {/* Social media connections */}
                 {(location.facebookUrl || location.instagramUrl || location.youtubeUrl || location.linkedinUrl || location.twitterUrl) && (

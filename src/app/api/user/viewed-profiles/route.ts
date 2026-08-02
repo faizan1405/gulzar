@@ -4,7 +4,6 @@ import { getViewedProfiles, removeViewedProfile, clearAllViewedProfiles, recordP
 import { redactProfile } from '@/lib/profilePrivacy';
 import { prisma } from '@/lib/db';
 import {
-  hasPaidAccess,
   hasStandardPackage,
   hasSecondMarriagePackage,
   hasHighProfilePackage,
@@ -12,6 +11,7 @@ import {
 } from '@/lib/packageAccess';
 import { csrfGuard } from '@/lib/csrfGuard';
 import { safeJsonBody } from '@/lib/requestUtils';
+import type { ViewedProfileResult } from '@/types';
 
 export async function GET(req: NextRequest) {
   try {
@@ -26,7 +26,7 @@ export async function GET(req: NextRequest) {
     if (skip < 0 || isNaN(skip)) skip = 0;
     if (take < 1 || take > 50) take = 20;
 
-    const result = await getViewedProfiles(session.user.id, skip, take);
+    const result: ViewedProfileResult = await getViewedProfiles(session.user.id, skip, take);
     
     // Check viewer's package for privacy redaction
     const viewerPurchases = result.profileId

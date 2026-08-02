@@ -24,7 +24,7 @@ async function isAdmin() {
   return session?.user?.role === 'ADMIN';
 }
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     if (!(await isAdmin())) {
       return NextResponse.json({ error: 'Unauthorized. Admin role required.' }, { status: 403 });

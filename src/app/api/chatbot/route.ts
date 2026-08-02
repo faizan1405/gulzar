@@ -97,6 +97,7 @@ export async function POST(req: NextRequest) {
       : CHATBOT_SYSTEM_PROMPT;
 
     // 7. Call External AI Provider
+    const MAX_HISTORY = 50;
     async function timedFetch(url: string, options: RequestInit): Promise<Response> {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 30_000);
@@ -119,7 +120,8 @@ export async function POST(req: NextRequest) {
 
       // Format conversation history for Gemini API
       // Roles must alternate between 'user' and 'model'
-      const contents = (history || []).map((h: any) => ({
+      const recentHistory = Array.isArray(history) ? history.slice(-MAX_HISTORY) : [];
+      const contents = recentHistory.map((h: any) => ({
         role: h.role === 'assistant' ? 'model' : 'user',
         parts: [{ text: h.content }]
       }));
@@ -174,9 +176,10 @@ export async function POST(req: NextRequest) {
       const openaiModel = model || 'gpt-4o-mini';
       const url = 'https://api.openai.com/v1/chat/completions';
 
+      const recentHistory = Array.isArray(history) ? history.slice(-MAX_HISTORY) : [];
       const messages = [
         { role: 'system', content: systemPrompt },
-        ...(history || []).map((h: any) => ({
+        ...recentHistory.map((h: any) => ({
           role: h.role === 'assistant' ? 'assistant' : 'user',
           content: h.content
         })),
@@ -227,6 +230,15 @@ export async function POST(req: NextRequest) {
 
   } catch (error) {
     console.error('Chatbot route execution error, reverting to fallback mode:', error);
+
+    // Distinguish expected fallback scenarios from real unexpected errors
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const isExpectedError = /AI_SERVICE_TIMEOUT|Empty response|Unsupported provider/i.test(errorMessage);
+
+    if (!isExpectedError) {
+      console.error('[CHATBOT_UNEXPECTED_ERROR]', errorMessage);
+    }
+
     const fallbackText = getFallbackResponse(message);
     return NextResponse.json({
       text: fallbackText,

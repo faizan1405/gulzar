@@ -8,12 +8,12 @@ import { logAudit } from '@/lib/audit';
 import { csrfGuard } from '@/lib/csrfGuard';
 import { safeJsonBody } from '@/lib/requestUtils';
 import {
-  hasPaidAccess,
   hasStandardPackage,
   hasSecondMarriagePackage,
   hasHighProfilePackage,
   hasGoodProfilePackage,
 } from '@/lib/packageAccess';
+import type { InterestResult } from '@/types';
 
 export async function GET(req: NextRequest) {
   try {
@@ -36,12 +36,8 @@ export async function GET(req: NextRequest) {
     const skip = parseInt(searchParams.get('skip') || '0');
     const take = parseInt(searchParams.get('take') || '20');
 
-    let result;
-    if (type === 'sent') {
-      result = await getSentInterests(session.user.id, skip, take);
-    } else {
-      result = await getReceivedInterests(session.user.id, skip, take);
-    }
+    const serviceFn = type === 'sent' ? getSentInterests : getReceivedInterests;
+    const result: InterestResult = await serviceFn(session.user.id, skip, take);
 
     // Check viewer's package for privacy redaction
     const viewerPurchases = result.profileId
@@ -59,7 +55,7 @@ export async function GET(req: NextRequest) {
     // Redact profiles
     const redactedRequests = (result.requests || []).map((r: any) => {
       const profileToRedact = type === 'sent' ? r.receiver : r.sender;
-      
+
       const redactedProfile = redactProfile(
         profileToRedact,
         hasStandardPkg,
