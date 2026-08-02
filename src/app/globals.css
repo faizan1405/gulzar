@@ -4843,3 +4843,53 @@ input[type="checkbox"] {
   font-weight: bold;
   text-decoration: underline;
 }
+
+/* Image object-fit utilities */
+.quran-verse-image-panel img {
+  object-fit: cover;
+  object-position: center;
+}
+
+.story-card-image-wrap img,
+.pkg-image-wrap img {
+  object-fit: cover;
+}
+
+.profile-photo-section .profile-img {
+  object-position: top center;
+}
+
+/* Profile location emoji */
+.profile-location-emoji {
+  color: var(--gold-accent);
+  font-size: 14px;
+}
+
+/* Package card button widths */
+.pkg-cta-area .btn {
+  width: 100%;
+}
+
+.pkg-cta-area .btn-secondary {
+  font-size: 12.5px;
+  padding: 8px 12px;
+}
+
+/* Zaicha button sizing */
+.zaicha-card .btn-gold {
+  padding: 14px 40px;
+  font-size: 15px;
+  text-decoration: none;
+}
+
+/* Final CTA button sizing */
+.final-cta-buttons .btn {
+  min-width: 180px;
+}
+
+@media (max-width: 640px) {
+  .final-cta-buttons .btn {
+    min-width: auto;
+    width: 100%;
+  }
+}

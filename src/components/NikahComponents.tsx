@@ -61,7 +61,7 @@ export const QuranVerseBlock: React.FC = () => {
             alt="Elegant Islamic matrimonial - Rishte Forever"
             fill
             sizes="(max-width: 640px) 100vw, 900px"
-            style={{ objectFit: 'cover', objectPosition: 'center' }}
+            className="decorative-arch-img"
             priority
           />
         </div>
@@ -198,7 +198,7 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
               alt={displayName}
               fill
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-              style={{ objectFit: 'cover', objectPosition: 'top center' }}
+              className="profile-img"
               priority={index < 6}
             />
             <div className="profile-photo-gradient" />
@@ -266,7 +266,7 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
 
         {(profile.city || profile.state) && (
           <div className="profile-location-row">
-            <span style={{ color: 'var(--gold-accent)', fontSize: '14px' }}>📍</span>
+            <span className="profile-location-emoji">📍</span>
             <span>{[profile.city, profile.state].filter(Boolean).join(', ')}</span>
           </div>
         )}
@@ -421,7 +421,6 @@ export const PremiumPlanCard: React.FC<PremiumPlanCardProps> = ({
             alt={title}
             fill
             sizes="(max-width: 768px) 100vw, 300px"
-            style={{ objectFit: 'cover', objectPosition: 'center' }}
           />
         </div>
       )}
@@ -452,8 +451,7 @@ export const PremiumPlanCard: React.FC<PremiumPlanCardProps> = ({
         {hidePrices ? (
           <button
             onClick={isLoggedIn ? onCompleteForm : (onShowLogin || onCompleteForm)}
-            className="btn btn-primary"
-            style={{ width: '100%' }}
+            className="btn btn-primary btn-full"
           >
             {isLoggedIn ? 'Complete Form to View Price' : 'Register & Complete Profile'}
           </button>
@@ -461,8 +459,7 @@ export const PremiumPlanCard: React.FC<PremiumPlanCardProps> = ({
           <>
             <button
               onClick={onActivate}
-              className={`btn ${isPopular || isActive ? 'btn-gold' : 'btn-primary'}`}
-              style={{ width: '100%' }}
+              className={`btn ${isPopular || isActive ? 'btn-gold' : 'btn-primary'} btn-full`}
               disabled={isActive}
             >
               {isActive ? 'Active Package' : ctaText}
@@ -471,8 +468,7 @@ export const PremiumPlanCard: React.FC<PremiumPlanCardProps> = ({
               <button
                 onClick={onInquire}
                 type="button"
-                className="btn btn-secondary"
-                style={{ width: '100%', fontSize: '12.5px', padding: '8px 12px' }}
+                className="btn btn-secondary pkg-inquire-btn"
               >
                 Inquire & Request Callback
               </button>
@@ -548,7 +544,7 @@ export const SuccessStoryCard: React.FC<SuccessStoryCardProps> = ({
     <div className="testimonial-card">
       <div>
         <div className="story-card-image-wrap">
-          <Image src={currentImage} alt={currentAltText} fill sizes="(max-width: 768px) 100vw, 300px" style={{ objectFit: 'cover' }} />
+          <Image src={currentImage} alt={currentAltText} fill sizes="(max-width: 768px) 100vw, 300px" />
         </div>
         <p className="story-card-text">&ldquo;{story}&rdquo;</p>
       </div>
@@ -636,7 +632,7 @@ export const ZaichaPromoCard: React.FC = () => {
             Get thoughtful compatibility guidance from an Islamic perspective to help families make informed marriage decisions with care, privacy, and trust.
           </p>
 
-          <Link href="/zaicha" className="btn btn-gold" style={{ padding: '14px 40px', fontSize: '15px', textDecoration: 'none' }}>
+          <Link href="/zaicha" className="btn btn-gold zaicha-cta-btn">
             Explore Zaicha
           </Link>
         </div>
@@ -657,10 +653,10 @@ export const FinalCTA: React.FC<FinalCTAProps> = ({ onRegister, onBrowse, isLogg
           </p>
 
           <div className="final-cta-buttons">
-            <button onClick={onRegister} className="btn btn-gold" style={{ minWidth: '180px' }}>
+            <button onClick={onRegister} className="btn btn-gold">
               {isLoggedIn ? (hasProfile ? 'Edit Your Profile' : 'Complete Profile') : 'Register Free'}
             </button>
-            <button onClick={onBrowse} className="btn btn-primary" style={{ minWidth: '180px' }}>
+            <button onClick={onBrowse} className="btn btn-primary">
               Browse Profiles
             </button>
           </div>
