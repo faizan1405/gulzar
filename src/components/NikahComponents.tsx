@@ -3,6 +3,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 import { Profile } from '../types';
+import { getSupportWhatsAppLink } from '../lib/whatsapp';
 
 export const DecorativeArch: React.FC<{ children: React.ReactNode; className?: string }> = ({
   children,
@@ -353,6 +354,7 @@ interface PremiumPlanCardProps {
   imageUrl?: string;
   badgeText?: string;
   planTier?: string;
+  positioning?: string;
   hidePrices?: boolean;
   isLoggedIn?: boolean;
   onCompleteForm?: () => void;
@@ -399,6 +401,7 @@ export const PremiumPlanCard: React.FC<PremiumPlanCardProps> = ({
   imageUrl,
   badgeText,
   planTier,
+  positioning,
   hidePrices = true,
   isLoggedIn = false,
   onCompleteForm,
@@ -426,6 +429,12 @@ export const PremiumPlanCard: React.FC<PremiumPlanCardProps> = ({
       )}
 
       <h3 className="pkg-title">{title}</h3>
+
+      {positioning && (
+        <p style={{ fontSize: '13px', color: 'var(--text-muted)', fontStyle: 'italic', marginBottom: '16px' }}>
+          {positioning}
+        </p>
+      )}
 
       {hidePrices ? (
         <div className="pkg-pricing-box">
@@ -475,7 +484,7 @@ export const PremiumPlanCard: React.FC<PremiumPlanCardProps> = ({
             )}
             {whatsappMessage && !isActive && (
               <a
-                href={`https://wa.me/919675483125?text=${encodeURIComponent(whatsappMessage)}`}
+                href={getSupportWhatsAppLink(whatsappMessage)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="pkg-whatsapp-btn"
@@ -488,10 +497,15 @@ export const PremiumPlanCard: React.FC<PremiumPlanCardProps> = ({
             )}
             <button
               onClick={() => {
-                let path = '/premium';
-                if (title.toLowerCase().includes('good')) path = '/packages/good-profiles';
-                else if (title.toLowerCase().includes('second')) path = '/packages/second-marriage';
-                else if (title.toLowerCase().includes('high')) path = '/packages/high-profile';
+                const path = title.toLowerCase().includes('monthly') || title.toLowerCase().includes('essential')
+                  ? '/packages'
+                  : title.toLowerCase().includes('good')
+                    ? '/packages/good-profiles'
+                    : title.toLowerCase().includes('second')
+                      ? '/packages/second-marriage'
+                      : title.toLowerCase().includes('high') || title.toLowerCase().includes('gold')
+                        ? '/packages/high-profile'
+                        : '/packages';
 
                 const shareUrl = `${window.location.origin}${path}`;
                 const shareText = `Check out the ${title} on Rishte Forever matrimonial site:`;
@@ -757,7 +771,7 @@ export const PremiumFooter: React.FC<PremiumFooterProps> = ({ onNavigate }) => {
             <ul className="footer-nav-list">
               <li><button onClick={() => onNavigate('home')} className="footer-link">Home</button></li>
               <li><button onClick={() => onNavigate('browse')} className="footer-link">Browse Profiles</button></li>
-              <li><button onClick={() => onNavigate('premium')} className="footer-link">Pricing & Packages</button></li>
+              <li><button onClick={() => onNavigate('packages')} className="footer-link">Pricing & Packages</button></li>
               <li><button onClick={() => onNavigate('how-it-works')} className="footer-link">How It Works</button></li>
               <li><Link href="/event-management" className="footer-link">Event Management</Link></li>
             </ul>

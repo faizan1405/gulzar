@@ -304,6 +304,7 @@ model GlobalSettings {
   linkedinUrl         String?
   twitterUrl          String?
   defaultPreviewImage String?
+  referralRate        Int?     @default(20)
   updatedAt           DateTime @updatedAt
 }
 

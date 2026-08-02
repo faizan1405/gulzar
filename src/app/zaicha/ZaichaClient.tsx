@@ -6,6 +6,7 @@ import Link from 'next/link';
 import Navbar from '../../components/Navbar';
 import Image from 'next/image';
 import { SectionHeading, PremiumFooter } from '../../components/NikahComponents';
+import { getSupportWhatsAppLink } from '../../lib/whatsapp';
 
 export default function ZaichaClient() {
   const router = useRouter();
@@ -108,7 +109,7 @@ export default function ZaichaClient() {
                 Contact Us for Zaicha
               </Link>
               <a
-                href={`https://wa.me/919675483125?text=${encodeURIComponent("Assalamu Alaikum, I would like to inquire about Zaicha compatibility guidance for matchmaking on Rishte Forever.")}`}
+                href={getSupportWhatsAppLink("Assalamu Alaikum, I would like to inquire about Zaicha compatibility guidance for matchmaking on Rishte Forever.")}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn"

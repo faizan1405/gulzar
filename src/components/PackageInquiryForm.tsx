@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useSession } from '../context/SessionContext';
+import { getSupportWhatsAppLink } from '../lib/whatsapp';
 
 interface PackageInquiryFormProps {
   defaultPackage?: string;
@@ -46,7 +47,7 @@ export const PackageInquiryForm: React.FC<PackageInquiryFormProps> = ({
     setErrorMsg('');
     setSuccessMsg('');
 
-    const sourcePage = typeof window !== 'undefined' ? window.location.pathname : '/premium';
+    const sourcePage = typeof window !== 'undefined' ? window.location.pathname : '/packages';
 
     try {
       const headers = getHeaders();
@@ -107,7 +108,7 @@ export const PackageInquiryForm: React.FC<PackageInquiryFormProps> = ({
           </p>
           <div style={{ marginTop: '16px' }}>
             <a
-              href={`https://wa.me/919675483125?text=${encodeURIComponent(`Assalamu Alaikum, I have submitted an inquiry for the ${interestedPackage} on Rishte Forever. Name: ${fullName}, Phone: ${phone}. Please guide me.`)}`}
+              href={getSupportWhatsAppLink(`Assalamu Alaikum, I have submitted an inquiry for the ${interestedPackage} on Rishte Forever. Name: ${fullName}, Phone: ${phone}. Please guide me.`)}
               target="_blank"
               rel="noopener noreferrer"
               className="btn"

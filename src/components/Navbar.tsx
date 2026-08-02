@@ -13,7 +13,7 @@ const navItems = [
 ];
 
 const secondaryItems = [
-  { href: '/premium', label: 'Premium', icon: 'crown' },
+  { href: '/packages', label: 'Packages', icon: 'crown' },
   { href: '/safety', label: 'Safety', icon: 'shield' },
   { href: '/zaicha', label: 'Zaicha', icon: 'star' },
   { href: '/event-management', label: 'Events', icon: 'event' },
@@ -62,6 +62,7 @@ export default function Navbar() {
     setShowLoginModal,
     isMobileMenuOpen,
     setIsMobileMenuOpen,
+    handleLogout,
   } = useSession();
 
   const handleRegisterFree = () => {
@@ -141,7 +142,7 @@ export default function Navbar() {
                   <button onClick={() => { router.push('/my-account'); }} className="btn btn-secondary nav-btn-sm salutation">
                     Salaam!
                   </button>
-                  <button onClick={() => { router.push('/'); /* logout handled by session */ }} className="btn btn-primary nav-btn-sm">
+                  <button onClick={handleLogout} className="btn btn-primary nav-btn-sm">
                     <Icon name="logout" size={14} />
                     Logout
                   </button>
@@ -218,10 +219,16 @@ export default function Navbar() {
 
             <div className="mobile-drawer-section">
               {isLoggedIn ? (
-                <button onClick={() => { setIsMobileMenuOpen(false); router.push('/my-account'); }} className="mobile-link">
-                  <Icon name="user" size={18} />
-                  My Account
-                </button>
+                <>
+                  <button onClick={() => { setIsMobileMenuOpen(false); router.push('/my-account'); }} className="mobile-link">
+                    <Icon name="user" size={18} />
+                    My Account
+                  </button>
+                  <button onClick={() => { setIsMobileMenuOpen(false); handleLogout(); }} className="mobile-link">
+                    <Icon name="logout" size={18} />
+                    Logout
+                  </button>
+                </>
               ) : (
                 <>
                   <button onClick={handleLoginTrigger} className="mobile-link">

@@ -18,14 +18,16 @@ export function cleanPhoneNumber(phone: string): string {
 
 /**
  * Returns a fully formatted and URL-encoded WhatsApp link.
+ * @param phone - The phone number to link to (defaults to Rishte Forever support number).
+ * @param message - The pre-filled message text.
  */
-export function getWhatsAppLink(phone: string, message: string): string {
+export function getWhatsAppLink(phone: string = WHATSAPP_NUMBER, message: string): string {
   const cleanedPhone = cleanPhoneNumber(phone);
   return `https://wa.me/${cleanedPhone}?text=${encodeURIComponent(message)}`;
 }
 
 /**
- * Returns a WhatsApp link to the Rishte Forever support number.
+ * Returns a WhatsApp link to the Rishte Forever support number with a given message.
  */
 export function getSupportWhatsAppLink(message: string): string {
   return getWhatsAppLink(WHATSAPP_NUMBER, message);

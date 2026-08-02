@@ -129,7 +129,7 @@ inMemoryLeads.push(
     inquiryType: "Package Inquiry",
     interestedPackage: "Test Package",
     interestedProfileId: null,
-    sourcePage: "/premium",
+    sourcePage: "/packages",
     status: "new",
     priority: "high",
     adminNotes: "Needs urgent callback.",

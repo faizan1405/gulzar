@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useSession } from '../context/SessionContext';
 import { Profile } from '../types';
 import { ProfileCard } from './NikahComponents';
@@ -20,30 +20,9 @@ export const ProfileGrid: React.FC<ProfileGridProps> = ({ filteredProfiles, isFi
     setShowLoginModal,
     handleViewProfile,
     userProfile,
+    activePackages,
+    highProfileApproved,
   } = useSession();
-
-  const [purchases, setPurchases] = useState<string[]>([]);
-  const [highProfileApproved, setHighProfileApproved] = useState(false);
-
-  useEffect(() => {
-    if (!isLoggedIn) return;
-    async function loadPurchases() {
-      try {
-        const res = await fetch('/api/user/purchases');
-        if (res.ok) {
-          const data = await res.json();
-          if (data.purchases) {
-            setPurchases(data.purchases.map((p: any) => p.packageType));
-            const hpPkg = data.purchases.find((p: any) => p.packageType === 'high_profile_package');
-            setHighProfileApproved(hpPkg?.eligibilityStatus === 'APPROVED');
-          }
-        }
-      } catch {
-        // purchases will just stay empty
-      }
-    }
-    loadPurchases();
-  }, [isLoggedIn]);
 
   const isFormComplete = userProfile?.profileCompletionStatus === 'COMPLETE';
 
@@ -169,8 +148,8 @@ export const ProfileGrid: React.FC<ProfileGridProps> = ({ filteredProfiles, isFi
           index={idx}
           isLoggedIn={isLoggedIn}
           isFormComplete={isFormComplete}
-          hasPaidSubscription={purchases.includes('monthly_membership')}
-          activePackages={purchases}
+          hasPaidSubscription={activePackages.includes('monthly_membership')}
+          activePackages={activePackages}
           highProfileApproved={highProfileApproved}
           savedProfiles={savedProfiles}
           onToggleSave={toggleSaveProfile}

@@ -171,8 +171,8 @@ export default function MyAccountPage() {
                   <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '12px' }}>
                     Unlock full profiles, photos, and direct contact numbers by upgrading to a premium membership.
                   </p>
-                  <Link href="/premium" className="btn btn-gold w-full" style={{ textAlign: 'center', display: 'block' }}>
-                    View Premium Packages
+                  <Link href="/packages" className="btn btn-gold w-full" style={{ textAlign: 'center', display: 'block' }}>
+                    View Rishta Plans
                   </Link>
                 </div>
               )}
@@ -197,7 +197,7 @@ export default function MyAccountPage() {
                 <Link href="/search" className="btn btn-secondary" style={{ textAlign: 'center', backgroundColor: 'var(--cream-bg)', border: 'none' }}>
                   Browse New Profiles
                 </Link>
-                <Link href="/premium" className="btn btn-secondary" style={{ textAlign: 'center', backgroundColor: 'var(--cream-bg)', border: 'none' }}>
+                <Link href="/packages" className="btn btn-secondary" style={{ textAlign: 'center', backgroundColor: 'var(--cream-bg)', border: 'none' }}>
                   Upgrade Package
                 </Link>
               </div>

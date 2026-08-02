@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 import { useSession } from '../context/SessionContext';
 import { getProfileImage, getThemeClass } from '../lib/helpers';
+import { getSupportWhatsAppLink } from '../lib/whatsapp';
 import Navbar from '../components/Navbar';
 import {
   BismillahCalligraphy,
@@ -497,7 +498,7 @@ export default function HomeClient() {
                 Explore Event Services
               </button>
               <a
-                href={`https://wa.me/919675483125?text=${encodeURIComponent('Assalamu Alaikum, I am interested in Event Management support. Please share details for trusted wedding/event vendors.')}`}
+                href={getSupportWhatsAppLink('Assalamu Alaikum, I am interested in Event Management support. Please share details for trusted wedding/event vendors.')}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn btn-secondary"

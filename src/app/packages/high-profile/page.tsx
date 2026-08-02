@@ -70,7 +70,7 @@ export default function HighProfilePage() {
         "@type": "ListItem",
         "position": 2,
         "name": "Premium Packages",
-        "item": "https://rishteforever.in/premium"
+        "item": "https://rishteforever.in/packages"
       },
       {
         "@type": "ListItem",

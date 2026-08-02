@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -10,6 +10,44 @@ export const AdminSidebar: React.FC = () => {
   const pathname = usePathname();
   const { isAdminMobileOpen, setIsAdminMobileOpen } = useSession();
   const [referralRate, setReferralRate] = useState(20);
+  const [saving, setSaving] = useState(false);
+  const [saveMsg, setSaveMsg] = useState('');
+
+  useEffect(() => {
+    async function loadSettings() {
+      try {
+        const res = await fetch('/api/admin/settings', { cache: 'no-store' });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.settings?.referralRate) {
+            setReferralRate(data.settings.referralRate);
+          }
+        }
+      } catch {
+        // keep default 20 if fetch fails
+      }
+    }
+    loadSettings();
+  }, []);
+
+  const handleReferralChange = async (value: number) => {
+    setReferralRate(value);
+    setSaving(true);
+    setSaveMsg('');
+    try {
+      await fetch('/api/admin/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ referralRate: value }),
+      });
+      setSaveMsg('Saved!');
+      setTimeout(() => setSaveMsg(''), 1500);
+    } catch {
+      setSaveMsg('Error saving');
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const handleLinkClick = () => {
     setIsAdminMobileOpen(false);
@@ -109,13 +147,15 @@ export const AdminSidebar: React.FC = () => {
           min="20"
           max="23"
           value={referralRate}
-          onChange={(e) => setReferralRate(parseInt(e.target.value))}
-          style={{ width: '100%', accentColor: 'var(--gold-accent)' }}
+          onChange={(e) => handleReferralChange(parseInt(e.target.value))}
+          disabled={saving}
+          style={{ width: '100%', accentColor: 'var(--gold-accent)', opacity: saving ? 0.6 : 1 }}
         />
         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', marginTop: '6px' }}>
           <span>Commission:</span>
           <strong>{referralRate}%</strong>
         </div>
+        {saveMsg && <span style={{ fontSize: '10px', color: '#059669' }}>{saveMsg}</span>}
       </div>
     </aside>
   );

@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
-import { signIn } from 'next-auth/react';
+import { signIn, signOut } from 'next-auth/react';
 import { DEFAULT_MASLAKS, DEFAULT_CASTES, DEFAULT_LOCATIONS } from '../lib/masterData';
 import {
   Profile,
@@ -90,6 +90,7 @@ interface SessionContextType {
 
   // Actions
   handleGoogleLogin: () => void;
+  handleLogout: () => void;
   toggleSaveProfile: (id: string) => void;
   handleRegisterSubmit: (e: React.FormEvent) => Promise<void>;
   handleUPIPayment: (packageType: string, amountInRupees?: number, planName?: string) => Promise<void>;
@@ -405,6 +406,10 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
     signIn('google');
   };
 
+  const handleLogout = () => {
+    signOut({ callbackUrl: '/' });
+  };
+
   const toggleSaveProfile = (id: string) => {
     setSavedProfiles((prev) =>
       prev.includes(id) ? prev.filter((pId) => pId !== id) : [...prev, id]
@@ -442,7 +447,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
           alert('Profile saved! Please choose a package to view full profiles.');
           setIsRegistering(false);
           setReloadTrigger((prev) => prev + 1);
-          router.push(`/premium?returnProfile=${pendingProfileId}`);
+          router.push(`/packages?returnProfile=${pendingProfileId}`);
           setPendingProfileId(null);
         } else {
           alert('Matrimonial profile saved successfully! Entering manual verification queue.');
@@ -719,6 +724,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
         setFormData,
 
         handleGoogleLogin,
+        handleLogout,
         toggleSaveProfile,
         handleRegisterSubmit,
         handleUPIPayment,

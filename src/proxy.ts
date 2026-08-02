@@ -37,6 +37,11 @@ export async function proxy(request: NextRequest) {
     }
   }
 
+  // Redirect legacy /premium URL to /packages
+  if (pathname === '/premium') {
+    return NextResponse.redirect(new URL('/packages', request.url), 301);
+  }
+
   // Forward pathname via x-pathname header
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set('x-pathname', pathname);
@@ -71,5 +76,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/admin/:path*', '/api/:path*'],
+  matcher: ['/admin/:path*', '/api/:path*', '/premium'],
 };

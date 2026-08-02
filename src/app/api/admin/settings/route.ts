@@ -64,10 +64,10 @@ export async function POST(req: NextRequest) {
     const bodyOrResponse = await safeJsonBody(req, { maxSizeKB: 10 });
     if (bodyOrResponse instanceof Response) return bodyOrResponse;
     const body = bodyOrResponse as any;
-    const { 
-      adminEmail, 
-      adminPhone, 
-      emailAlertsEnabled, 
+    const {
+      adminEmail,
+      adminPhone,
+      emailAlertsEnabled,
       smsAlertsEnabled,
       officeAddress,
       facebookUrl,
@@ -75,11 +75,12 @@ export async function POST(req: NextRequest) {
       youtubeUrl,
       linkedinUrl,
       twitterUrl,
-      defaultPreviewImage
+      defaultPreviewImage,
+      referralRate
     } = body;
 
     let settings = await prisma.globalSettings.findFirst();
-    
+
     if (settings) {
       settings = await prisma.globalSettings.update({
         where: { id: settings.id },
@@ -94,7 +95,8 @@ export async function POST(req: NextRequest) {
           youtubeUrl,
           linkedinUrl,
           twitterUrl,
-          defaultPreviewImage
+          defaultPreviewImage,
+          referralRate: referralRate !== undefined ? referralRate : undefined,
         }
       });
     } else {
@@ -110,7 +112,8 @@ export async function POST(req: NextRequest) {
           youtubeUrl,
           linkedinUrl,
           twitterUrl,
-          defaultPreviewImage
+          defaultPreviewImage,
+          referralRate: referralRate ?? 20,
         }
       });
     }
