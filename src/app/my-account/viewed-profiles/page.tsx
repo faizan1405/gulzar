@@ -1,24 +1,21 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from '@/components/Navbar';
 import { SectionHeading, PremiumFooter } from '@/components/NikahComponents';
 import { ProfileGrid } from '@/components/ProfileGrid';
+import { Profile } from '@/types';
 
 export default function ViewedProfilesPage() {
-  const [profiles, setProfiles] = useState<any[]>([]);
+  const [profiles, setProfiles] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetchViewedProfiles();
-  }, []);
 
   const fetchViewedProfiles = async () => {
     try {
       const res = await fetch('/api/user/viewed-profiles?take=50');
       if (res.ok) {
         const data = await res.json();
-        const mappedProfiles = (data.views || []).map((v: any) => v.viewedProfile);
+        const mappedProfiles = (data.views || []).map((v: Record<string, unknown>) => v.viewedProfile as Profile);
         setProfiles(mappedProfiles);
       }
     } catch (error) {
@@ -27,6 +24,10 @@ export default function ViewedProfilesPage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchViewedProfiles();
+  }, []);
 
   const handleClearHistory = async () => {
     if (confirm('Are you sure you want to clear your viewed profile history?')) {

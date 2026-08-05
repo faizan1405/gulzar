@@ -1,13 +1,13 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { getSupportWhatsAppLink } from '../lib/whatsapp';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { useSession } from '../context/SessionContext';
 import { getProfileImage } from '../lib/helpers';
 import { VerifiedBadge } from './NikahComponents';
-import ProfileInterestForm from './ProfileInterestForm';
+import { ProfileInterestForm } from './ProfileInterestForm';
 
 
 export const ProfileDetails: React.FC = () => {
@@ -27,7 +27,7 @@ export const ProfileDetails: React.FC = () => {
 
   if (!selectedProfileForDetails) return null;
 
-  const profileCat = (selectedProfileForDetails as any).category || '';
+  const profileCat = selectedProfileForDetails.category || '';
 
   const isSecMarriage = selectedProfileForDetails.maritalStatus !== 'Single' || profileCat === 'second_marriage';
   const isHighProf =

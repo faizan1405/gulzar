@@ -4,13 +4,18 @@ import React, { useEffect, useState } from 'react';
 import Navbar from '@/components/Navbar';
 import { SectionHeading, PremiumFooter } from '@/components/NikahComponents';
 
-export default function NotificationsPage() {
-  const [notifications, setNotifications] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+interface NotificationItem {
+  id: string;
+  title: string;
+  message: string;
+  isRead: boolean;
+  actionUrl?: string;
+  createdAt: string;
+}
 
-  useEffect(() => {
-    fetchNotifications();
-  }, []);
+export default function NotificationsPage() {
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const fetchNotifications = async () => {
     try {
@@ -25,6 +30,10 @@ export default function NotificationsPage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchNotifications();
+  }, []);
 
   const markAllAsRead = async () => {
     try {
@@ -50,7 +59,7 @@ export default function NotificationsPage() {
     }
   };
 
-  const handleNotificationClick = async (notif: any) => {
+  const handleNotificationClick = async (notif: NotificationItem) => {
     if (!notif.isRead) {
       try {
         await fetch('/api/user/notifications', {

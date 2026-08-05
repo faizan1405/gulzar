@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -200,7 +201,7 @@ export default function AdminLoginPage() {
           Authorized admin access only. Unauthorized access attempts are logged.
         </p>
 
-        <a
+        <Link
           href="/"
           style={{
             display: 'inline-block',
@@ -213,7 +214,7 @@ export default function AdminLoginPage() {
           }}
         >
           ← Back to public website
-        </a>
+        </Link>
       </div>
     </div>
   );

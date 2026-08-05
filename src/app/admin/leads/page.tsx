@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSession } from '../../../context/SessionContext';
 import { Lead } from '../../../types';
 import { getWhatsAppLink } from '../../../lib/whatsapp';
@@ -58,7 +58,11 @@ export default function AdminLeadsPage() {
   };
 
   // Perform lead update
-  const handleUpdateLead = async (leadId: string, updateData: any) => {
+interface LeadUpdateData {
+  [key: string]: string | boolean | number | null;
+}
+
+  const handleUpdateLead = async (leadId: string, updateData: LeadUpdateData) => {
     setIsUpdating(true);
     setActionError('');
     try {

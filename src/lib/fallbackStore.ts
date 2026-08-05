@@ -1,6 +1,6 @@
 import { prisma } from './db';
 import crypto from 'crypto';
-import { DEFAULT_MASLAKS, DEFAULT_FIQHS, DEFAULT_CASTES, DEFAULT_LOCATIONS } from './masterData';
+import { DEFAULT_MASLAKS, DEFAULT_CASTES, DEFAULT_LOCATIONS } from './masterData';
 
 // ------------------------------------------------------------------ //
 //  Fallback Master Data Lists (exported so other modules can use them)

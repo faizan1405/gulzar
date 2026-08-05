@@ -13,6 +13,14 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
   ]),
+  // Relax `any` rule for API route handlers — dynamic JSON bodies and DB
+  // record shapes are inherently untyped at the handler boundary.
+  {
+    files: ["src/app/api/**/*.{ts,tsx}"],
+    rules: {
+      "@typescript-eslint/no-explicit-any": "off",
+    },
+  },
 ]);
 
 export default eslintConfig;

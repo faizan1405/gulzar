@@ -5,7 +5,6 @@ import {
   getValidObjectId,
   sanitizeErrorMessage,
   isFallbackAllowed,
-  logFallbackWarning,
   inMemoryRequests,
   inMemoryProfiles,
   inMemoryLogs,

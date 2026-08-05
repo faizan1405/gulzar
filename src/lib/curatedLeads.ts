@@ -4,7 +4,6 @@ import {
   getValidObjectId,
   sanitizeErrorMessage,
   isFallbackAllowed,
-  logFallbackWarning,
   inMemoryCuratedLeads,
   inMemoryProfiles,
 } from './fallbackStore';

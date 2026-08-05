@@ -519,6 +519,7 @@ export default function MatrimonialRegistrationForm({
                 style={{ marginTop: '4px' }}
                 checked={formData.termsAccepted}
                 onChange={(e) => setFormData({ ...formData, termsAccepted: e.target.checked })}
+                required
               />
               <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
                 I agree to the <a href="/terms-and-conditions" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--primary-brand)', textDecoration: 'underline' }}>Terms &amp; Conditions</a> and <a href="/privacy-policy" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--primary-brand)', textDecoration: 'underline' }}>Privacy Policy</a>.

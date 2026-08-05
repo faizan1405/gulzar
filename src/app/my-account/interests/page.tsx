@@ -5,6 +5,7 @@ import Navbar from '@/components/Navbar';
 import { SectionHeading, PremiumFooter, ProfileCard } from '@/components/NikahComponents';
 import { useSession } from '@/context/SessionContext';
 import { getProfileImage, getThemeClass } from '@/lib/helpers';
+import { InterestRequest } from '@/types';
 
 export default function InterestsPage() {
   const {
@@ -21,12 +22,8 @@ export default function InterestsPage() {
 
   const isFormComplete = userProfile?.profileCompletionStatus === 'COMPLETE';
   const [activeTab, setActiveTab] = useState<'sent' | 'received'>('received');
-  const [requests, setRequests] = useState<any[]>([]);
+  const [requests, setRequests] = useState<InterestRequest[]>([]);
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetchInterests();
-  }, [activeTab]);
 
   const fetchInterests = async () => {
     setLoading(true);
@@ -42,6 +39,11 @@ export default function InterestsPage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchInterests();
+     
+  }, [activeTab]);
 
   const handleAction = async (requestId: string, action: string) => {
     try {
@@ -94,11 +96,12 @@ export default function InterestsPage() {
           ) : (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '24px' }}>
               {requests.map((req, idx) => {
-                const profile = activeTab === 'sent' ? req.receiver : req.sender;
+                const otherProfile = activeTab === 'sent' ? req.receiverProfile : req.senderProfile;
+                if (!otherProfile) return <div key={req.id}>Profile unavailable</div>;
                 return (
                   <div key={req.id} style={{ position: 'relative' }}>
                     <ProfileCard
-                      profile={profile}
+                      profile={otherProfile}
                       index={idx}
                       isLoggedIn={isLoggedIn}
                       isFormComplete={isFormComplete}

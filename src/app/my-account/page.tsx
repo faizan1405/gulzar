@@ -4,7 +4,7 @@ import React, { useEffect } from 'react';
 import Image from 'next/image';
 import { useSession } from '../../context/SessionContext';
 import Navbar from '../../components/Navbar';
-import { SectionHeading, PremiumFooter, DecorativeArch } from '../../components/NikahComponents';
+import { SectionHeading, PremiumFooter } from '../../components/NikahComponents';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
@@ -14,9 +14,9 @@ export default function MyAccountPage() {
 
   useEffect(() => {
     if (!isLoggedIn) {
-      router.push('/');
+      window.location.href = '/';
     }
-  }, [isLoggedIn, router]);
+  }, [isLoggedIn]);
 
   const handleEditProfile = () => {
     setIsRegistering(true);
@@ -79,7 +79,7 @@ export default function MyAccountPage() {
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                   <span style={{ color: 'var(--text-secondary)' }}>Current Category</span>
                   <span style={{ fontWeight: 600, textTransform: 'capitalize' }}>
-                    {(userProfile as any).category?.replace('_', ' ') || 'Normal'}
+                    {userProfile.category?.replace('_', ' ') || 'Normal'}
                   </span>
                 </div>
               </div>

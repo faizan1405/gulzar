@@ -9,6 +9,7 @@ export default function ChangePasswordPage() {
   const [error, setError] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [currentPassword, setCurrentPassword] = useState('');
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -32,7 +33,7 @@ export default function ChangePasswordPage() {
       const res = await fetch('/api/admin/change-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ newPassword: password }),
+        body: JSON.stringify({ currentPassword, newPassword: password }),
       });
 
       if (res.ok) {
@@ -134,6 +135,27 @@ export default function ChangePasswordPage() {
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div>
             <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#333', marginBottom: '8px' }}>
+              Current Password
+            </label>
+            <input
+              type="password"
+              required
+              value={currentPassword}
+              onChange={(e) => setCurrentPassword(e.target.value)}
+              disabled={loading}
+              style={{
+                width: '100%',
+                padding: '12px 16px',
+                borderRadius: '8px',
+                border: '1px solid #ddd',
+                fontSize: '15px',
+                outline: 'none',
+              }}
+              placeholder="Enter your current password"
+            />
+          </div>
+          <div>
+            <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#333', marginBottom: '8px' }}>
               New Password
             </label>
             <input
@@ -150,13 +172,12 @@ export default function ChangePasswordPage() {
                 fontSize: '15px',
                 outline: 'none',
               }}
-              placeholder="••••••••"
+              placeholder="At least 8 characters"
             />
           </div>
-
           <div>
             <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#333', marginBottom: '8px' }}>
-              Confirm Password
+              Confirm New Password
             </label>
             <input
               type="password"
@@ -172,7 +193,7 @@ export default function ChangePasswordPage() {
                 fontSize: '15px',
                 outline: 'none',
               }}
-              placeholder="••••••••"
+              placeholder="Re-enter new password"
             />
           </div>
 

@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import VerificationQueue from '../../../components/VerificationQueue';
+import { VerificationQueue } from '../../../components/VerificationQueue';
 import { AdminPageHeader } from '../../../components/AdminUI';
 
 export default function VerificationQueuePage() {

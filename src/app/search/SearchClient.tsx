@@ -5,9 +5,10 @@ import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 import { useSession } from '../../context/SessionContext';
 import Navbar from '../../components/Navbar';
-import ProfileFilters from '../../components/ProfileFilters';
+import { ProfileFilters } from '../../components/ProfileFilters';
 import ProfileGrid from '../../components/ProfileGrid';
 import { SectionHeading, PremiumFooter } from '../../components/NikahComponents';
+import { Profile } from '@/types';
 
 export default function SearchClient() {
   const searchParams = useSearchParams();
@@ -65,9 +66,10 @@ export default function SearchClient() {
   const isAgeRangeInvalid = parsedMin !== null && parsedMax !== null && parsedMin > parsedMax;
 
   // Calculate age dynamically from dateOfBirth, fallback to age, or null
-  const getProfileAge = (p: any): number | null => {
-    if (p.dateOfBirth) {
-      const dob = new Date(p.dateOfBirth);
+  const getProfileAge = (p: Profile): number | null => {
+    const dobRaw = p.dateOfBirth;
+    if (dobRaw) {
+      const dob = new Date(dobRaw as string | Date | number);
       const today = new Date();
       let age = today.getFullYear() - dob.getFullYear();
       const m = today.getMonth() - dob.getMonth();
@@ -76,8 +78,9 @@ export default function SearchClient() {
       }
       return age;
     }
-    if (p.age !== undefined && p.age !== null) {
-      return Number(p.age);
+    const fallbackAge = (p as unknown as Record<string, unknown>).age;
+    if (fallbackAge !== undefined && fallbackAge !== null) {
+      return Number(fallbackAge);
     }
     return null;
   };

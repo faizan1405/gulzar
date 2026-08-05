@@ -3,22 +3,19 @@
 import React, { useEffect, useState } from 'react';
 import Navbar from '@/components/Navbar';
 import { SectionHeading, PremiumFooter } from '@/components/NikahComponents';
+import { Profile } from '@/types';
 import { ProfileGrid } from '@/components/ProfileGrid';
 
 export default function ShortlistedProfilesPage() {
-  const [profiles, setProfiles] = useState<any[]>([]);
+  const [profiles, setProfiles] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetchShortlistedProfiles();
-  }, []);
 
   const fetchShortlistedProfiles = async () => {
     try {
       const res = await fetch('/api/user/shortlist?take=50');
       if (res.ok) {
         const data = await res.json();
-        const mappedProfiles = (data.shortlists || []).map((s: any) => s.profile);
+        const mappedProfiles = (data.shortlists || []).map((s: Record<string, unknown>) => s.profile as Profile);
         setProfiles(mappedProfiles);
       }
     } catch (error) {
@@ -27,6 +24,10 @@ export default function ShortlistedProfilesPage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchShortlistedProfiles();
+  }, []);
 
   return (
     <>

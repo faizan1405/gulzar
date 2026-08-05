@@ -27,8 +27,8 @@ export const LeadForm: React.FC<LeadFormProps> = ({
       setFullName(userProfile.fullName || '');
       setPhone(userProfile.phoneNumber || '');
       setCity(userProfile.city || '');
-      if ((userProfile as any).email) {
-        setEmail((userProfile as any).email);
+      if (userProfile.email) {
+        setEmail(userProfile.email);
       }
     }
   }, [isLoggedIn, userProfile]);

@@ -78,8 +78,7 @@ export async function GET(_req: NextRequest, { params }: RouteContext) {
     const pkgAccess = getViewerPackageAccess(viewerProfile, viewerPurchases);
 
     const redacted = redactProfile(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      targetProfile as any,
+      targetProfile,
       pkgAccess.hasStandard,
       pkgAccess.hasSecondMarriage,
       pkgAccess.hasHighProfile,

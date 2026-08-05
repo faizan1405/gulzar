@@ -38,8 +38,8 @@ export const ProfileInterestForm: React.FC<ProfileInterestFormProps> = ({
       setFullName(userProfile.fullName || '');
       setPhone(userProfile.phoneNumber || '');
       setCity(userProfile.city || '');
-      if ((userProfile as any).email) {
-        setEmail((userProfile as any).email);
+      if (userProfile.email) {
+        setEmail(userProfile.email);
       }
     }
   }, [isLoggedIn, userProfile]);
@@ -97,8 +97,9 @@ export const ProfileInterestForm: React.FC<ProfileInterestFormProps> = ({
           onSuccess();
         }, 2000);
       }
-    } catch (err: any) {
-      setErrorMsg(err.message);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Something went wrong. Please try again.';
+      setErrorMsg(message);
     } finally {
       setIsSubmitting(false);
     }
@@ -269,5 +270,3 @@ export const ProfileInterestForm: React.FC<ProfileInterestFormProps> = ({
     </div>
   );
 };
-
-export default ProfileInterestForm;

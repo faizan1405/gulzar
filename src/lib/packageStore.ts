@@ -5,7 +5,6 @@ import {
   getValidObjectId,
   sanitizeErrorMessage,
   isFallbackAllowed,
-  logFallbackWarning,
   inMemoryPurchases,
   inMemoryProfiles,
   inMemoryLogs,
@@ -145,7 +144,7 @@ export async function activatePackageByAdmin(
   if (purchase) {
     if (purchase.paymentStatus === 'PAID') return purchase; // idempotent
     purchase.paymentStatus = 'PAID' as PaymentStatus;
-    (purchase as any).upiTransactionId = upiTransactionId;
+    purchase.upiTransactionId = upiTransactionId;
     purchase.expiryDate = getExpiryForPackage(purchase.packageType);
     purchase.updatedAt = new Date();
 
@@ -233,7 +232,7 @@ export async function submitUserPaymentClaim(
   // Fallback
   const purchase = inMemoryPurchases?.find((p) => p.paymentReferenceId === referenceId);
   if (purchase) {
-    (purchase as any).userSubmittedTxnId = userSubmittedTxnId;
+    purchase.userSubmittedTxnId = userSubmittedTxnId;
     purchase.internalNotes = updatedNotes;
     purchase.updatedAt = new Date();
 
@@ -273,7 +272,7 @@ export async function rejectPaymentClaim(referenceId: string, adminNotes: string
 
       await prisma.auditLog.create({
         data: {
-          actorUserId: getValidObjectId(adminId) as any,
+          actorUserId: getValidObjectId(adminId),
           action: `PAYMENT_REJECTED_${purchase.packageType}`,
           targetType: 'PackagePurchase',
           targetId: purchase.id,

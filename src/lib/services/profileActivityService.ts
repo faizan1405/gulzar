@@ -1,5 +1,4 @@
 import { prisma } from '../db';
-import { MatrimonialProfile } from '@prisma/client';
 
 export async function recordProfileView(viewerUserId: string, viewedProfileId: string) {
   // Get viewer's profile ID
@@ -28,17 +27,19 @@ export async function recordProfileView(viewerUserId: string, viewedProfileId: s
     });
 
     if (existingView) {
-      // Avoid rapid incrementing by checking time since last view (e.g. 1 hour)
+      // Always update lastViewedAt to reflect the most recent view
       const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+      const updateData: { lastViewedAt: Date; viewCount?: { increment: number } } = {
+        lastViewedAt: new Date(),
+      };
+      // Increment viewCount only if more than 1 hour has passed since the last counted view
       if (existingView.lastViewedAt < oneHourAgo) {
-        await prisma.profileView.update({
-          where: { id: existingView.id },
-          data: {
-            viewCount: { increment: 1 },
-            lastViewedAt: new Date()
-          }
-        });
+        updateData.viewCount = { increment: 1 };
       }
+      await prisma.profileView.update({
+        where: { id: existingView.id },
+        data: updateData,
+      });
     } else {
       await prisma.profileView.create({
         data: {

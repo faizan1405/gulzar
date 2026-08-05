@@ -66,5 +66,3 @@ export const AdminSidebar: React.FC = () => {
     </aside>
   );
 };
-
-export default AdminSidebar;

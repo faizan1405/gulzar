@@ -35,8 +35,8 @@ export const PackageInquiryForm: React.FC<PackageInquiryFormProps> = ({
       setFullName(userProfile.fullName || '');
       setPhone(userProfile.phoneNumber || '');
       setCity(userProfile.city || '');
-      if ((userProfile as any).email) {
-        setEmail((userProfile as any).email);
+      if (userProfile.email) {
+        setEmail(userProfile.email);
       }
     }
   }, [isLoggedIn, userProfile]);
@@ -82,8 +82,8 @@ export const PackageInquiryForm: React.FC<PackageInquiryFormProps> = ({
           onSuccess();
         }, 2000);
       }
-    } catch (err: any) {
-      setErrorMsg(err.message);
+    } catch {
+      setErrorMsg('Something went wrong. Please try again.');
     } finally {
       setIsSubmitting(false);
     }

@@ -2,22 +2,9 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import dynamic from 'next/dynamic';
 import { signOut } from 'next-auth/react';
 import { DEFAULT_MASLAKS, DEFAULT_CASTES, DEFAULT_LOCATIONS } from '../lib/masterData';
-import {
-  Profile,
-  VerificationRequest,
-  AuditLog,
-  PackagePurchase,
-  CuratedLeadAssignment,
-  MaslakOption,
-  CasteOption,
-  LocationOption
-} from '../types';
-
-// Lazy-load the UPI modal — only needed when a user clicks "Buy"
-const UPIPaymentModal = dynamic(() => import('../components/UPIPaymentModal'), { ssr: false });
+import { Profile, VerificationRequest, AuditLog, PackagePurchase, CuratedLeadAssignment, MaslakOption, CasteOption, LocationOption } from '@/types';
 
 interface SessionContextType {
   // Gated profile view flow
@@ -89,7 +76,7 @@ interface SessionContextType {
   handleLogout: () => void;
   toggleSaveProfile: (id: string) => void;
   handleRegisterSubmit: (e: React.FormEvent) => Promise<void>;
-  handleUPIPayment: (packageType: string, amountInRupees?: number, planName?: string) => Promise<void>;
+  handleUPIPayment: (packageType: string, planName?: string) => Promise<void>;
   handleReviewSubmit: (status: 'APPROVED' | 'REJECTED' | 'NEEDS_FOLLOW_UP', request: VerificationRequest, notes: string) => Promise<void>;
   handleAssignLead: (buyerId: string, leadId: string) => void;
   handleUpdateLeadStatus: (assignmentId: string, status: string) => void;
@@ -199,8 +186,8 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [formData, setFormData] = useState(initialFormData);
 
   // UPI Payment Modal state
-  const [showUPIModal, setShowUPIModal] = useState(false);
-  const [upiModalData, setUpiModalData] = useState<{
+  const [, setShowUPIModal] = useState(false);
+  const [, setUpiModalData] = useState<{
     purchaseId: string;
     amount: number;
     planName: string;
@@ -212,8 +199,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const wasLoadingRef = useRef(false);
 
   // Detect a real NextAuth session — runs on mount and whenever reloadTrigger changes
-  const [userRole, setUserRole] = useState<string | null>(null);
-  const isAdmin = userRole === 'ADMIN';
+  const [, setUserRole] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -242,7 +228,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
     detectRealSession();
     return () => { cancelled = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [reloadTrigger]);
 
   // After a successful login, if the user has no complete profile yet,
@@ -357,8 +343,8 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
               const pkgData = await resPkg.json();
               const pkgs: string[] = Array.isArray(pkgData.purchases)
                 ? pkgData.purchases
-                    .filter((p: any) => p.paymentStatus === 'PAID' && p.accessStatus === 'ACTIVE')
-                    .map((p: any) => p.packageType)
+                    .filter((p: Record<string, unknown>) => (p as Record<string, unknown>).paymentStatus === 'PAID' && (p as Record<string, unknown>).accessStatus === 'ACTIVE')
+                    .map((p: Record<string, unknown>) => typeof (p as Record<string, unknown>).packageType === 'string' ? (p as Record<string, unknown>).packageType as string : '')
                 : [];
               setActivePackages(pkgs);
             }
@@ -478,7 +464,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   };
 
-  const handleUPIPayment = async (packageType: string, amountInRupees = 300, planName = 'Standard Monthly Membership') => {
+  const handleUPIPayment = async (packageType: string, planName: string = 'Standard Monthly Membership') => {
     if (!isLoggedIn) {
       router.push('/register');
       return;

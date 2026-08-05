@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 
 const ALLOWED_ORIGINS = (process.env.CORS_ORIGINS || 'http://localhost:3000')
   .split(',')

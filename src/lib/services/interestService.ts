@@ -43,10 +43,11 @@ export async function sendInterest(senderUserId: string, receiverProfileId: stri
       if (existing.status === 'PENDING') return { success: false, error: 'Interest already sent and is pending' };
       if (existing.status === 'ACCEPTED') return { success: false, error: 'Interest already accepted' };
       
-      // If rejected or withdrawn, maybe allow resending after some time, but for now just update it to pending
+      // If rejected or withdrawn, allow resending — preserve the existing message
+      const preservedMessage = existing.message ?? message;
       await prisma.interestRequest.update({
         where: { id: existing.id },
-        data: { status: 'PENDING', message, updatedAt: new Date() }
+        data: { status: 'PENDING', message: preservedMessage, updatedAt: new Date() }
       });
     } else {
       await prisma.interestRequest.create({

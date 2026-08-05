@@ -1,10 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useSession } from '../../context/SessionContext';
-import AdminSidebar from '../../components/AdminSidebar';
+import { AdminSidebar } from '../../components/AdminSidebar';
 
 export default function AdminLayoutClient({ children }: { children: React.ReactNode }) {
   const router = useRouter();

@@ -724,7 +724,7 @@ export default function EventManagementClient() {
         </section>
       </main>
 
-      <PremiumFooter onNavigate={handleNavigate as any} />
+      <PremiumFooter onNavigate={handleNavigate} />
     </>
   );
 }

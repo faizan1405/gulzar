@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
 
     const bodyOrResponse = await safeJsonBody(req, { maxSizeKB: 20 });
     if (bodyOrResponse instanceof Response) return bodyOrResponse;
-    const body = bodyOrResponse;
+    const body = bodyOrResponse as { packageType?: string };
     const packageTypeInput = (body.packageType || 'monthly_membership') as PackageType;
 
     const pkgDef = PREMIUM_PACKAGES[packageTypeInput];

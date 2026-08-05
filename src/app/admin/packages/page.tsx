@@ -2,8 +2,9 @@
 
 import React, { useState } from 'react';
 import { useSession } from '../../../context/SessionContext';
+import { PREMIUM_PACKAGES } from '../../../lib/packages';
 
-async function callAdminAction(action: string, payload: Record<string, any>) {
+async function callAdminAction(action: string, payload: Record<string, string | boolean | number | null>) {
   try {
     const res = await fetch('/api/admin/packages', {
       method: 'POST',
@@ -117,11 +118,10 @@ export default function PremiumPackagesPage() {
             ) : (
               adminPurchases.map((purchase) => {
                 const getPriceDetails = (pkgType: string) => {
-                  if (pkgType === 'monthly_membership') return { name: 'Monthly Membership', base: 300, gst: 54, total: 354 };
-                  if (pkgType === 'good_profile_package') return { name: 'Good Profile Package', base: 5500, gst: 990, total: 6490 };
-                  if (pkgType === 'second_marriage_package') return { name: 'Silver Plan', base: 11000, gst: 1980, total: 12980 };
-                  if (pkgType === 'high_profile_package') return { name: 'Gold Package', base: 21000, gst: 3780, total: 24780 };
-                  return { name: pkgType, base: 0, gst: 0, total: 0 };
+                  const pkg = PREMIUM_PACKAGES[pkgType as keyof typeof PREMIUM_PACKAGES];
+                  if (!pkg) return { name: pkgType, base: 0, gst: 0, total: 0 };
+                  const gst = Math.round(pkg.basePrice * pkg.gstRate);
+                  return { name: pkg.name, base: pkg.basePrice, gst, total: pkg.totalAmount };
                 };
                 const details = getPriceDetails(purchase.packageType);
 
@@ -130,7 +130,7 @@ export default function PremiumPackagesPage() {
                     <td style={{ padding: '12px 8px' }}>
                       <strong>{purchase.profile?.fullName || 'N/A'}</strong>
                       <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
-                        {purchase.profile?.phoneNumber || 'No phone'} | {(purchase.profile as any)?.user?.email || 'No email'}
+                        {purchase.profile?.phoneNumber || 'No phone'} | {purchase.profile?.user?.email || 'No email'}
                       </div>
                       <div style={{ fontSize: '10px', color: 'var(--text-muted)' }}>ID: {purchase.profileId.substring(0, 8)}...</div>
                     </td>
@@ -155,9 +155,9 @@ export default function PremiumPackagesPage() {
                     </td>
                     <td style={{ padding: '12px 8px' }}>
                       <div style={{ fontSize: '11px', fontFamily: 'monospace' }}>
-                        Txn: {(purchase as any).upiTransactionId || (purchase as any).paymentReferenceId || 'N/A'}
+                        Txn: {purchase.upiTransactionId || purchase.paymentReferenceId || 'N/A'}
                         <br />
-                        User Ref: {(purchase as any).userSubmittedTxnId || 'N/A'}
+                        User Ref: {purchase.userSubmittedTxnId || 'N/A'}
                       </div>
                       {purchase.paymentStatus === 'PENDING' && (
                         <input

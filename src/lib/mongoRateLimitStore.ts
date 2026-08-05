@@ -15,8 +15,6 @@
 import { prisma } from '@/lib/db';
 import type { RateLimitStore } from './rateLimitStore';
 
-const TTL_BUFFER_MS = 30_000; // extra seconds beyond windowMs for safety margin
-
 export function createMongoRateLimitStore(): RateLimitStore {
   return {
     async check(key: string, limit: number, windowMs: number) {

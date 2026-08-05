@@ -39,9 +39,6 @@ export async function GET() {
       return NextResponse.json({ profile: null }, { status: 200 });
     }
 
-    // Identify profile categories
-    const profileCat = (profile as any).category || '';
-
     // Fetch viewer purchases (always the owner here)
     const viewerPurchases = await getUserPurchases(profile.id);
 

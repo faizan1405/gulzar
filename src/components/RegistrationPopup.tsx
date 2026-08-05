@@ -141,10 +141,14 @@ export default function RegistrationPopup() {
     };
   }, [authChecked, hasCompletedProfile, isPermanentlyHidden, isExcludedPage, isRegistering, isOpen, startTimer, clearTimer]);
 
-  // If visitor closes without registering, close modal and show again after another 60s
+  // If visitor closes without registering, close modal and restart timer
   const handleCloseWithoutRegistering = useCallback(() => {
     setIsOpen(false);
-  }, []);
+    // Restart timer so popup shows again after 60s
+    if (authChecked && !hasCompletedProfile && !isPermanentlyHidden && !isExcludedPage) {
+      startTimer();
+    }
+  }, [clearTimer, authChecked, hasCompletedProfile, isPermanentlyHidden, isExcludedPage, startTimer]);
 
   // Handle Escape key accessibility
   useEffect(() => {

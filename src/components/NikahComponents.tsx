@@ -114,7 +114,7 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
   getThemeClass
 }) => {
   const profileCat = profile.category || '';
-  const isLockedCategory = (profile as any).isLockedCategory || '';
+  const isLockedCategory = (profile as unknown as Record<string, unknown>).isLockedCategory as string || '';
 
   const isSecMarriage = profileCat === 'second_marriage' || isLockedCategory === 'second_marriage_package';
   const isHighProf = profileCat === 'high_profile' || isLockedCategory === 'high_profile_package';
@@ -387,7 +387,6 @@ export const PremiumPlanCard: React.FC<PremiumPlanCardProps> = ({
   title,
   price,
   gstRate,
-  billingText,
   features,
   isPopular = false,
   isActive,

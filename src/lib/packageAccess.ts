@@ -14,7 +14,7 @@ export interface PackagePurchaseLite {
 }
 
 export function hasPaidAccess(
-  user: { hasPaid?: boolean; [key: string]: any } | null | undefined,
+  user: { hasPaid?: boolean; [key: string]: unknown } | null | undefined,
   purchases: PackagePurchaseLite[] | null | undefined
 ): boolean {
   if (!user && !purchases) return false;
@@ -68,7 +68,7 @@ export function hasGoodProfilePackage(purchases: PackagePurchaseLite[] | null | 
 
 // Alias kept for backward-compatibility with callers that imported the inline helper.
 export function hasPaid300Check(
-  user: { hasPaid?: boolean; [key: string]: any } | null | undefined,
+  user: { hasPaid?: boolean; [key: string]: unknown } | null | undefined,
   purchases: PackagePurchaseLite[] | null | undefined
 ): boolean {
   return hasPaidAccess(user, purchases);

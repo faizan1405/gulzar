@@ -38,8 +38,11 @@ export async function POST(req: NextRequest) {
     const bodyOrResponse = await safeJsonBody(req, { maxSizeKB: 50 });
     if (bodyOrResponse instanceof Response) return bodyOrResponse;
     const body = bodyOrResponse;
-    const { history } = body;
-    message = typeof body?.message === 'string' ? body.message : '';
+    if (!body || typeof body !== 'object') {
+      return NextResponse.json({ error: 'Invalid request body.' }, { status: 400 });
+    }
+    const { history, message: messageRaw } = body as Record<string, unknown>;
+    message = typeof messageRaw === 'string' ? messageRaw : '';
 
     if (!message || typeof message !== 'string' || message.trim() === '') {
       return NextResponse.json(

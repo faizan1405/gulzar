@@ -116,5 +116,3 @@ export const AdminOverview: React.FC = () => {
     </div>
   );
 };
-
-export default AdminOverview;

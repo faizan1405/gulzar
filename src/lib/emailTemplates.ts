@@ -59,7 +59,7 @@ export const emailTemplates = {
   `;
   },
 
-  adminNewProfileAlert: (profileDetails: any) => {
+  adminNewProfileAlert: (profileDetails: { fullName: string; gender: string; phoneNumber: string; city?: string; state?: string }) => {
     const safe = {
       fullName: escapeHTML(profileDetails.fullName || ''),
       gender: escapeHTML(profileDetails.gender || ''),
@@ -98,7 +98,7 @@ export const emailTemplates = {
   `;
   },
 
-  adminNewLeadAlert: (leadDetails: any) => {
+  adminNewLeadAlert: (leadDetails: { fullName: string; phone?: string; email?: string; city?: string; inquiryType?: string; interestedPackage?: string; interestedProfileId?: string; sourcePage?: string; message?: string }) => {
     const safe = {
       fullName: escapeHTML(leadDetails.fullName || ''),
       phone: escapeHTML(leadDetails.phone || ''),

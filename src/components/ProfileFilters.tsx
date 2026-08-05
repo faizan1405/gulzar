@@ -188,5 +188,3 @@ export const ProfileFilters: React.FC<ProfileFiltersProps> = ({
     </div>
   );
 };
-
-export default ProfileFilters;

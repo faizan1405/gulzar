@@ -47,7 +47,7 @@ function calcAge(dob: string | Date): string {
 }
 
 export default function AdminProfilesPage() {
-  const { reloadTrigger, setReloadTrigger } = useSession();
+  const { reloadTrigger } = useSession();
 
   const [profiles, setProfiles] = useState<AdminProfile[]>([]);
   const [loading, setLoading] = useState(true);
@@ -96,7 +96,7 @@ export default function AdminProfilesPage() {
     fetchProfiles();
   }, [fetchProfiles, reloadTrigger]);
 
-  const handleUpdate = async (profileId: string, updates: Record<string, any>) => {
+  const handleUpdate = async (profileId: string, updates: Record<string, string | boolean | number | null>) => {
     setSaving(true);
     setSaveMsg('');
     try {

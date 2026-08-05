@@ -1,6 +1,7 @@
 import { Resend } from 'resend';
 import { prisma } from './db';
 import { emailTemplates } from './emailTemplates';
+import { Profile, Lead } from '@/types';
 
 // Use a mock SMS provider if SMS API is not configured.
 const SMS_MOCK_ENABLED = process.env.SMS_PROVIDER !== 'REAL';
@@ -70,8 +71,11 @@ export async function notifyRegistration(userEmail: string | null, userPhone: st
       try {
         const res = await sendEmail(userEmail, 'Registration Successful - Rishte Forever', emailTemplates.registrationSubmitted(userName));
         await logNotification('REGISTRATION_USER_EMAIL', 'EMAIL', userEmail, 'SUCCESS', res?.id);
-      } catch (err: any) {
-        await logNotification('REGISTRATION_USER_EMAIL', 'EMAIL', userEmail, 'FAILED', err.message);
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          await logNotification('REGISTRATION_USER_EMAIL', 'EMAIL', userEmail, 'FAILED');
+          console.error('Registration email failed:', err.message);
+        }
       }
     }
 
@@ -80,27 +84,36 @@ export async function notifyRegistration(userEmail: string | null, userPhone: st
       try {
         const res = await sendSMS(userPhone, `Salaam ${userName}, your Rishte Forever profile is submitted and under review.`);
         await logNotification('REGISTRATION_USER_SMS', 'SMS', userPhone, 'SUCCESS', res?.id);
-      } catch (err: any) {
-        await logNotification('REGISTRATION_USER_SMS', 'SMS', userPhone, 'FAILED', err.message);
+      } catch (err) {
+        const errMessage = err instanceof Error ? err.message : String(err);
+        await logNotification('REGISTRATION_USER_SMS', 'SMS', userPhone, 'FAILED', undefined);
+        console.error('Registration SMS failed:', errMessage);
       }
     }
   });
 }
 
-export async function notifyAdminNewProfile(profileDetails: any) {
+export async function notifyAdminNewProfile(profileDetails: Profile) {
   setImmediate(async () => {
     try {
       const settings = await prisma.globalSettings.findFirst();
       if (!settings || !settings.emailAlertsEnabled || !settings.adminEmail) return;
 
-      const res = await sendEmail(settings.adminEmail, 'New Profile Alert', emailTemplates.adminNewProfileAlert(profileDetails));
+      const res = await sendEmail(settings.adminEmail, 'New Profile Alert', emailTemplates.adminNewProfileAlert({
+        fullName: profileDetails.fullName,
+        gender: profileDetails.gender,
+        phoneNumber: profileDetails.phoneNumber,
+        city: profileDetails.city || undefined,
+        state: profileDetails.state || undefined,
+      }));
       await logNotification('ADMIN_NEW_PROFILE_ALERT', 'EMAIL', settings.adminEmail, 'SUCCESS', res?.id);
-      
+
       if (settings.smsAlertsEnabled && settings.adminPhone) {
-        const smsRes = await sendSMS(settings.adminPhone, `New profile submitted by ${profileDetails.fullName}. Please review.`);
+        const fullName = typeof profileDetails.fullName === 'string' ? profileDetails.fullName : 'A user';
+        const smsRes = await sendSMS(settings.adminPhone, `New profile submitted by ${fullName}. Please review.`);
         await logNotification('ADMIN_NEW_PROFILE_SMS', 'SMS', settings.adminPhone, 'SUCCESS', smsRes?.id);
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error('Admin alert failed', err);
     }
   });
@@ -138,7 +151,7 @@ export async function notifyVerificationStatus(userEmail: string | null, userPho
         const res = await sendSMS(userPhone, smsBody);
         await logNotification('VERIFICATION_UPDATE', 'SMS', userPhone, 'SUCCESS', res?.id);
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error('Verification notify failed', err);
     }
   });
@@ -156,25 +169,36 @@ export async function notifyMembership(userEmail: string | null, userPhone: stri
         const res = await sendSMS(userPhone, `Salaam ${userName}, your ${pName} is now active on Rishte Forever.`);
         await logNotification('MEMBERSHIP_ACTIVATED', 'SMS', userPhone, 'SUCCESS', res?.id);
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error('Membership notify failed', err);
     }
   });
 }
 
-export async function notifyAdminNewLead(leadDetails: any) {
+export async function notifyAdminNewLead(leadDetails: Lead) {
   setImmediate(async () => {
     try {
       const settings = await prisma.globalSettings.findFirst();
       if (!settings || !settings.emailAlertsEnabled || !settings.adminEmail) return;
 
+      const inquiryType = typeof leadDetails.inquiryType === 'string' ? leadDetails.inquiryType : 'General';
       const res = await sendEmail(
         settings.adminEmail,
-        `New ${leadDetails.inquiryType} Inquiry Received`,
-        emailTemplates.adminNewLeadAlert(leadDetails)
+        `New ${inquiryType} Inquiry Received`,
+        emailTemplates.adminNewLeadAlert({
+          fullName: leadDetails.fullName,
+          phone: leadDetails.phone,
+          email: leadDetails.email || undefined,
+          city: leadDetails.city,
+          inquiryType: leadDetails.inquiryType,
+          interestedPackage: leadDetails.interestedPackage || undefined,
+          interestedProfileId: leadDetails.interestedProfileId || undefined,
+          sourcePage: leadDetails.sourcePage || undefined,
+          message: leadDetails.message || undefined,
+        })
       );
       await logNotification('ADMIN_NEW_LEAD_ALERT', 'EMAIL', settings.adminEmail, 'SUCCESS', res?.id);
-    } catch (err: any) {
+    } catch (err) {
       console.error('Admin new lead notification failed', err);
     }
   });

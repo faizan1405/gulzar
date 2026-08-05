@@ -72,7 +72,7 @@ export async function getAllProfiles() {
   const dbProfiles = await getAllProfilesRaw();
   return dbProfiles.map((p) =>
     redactProfile(
-      p as any,
+      { ...p, dateOfBirth: typeof p.dateOfBirth === 'string' ? p.dateOfBirth : p.dateOfBirth.toISOString() },
       false, // viewerHasStandardPkg
       false, // viewerHasSecondMarriagePkg
       false, // viewerHasHighProfilePkg
@@ -322,10 +322,10 @@ export async function updateProfileImage(userId: string, imageUrl: string, publi
   // Fallback
   const profile = inMemoryProfiles?.find((p) => p.userId === userId);
   if (profile) {
-    (profile as any).profileImageUrl = imageUrl;
-    (profile as any).profileImagePublicId = publicId;
-    (profile as any).profileImageStatus = 'PENDING';
-    (profile as any).uploadedAt = new Date();
+    profile.profileImageUrl = imageUrl;
+    profile.profileImagePublicId = publicId;
+    profile.profileImageStatus = 'PENDING';
+    profile.uploadedAt = new Date();
   }
   return profile || null;
 }

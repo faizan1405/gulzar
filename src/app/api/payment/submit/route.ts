@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
     }
 
-    const payResult = await checkRateLimitByName('interestsPost', session.user.id);
+    const payResult = await checkRateLimitByName('paymentSubmit', session.user.id);
     if (!payResult.allowed) {
       return NextResponse.json(
         { error: 'Too many requests. Please slow down.' },

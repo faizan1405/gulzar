@@ -125,6 +125,8 @@ export const RATE_LIMITS = {
   upload: { limit: envIntMin('RATE_LIMIT_UPLOAD', 5, 1), windowMs: 60_000 },
   /** Lead form submissions — 5/min per IP */
   leads: { limit: envIntMin('RATE_LIMIT_LEADS', 5, 1), windowMs: 60_000 },
+  /** Payment submit — 5/min per user */
+  paymentSubmit: { limit: envIntMin('RATE_LIMIT_PAYMENT_SUBMIT', 5, 1), windowMs: 60_000 },
   /** Profile listings — 30/min */
   profiles: { limit: envIntMin('RATE_LIMIT_PROFILES', 30, 5), windowMs: 60_000 },
 } as const;
@@ -152,9 +154,6 @@ export const MAX_PAGE_SIZE = envInt('MAX_PAGE_SIZE', 100);
  * .env files are caught before any handler runs.
  */
 export function validateEnvFiles(): void {
-  const envLocal = path.join(process.cwd(), '.env.local');
-  const envFile = path.join(process.cwd(), '.env');
-
   const requiredInProduction = ['.env.local', '.env'];
 
   if (process.env.NODE_ENV === 'production') {

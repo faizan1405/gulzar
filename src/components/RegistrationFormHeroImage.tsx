@@ -5,10 +5,6 @@ import Image from 'next/image';
 export const registrationFormHeroImage = '/images/matrimonial-hero.png';
 
 export default function RegistrationFormHeroImage() {
-  if (!registrationFormHeroImage) {
-    return null;
-  }
-
   return (
     <div 
       className="registration-hero-image-container"

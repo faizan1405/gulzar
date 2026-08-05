@@ -150,5 +150,3 @@ export const VerificationQueue: React.FC = () => {
     </div>
   );
 };
-
-export default VerificationQueue;

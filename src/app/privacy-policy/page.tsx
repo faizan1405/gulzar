@@ -1,17 +1,10 @@
 'use client';
 
 import React from 'react';
-import { useRouter } from 'next/navigation';
 import Navbar from '../../components/Navbar';
 import { SectionHeading, PremiumFooter } from '../../components/NikahComponents';
 
 export default function PrivacyPolicyPage() {
-  const router = useRouter();
-
-  const handleNavigate = (view: string) => {
-    router.push('/' + (view === 'home' ? '' : view));
-  };
-
   return (
     <>
       <Navbar />
@@ -58,7 +51,7 @@ export default function PrivacyPolicyPage() {
           </div>
         </div>
       </main>
-      <PremiumFooter onNavigate={handleNavigate} />
+      <PremiumFooter onNavigate={(view) => window.location.href = `/${view === 'home' ? '' : view}`} />
     </>
   );
 }

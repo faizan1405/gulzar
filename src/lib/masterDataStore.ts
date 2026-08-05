@@ -3,9 +3,6 @@ import { DEFAULT_MASLAKS, DEFAULT_CASTES, DEFAULT_LOCATIONS } from './masterData
 import {
   testDbConnection,
   getValidObjectId,
-  sanitizeErrorMessage,
-  isFallbackAllowed,
-  logFallbackWarning,
   MOCK_MASLAK_OPTIONS,
   MOCK_CASTE_OPTIONS,
   MOCK_LOCATION_OPTIONS,

@@ -17,17 +17,9 @@ import { logAudit } from '@/lib/audit';
 import { csrfGuard } from '@/lib/csrfGuard';
 import { safeJsonBody } from '@/lib/requestUtils';
 
-async function requireAdmin(req: NextRequest) {
-  const session = await auth();
-  if (!session?.user || session.user.role !== 'ADMIN') {
-    return { error: NextResponse.json({ error: 'Unauthorized. Admin role required.' }, { status: 403 }), session: null };
-  }
-  return { error: null, session };
-}
-
-export async function GET(req: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
-    const admin = await requireAdmin(req);
+    const admin = await requireAdmin();
     if (admin.error) return admin.error;
 
     const session = admin.session;
@@ -38,7 +30,7 @@ export async function GET(req: NextRequest) {
       });
     }
 
-    const { searchParams } = new URL(req.url);
+    const { searchParams } = new URL(request.url);
     const mode = searchParams.get('mode');
 
     let skip = parseInt(searchParams.get('skip') || '0');
@@ -61,12 +53,20 @@ export async function GET(req: NextRequest) {
   }
 }
 
+async function requireAdmin() {
+  const session = await auth();
+  if (!session?.user || session.user.role !== 'ADMIN') {
+    return { error: NextResponse.json({ error: 'Unauthorized. Admin role required.' }, { status: 403 }), session: null };
+  }
+  return { error: null, session };
+}
+
 export async function POST(req: NextRequest) {
   try {
     const csrfResult = await csrfGuard(req);
     if (csrfResult) return csrfResult;
 
-    const admin = await requireAdmin(req);
+    const admin = await requireAdmin();
     if (admin.error) return admin.error;
     const session = admin.session;
     if (!session?.user?.id) {

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { getAllProfilesRaw, getProfileByUserId, getUserPurchases } from '@/lib/profileStore';
 import { redactProfile } from '@/lib/profilePrivacy';
-import { checkRateLimit, checkRateLimitByName, buildRateLimitHeaders } from '@/lib/rateLimit';
+import { checkRateLimit, buildRateLimitHeaders } from '@/lib/rateLimit';
 import {
   hasPaidAccess,
   hasSecondMarriagePackage,

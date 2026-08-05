@@ -46,5 +46,3 @@ export const PackageInquiryModal: React.FC<PackageInquiryModalProps> = ({
     </div>
   );
 };
-
-export default PackageInquiryModal;

@@ -3,7 +3,7 @@ export interface Profile {
   userId: string;
   fullName: string;
   gender: string;
-  dateOfBirth: string;
+  dateOfBirth: string | Date;
   maritalStatus: string;
   phoneNumber: string;
   city: string | null;
@@ -19,7 +19,9 @@ export interface Profile {
   verificationStatus: string;
   profileCompletionStatus: string;
   partnerPref?: string;
-  createdAt: string;
+  createdAt: string | Date;
+  updatedAt?: string | Date;
+  uploadedAt?: Date | string | null;
 
   // New Matrimonial Identity Fields
   maslak: string | null;
@@ -37,12 +39,13 @@ export interface Profile {
   familyOrigin?: string; // e.g. "UP / Bihar", "Hyderabad", etc.
 
   // Media
-  profileImageUrl?: string;
-  profileImagePublicId?: string;
-  profileImageStatus?: 'PENDING' | 'APPROVED' | 'REJECTED';
+  profileImageUrl?: string | null;
+  profileImagePublicId?: string | null;
+  profileImageStatus?: string;
   category?: string | null;
   hasPaid?: boolean;
   highProfileApproved?: boolean;
+  email?: string | null;
 }
 
 
@@ -53,8 +56,8 @@ export interface VerificationRequest {
   assignedAdminId: string | null;
   notes: string | null;
   verifiedAt: string | null;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: string | Date;
+  updatedAt: string | Date;
   profile: Profile | null;
 }
 
@@ -65,7 +68,7 @@ export interface AuditLog {
   targetType: string;
   targetId: string | null;
   metadata: string;
-  createdAt: string;
+  createdAt: string | Date;
 }
 
 export interface PackagePurchase {
@@ -82,16 +85,16 @@ export interface PackagePurchase {
   upiTransactionId: string | null;
   paymentMode: string;
   paymentStatus: string;
-  purchaseDate: string;
-  expiryDate: string | null;
+  purchaseDate: string | Date;
+  expiryDate: string | Date | null;
   accessStatus: string;
   eligibilityStatus: string;
   marriageConfirmation: string;
   successFeePaymentStatus: string;
   internalNotes: string | null;
-  createdAt: string;
-  updatedAt: string;
-  profile?: Profile | null;
+  createdAt: string | Date;
+  updatedAt: string | Date;
+  profile?: (Profile & { user?: { email?: string } }) | null;
 }
 
 export interface CuratedLeadAssignment {
@@ -99,8 +102,8 @@ export interface CuratedLeadAssignment {
   buyerProfileId: string;
   leadProfileId: string;
   status: string;
-  assignedAt: string;
-  updatedAt: string;
+  assignedAt: string | Date;
+  updatedAt: string | Date;
   buyerProfile?: Profile | null;
   leadProfile?: Profile | null;
 }
@@ -110,8 +113,8 @@ export interface MaslakOption {
   label: string;
   aliases: string[];
   isDisabled: boolean;
-  createdAt?: string;
-  updatedAt?: string;
+  createdAt?: string | Date;
+  updatedAt?: string | Date;
 }
 
 export interface CasteOption {
@@ -119,8 +122,8 @@ export interface CasteOption {
   label: string;
   aliases: string[];
   isDisabled: boolean;
-  createdAt?: string;
-  updatedAt?: string;
+  createdAt?: string | Date;
+  updatedAt?: string | Date;
 }
 
 export interface LocationOption {
@@ -130,8 +133,8 @@ export interface LocationOption {
   locality: string | null;
   isHighPriority: boolean;
   isDisabled: boolean;
-  createdAt?: string;
-  updatedAt?: string;
+  createdAt?: string | Date;
+  updatedAt?: string | Date;
 }
 
 export interface Lead {
@@ -148,24 +151,54 @@ export interface Lead {
   status: string;
   priority: string;
   adminNotes: string | null;
+  createdAt: string | Date;
+  updatedAt: string | Date;
+}
+
+export interface InterestRequest {
+  id: string;
+  senderProfileId: string;
+  receiverProfileId: string;
+  status: string;
+  message: string | null;
   createdAt: string;
   updatedAt: string;
+  receiverProfile?: Profile | null;
+  senderProfile?: Profile | null;
+}
+
+export interface Shortlist {
+  id: string;
+  shortlisterProfileId: string;
+  shortlistedProfileId: string;
+  createdAt: string;
+  shortlistedProfile?: Profile | null;
+  shortlisterProfile?: Profile | null;
+}
+
+export interface ProfileView {
+  id: string;
+  viewerProfileId: string;
+  viewedProfileId: string;
+  viewedAt: string;
+  viewerProfile?: Profile | null;
+  viewedProfile?: Profile | null;
 }
 
 export interface InterestResult {
-  requests: any[];
+  requests: Record<string, unknown>[];
   total: number;
   profileId: string;
 }
 
 export interface ShortlistResult {
-  shortlists: any[];
+  shortlists: Record<string, unknown>[];
   total: number;
   profileId: string;
 }
 
 export interface ViewedProfileResult {
-  views: any[];
+  views: Record<string, unknown>[];
   total: number;
   profileId: string;
 }

@@ -74,8 +74,6 @@ export function getViewerPackageAccess(
   viewerProfile: { hasPaid: boolean; id?: string } | null,
   purchases: MinimalPurchase[]
 ) {
-  const viewerProfileId = viewerProfile?.id;
-
   const hasMonthly = (viewerProfile?.hasPaid ?? false) || isActivePaid('monthly_membership', purchases);
   const hasGoodProfile = isEligibleForPremiumPackage('good_profile_package', purchases);
   const hasSecondMarriage = isActivePaid('second_marriage_package', purchases);

@@ -44,7 +44,6 @@ export async function PATCH(
       'verificationStatus',
       'adminApprovalStatus',
       'profileCompletionStatus',
-      'hasPaid',
       'category',
       'fullName',
       'phoneNumber',
@@ -67,6 +66,9 @@ export async function PATCH(
 
     try {
       const dbId = getValidObjectId(id);
+      if (!dbId) {
+        return NextResponse.json({ error: 'Invalid profile ID.' }, { status: 400 });
+      }
       const updated = await prisma.matrimonialProfile.update({
         where: { id: dbId },
         data: updateData,
@@ -118,6 +120,9 @@ export async function DELETE(
 
     try {
       const dbId = getValidObjectId(id);
+      if (!dbId) {
+        return NextResponse.json({ error: 'Invalid profile ID.' }, { status: 400 });
+      }
       await prisma.matrimonialProfile.delete({ where: { id: dbId } });
 
       await logAudit({

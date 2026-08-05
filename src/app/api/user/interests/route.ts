@@ -67,9 +67,9 @@ export async function GET(req: NextRequest) {
       );
 
       if (type === 'sent') {
-        return { ...r, receiver: redactedProfile };
+        return { ...r, receiverProfile: redactedProfile };
       } else {
-        return { ...r, sender: redactedProfile };
+        return { ...r, senderProfile: redactedProfile };
       }
     });
 

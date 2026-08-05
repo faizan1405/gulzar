@@ -85,8 +85,7 @@ export async function POST(req: NextRequest) {
       const razorpayPaymentId = paymentEntity.id;
       const razorpayOrderId = paymentEntity.order_id;
       const amount = paymentEntity.amount; // in paise
-      const amountInRupees = amount / 100;
-      const status = paymentEntity.status;
+      const amountInRupees = (amount / 100).toFixed(2);
       const method = paymentEntity.method;
 
       // Find purchase that has a Razorpay order ID stored — match the exact order

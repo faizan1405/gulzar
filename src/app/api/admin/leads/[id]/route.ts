@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
-import { updateLead, deleteLead, logFallbackWarning } from '@/lib/profileStore';
+import { updateLead, deleteLead } from '@/lib/profileStore';
 import { checkRateLimitByName, buildRateLimitHeaders } from '@/lib/rateLimit';
 import { logAudit } from '@/lib/audit';
 import { csrfGuard } from '@/lib/csrfGuard';

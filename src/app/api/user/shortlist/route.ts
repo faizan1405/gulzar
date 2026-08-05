@@ -3,7 +3,7 @@ import { auth } from '@/auth';
 import { getShortlistedProfiles, toggleShortlist } from '@/lib/services/profileActivityService';
 import { redactProfile } from '@/lib/profilePrivacy';
 import { prisma } from '@/lib/db';
-import { checkRateLimit, checkRateLimitByName, buildRateLimitHeaders } from '@/lib/rateLimit';
+import { checkRateLimitByName, buildRateLimitHeaders } from '@/lib/rateLimit';
 import { logAudit } from '@/lib/audit';
 import { csrfGuard } from '@/lib/csrfGuard';
 import { safeJsonBody } from '@/lib/requestUtils';
