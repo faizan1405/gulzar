@@ -2142,6 +2142,36 @@ input[type="checkbox"] {
     display: none;
   }
 
+  .footer-grid {
+    grid-template-columns: 1fr;
+    gap: 32px;
+    text-align: center;
+  }
+
+  .footer-logo-wrap {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .footer-col-heading {
+    text-align: center;
+  }
+
+  .footer-nav-list {
+    align-items: center;
+  }
+
+  .footer-social-row {
+    justify-content: center;
+  }
+
+  .footer-address,
+  .footer-contact-block,
+  .footer-dua {
+    text-align: center;
+  }
+
   .search-panel {
     padding: 20px;
     margin-top: -20px;
@@ -4774,9 +4804,10 @@ input[type="checkbox"] {
 /* Footer */
 .footer-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 40px;
+  grid-template-columns: 1.5fr 1fr 1fr;
+  gap: 48px;
   margin-bottom: 40px;
+  align-items: start;
 }
 .footer-logo-wrap {
   margin-bottom: 18px;

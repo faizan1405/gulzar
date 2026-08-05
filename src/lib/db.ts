@@ -23,7 +23,7 @@ export async function testDbConnection(): Promise<boolean> {
     return false;
   }
   try {
-    await (prisma as any).$queryRaw`SELECT 1`;
+    await prisma.user.findFirst({ select: { id: true } });
     return true;
   } catch (err) {
     console.error('Database health check failed:', err);
