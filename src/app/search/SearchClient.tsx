@@ -31,8 +31,9 @@ export default function SearchClient() {
     initialState = queryState;
     if (queryCity) initialCity = queryCity;
   } else if (queryLocation && queryLocation !== 'All India') {
-    const isState = masterLocations.some(l => l.state === queryLocation);
-    const isCity = masterLocations.some(l => l.district === queryLocation);
+    const locs = masterLocations || [];
+    const isState = locs.some(l => l?.state === queryLocation);
+    const isCity = locs.some(l => l?.district === queryLocation);
 
     if (queryLocation === 'Delhi NCR') {
       initialState = 'Delhi';
@@ -40,13 +41,13 @@ export default function SearchClient() {
       initialState = queryLocation;
     } else if (isCity) {
       initialCity = queryLocation;
-      const foundLoc = masterLocations.find(l => l.district === queryLocation);
-      if (foundLoc) {
+      const foundLoc = locs.find(l => l?.district === queryLocation);
+      if (foundLoc && foundLoc.state) {
         initialState = foundLoc.state;
       }
     } else {
-      const partialState = masterLocations.find(l => l.state.includes(queryLocation));
-      if (partialState) initialState = partialState.state;
+      const partialState = locs.find(l => l?.state?.includes(queryLocation));
+      if (partialState && partialState.state) initialState = partialState.state;
     }
   }
 
@@ -67,9 +68,11 @@ export default function SearchClient() {
 
   // Calculate age dynamically from dateOfBirth, fallback to age, or null
   const getProfileAge = (p: Profile): number | null => {
+    if (!p) return null;
     const dobRaw = p.dateOfBirth;
     if (dobRaw) {
       const dob = new Date(dobRaw as string | Date | number);
+      if (isNaN(dob.getTime())) return null;
       const today = new Date();
       let age = today.getFullYear() - dob.getFullYear();
       const m = today.getMonth() - dob.getMonth();
@@ -80,7 +83,8 @@ export default function SearchClient() {
     }
     const fallbackAge = (p as unknown as Record<string, unknown>).age;
     if (fallbackAge !== undefined && fallbackAge !== null) {
-      return Number(fallbackAge);
+      const num = Number(fallbackAge);
+      return isNaN(num) ? null : num;
     }
     return null;
   };
@@ -99,10 +103,12 @@ export default function SearchClient() {
   };
 
   // Apply strict filtering
-  const filteredProfiles = profiles.filter((p) => {
+  const filteredProfiles = (profiles || []).filter((p) => {
+    if (!p) return false;
+
     // 0a. Gender filter (hard filter)
     if (selectedGender !== 'No preference') {
-      if (p.gender.toLowerCase() !== selectedGender.toLowerCase()) {
+      if (!p.gender || p.gender.toLowerCase() !== selectedGender.toLowerCase()) {
         return false;
       }
     }

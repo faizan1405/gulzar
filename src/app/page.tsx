@@ -11,7 +11,18 @@ export async function generateMetadata(): Promise<Metadata> {
     console.error("Failed to load settings in metadata", e);
   }
   
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://rishteforever.in';
+  const rawSiteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://rishteforever.in';
+  const siteUrl = rawSiteUrl.startsWith('http://') || rawSiteUrl.startsWith('https://') 
+    ? rawSiteUrl 
+    : `https://${rawSiteUrl}`;
+
+  let metadataBase: URL;
+  try {
+    metadataBase = new URL(siteUrl);
+  } catch {
+    metadataBase = new URL('https://rishteforever.in');
+  }
+
   const title = "Rishte Forever — Trusted Muslim Matrimonial Website & Marriage Bureau";
   const description = "Rishte Forever is India's premium halal Muslim matrimonial website & marriage bureau. Browse verified Muslim profiles and rishta services with manual verification and complete privacy control.";
   const previewImage = settings?.defaultPreviewImage || "/images/nikah-1.jpeg";
@@ -20,7 +31,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title,
     description,
-    metadataBase: new URL(siteUrl),
+    metadataBase,
     keywords: [
       "Muslim matrimonial website",
       "Muslim marriage bureau",

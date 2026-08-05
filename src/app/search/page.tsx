@@ -3,6 +3,7 @@ import SearchClient from './SearchClient';
 import { Metadata } from 'next';
 import { prisma } from '@/lib/db';
 import JsonLd from '@/components/JsonLd';
+import SearchErrorBoundary from '@/components/SearchErrorBoundary';
 
 export async function generateMetadata(): Promise<Metadata> {
   let settings = null;
@@ -12,7 +13,18 @@ export async function generateMetadata(): Promise<Metadata> {
     console.error("Failed to load settings in metadata", e);
   }
   
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://rishteforever.in';
+  const rawSiteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://rishteforever.in';
+  const siteUrl = rawSiteUrl.startsWith('http://') || rawSiteUrl.startsWith('https://') 
+    ? rawSiteUrl 
+    : `https://${rawSiteUrl}`;
+
+  let metadataBase: URL;
+  try {
+    metadataBase = new URL(siteUrl);
+  } catch {
+    metadataBase = new URL('https://rishteforever.in');
+  }
+
   const title = "Muslim Matrimonial Directory — Rishte Forever";
   const description = "Search call-verified Muslim brides and grooms by sect, maslak, education, occupation, and family background. Safe and privacy-focused.";
   const previewImage = settings?.defaultPreviewImage || "/images/nikah-2.jpeg";
@@ -21,7 +33,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title,
     description,
-    metadataBase: new URL(siteUrl),
+    metadataBase,
     keywords: [
       "Muslim matrimonial website",
       "Muslim marriage bureau",
@@ -80,9 +92,11 @@ export default function SearchPage() {
   return (
     <>
       <JsonLd schema={breadcrumbSchema} />
-      <Suspense fallback={<div className="loading-spinner"></div>}>
-        <SearchClient />
-      </Suspense>
+      <SearchErrorBoundary>
+        <Suspense fallback={<div className="loading-spinner"></div>}>
+          <SearchClient />
+        </Suspense>
+      </SearchErrorBoundary>
     </>
   );
 }

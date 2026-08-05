@@ -10,7 +10,7 @@ export const getProfileImage = (gender: string, index: number): string => {
     'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=300&h=300'
   ];
 
-  if (gender.toLowerCase() === 'male') {
+  if (gender && typeof gender === 'string' && gender.toLowerCase() === 'male') {
     return maleImages[index % maleImages.length];
   }
   return femaleImages[index % femaleImages.length];
