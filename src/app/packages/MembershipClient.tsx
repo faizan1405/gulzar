@@ -104,7 +104,7 @@ export default function MembershipClient() {
     <>
       <Navbar />
       <main className="flex-grow">
-        <div className="container font-sans" style={{ padding: '40px 0 80px 0' }}>
+        <div className="container font-sans" style={{ padding: '40px 0 140px 0' }}>
           <SectionHeading
             title="Rishta Plans"
             subtitle="Choose a membership that fits your journey toward a blessed nikah."

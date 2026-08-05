@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -9,45 +9,6 @@ import { useSession } from '../context/SessionContext';
 export const AdminSidebar: React.FC = () => {
   const pathname = usePathname();
   const { isAdminMobileOpen, setIsAdminMobileOpen } = useSession();
-  const [referralRate, setReferralRate] = useState(20);
-  const [saving, setSaving] = useState(false);
-  const [saveMsg, setSaveMsg] = useState('');
-
-  useEffect(() => {
-    async function loadSettings() {
-      try {
-        const res = await fetch('/api/admin/settings', { cache: 'no-store' });
-        if (res.ok) {
-          const data = await res.json();
-          if (data.settings?.referralRate) {
-            setReferralRate(data.settings.referralRate);
-          }
-        }
-      } catch {
-        // keep default 20 if fetch fails
-      }
-    }
-    loadSettings();
-  }, []);
-
-  const handleReferralChange = async (value: number) => {
-    setReferralRate(value);
-    setSaving(true);
-    setSaveMsg('');
-    try {
-      await fetch('/api/admin/settings', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ referralRate: value }),
-      });
-      setSaveMsg('Saved!');
-      setTimeout(() => setSaveMsg(''), 1500);
-    } catch {
-      setSaveMsg('Error saving');
-    } finally {
-      setSaving(false);
-    }
-  };
 
   const handleLinkClick = () => {
     setIsAdminMobileOpen(false);
@@ -102,40 +63,6 @@ export const AdminSidebar: React.FC = () => {
       >
         📥 Leads & Inquiries
       </Link>
-
-      <div className="admin-nav-section-title">Logs & Settings</div>
-      <Link
-        href="/admin/logs"
-        className={`admin-nav-link ${pathname === '/admin/logs' ? 'active' : ''}`}
-        onClick={handleLinkClick}
-      >
-        📜 Activity Logs
-      </Link>
-      <Link
-        href="/admin/settings"
-        className={`admin-nav-link ${pathname === '/admin/settings' ? 'active' : ''}`}
-        onClick={handleLinkClick}
-      >
-        ⚙️ Settings
-      </Link>
-
-      <div style={{ marginTop: 'auto', borderTop: '1px solid rgba(212,163,89,0.3)', paddingTop: '20px', padding: '0 12px' }}>
-        <h4 style={{ color: 'var(--gold-accent)', fontSize: '13px', marginBottom: '8px' }}>Referral Rate Control</h4>
-        <input
-          type="range"
-          min="20"
-          max="23"
-          value={referralRate}
-          onChange={(e) => handleReferralChange(parseInt(e.target.value))}
-          disabled={saving}
-          style={{ width: '100%', accentColor: 'var(--gold-accent)', opacity: saving ? 0.6 : 1 }}
-        />
-        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', marginTop: '6px' }}>
-          <span>Commission:</span>
-          <strong>{referralRate}%</strong>
-        </div>
-        {saveMsg && <span style={{ fontSize: '10px', color: '#059669' }}>{saveMsg}</span>}
-      </div>
     </aside>
   );
 };
