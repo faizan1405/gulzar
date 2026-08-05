@@ -2,8 +2,8 @@
 
 import dynamic from "next/dynamic";
 
-export const ProfileDetails = dynamic(() => import("./ProfileDetails"), { ssr: false });
-export const ChatbotWidget = dynamic(() => import("./ChatbotWidget"), { ssr: false });
-export const CallButton = dynamic(() => import("./CallButton"), { ssr: false });
-export const WhatsAppButton = dynamic(() => import("./WhatsAppButton"), { ssr: false });
-export const RegistrationPopup = dynamic(() => import("./RegistrationPopup"), { ssr: false });
+export const ProfileDetails = dynamic(() => import("./ProfileDetails"));
+export const ChatbotWidget = dynamic(() => import("./ChatbotWidget"));
+export const CallButton = dynamic(() => import("./CallButton"));
+export const WhatsAppButton = dynamic(() => import("./WhatsAppButton"));
+export const RegistrationPopup = dynamic(() => import("./RegistrationPopup"));
