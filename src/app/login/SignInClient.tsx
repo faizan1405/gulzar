@@ -3,23 +3,23 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { signIn } from 'next-auth/react';
 
 export default function SignInClient() {
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleGoogleSignIn = () => {
+  const handleGoogleSignIn = async () => {
     setIsLoading(true);
-    const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '90072284378-8mhfs7b7iitmpa4o15q7qou0743l1kgh.apps.googleusercontent.com';
-    const redirectUri = encodeURIComponent('https://rishteforever.in/api/auth/callback/google');
-    const url =
-      'https://accounts.google.com/o/oauth2/v2/auth' +
-      '?client_id=' + clientId +
-      '&redirect_uri=' + redirectUri +
-      '&response_type=code' +
-      '&scope=openid+profile+email' +
-      '&access_type=offline' +
-      '&prompt=consent';
-    window.location.href = url;
+    setError(null);
+    try {
+      // Use NextAuth's built-in signIn — it handles the OAuth flow,
+      // callback routing, and the iss parameter that Google requires internally.
+      await signIn('google', { callbackUrl: '/' });
+    } catch (err) {
+      setError('Sign-in failed. Please try again.');
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -105,6 +105,10 @@ export default function SignInClient() {
             opacity: 0.5,
           }}
         />
+
+        {error && (
+          <p style={{ color: '#dc2626', fontSize: '14px', marginBottom: '16px' }}>{error}</p>
+        )}
 
         <button
           onClick={handleGoogleSignIn}
