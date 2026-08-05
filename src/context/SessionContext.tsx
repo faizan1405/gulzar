@@ -217,32 +217,49 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
   // Tracks isLoading transitions to run post-load logic for the gated profile flow
   const wasLoadingRef = useRef(false);
 
-  // Detect a real NextAuth (Google) session on first mount
+  // Detect a real NextAuth session — runs on mount and whenever reloadTrigger changes
   const [userRole, setUserRole] = useState<string | null>(null);
   const isAdmin = userRole === 'ADMIN';
 
   useEffect(() => {
-    if (isLoggedIn) return;
+    let cancelled = false;
+
     async function detectRealSession() {
       try {
-        const res = await fetch('/api/auth/session');
-        if (res.ok) {
-          const session = await res.json();
-          if (session?.user) {
-            setIsLoggedIn(true);
-            if (session.user.role) setUserRole(session.user.role);
-          }
+        const res = await fetch('/api/auth/session', { cache: 'no-store' });
+        if (!res.ok) throw new Error('Session fetch failed');
+        const session = await res.json();
+        if (session?.user) {
+          setIsLoggedIn(true);
+          if (session.user.role) setUserRole(session.user.role);
+        } else {
+          setIsLoggedIn(false);
+          setUserRole(null);
         }
       } catch {
-        // no session — stay logged out
+        setIsLoggedIn(false);
+        setUserRole(null);
       } finally {
-        setAuthChecked(true);
+        if (!cancelled) {
+          setAuthChecked(true);
+        }
       }
     }
 
     detectRealSession();
+    return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [reloadTrigger]);
+
+  // After a successful login, if the user has no complete profile yet,
+  // auto-open the registration wizard so onboarding is seamless.
+  useEffect(() => {
+    if (!isLoggedIn || !userProfile) return;
+    if (userProfile.profileCompletionStatus !== 'COMPLETE') {
+      setIsRegistering(true);
+      setRegStep(1);
+    }
+  }, [isLoggedIn, userProfile, setIsRegistering, setRegStep]);
 
   // Headers helper — plain JSON
   const getHeaders = useCallback(() => {
@@ -406,8 +423,17 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
     signIn('google');
   };
 
-  const handleLogout = () => {
-    signOut({ callbackUrl: '/' });
+  const handleLogout = async () => {
+    try {
+      await signOut({ callbackUrl: '/' });
+    } finally {
+      setIsLoggedIn(false);
+      setUserProfile(null);
+      setAccountData(null);
+      setActivePackages([]);
+      setIsRegistering(false);
+      setReloadTrigger((prev) => prev + 1);
+    }
   };
 
   const toggleSaveProfile = (id: string) => {

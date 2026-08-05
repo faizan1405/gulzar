@@ -56,20 +56,21 @@ export default function Navbar() {
   const router = useRouter();
   const {
     isLoggedIn,
-    setIsLoggedIn,
-    setIsRegistering,
-    setRegStep,
     setShowLoginModal,
     isMobileMenuOpen,
     setIsMobileMenuOpen,
     handleLogout,
+    userProfile,
   } = useSession();
 
   const handleRegisterFree = () => {
-    setIsLoggedIn(true);
-    setIsRegistering(true);
-    setRegStep(1);
-    router.push('/');
+    if (!isLoggedIn) {
+      setShowLoginModal(true);
+    } else if (!userProfile || userProfile.profileCompletionStatus !== 'COMPLETE') {
+      router.push('/register');
+    } else {
+      router.push('/');
+    }
   };
 
   const handleLoginTrigger = () => {

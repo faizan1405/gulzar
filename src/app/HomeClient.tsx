@@ -4,7 +4,6 @@ import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { signIn } from 'next-auth/react';
 import { useSession } from '../context/SessionContext';
 import { getProfileImage, getThemeClass } from '../lib/helpers';
 import { getSupportWhatsAppLink } from '../lib/whatsapp';
@@ -37,7 +36,6 @@ export default function HomeClient() {
 
   const {
     isLoggedIn,
-    showLoginModal,
     setShowLoginModal,
     handleUPIPayment,
     profiles,
@@ -510,41 +508,6 @@ export default function HomeClient() {
       </main>
 
       <PremiumFooter onNavigate={handleNavigate} />
-
-      {/* Google Login Modal */}
-      {showLoginModal && (
-        <div className="modal-overlay" onClick={() => setShowLoginModal(false)}>
-          <div className="modal-content-sm" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-content-inner">
-              <h3 className="modal-title-sm">Join Rishte Forever</h3>
-              <p className="modal-subtitle">
-                Create a profile or log in securely using your Google account to get verified.
-              </p>
-
-              <button
-                onClick={() => signIn('google', { callbackUrl: window.location.pathname })}
-                className="btn-google"
-              >
-                <Image
-                  src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg"
-                  alt="Google logo"
-                  width={20}
-                  height={20}
-                />
-                Continue with Google
-              </button>
-
-              <button
-                onClick={() => setShowLoginModal(false)}
-                className="btn btn-secondary btn-block"
-                style={{ marginTop: '14px' }}
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Package Inquiry Modal */}
       {inquiryPackage && (
