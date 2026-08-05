@@ -392,16 +392,13 @@ export const PremiumPlanCard: React.FC<PremiumPlanCardProps> = ({
   isActive,
   onActivate,
   ctaText,
-  onInquire,
   whatsappMessage,
   imageUrl,
   badgeText,
   planTier,
   positioning,
   hidePrices = true,
-  isLoggedIn = false,
-  onCompleteForm,
-}) => {
+}: PremiumPlanCardProps) => {
   const finalBadge = badgeText || (isPopular ? 'Recommended' : undefined);
 
   return (
@@ -453,31 +450,12 @@ export const PremiumPlanCard: React.FC<PremiumPlanCardProps> = ({
       </ul>
 
       <div className="pkg-cta-area">
-        {!hidePrices ? (
-          <button
-            onClick={onActivate}
-            className={`btn ${isPopular || isActive ? 'btn-gold' : 'btn-primary'} btn-full`}
-            disabled={isActive}
-          >
-            {isActive ? 'Active Package' : ctaText}
-          </button>
-        ) : (
-          <button
-            onClick={isLoggedIn ? onCompleteForm : onCompleteForm}
-            className="btn btn-primary btn-full"
-          >
-            {isLoggedIn ? 'Complete Form to Buy' : 'Register & Buy Package'}
-          </button>
-        )}
-        {onInquire && !isActive && (
-          <button
-            onClick={onInquire}
-            type="button"
-            className="btn btn-secondary pkg-inquire-btn"
-          >
-            Inquire & Request Callback
-          </button>
-        )}
+        <button
+          onClick={onActivate}
+          className={`btn btn-primary btn-full`}
+        >
+          {hidePrices ? 'Register & Buy Package' : (isActive ? 'Active Package' : ctaText)}
+        </button>
         {whatsappMessage && !isActive && (
           <a
             href={getSupportWhatsAppLink(whatsappMessage)}
@@ -491,36 +469,6 @@ export const PremiumPlanCard: React.FC<PremiumPlanCardProps> = ({
             Inquire on WhatsApp
           </a>
         )}
-            <button
-              onClick={() => {
-                  const path = title.toLowerCase().includes('monthly') || title.toLowerCase().includes('essential')
-                    ? '/packages'
-                    : title.toLowerCase().includes('good')
-                      ? '/packages/good-profiles'
-                      : title.toLowerCase().includes('second')
-                        ? '/packages/second-marriage'
-                        : title.toLowerCase().includes('high') || title.toLowerCase().includes('gold')
-                          ? '/packages/high-profile'
-                          : '/packages';
-
-                  const shareUrl = `${window.location.origin}${path}`;
-                  const shareText = `Check out the ${title} on Rishte Forever matrimonial site:`;
-                  if (navigator.share) {
-                    navigator.share({
-                      title: `Rishte Forever - ${title}`,
-                      text: shareText,
-                      url: shareUrl
-                    }).catch(() => { });
-                  } else {
-                    navigator.clipboard.writeText(`${shareText} ${shareUrl}`);
-                    alert(`${title} link copied to clipboard!`);
-                  }
-                }}
-              type="button"
-              className="pkg-share-btn"
-            >
-              <span>Share Package 🔗</span>
-            </button>
       </div>
     </div>
   );

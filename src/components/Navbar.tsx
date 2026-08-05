@@ -61,10 +61,6 @@ export default function Navbar() {
     handleLogout,
   } = useSession();
 
-  const handleSignIn = () => {
-    router.push('/login');
-  };
-
   return (
     <header className="header font-sans">
       <div className="header-top-strip">
@@ -138,10 +134,14 @@ export default function Navbar() {
                 </>
               ) : (
                 <>
-                  <button onClick={handleSignIn} className="btn btn-gold nav-btn-sm">
+                  <Link href="/register" className="btn btn-gold nav-btn-sm">
+                    <Icon name="add" size={14} />
+                    Register Free
+                  </Link>
+                  <Link href="/login" className="btn btn-secondary nav-btn-sm">
                     <Icon name="lock" size={14} />
                     Sign In
-                  </button>
+                  </Link>
                 </>
               )}
               <Link href="/admin" className="btn btn-ghost nav-btn-sm admin-link" title="Admin">
@@ -216,7 +216,11 @@ export default function Navbar() {
                 </>
               ) : (
                 <>
-                  <button onClick={handleSignIn} className="mobile-link">
+                  <button onClick={() => { setIsMobileMenuOpen(false); router.push('/register'); }} className="mobile-link">
+                    <Icon name="add" size={18} />
+                    Register Free
+                  </button>
+                  <button onClick={() => { setIsMobileMenuOpen(false); router.push('/login'); }} className="mobile-link">
                     <Icon name="lock" size={18} />
                     Sign In
                   </button>
