@@ -32,6 +32,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
   secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET,
   trustHost: true,
+  useSecureCookies: process.env.NODE_ENV === 'production',
+  session: { strategy: 'jwt', maxAge: 60 * 60 * 24 },
   providers: [
     Google({
       clientId: process.env.AUTH_GOOGLE_ID || 'dummy_id',
@@ -52,39 +54,44 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         if (!user || user.role !== 'ADMIN') return null;
         if (!user.passwordHash) return null;
-
         if (user.accountStatus === 'SUSPENDED') return null;
 
         const isValid = await bcrypt.compare(credentials.password as string, user.passwordHash);
         if (!isValid) return null;
 
-        return user;
+        return {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          image: user.image,
+          role: user.role,
+          accountStatus: user.accountStatus,
+          requiresPasswordChange: user.requiresPasswordChange,
+          tokenVersion: user.tokenVersion,
+        };
       },
     }),
   ],
-  session: {
-    strategy: 'jwt',
-    maxAge: 60 * 60 * 24, // 24 hours
-  },
   callbacks: {
-    async session({ session, token }) {
-      if (session.user && token) {
-        session.user.id = token.sub as string;
-        session.user.role = (token.role as 'USER' | 'ADMIN') || 'USER';
-        session.user.accountStatus = (token.accountStatus as 'ACTIVE' | 'SUSPENDED') || 'ACTIVE';
-        session.user.requiresPasswordChange = token.requiresPasswordChange as boolean || false;
-        session.user.tokenVersion = (token.tokenVersion as number) || 1;
-      }
-      return session;
-    },
     async jwt({ token, user }) {
       if (user) {
-        token.role = user.role;
-        token.accountStatus = user.accountStatus;
-        token.requiresPasswordChange = user.requiresPasswordChange;
-        token.tokenVersion = user.tokenVersion;
+        token.sub = user.id;
+        token.role = (user as { role?: string }).role ?? 'USER';
+        token.accountStatus = (user as { accountStatus?: string }).accountStatus ?? 'ACTIVE';
+        token.requiresPasswordChange = (user as { requiresPasswordChange?: boolean }).requiresPasswordChange ?? false;
+        token.tokenVersion = (user as { tokenVersion?: number }).tokenVersion ?? 1;
       }
       return token;
+    },
+    async session({ session, token }) {
+      if (session.user) {
+        session.user.id = token.sub as string;
+        session.user.role = (token.role as 'USER' | 'ADMIN') ?? 'USER';
+        session.user.accountStatus = (token.accountStatus as 'ACTIVE' | 'SUSPENDED') ?? 'ACTIVE';
+        session.user.requiresPasswordChange = (token.requiresPasswordChange as boolean) ?? false;
+        session.user.tokenVersion = (token.tokenVersion as number) ?? 1;
+      }
+      return session;
     },
   },
 });
