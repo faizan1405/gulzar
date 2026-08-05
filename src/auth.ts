@@ -5,13 +5,6 @@ import bcrypt from 'bcryptjs';
 import { PrismaAdapter } from '@auth/prisma-adapter';
 import { prisma } from './lib/db';
 
-// DEBUG: temporary error logging for production outage investigation
-const authLogger = {
-  error: (...args: any[]) => { console.error('[AUTH_ERROR]', new Date().toISOString(), JSON.stringify(args, null, 2)); },
-  warn:  (...args: any[]) => { console.warn('[AUTH_WARN]', new Date().toISOString(), JSON.stringify(args, null, 2)); },
-  debug: (...args: any[]) => { console.log('[AUTH_DEBUG]', new Date().toISOString(), JSON.stringify(args, null, 2)); },
-};
-
 // Extend the session types
 declare module 'next-auth' {
   interface Session {
@@ -40,12 +33,25 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET,
   trustHost: true,
   useSecureCookies: process.env.NODE_ENV === 'production',
-  logger: authLogger,
   session: { strategy: 'jwt', maxAge: 60 * 60 * 24 },
   providers: [
     Google({
       clientId: process.env.AUTH_GOOGLE_ID || 'dummy_id',
       clientSecret: process.env.AUTH_GOOGLE_SECRET || 'dummy_secret',
+      // Provide explicit endpoints to bypass OIDC discovery.
+      // Google's discovery response sets authorization_response_iss_parameter_supported=true
+      // but Google's actual authorization responses do NOT include the "iss" parameter,
+      // causing oauth4webapi to throw OperationProcessingError.
+      authorization: {
+        url: 'https://accounts.google.com/o/oauth2/v2/auth',
+        params: {
+          prompt: 'consent',
+          access_type: 'offline',
+          response_type: 'code',
+        },
+      },
+      token: 'https://oauth2.googleapis.com/token',
+      userinfo: 'https://openidconnect.googleapis.com/v1/userinfo',
     }),
     Credentials({
       name: 'Credentials',

@@ -64,7 +64,7 @@ export default function AboutClient() {
                 Unlike generic SaaS matrimonial sites, we treat your profile biodata like a physical wedding invitation card—designed with elegance, respect, and utmost discretion.
               </p>
               <p>
-                Every single profile on Rishte Forever undergoes a manual <Link href="/how-it-works" style={{ textDecoration: 'underline', color: 'var(--deep-maroon)', fontWeight: 'bold' }}>telephone verification check</Link>. Photos and active phone numbers are fully masked until <Link href="/packages" style={{ textDecoration: 'underline', color: 'var(--deep-maroon)', fontWeight: 'bold' }}>membership plans</Link> are activated and candidates consent to share details.
+                Every single profile on Rishte Forever undergoes a manual <Link href="/how-it-works" style={{ textDecoration: 'underline', color: 'var(--deep-maroon)', fontWeight: 'bold' }}>telephone verification check</Link>. Photos and active phone numbers are fully masked until <span style={{ textDecoration: 'underline', color: 'var(--deep-maroon)', fontWeight: 'bold' }}>membership plans</span> are activated and candidates consent to share details.
               </p>
               <p>
                 We pray that Allah blesses your matchmaking journey and grants you a compatible, righteous life partner.

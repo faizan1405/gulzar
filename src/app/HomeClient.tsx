@@ -447,9 +447,9 @@ export default function HomeClient() {
 
             <p style={{ textAlign: 'center', marginTop: '32px', fontSize: '15px', color: 'var(--text-muted)' }}>
               Need help choosing?{' '}
-              <Link href="/packages" className="nav-link-gold" style={{ textDecoration: 'underline', fontWeight: 600 }}>
-                View all plans and compare features →
-              </Link>
+              <span style={{ textDecoration: 'underline', fontWeight: 600, color: 'var(--deep-maroon)', cursor: 'pointer' }}>
+                Chat on WhatsApp to discuss plans →
+              </span>
             </p>
           </div>
         </section>

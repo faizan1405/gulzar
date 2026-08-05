@@ -1328,7 +1328,7 @@ section {
   background-color: var(--white);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-lg);
-  padding: 48px 30px;
+  padding: 52px 30px 48px;
   text-align: center;
   position: relative;
   transition: var(--transition-smooth);
@@ -2320,7 +2320,7 @@ input[type="checkbox"] {
   }
 
   .pkg-card {
-    padding: 32px 20px;
+    padding: 48px 20px 44px;
   }
 
   .pkg-price {
@@ -4990,6 +4990,15 @@ input[type="checkbox"] {
 .story-card-image-wrap img,
 .pkg-image-wrap img {
   object-fit: cover;
+}
+
+.pkg-image-wrap {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+  margin-bottom: 20px;
+  border-radius: var(--border-radius-md);
 }
 
 .profile-photo-section .profile-img {
