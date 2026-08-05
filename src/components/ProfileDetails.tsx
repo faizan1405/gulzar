@@ -15,7 +15,6 @@ export const ProfileDetails: React.FC = () => {
     selectedProfileForDetails,
     setSelectedProfileForDetails,
     isLoggedIn,
-    setShowLoginModal,
     userProfile,
     activePackages,
     highProfileApproved,
@@ -53,8 +52,8 @@ export const ProfileDetails: React.FC = () => {
 
   if (!isLoggedIn) {
     modalBlur = true;
-    modalLockReason = 'Please login or register to view this profile.';
-    modalUnlockText = 'Log In to View Profile';
+    modalLockReason = 'Please register to view this profile.';
+    modalUnlockText = 'Register to View Profile';
   } else if (!isFormComplete) {
     modalBlur = true;
     modalLockReason = 'Complete your details first to continue.';
@@ -80,7 +79,7 @@ export const ProfileDetails: React.FC = () => {
   const handleUnlockClick = () => {
     if (!isLoggedIn) {
       setSelectedProfileForDetails(null);
-      setShowLoginModal(true);
+      router.push('/register');
     } else {
       setSelectedProfileForDetails(null);
       router.push('/register');

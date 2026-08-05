@@ -20,7 +20,8 @@ import fs from 'fs';
 /* ------------------------------------------------------------------ */
 
 function env(key: string, fallback?: string): string {
-  const value = process.env[key];
+  const raw = process.env[key];
+  const value = raw?.trim().replace(/^["']|["']$/g, '');
   if (value === undefined || value === '') {
     if (fallback !== undefined) return fallback;
     throw new Error(`Missing required environment variable: ${key}`);

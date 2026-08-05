@@ -40,7 +40,6 @@ import {
   WhatsAppButton,
   RegistrationPopup
 } from "../components/ClientDynamicWrappers";
-import GlobalLoginModal from "../components/GlobalLoginModal";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://rishteforever.in"),
@@ -66,7 +65,6 @@ export default function RootLayout({
           <CallButton />
           <WhatsAppButton />
           <RegistrationPopup />
-          <GlobalLoginModal />
         </SessionProvider>
       </body>
     </html>

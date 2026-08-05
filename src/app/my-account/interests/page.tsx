@@ -15,7 +15,6 @@ export default function InterestsPage() {
     savedProfiles,
     toggleSaveProfile,
     setSelectedProfileForDetails,
-    setShowLoginModal,
     handleViewProfile,
     userProfile,
   } = useSession();
@@ -98,7 +97,7 @@ export default function InterestsPage() {
                 const profile = activeTab === 'sent' ? req.receiver : req.sender;
                 return (
                   <div key={req.id} style={{ position: 'relative' }}>
-                    <ProfileCard 
+                    <ProfileCard
                       profile={profile}
                       index={idx}
                       isLoggedIn={isLoggedIn}
@@ -110,7 +109,6 @@ export default function InterestsPage() {
                       onToggleSave={toggleSaveProfile}
                       onViewDetails={setSelectedProfileForDetails}
                       onViewProfile={handleViewProfile}
-                      onShowLogin={() => setShowLoginModal(true)}
                       getProfileImage={getProfileImage}
                       getThemeClass={getThemeClass}
                     />

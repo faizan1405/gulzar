@@ -1,5 +1,4 @@
 import NextAuth from 'next-auth';
-import Google from 'next-auth/providers/google';
 import Credentials from 'next-auth/providers/credentials';
 import bcrypt from 'bcryptjs';
 import { PrismaAdapter } from '@auth/prisma-adapter';
@@ -28,31 +27,13 @@ declare module 'next-auth' {
   }
 }
 
-export const { handlers, auth, signIn, signOut } = NextAuth({
+export const { handlers, auth, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
   secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET,
   trustHost: true,
   useSecureCookies: process.env.NODE_ENV === 'production',
   session: { strategy: 'jwt', maxAge: 60 * 60 * 24 },
   providers: [
-    Google({
-      clientId: process.env.AUTH_GOOGLE_ID || 'dummy_id',
-      clientSecret: process.env.AUTH_GOOGLE_SECRET || 'dummy_secret',
-      // Provide explicit endpoints to bypass OIDC discovery.
-      // Google's discovery response sets authorization_response_iss_parameter_supported=true
-      // but Google's actual authorization responses do NOT include the "iss" parameter,
-      // causing oauth4webapi to throw OperationProcessingError.
-      authorization: {
-        url: 'https://accounts.google.com/o/oauth2/v2/auth',
-        params: {
-          prompt: 'consent',
-          access_type: 'offline',
-          response_type: 'code',
-        },
-      },
-      token: 'https://oauth2.googleapis.com/token',
-      userinfo: 'https://openidconnect.googleapis.com/v1/userinfo',
-    }),
     Credentials({
       name: 'Credentials',
       credentials: {

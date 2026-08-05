@@ -94,7 +94,6 @@ interface ProfileCardProps {
   onToggleSave: (id: string) => void;
   onViewDetails: (profile: Profile) => void;
   onViewProfile: (profile: Profile) => void;
-  onShowLogin: () => void;
   getProfileImage: (gender: string, index: number) => string;
   getThemeClass: (color: string) => string;
 }
@@ -111,7 +110,6 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
   onToggleSave,
   onViewDetails,
   onViewProfile,
-  onShowLogin,
   getProfileImage,
   getThemeClass
 }) => {
@@ -358,7 +356,6 @@ interface PremiumPlanCardProps {
   hidePrices?: boolean;
   isLoggedIn?: boolean;
   onCompleteForm?: () => void;
-  onShowLogin?: () => void;
 }
 
 interface SuccessStoryCardProps {
@@ -405,7 +402,6 @@ export const PremiumPlanCard: React.FC<PremiumPlanCardProps> = ({
   hidePrices = true,
   isLoggedIn = false,
   onCompleteForm,
-  onShowLogin,
 }) => {
   const finalBadge = badgeText || (isPopular ? 'Recommended' : undefined);
 
@@ -468,7 +464,7 @@ export const PremiumPlanCard: React.FC<PremiumPlanCardProps> = ({
           </button>
         ) : (
           <button
-            onClick={isLoggedIn ? onCompleteForm : (onShowLogin || onCompleteForm)}
+            onClick={isLoggedIn ? onCompleteForm : onCompleteForm}
             className="btn btn-primary btn-full"
           >
             {isLoggedIn ? 'Complete Form to Buy' : 'Register & Buy Package'}

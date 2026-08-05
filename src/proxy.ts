@@ -43,7 +43,7 @@ export async function proxy(request: NextRequest) {
       select: { tokenVersion: true },
     });
     if (dbUser && dbUser.tokenVersion !== sessionTokenVersion) {
-      return NextResponse.redirect(new URL('/login?reason=session_expired', request.url));
+      return NextResponse.redirect(new URL('/', request.url));
     }
   }
 

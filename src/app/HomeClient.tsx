@@ -2,7 +2,6 @@
 
 import React from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useSession } from '../context/SessionContext';
 import { getProfileImage, getThemeClass } from '../lib/helpers';
@@ -36,7 +35,6 @@ export default function HomeClient() {
 
   const {
     isLoggedIn,
-    setShowLoginModal,
     handleUPIPayment,
     profiles,
     savedProfiles,
@@ -219,7 +217,6 @@ export default function HomeClient() {
                       onToggleSave={toggleSaveProfile}
                       onViewDetails={setSelectedProfileForDetails}
                       onViewProfile={handleViewProfile}
-                      onShowLogin={() => setShowLoginModal(true)}
                       getProfileImage={getProfileImage}
                       getThemeClass={getThemeClass}
                     />
@@ -495,8 +492,8 @@ export default function HomeClient() {
 
         <FinalCTA
           onRegister={() => {
-            if (!isLoggedIn) {
-              setShowLoginModal(true);
+            if (isLoggedIn && userProfile?.profileCompletionStatus === 'COMPLETE') {
+              router.push('/my-account');
             } else {
               router.push('/register');
             }

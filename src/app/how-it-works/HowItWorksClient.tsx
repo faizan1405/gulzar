@@ -20,7 +20,7 @@ const steps: Step[] = [
   {
     num: 1,
     title: 'Register Your Biodata',
-    desc: 'Sign in securely via Google OAuth. Complete our registration wizard with detailed information on your education, occupation, religious outlook, and family background details.',
+    desc: 'Complete our registration wizard with detailed information on your education, occupation, religious outlook, and family background details.',
     img: '/images/hiw-1.png',
     alt: 'Create Profile',
   },

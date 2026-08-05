@@ -19,7 +19,7 @@ import { PREMIUM_PACKAGES, PACKAGE_KEYS } from './packages';
 
 export type FaqCategory =
   | 'Getting Started'
-  | 'Registration & Google Login'
+  | 'Registration'
   | 'Profile Completion & Editing'
   | 'Telephone Verification'
   | 'Profile Approval & Visibility'
@@ -59,7 +59,7 @@ export const SUPPORT_HOURS = '10 AM to 6 PM';
 // The list of categories, in the order the FAQ page and filters should show them.
 export const FAQ_CATEGORIES: FaqCategory[] = [
   'Getting Started',
-  'Registration & Google Login',
+  'Registration',
   'Profile Completion & Editing',
   'Telephone Verification',
   'Profile Approval & Visibility',
@@ -101,43 +101,43 @@ export const FAQ_DATA: FaqEntry[] = [
     category: 'Getting Started',
     question: 'How do I get started?',
     answer:
-      'Sign in securely with Google, complete the registration wizard with your details and family background, and submit your profile. Our team then does a telephone verification call. Once approved, your profile becomes visible and you can browse matches.',
+      'Register on the homepage and complete the multi-step registration wizard with your details and family background, then submit your profile. Our team then does a telephone verification call. Once approved, your profile becomes visible and you can browse matches.',
     keywords: ['get started', 'start', 'begin', 'how to use', 'first step', 'new user'],
   },
 
-  // ── Registration & Google Login ───────────────────────────────────────────
+  // ── Registration ────────────────────────────────────────────────────────────
   {
     id: 'how-to-register',
-    category: 'Registration & Google Login',
+    category: 'Registration',
     question: 'How do I register on Rishte Forever?',
     answer:
-      'Click Register on the homepage and sign in with Google. Then complete the multi-step registration wizard covering your personal details, education, occupation, religious outlook and family background. After you submit, your profile enters the verification queue.',
+      'Click Register on the homepage to start the multi-step registration wizard. Fill in your personal details, education, occupation, religious outlook and family background. After you submit, your profile enters the verification queue.',
     keywords: ['register', 'registration', 'sign up', 'signup', 'join', 'create account', 'onboarding', 'wizard'],
   },
   {
     id: 'is-registration-free',
-    category: 'Registration & Google Login',
+    category: 'Registration',
     question: 'Is registration free?',
     answer:
       'Yes, registering and creating your profile is free. Paid access is only needed later to view protected details such as unblurred photos and phone numbers of other members. Current pricing becomes available on the Premium page after you complete your profile.',
     keywords: ['free', 'cost to register', 'registration free', 'is it free', 'free to join', 'charge to sign up'],
   },
   {
-    id: 'why-google-login',
-    category: 'Registration & Google Login',
-    question: 'Why do I have to sign in with Google?',
+    id: 'why-registration-needed',
+    category: 'Registration',
+    question: 'Why do I need to register before seeing profiles?',
     answer:
-      'Rishte Forever uses Google sign-in so your account stays secure without you managing another password. It also helps us keep the community accountable, which supports our manual verification process.',
-    keywords: ['google', 'google login', 'sign in', 'login', 'oauth', 'why google', 'password'],
+      'Registration ensures that every member on Rishte Forever is genuine and serious about marriage. It lets us verify your identity, keep the community safe and show you only relevant, verified matches.',
+    keywords: ['why register', 'why registration', 'why sign up', 'why create account', 'need to register', 'registration required'],
   },
   {
-    id: 'no-google-account',
-    category: 'Registration & Google Login',
-    question: 'What if I do not have a Google account?',
+    id: 'no-email-account',
+    category: 'Registration',
+    question: 'What if I do not have an account?',
     answer:
-      "Sign-in currently uses Google. If you do not have a Google account you can create one for free, or contact our support team so they can guide you. Reach us at " +
-      SUPPORT_EMAIL + '.',
-    keywords: ['no google', "don't have google", 'without google', 'other login', 'email login', 'alternative sign in'],
+      'You can create a new account directly from the Register page on our website. If you face any issues during sign-up, contact our support team at ' +
+      SUPPORT_EMAIL + ' and they will guide you through the process.',
+    keywords: ['no account', 'new user', 'create account', 'sign up help', 'register help', 'first time'],
   },
 
   // ── Profile Completion & Editing ──────────────────────────────────────────

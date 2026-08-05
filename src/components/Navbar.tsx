@@ -56,19 +56,13 @@ export default function Navbar() {
   const router = useRouter();
   const {
     isLoggedIn,
-    setShowLoginModal,
     isMobileMenuOpen,
     setIsMobileMenuOpen,
     handleLogout,
-    userProfile,
   } = useSession();
 
   const handleRegisterFree = () => {
     router.push('/register');
-  };
-
-  const handleLoginTrigger = () => {
-    setShowLoginModal(true);
   };
 
   return (
@@ -144,10 +138,6 @@ export default function Navbar() {
                 </>
               ) : (
                 <>
-                  <button onClick={handleLoginTrigger} className="btn btn-outline nav-btn-sm">
-                    <Icon name="lock" size={14} />
-                    Login
-                  </button>
                   <button onClick={handleRegisterFree} className="btn btn-gold nav-btn-sm">
                     <Icon name="add" size={14} />
                     Register Free
@@ -226,10 +216,6 @@ export default function Navbar() {
                 </>
               ) : (
                 <>
-                  <button onClick={handleLoginTrigger} className="mobile-link">
-                    <Icon name="lock" size={18} />
-                    Login
-                  </button>
                   <button onClick={handleRegisterFree} className="mobile-link">
                     <Icon name="add" size={18} />
                     Register Free

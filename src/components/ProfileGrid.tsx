@@ -17,7 +17,6 @@ export const ProfileGrid: React.FC<ProfileGridProps> = ({ filteredProfiles, isFi
     savedProfiles,
     toggleSaveProfile,
     setSelectedProfileForDetails,
-    setShowLoginModal,
     handleViewProfile,
     userProfile,
     activePackages,
@@ -155,7 +154,6 @@ export const ProfileGrid: React.FC<ProfileGridProps> = ({ filteredProfiles, isFi
           onToggleSave={toggleSaveProfile}
           onViewDetails={setSelectedProfileForDetails}
           onViewProfile={handleViewProfile}
-          onShowLogin={() => setShowLoginModal(true)}
           getProfileImage={getProfileImage}
           getThemeClass={getThemeClass}
         />

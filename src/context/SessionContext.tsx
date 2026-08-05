@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
-import { signIn, signOut } from 'next-auth/react';
+import { signOut } from 'next-auth/react';
 import { DEFAULT_MASLAKS, DEFAULT_CASTES, DEFAULT_LOCATIONS } from '../lib/masterData';
 import {
   Profile,
@@ -28,8 +28,6 @@ interface SessionContextType {
   // Session States
   isLoggedIn: boolean;
   setIsLoggedIn: (val: boolean) => void;
-  showLoginModal: boolean;
-  setShowLoginModal: (val: boolean) => void;
   reloadTrigger: number;
   setReloadTrigger: (val: number | ((prev: number) => number)) => void;
   isMobileMenuOpen: boolean;
@@ -55,7 +53,6 @@ interface SessionContextType {
     email?: string | null;
     phone?: string | null;
     createdAt?: string | Date | null;
-    providers?: string[];
   } | null;
   isRegistering: boolean;
   setIsRegistering: (val: boolean) => void;
@@ -89,17 +86,16 @@ interface SessionContextType {
   setFormData: React.Dispatch<React.SetStateAction<typeof initialFormData>>;
 
   // Actions
-  handleGoogleLogin: () => void;
   handleLogout: () => void;
   toggleSaveProfile: (id: string) => void;
   handleRegisterSubmit: (e: React.FormEvent) => Promise<void>;
   handleUPIPayment: (packageType: string, amountInRupees?: number, planName?: string) => Promise<void>;
   handleReviewSubmit: (status: 'APPROVED' | 'REJECTED' | 'NEEDS_FOLLOW_UP', request: VerificationRequest, notes: string) => Promise<void>;
-  handleAssignLead: (buyerId: string, leadId: string) => Promise<void>;
-  handleUpdateLeadStatus: (assignmentId: string, status: string) => Promise<void>;
-  handleUpdateHPStatus: (purchaseId: string, status: 'APPROVED' | 'REJECTED', notes: string) => Promise<void>;
-  handleConfirmMarriage: (purchaseId: string, confirmed: boolean) => Promise<void>;
-  handleUpdateSuccessFee: (purchaseId: string, status: string) => Promise<void>;
+  handleAssignLead: (buyerId: string, leadId: string) => void;
+  handleUpdateLeadStatus: (assignmentId: string, status: string) => void;
+  handleUpdateHPStatus: (purchaseId: string, status: 'APPROVED' | 'REJECTED', notes: string) => void;
+  handleConfirmMarriage: (purchaseId: string, confirmed: boolean) => void;
+  handleUpdateSuccessFee: (purchaseId: string, status: string) => void;
 
   // Headers helper for API requests
   getHeaders: () => Record<string, string>;
@@ -155,7 +151,6 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [pendingProfileId, setPendingProfileId] = useState<string | null>(null);
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [showLoginModal, setShowLoginModal] = useState(false);
   const [reloadTrigger, setReloadTrigger] = useState(0);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -167,7 +162,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [selectedProfileForDetails, setSelectedProfileForDetails] = useState<Profile | null>(null);
 
   const [userProfile, setUserProfile] = useState<Profile | null>(null);
-  const [accountData, setAccountData] = useState<{ name?: string; email?: string; phone?: string; createdAt?: string | Date | null; providers?: string[] } | null>(null);
+  const [accountData, setAccountData] = useState<{ name?: string; email?: string; phone?: string; createdAt?: string | Date | null } | null>(null);
   const [isRegistering, setIsRegistering] = useState(false);
   const [regStep, setRegStep] = useState(1);
   const [registrationError, setRegistrationError] = useState('');
@@ -394,7 +389,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
       // Has full access — open the profile
       const matched = profiles.find(p => p.id === pendingProfileId);
       if (matched) setSelectedProfileForDetails(matched);
-       
+
       setPendingProfileId(null);
     }
     wasLoadingRef.current = isLoading;
@@ -403,7 +398,6 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const handleViewProfile = useCallback((profile: Profile) => {
     if (!isLoggedIn) {
       setPendingProfileId(profile.id);
-      setShowLoginModal(true);
       return;
     }
     if (!userProfile || userProfile.profileCompletionStatus !== 'COMPLETE') {
@@ -417,10 +411,6 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
     setSelectedProfileForDetails(profile);
   }, [isLoggedIn, userProfile, router]);
-
-  const handleGoogleLogin = () => {
-    signIn('google');
-  };
 
   const handleLogout = async () => {
     try {
@@ -444,7 +434,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const handleRegisterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isLoggedIn) {
-      setShowLoginModal(true);
+      router.push('/register');
       return;
     }
     if (!formData.termsAccepted) {
@@ -490,7 +480,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   const handleUPIPayment = async (packageType: string, amountInRupees = 300, planName = 'Standard Monthly Membership') => {
     if (!isLoggedIn) {
-      setShowLoginModal(true);
+      router.push('/register');
       return;
     }
 
@@ -675,8 +665,6 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
         isLoggedIn,
         setIsLoggedIn,
-        showLoginModal,
-        setShowLoginModal,
         reloadTrigger,
         setReloadTrigger,
         isMobileMenuOpen,
@@ -728,7 +716,6 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
         formData,
         setFormData,
 
-        handleGoogleLogin,
         handleLogout,
         toggleSaveProfile,
         handleRegisterSubmit,
