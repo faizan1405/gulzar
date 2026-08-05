@@ -698,7 +698,6 @@ export default function EventManagementClient() {
                       type="button"
                       className="btn"
                       onClick={handleWhatsAppSubmit}
-                      disabled={submitStatus === 'submitting'}
                       style={{
                         minWidth: '260px',
                         backgroundColor: '#25D366',

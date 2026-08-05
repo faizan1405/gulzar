@@ -10,9 +10,9 @@ export async function GET(req: NextRequest) {
   }
 }
 
-export async function POST(req: NextRequest) {
+export async function POST(req: Request) {
   try {
-    return await handlers.POST(req as NextRequest);
+    return await handlers.POST(req);
   } catch (err: any) {
     console.error('[AUTH POST ERROR]', err?.message || err, err?.stack);
     return NextResponse.json({ error: err?.message || 'Internal Server Error' }, { status: 500 });
