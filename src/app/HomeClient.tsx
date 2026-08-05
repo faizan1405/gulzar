@@ -444,9 +444,14 @@ export default function HomeClient() {
 
             <p style={{ textAlign: 'center', marginTop: '32px', fontSize: '15px', color: 'var(--text-muted)' }}>
               Need help choosing?{' '}
-              <span style={{ textDecoration: 'underline', fontWeight: 600, color: 'var(--deep-maroon)', cursor: 'pointer' }}>
+              <a
+                href={getSupportWhatsAppLink('Assalamu Alaikum, I need help choosing the right matrimonial package on Rishte Forever. Please guide me.')}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ textDecoration: 'underline', fontWeight: 600, color: 'var(--deep-maroon)' }}
+              >
                 Chat on WhatsApp to discuss plans →
-              </span>
+              </a>
             </p>
           </div>
         </section>
@@ -493,7 +498,7 @@ export default function HomeClient() {
         <FinalCTA
           onRegister={() => {
             if (!isLoggedIn) {
-              router.push('/login');
+              router.push('/register');
             } else if (userProfile?.profileCompletionStatus === 'COMPLETE') {
               router.push('/my-account');
             } else {

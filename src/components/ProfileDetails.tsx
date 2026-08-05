@@ -77,12 +77,13 @@ export const ProfileDetails: React.FC = () => {
   }
 
   const handleUnlockClick = () => {
+    setSelectedProfileForDetails(null);
     if (!isLoggedIn) {
-      setSelectedProfileForDetails(null);
       router.push('/login');
+    } else if (!userProfile || userProfile.profileCompletionStatus !== 'COMPLETE') {
+      router.push('/register');
     } else {
-      setSelectedProfileForDetails(null);
-      router.push('/login');
+      router.push('/packages');
     }
   };
 

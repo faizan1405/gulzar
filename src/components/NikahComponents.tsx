@@ -712,7 +712,7 @@ export const PremiumFooter: React.FC<PremiumFooterProps> = ({ onNavigate }) => {
             <h4 className="footer-col-heading">Explore</h4>
             <ul className="footer-nav-list">
               <li><button onClick={() => onNavigate('home')} className="footer-link">Home</button></li>
-              <li><button onClick={() => onNavigate('browse')} className="footer-link">Browse Profiles</button></li>
+              <li><button onClick={() => onNavigate('search')} className="footer-link">Browse Profiles</button></li>
               <li><button onClick={() => onNavigate('packages')} className="footer-link">Pricing & Packages</button></li>
               <li><button onClick={() => onNavigate('how-it-works')} className="footer-link">How It Works</button></li>
               <li><Link href="/event-management" className="footer-link">Event Management</Link></li>

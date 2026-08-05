@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { useSession } from '../context/SessionContext';
 import { Profile } from '../types';
 import { ProfileCard } from './NikahComponents';
@@ -54,7 +55,7 @@ export const ProfileGrid: React.FC<ProfileGridProps> = ({ filteredProfiles, isFi
             We are adding verified profiles. Be the first to register and get discovered by compatible matches.
           </p>
           <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
-            <a
+            <Link
               href="/login"
               style={{
                 padding: '11px 24px',
@@ -69,7 +70,7 @@ export const ProfileGrid: React.FC<ProfileGridProps> = ({ filteredProfiles, isFi
               }}
             >
               Sign In
-            </a>
+            </Link>
           </div>
         </div>
       );
@@ -101,7 +102,7 @@ export const ProfileGrid: React.FC<ProfileGridProps> = ({ filteredProfiles, isFi
           Try widening your search — adjust the age range, location, or community filters to discover more compatible matches.
         </p>
         <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
-          <a
+          <Link
             href="/search"
             style={{
               padding: '11px 24px',
@@ -116,8 +117,8 @@ export const ProfileGrid: React.FC<ProfileGridProps> = ({ filteredProfiles, isFi
             }}
           >
             Clear All Filters
-          </a>
-          <a
+          </Link>
+          <Link
             href="/login"
             style={{
               padding: '11px 24px',
@@ -132,7 +133,7 @@ export const ProfileGrid: React.FC<ProfileGridProps> = ({ filteredProfiles, isFi
             }}
           >
             Sign In
-          </a>
+          </Link>
         </div>
       </div>
     );

@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { useSession } from '../../context/SessionContext';
 import { getSupportWhatsAppLink } from '../../lib/whatsapp';
 import Navbar from '../../components/Navbar';
-import PackageInquiryForm from '../../components/PackageInquiryForm';
 import {
   SectionHeading,
   PremiumPlanCard,
@@ -14,9 +13,27 @@ import {
 
 export default function PackagesClient() {
   const router = useRouter();
-  const [inquiryPackage, setInquiryPackage] = React.useState<string | null>(null);
 
-  const { handleUPIPayment } = useSession();
+  const {
+    isLoggedIn,
+    userProfile,
+    handleUPIPayment,
+  } = useSession();
+
+  const handleBuyPackage = async (packageType: string, planName: string) => {
+    if (!isLoggedIn) {
+      router.push('/register');
+      return;
+    }
+
+    const isFormComplete = userProfile?.profileCompletionStatus === 'COMPLETE';
+    if (!isFormComplete) {
+      router.push('/register');
+      return;
+    }
+
+    await handleUPIPayment(packageType, planName);
+  };
 
   const handleNavigate = (view: string) => {
     router.push('/' + (view === 'home' ? '' : view));
@@ -51,8 +68,7 @@ export default function PackagesClient() {
                 planTier="basic"
                 imageUrl="/images/monthly_active.png"
                 ctaText="Start Monthly Membership"
-                onActivate={() => handleUPIPayment('monthly_membership', 'Standard Monthly Membership')}
-                onInquire={() => setInquiryPackage('₹300 Monthly Membership')}
+                onActivate={() => handleBuyPackage('monthly_membership', 'Standard Monthly Membership')}
                 whatsappMessage="Assalamu Alaikum, I want to know more about the ₹300 monthly membership on Rishte Forever."
               />
               <PremiumPlanCard
@@ -70,8 +86,7 @@ export default function PackagesClient() {
                 planTier="basic"
                 imageUrl="/images/good_profile.png"
                 ctaText="Choose Good Profile Package"
-                onActivate={() => handleUPIPayment('good_profile_package', 'Good Profile Package')}
-                onInquire={() => setInquiryPackage('₹5,500 Good Profiles Package')}
+                onActivate={() => handleBuyPackage('good_profile_package', 'Good Profile Package')}
                 whatsappMessage="Assalamu Alaikum, I am interested in the ₹5,500 Good Profiles Package on Rishte Forever. Please guide me."
               />
               <PremiumPlanCard
@@ -90,8 +105,7 @@ export default function PackagesClient() {
                 planTier="silver"
                 imageUrl="/images/second_marriage.png"
                 ctaText="Choose Silver Plan"
-                onActivate={() => handleUPIPayment('second_marriage_package', 'Silver Plan')}
-                onInquire={() => setInquiryPackage('₹11,000 Silver Plan')}
+                onActivate={() => handleBuyPackage('second_marriage_package', 'Silver Plan')}
                 whatsappMessage="Assalamu Alaikum, I am interested in the ₹11,000 Silver Plan on Rishte Forever. Please guide me."
               />
               <PremiumPlanCard
@@ -110,8 +124,7 @@ export default function PackagesClient() {
                 planTier="gold"
                 imageUrl="/images/high_profile.png"
                 ctaText="Choose Gold Package"
-                onActivate={() => handleUPIPayment('high_profile_package', 'Gold Package')}
-                onInquire={() => setInquiryPackage('₹21,000 Gold Package')}
+                onActivate={() => handleBuyPackage('high_profile_package', 'Gold Package')}
                 whatsappMessage="Assalamu Alaikum, I am interested in the ₹21,000 Gold Package on Rishte Forever. Please guide me."
               />
             </div>
@@ -132,31 +145,6 @@ export default function PackagesClient() {
       </main>
 
       <PremiumFooter onNavigate={handleNavigate} />
-
-      {/* Package Inquiry Modal */}
-      {inquiryPackage && (
-        <div className="modal-overlay" onClick={() => setInquiryPackage(null)}>
-          <div className="card-theme-wrapper modal-inquiry" onClick={(e) => e.stopPropagation()}>
-            <button
-              onClick={() => setInquiryPackage(null)}
-              className="modal-close-btn"
-              style={{ position: 'absolute', top: '16px', right: '16px' }}
-            >
-              ×
-            </button>
-            <div className="modal-title-center">
-              <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '22px', color: 'var(--deep-maroon)', marginBottom: '4px' }}>
-                Package Inquiry &amp; Callback
-              </h3>
-            </div>
-            <PackageInquiryForm
-              defaultPackage={inquiryPackage}
-              onSuccess={() => setInquiryPackage(null)}
-              onCancel={() => setInquiryPackage(null)}
-            />
-          </div>
-        </div>
-      )}
     </>
   );
 }
