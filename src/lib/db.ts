@@ -15,13 +15,11 @@ try {
     globalForPrisma.prisma = prisma;
   }
 } catch (err) {
-  console.error('Failed to instantiate PrismaClient — database may be unreachable:', err);
+  console.error('Fatal: Failed to instantiate PrismaClient — database may be unreachable:', err);
+  throw err;
 }
 
 export async function testDbConnection(): Promise<boolean> {
-  if (!prisma) {
-    return false;
-  }
   try {
     await prisma.user.findFirst({ select: { id: true } });
     return true;

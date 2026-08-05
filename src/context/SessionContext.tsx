@@ -100,7 +100,6 @@ interface SessionContextType {
   handleUpdateHPStatus: (purchaseId: string, status: 'APPROVED' | 'REJECTED', notes: string) => Promise<void>;
   handleConfirmMarriage: (purchaseId: string, confirmed: boolean) => Promise<void>;
   handleUpdateSuccessFee: (purchaseId: string, status: string) => Promise<void>;
-  submitMasterAction: (actionData: Record<string, unknown>) => Promise<boolean>;
 
   // Headers helper for API requests
   getHeaders: () => Record<string, string>;
@@ -667,26 +666,6 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   };
 
-  const submitMasterAction = async (actionData: Record<string, unknown>) => {
-    try {
-      const res = await fetch('/api/admin/master-data', {
-        method: 'POST',
-        headers: getHeaders(),
-        body: JSON.stringify(actionData)
-      });
-      if (res.ok) {
-        setReloadTrigger((prev) => prev + 1);
-        return true;
-      } else {
-        const data = await res.json();
-        alert(data.error || 'Master data action failed');
-      }
-    } catch {
-      alert('Network error executing master data action');
-    }
-    return false;
-  };
-
   return (
     <SessionContext.Provider
       value={{
@@ -760,7 +739,6 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
         handleUpdateHPStatus,
         handleConfirmMarriage,
         handleUpdateSuccessFee,
-        submitMasterAction,
         getHeaders,
       }}
     >

@@ -17,8 +17,8 @@ export async function proxy(request: NextRequest) {
     return corsPreflightResponse(origin);
   }
 
-  // Admin route protection
-  if (pathname.startsWith('/admin')) {
+  // Admin route protection — login page is public
+  if (pathname.startsWith('/admin') && pathname !== '/admin/login') {
     let token: Awaited<ReturnType<typeof getToken>> = null;
     try {
       token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET });
@@ -26,7 +26,7 @@ export async function proxy(request: NextRequest) {
       // Missing or invalid session token — treat as unauthenticated
     }
     if (!token || token.role !== 'ADMIN') {
-      const loginUrl = new URL('/login', request.url);
+      const loginUrl = new URL('/admin/login', request.url);
       loginUrl.searchParams.set('callbackUrl', pathname);
       return NextResponse.redirect(loginUrl);
     }

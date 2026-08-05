@@ -102,27 +102,6 @@ export const AdminSidebar: React.FC = () => {
       >
         📥 Leads & Inquiries
       </Link>
-      <Link
-        href="/admin/events"
-        className={`admin-nav-link ${pathname === '/admin/events' ? 'active' : ''}`}
-        onClick={handleLinkClick}
-      >
-        🎊 Event Management
-      </Link>
-      <Link
-        href="/admin/zaicha"
-        className={`admin-nav-link ${pathname === '/admin/zaicha' ? 'active' : ''}`}
-        onClick={handleLinkClick}
-      >
-        🌙 Zaicha Inquiries
-      </Link>
-      <Link
-        href="/admin/master-data"
-        className={`admin-nav-link ${pathname === '/admin/master-data' ? 'active' : ''}`}
-        onClick={handleLinkClick}
-      >
-        🛠️ Master Data
-      </Link>
 
       <div className="admin-nav-section-title">Logs & Settings</div>
       <Link
