@@ -3,8 +3,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { usePathname } from 'next/navigation';
 import { useSession } from '../context/SessionContext';
-import MatrimonialRegistrationForm from './MatrimonialRegistrationForm';
-
+import { signIn } from 'next-auth/react';
 
 export default function RegistrationPopup() {
   const pathname = usePathname();
@@ -20,12 +19,10 @@ export default function RegistrationPopup() {
   const isPermanentlyHiddenRef = useRef(isPermanentlyHidden);
   isPermanentlyHiddenRef.current = isPermanentlyHidden;
 
-  // Profile completion detection: check DB profile completion status field
   const hasCompletedProfile = userProfile?.profileCompletionStatus === 'COMPLETE';
   const hasCompletedRef = useRef(hasCompletedProfile);
   hasCompletedRef.current = hasCompletedProfile;
 
-  // Exclude admin pages, auth callback pages, registration page, and my-account dashboard
   const isExcludedPage = !pathname ||
     pathname.startsWith('/admin') ||
     pathname.startsWith('/api/auth') ||
@@ -48,7 +45,6 @@ export default function RegistrationPopup() {
     }
   }, []);
 
-  // Check localStorage on initial mount
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const completed = localStorage.getItem('rf_matrimonial_profile_completed') === 'true';
@@ -58,7 +54,6 @@ export default function RegistrationPopup() {
     }
   }, []);
 
-  // Stop timer and permanently hide immediately upon successful profile registration
   useEffect(() => {
     if (hasCompletedProfile) {
       clearTimer();
@@ -79,7 +74,6 @@ export default function RegistrationPopup() {
     }
   }, [clearTimer]);
 
-  // Listen for custom registration success event when matrimonial profile is completed
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const handleCustomSuccess = () => {
@@ -94,7 +88,6 @@ export default function RegistrationPopup() {
   const startTimer = useCallback(() => {
     clearTimer();
 
-    // Do not start timer if already open, permanently hidden, already has completed profile, auth not checked yet, on excluded page, or actively registering on page
     if (
       isOpenRef.current ||
       isPermanentlyHiddenRef.current ||
@@ -120,7 +113,6 @@ export default function RegistrationPopup() {
     }, 60000);
   }, [clearTimer, authChecked]);
 
-  // Manage timer lifecycle based on profile completion state, navigation, and open/hidden status
   useEffect(() => {
     if (!authChecked) return;
 
@@ -141,16 +133,13 @@ export default function RegistrationPopup() {
     };
   }, [authChecked, hasCompletedProfile, isPermanentlyHidden, isExcludedPage, isRegistering, isOpen, startTimer, clearTimer]);
 
-  // If visitor closes without registering, close modal and restart timer
   const handleCloseWithoutRegistering = useCallback(() => {
     setIsOpen(false);
-    // Restart timer so popup shows again after 60s
     if (authChecked && !hasCompletedProfile && !isPermanentlyHidden && !isExcludedPage) {
       startTimer();
     }
   }, [clearTimer, authChecked, hasCompletedProfile, isPermanentlyHidden, isExcludedPage, startTimer]);
 
-  // Handle Escape key accessibility
   useEffect(() => {
     if (!isOpen) return;
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -159,10 +148,11 @@ export default function RegistrationPopup() {
       }
     };
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
   }, [isOpen, handleCloseWithoutRegistering]);
 
-  // Prevent background page scrolling while modal is open
   useEffect(() => {
     if (isOpen && typeof document !== 'undefined') {
       const originalOverflow = document.body.style.overflow;
@@ -189,9 +179,8 @@ export default function RegistrationPopup() {
       <div
         className="modal-content card-theme-wrapper"
         style={{
-          maxWidth: '900px',
+          maxWidth: '460px',
           width: '95%',
-          maxHeight: '90vh',
           margin: '20px auto',
           display: 'flex',
           flexDirection: 'column',
@@ -199,55 +188,89 @@ export default function RegistrationPopup() {
           boxShadow: '0 25px 50px -12px rgba(18, 30, 24, 0.4)',
           border: '1.5px solid var(--gold-accent)',
           position: 'relative',
-          overflow: 'hidden'
+          overflow: 'hidden',
+          borderRadius: '24px',
+          padding: '40px 32px',
+          textAlign: 'center',
         }}
         onClick={(e) => e.stopPropagation()}
       >
+        <div style={{ marginBottom: '24px' }}>
+          <span id="reg-popup-title" style={{ fontFamily: 'var(--font-serif)', color: 'var(--deep-maroon)', fontSize: '22px', fontWeight: 'bold', display: 'block' }}>
+            Start Your Journey
+          </span>
+          <p style={{ color: 'var(--text-muted)', fontSize: '14px', marginTop: '8px', lineHeight: 1.5 }}>
+            Sign in with Google to create your matrimonial profile and find your perfect match.
+          </p>
+        </div>
 
-
-        {/* Modal Header */}
         <div
-          className="modal-header"
           style={{
-            borderBottom: '1px solid var(--border-color)',
-            padding: '16px 28px',
-            backgroundColor: 'var(--warm-ivory)',
+            height: '1px',
+            background: 'linear-gradient(to right, transparent, var(--gold-accent), transparent)',
+            marginBottom: '28px',
+            opacity: 0.5,
+          }}
+        />
+
+        <button
+          onClick={() => signIn('google', { callbackUrl: '/register' })}
+          style={{
+            width: '100%',
+            padding: '14px',
+            borderRadius: '10px',
+            border: '1.5px solid #d1d5db',
+            background: '#ffffff',
+            color: '#374151',
+            fontSize: '15px',
+            fontWeight: 500,
+            cursor: 'pointer',
             display: 'flex',
-            justifyContent: 'space-between',
             alignItems: 'center',
-            flexShrink: 0
+            justifyContent: 'center',
+            gap: '12px',
+            fontFamily: 'var(--font-sans)',
+            transition: 'box-shadow 0.2s ease',
+            boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.boxShadow = '0 1px 2px rgba(0,0,0,0.05)';
           }}
         >
-          <span id="reg-popup-title" className="modal-title" style={{ fontSize: '20px', color: 'var(--deep-maroon)', fontWeight: 'bold' }}>
-            Register Matrimonial Profile
-          </span>
-          <button
-            type="button"
-            onClick={handleCloseWithoutRegistering}
-            className="modal-close-btn"
-            aria-label="Close modal"
-            style={{
-              background: 'none',
-              border: 'none',
-              fontSize: '28px',
-              cursor: 'pointer',
-              color: 'var(--text-muted)',
-              width: '36px',
-              height: '36px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              borderRadius: '50%'
-            }}
-          >
-            ×
-          </button>
-        </div>
+          <svg width="20" height="20" viewBox="0 0 24 24">
+            <path
+              d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"
+              fill="#4285F4"
+            />
+            <path
+              d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+              fill="#34A853"
+            />
+            <path
+              d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+              fill="#FBBC05"
+            />
+            <path
+              d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+              fill="#EA4335"
+            />
+          </svg>
+          Continue with Google
+        </button>
 
-        {/* Modal Body with Scrolling */}
-        <div className="modal-body" style={{ padding: '24px 32px', overflowY: 'auto', flexGrow: 1 }}>
-          <MatrimonialRegistrationForm isModal={true} onCancel={handleCloseWithoutRegistering} />
-        </div>
+        <p
+          style={{
+            marginTop: '20px',
+            fontSize: '11.5px',
+            color: 'var(--text-muted)',
+            lineHeight: 1.6,
+          }}
+        >
+          Your Google account is used only for authentication.
+        </p>
       </div>
     </div>
   );

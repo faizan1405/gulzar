@@ -1,34 +1,14 @@
-'use client';
-
 import React from 'react';
-import { useRouter } from 'next/navigation';
-import { useSession } from '../../context/SessionContext';
-import Navbar from '../../components/Navbar';
-import MatrimonialRegistrationForm from '../../components/MatrimonialRegistrationForm';
-import { PremiumFooter } from '../../components/NikahComponents';
+import { redirect } from 'next/navigation';
+import { auth } from '@/auth';
+import RegisterPageClient from './RegisterPageClient';
 
-export default function RegisterPage() {
-  const router = useRouter();
-  const { setIsRegistering } = useSession();
+export default async function RegisterPage() {
+  const session = await auth();
 
-  const handleCancelOrNavigate = (view?: string) => {
-    setIsRegistering(false);
-    if (view && view !== 'home') {
-      router.push('/' + view);
-    } else {
-      router.push('/');
-    }
-  };
+  if (!session?.user?.id) {
+    redirect('/login?callbackUrl=/register');
+  }
 
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', backgroundColor: 'var(--background)' }}>
-      <Navbar />
-      <main className="flex-grow font-sans" style={{ padding: '40px 16px' }}>
-        <div className="container" style={{ maxWidth: '850px', margin: '0 auto' }}>
-          <MatrimonialRegistrationForm onCancel={() => handleCancelOrNavigate('home')} />
-        </div>
-      </main>
-      <PremiumFooter onNavigate={(view) => handleCancelOrNavigate(view)} />
-    </div>
-  );
+  return <RegisterPageClient />;
 }

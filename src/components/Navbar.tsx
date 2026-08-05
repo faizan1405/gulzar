@@ -61,8 +61,8 @@ export default function Navbar() {
     handleLogout,
   } = useSession();
 
-  const handleRegisterFree = () => {
-    router.push('/register');
+  const handleSignIn = () => {
+    router.push('/login');
   };
 
   return (
@@ -138,9 +138,9 @@ export default function Navbar() {
                 </>
               ) : (
                 <>
-                  <button onClick={handleRegisterFree} className="btn btn-gold nav-btn-sm">
-                    <Icon name="add" size={14} />
-                    Register Free
+                  <button onClick={handleSignIn} className="btn btn-gold nav-btn-sm">
+                    <Icon name="lock" size={14} />
+                    Sign In
                   </button>
                 </>
               )}
@@ -216,9 +216,9 @@ export default function Navbar() {
                 </>
               ) : (
                 <>
-                  <button onClick={handleRegisterFree} className="mobile-link">
-                    <Icon name="add" size={18} />
-                    Register Free
+                  <button onClick={handleSignIn} className="mobile-link">
+                    <Icon name="lock" size={18} />
+                    Sign In
                   </button>
                 </>
               )}

@@ -5,6 +5,8 @@ import { prisma } from '@/lib/db';
 import JsonLd from '@/components/JsonLd';
 import SearchErrorBoundary from '@/components/SearchErrorBoundary';
 
+export const dynamic = 'force-dynamic';
+
 export async function generateMetadata(): Promise<Metadata> {
   let settings = null;
   try {

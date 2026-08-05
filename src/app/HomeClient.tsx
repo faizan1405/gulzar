@@ -492,7 +492,9 @@ export default function HomeClient() {
 
         <FinalCTA
           onRegister={() => {
-            if (isLoggedIn && userProfile?.profileCompletionStatus === 'COMPLETE') {
+            if (!isLoggedIn) {
+              router.push('/login');
+            } else if (userProfile?.profileCompletionStatus === 'COMPLETE') {
               router.push('/my-account');
             } else {
               router.push('/register');

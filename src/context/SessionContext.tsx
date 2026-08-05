@@ -420,7 +420,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const handleRegisterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isLoggedIn) {
-      router.push('/register');
+      router.push('/login');
       return;
     }
     if (!formData.termsAccepted) {
@@ -466,7 +466,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   const handleUPIPayment = async (packageType: string, planName: string = 'Standard Monthly Membership') => {
     if (!isLoggedIn) {
-      router.push('/register');
+      router.push('/login');
       return;
     }
 

@@ -1,4 +1,5 @@
 import NextAuth from 'next-auth';
+import Google from 'next-auth/providers/google';
 import Credentials from 'next-auth/providers/credentials';
 import bcrypt from 'bcryptjs';
 import { PrismaAdapter } from '@auth/prisma-adapter';
@@ -34,6 +35,10 @@ export const { handlers, auth, signOut } = NextAuth({
   useSecureCookies: process.env.NODE_ENV === 'production',
   session: { strategy: 'jwt', maxAge: 60 * 60 * 24 },
   providers: [
+    Google({
+      clientId: process.env.AUTH_GOOGLE_ID!,
+      clientSecret: process.env.AUTH_GOOGLE_SECRET!,
+    }),
     Credentials({
       name: 'Credentials',
       credentials: {
@@ -68,6 +73,14 @@ export const { handlers, auth, signOut } = NextAuth({
     }),
   ],
   callbacks: {
+    async signIn({ user, account }) {
+      // Google OAuth sign-in — ensure role is USER
+      if (account?.provider === 'google') {
+        if (!user.email) return false;
+        return true;
+      }
+      return true;
+    },
     async jwt({ token, user }) {
       if (user) {
         token.sub = user.id;

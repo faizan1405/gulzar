@@ -79,10 +79,10 @@ export const ProfileDetails: React.FC = () => {
   const handleUnlockClick = () => {
     if (!isLoggedIn) {
       setSelectedProfileForDetails(null);
-      router.push('/register');
+      router.push('/login');
     } else {
       setSelectedProfileForDetails(null);
-      router.push('/register');
+      router.push('/login');
     }
   };
 

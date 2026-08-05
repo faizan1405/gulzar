@@ -13,9 +13,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/safety',
     '/search',
     '/success-stories',
-    '/packages/good-profiles',
-    '/packages/high-profile',
-    '/packages/second-marriage',
   ];
 
   return routes.map((route) => ({

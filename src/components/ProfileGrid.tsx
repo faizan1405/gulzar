@@ -55,7 +55,7 @@ export const ProfileGrid: React.FC<ProfileGridProps> = ({ filteredProfiles, isFi
           </p>
           <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
             <a
-              href="/register"
+              href="/login"
               style={{
                 padding: '11px 24px',
                 background: 'linear-gradient(135deg,var(--deep-maroon),#8b2252)',
@@ -68,7 +68,7 @@ export const ProfileGrid: React.FC<ProfileGridProps> = ({ filteredProfiles, isFi
                 boxShadow: '0 4px 14px rgba(111,29,53,0.22)',
               }}
             >
-              Register Free
+              Sign In
             </a>
           </div>
         </div>
@@ -118,7 +118,7 @@ export const ProfileGrid: React.FC<ProfileGridProps> = ({ filteredProfiles, isFi
             Clear All Filters
           </a>
           <a
-            href="/register"
+            href="/login"
             style={{
               padding: '11px 24px',
               background: 'transparent',
@@ -131,7 +131,7 @@ export const ProfileGrid: React.FC<ProfileGridProps> = ({ filteredProfiles, isFi
               border: '1.5px solid rgba(111,29,53,0.3)',
             }}
           >
-            Register Free
+            Sign In
           </a>
         </div>
       </div>
