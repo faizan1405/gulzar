@@ -4808,6 +4808,10 @@ input[type="checkbox"] {
   gap: 48px;
   margin-bottom: 40px;
   align-items: start;
+  text-align: left;
+}
+.footer-grid > div {
+  text-align: left;
 }
 .footer-logo-wrap {
   margin-bottom: 18px;
@@ -4843,8 +4847,12 @@ input[type="checkbox"] {
   font-size: 14px;
   font-weight: bold;
   margin-bottom: 20px;
+  margin-top: 8px;
   text-transform: uppercase;
   letter-spacing: 0.8px;
+  text-align: left;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  padding-top: 18px;
 }
 .footer-nav-list {
   list-style: none;
@@ -4853,6 +4861,13 @@ input[type="checkbox"] {
   gap: 10px;
   font-size: 13.5px;
   padding: 0;
+  margin: 0;
+  text-align: left;
+  align-items: flex-start;
+}
+.footer-nav-list li {
+  text-align: left;
+  width: auto;
 }
 .footer-dua {
   font-style: italic;
@@ -4941,6 +4956,7 @@ input[type="checkbox"] {
   gap: 14px;
   margin-bottom: 20px;
   flex-wrap: wrap;
+  text-align: left;
 }
 .footer-social-row svg {
   display: block;
@@ -4952,6 +4968,7 @@ input[type="checkbox"] {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  text-align: left;
 }
 .footer-contact-block a {
   color: var(--gold-accent);
