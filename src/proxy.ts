@@ -91,4 +91,8 @@ export const config = {
     '/api/:path*',
     '/premium',
   ],
+  // Exclude auth routes — let NextAuth handle its own flow
+  skip: [
+    '/api/auth/:path*',
+  ],
 };
