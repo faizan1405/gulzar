@@ -22,13 +22,13 @@ export default function PackagesClient() {
 
   const handleBuyPackage = async (packageType: string, planName: string) => {
     if (!isLoggedIn) {
-      router.push('/register');
+      router.push('/register?returnTo=/packages');
       return;
     }
 
     const isFormComplete = userProfile?.profileCompletionStatus === 'COMPLETE';
     if (!isFormComplete) {
-      router.push('/register');
+      router.push('/register?returnTo=/packages');
       return;
     }
 

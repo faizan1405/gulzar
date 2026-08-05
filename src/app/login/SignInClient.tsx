@@ -1,46 +1,25 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { signIn } from 'next-auth/react';
+import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 
 export default function SignInClient() {
-  // Get callbackUrl from URL search params on client side
-  const getCallbackUrl = () => {
-    if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search);
-      return params.get('callbackUrl') || '/';
-    }
-    return '/';
-  };
-
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
 
-  // Check for auth errors returned by NextAuth
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const params = new URLSearchParams(window.location.search);
-    const authError = params.get('error');
-    if (authError) {
-      if (authError === 'OAuthAccountNotLinked') {
-        setError('This Google account is already linked to a different sign-in method.');
-      } else {
-        setError('Sign-in failed. Please try again.');
-      }
-    }
-  }, []);
-
-  const handleGoogleSignIn = async () => {
+  const handleGoogleSignIn = () => {
     setIsLoading(true);
-    setError('');
-    try {
-      await signIn('google', { callbackUrl: getCallbackUrl() });
-    } catch {
-      setError('Sign-in failed. Please try again.');
-      setIsLoading(false);
-    }
+    const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '90072284378-8mhfs7b7iitmpa4o15q7qou0743l1kgh.apps.googleusercontent.com';
+    const redirectUri = encodeURIComponent('https://rishteforever.in/api/auth/callback/google');
+    const url =
+      'https://accounts.google.com/o/oauth2/v2/auth' +
+      '?client_id=' + clientId +
+      '&redirect_uri=' + redirectUri +
+      '&response_type=code' +
+      '&scope=openid+profile+email' +
+      '&access_type=offline' +
+      '&prompt=consent';
+    window.location.href = url;
   };
 
   return (
@@ -115,7 +94,7 @@ export default function SignInClient() {
             lineHeight: 1.5,
           }}
         >
-          Sign in with your Google account to access your profile and connect with matches.
+          Sign in with your Google account to continue.
         </p>
 
         <div
@@ -126,22 +105,6 @@ export default function SignInClient() {
             opacity: 0.5,
           }}
         />
-
-        {error && (
-          <div
-            style={{
-              background: 'rgba(111,29,53,0.08)',
-              border: '1px solid rgba(111,29,53,0.2)',
-              borderRadius: '8px',
-              padding: '10px 14px',
-              marginBottom: '20px',
-              color: 'var(--deep-maroon)',
-              fontSize: '13px',
-            }}
-          >
-            ⚠️ {error}
-          </div>
-        )}
 
         <button
           onClick={handleGoogleSignIn}
@@ -162,16 +125,7 @@ export default function SignInClient() {
             justifyContent: 'center',
             gap: '12px',
             fontFamily: 'var(--font-sans)',
-            transition: 'box-shadow 0.2s ease',
             boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
-          }}
-          onMouseEnter={(e) => {
-            if (!isLoading) {
-              e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
-            }
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.boxShadow = '0 1px 2px rgba(0,0,0,0.05)';
           }}
         >
           {/* Google icon */}
@@ -196,29 +150,17 @@ export default function SignInClient() {
           {isLoading ? 'Signing in...' : 'Continue with Google'}
         </button>
 
-        <p
-          style={{
-            marginTop: '24px',
-            fontSize: '11.5px',
-            color: 'var(--text-muted)',
-            lineHeight: 1.6,
-          }}
-        >
-          By signing in, you agree to our Terms &amp; Conditions.
-          Your Google account is used only for authentication.
-        </p>
-
         <Link
           href="/"
           style={{
             display: 'inline-block',
-            marginTop: '16px',
+            marginTop: '20px',
             fontSize: '12px',
             color: 'var(--gold-dark)',
             textDecoration: 'underline',
           }}
         >
-          ← Back to Rishte Forever
+          Back to Rishte Forever
         </Link>
       </div>
     </div>

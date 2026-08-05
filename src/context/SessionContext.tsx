@@ -383,20 +383,15 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   const handleViewProfile = useCallback((profile: Profile) => {
     if (!isLoggedIn) {
-      setPendingProfileId(profile.id);
+      setSelectedProfileForDetails(profile);
       return;
     }
     if (!userProfile || userProfile.profileCompletionStatus !== 'COMPLETE') {
-      setPendingProfileId(profile.id);
-      setIsRegistering(true);
-      setRegStep(1);
-      if (typeof window !== 'undefined' && window.location.pathname !== '/') {
-        router.push('/');
-      }
+      setSelectedProfileForDetails(profile);
       return;
     }
     setSelectedProfileForDetails(profile);
-  }, [isLoggedIn, userProfile, router]);
+  }, [isLoggedIn, userProfile]);
 
   const handleLogout = async () => {
     try {
@@ -420,7 +415,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const handleRegisterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isLoggedIn) {
-      router.push('/login');
+      router.push('/register');
       return;
     }
     if (!formData.termsAccepted) {
@@ -466,7 +461,13 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   const handleUPIPayment = async (packageType: string, planName: string = 'Standard Monthly Membership') => {
     if (!isLoggedIn) {
-      router.push('/login');
+      router.push('/register');
+      return;
+    }
+
+    const isFormComplete = userProfile?.profileCompletionStatus === 'COMPLETE';
+    if (!isFormComplete) {
+      router.push('/register');
       return;
     }
 
