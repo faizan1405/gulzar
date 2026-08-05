@@ -35,7 +35,6 @@ export const SearchableCombobox: React.FC<SearchableComboboxProps> = ({
 
   // Sync internal search with external value when value changes
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSearch(value);
   }, [value]);
 

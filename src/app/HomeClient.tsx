@@ -377,7 +377,7 @@ export default function HomeClient() {
                 planTier="basic"
                 imageUrl="/images/monthly_active.png"
                 ctaText="Start Monthly Membership"
-                onActivate={() => handleUPIPayment('monthly_membership', 300, 'Standard Monthly Membership')}
+                onActivate={() => handleUPIPayment('monthly_membership', 'Standard Monthly Membership')}
                 onInquire={() => setInquiryPackage('₹300 Monthly Membership')}
                 whatsappMessage="Assalamu Alaikum, I want to know more about the ₹300 monthly membership on Rishte Forever."
               />
@@ -396,7 +396,7 @@ export default function HomeClient() {
                 planTier="basic"
                 imageUrl="/images/good_profile.png"
                 ctaText="Choose Good Profile Package"
-                onActivate={() => handleUPIPayment('good_profile_package', 5500, 'Good Profile Package')}
+                onActivate={() => handleUPIPayment('good_profile_package', 'Good Profile Package')}
                 onInquire={() => setInquiryPackage('₹5,500 Good Profiles Package')}
                 whatsappMessage="Assalamu Alaikum, I am interested in the ₹5,500 Good Profiles Package on Rishte Forever. Please guide me."
               />
@@ -416,7 +416,7 @@ export default function HomeClient() {
                 planTier="silver"
                 imageUrl="/images/second_marriage.png"
                 ctaText="Choose Silver Plan"
-                onActivate={() => handleUPIPayment('second_marriage_package', 11000, 'Silver Plan')}
+                onActivate={() => handleUPIPayment('second_marriage_package', 'Silver Plan')}
                 onInquire={() => setInquiryPackage('₹11,000 Silver Plan')}
                 whatsappMessage="Assalamu Alaikum, I am interested in the ₹11,000 Silver Plan on Rishte Forever. Please guide me."
               />
@@ -436,7 +436,7 @@ export default function HomeClient() {
                 planTier="gold"
                 imageUrl="/images/high_profile.png"
                 ctaText="Choose Gold Package"
-                onActivate={() => handleUPIPayment('high_profile_package', 21000, 'Gold Package')}
+                onActivate={() => handleUPIPayment('high_profile_package', 'Gold Package')}
                 onInquire={() => setInquiryPackage('₹21,000 Gold Package')}
                 whatsappMessage="Assalamu Alaikum, I am interested in the ₹21,000 Gold Package on Rishte Forever. Please guide me."
               />
