@@ -3,7 +3,6 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { signIn } from 'next-auth/react';
 
 export default function SignInClient() {
   const [isLoading, setIsLoading] = useState(false);
@@ -12,11 +11,38 @@ export default function SignInClient() {
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
     setError(null);
+
     try {
-      // Use NextAuth's built-in signIn — it handles the OAuth flow,
-      // callback routing, and the iss parameter that Google requires internally.
-      await signIn('google', { callbackUrl: '/' });
-    } catch (err) {
+      // Step 1: Get CSRF token from NextAuth
+      const csrfRes = await fetch('/api/auth/csrf');
+      if (!csrfRes.ok) throw new Error('Failed to get CSRF token');
+      const { csrfToken } = await csrfRes.json();
+      if (!csrfToken) throw new Error('CSRF token missing');
+
+      // Step 2: Initiate Google sign-in via NextAuth
+      const res = await fetch('/api/auth/signin/google', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+          csrfToken,
+          callbackUrl: '/',
+        }),
+        redirect: 'manual',
+      });
+
+      const data = await res.json();
+
+      if (data.url) {
+        // NextAuth returned the Google authorization URL — redirect the browser
+        window.location.href = data.url;
+      } else if (data.error) {
+        setError(data.error || 'Sign-in failed. Please try again.');
+        setIsLoading(false);
+      } else {
+        setError('Sign-in failed. Please try again.');
+        setIsLoading(false);
+      }
+    } catch {
       setError('Sign-in failed. Please try again.');
       setIsLoading(false);
     }
