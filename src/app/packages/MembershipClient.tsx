@@ -103,8 +103,8 @@ export default function MembershipClient() {
   return (
     <>
       <Navbar />
-      <main className="flex-grow">
-        <div className="container font-sans" style={{ padding: '40px 0 140px 0' }}>
+      <main className="flex-grow" style={{ paddingBottom: '180px' }}>
+        <div className="container font-sans" style={{ padding: '40px 0 180px 0' }}>
           <SectionHeading
             title="Rishta Plans"
             subtitle="Choose a membership that fits your journey toward a blessed nikah."
@@ -156,7 +156,7 @@ export default function MembershipClient() {
                 onInquire={pkg.onInquire}
                 whatsappMessage={pkg.whatsappMessage}
                 imageUrl={pkg.imageUrl}
-                hidePrices={!isFormComplete}
+                hidePrices={false}
                 isLoggedIn={isLoggedIn}
                 onCompleteForm={handleCompleteForm}
                 onShowLogin={() => setShowLoginModal(true)}

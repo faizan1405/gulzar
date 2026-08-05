@@ -5,6 +5,13 @@ import bcrypt from 'bcryptjs';
 import { PrismaAdapter } from '@auth/prisma-adapter';
 import { prisma } from './lib/db';
 
+// DEBUG: temporary error logging for production outage investigation
+const authLogger = {
+  error: (...args: any[]) => { console.error('[AUTH_ERROR]', new Date().toISOString(), JSON.stringify(args, null, 2)); },
+  warn:  (...args: any[]) => { console.warn('[AUTH_WARN]', new Date().toISOString(), JSON.stringify(args, null, 2)); },
+  debug: (...args: any[]) => { console.log('[AUTH_DEBUG]', new Date().toISOString(), JSON.stringify(args, null, 2)); },
+};
+
 // Extend the session types
 declare module 'next-auth' {
   interface Session {
@@ -33,6 +40,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET,
   trustHost: true,
   useSecureCookies: process.env.NODE_ENV === 'production',
+  logger: authLogger,
   session: { strategy: 'jwt', maxAge: 60 * 60 * 24 },
   providers: [
     Google({
