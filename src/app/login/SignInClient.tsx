@@ -70,7 +70,7 @@ export default function SignInClient() {
         <span style={{ position: 'absolute', bottom: 12, right: 14, fontSize: 18, opacity: 0.4, color: 'var(--gold-accent)', transform: 'scale(-1)' }}>❧</span>
 
         <div style={{ marginBottom: '8px' }}>
-          <img alt="Rishte Forever" width={140} height={50} style={{ objectFit: 'contain' }} src="/images/rishte-forever-logo.png" priority />
+          <img alt="Rishte Forever" width={140} height={50} style={{ objectFit: 'contain' }} src="/images/rishte-forever-logo.png" fetchPriority="high" />
         </div>
 
         <h1 style={{ fontFamily: 'var(--font-serif)', color: 'var(--deep-maroon)', fontSize: '24px', fontWeight: 700, marginBottom: '4px' }}>Welcome</h1>

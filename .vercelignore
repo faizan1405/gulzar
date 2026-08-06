@@ -1,0 +1,8 @@
+.next
+node_modules
+.env*
+.vercel
+*.log
+playwright
+.DS_Store
+Thumbs.db
