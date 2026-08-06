@@ -18,7 +18,7 @@ const nextConfig: NextConfig = {
   async headers() {
     const cspScript = isDev
       ? "'self' 'unsafe-inline' 'unsafe-eval' https://accounts.google.com https://*.gstatic.com"
-      : "'self' https://accounts.google.com https://*.gstatic.com";
+      : "'self' 'unsafe-inline' https://accounts.google.com https://*.gstatic.com";
     const cspStyle = isDev
       ? "'self' 'unsafe-inline' https://fonts.googleapis.com"
       : "'self' 'unsafe-inline' https://fonts.googleapis.com";
