@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { SessionProvider as NextAuthSessionProvider } from "next-auth/react";
 import { SessionProvider } from "@/context/SessionContext";
 import { Cormorant_Garamond, Poppins, Great_Vibes, Amiri } from "next/font/google";
 
@@ -58,14 +59,16 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${cormorantGaramond.variable} ${poppins.variable} ${greatVibes.variable} ${amiri.variable}`}>
       <body>
-        <SessionProvider>
-          <ProfileDetails />
-          {children}
-          <ChatbotWidget />
-          <CallButton />
-          <WhatsAppButton />
-          <RegistrationPopup />
-        </SessionProvider>
+        <NextAuthSessionProvider>
+          <SessionProvider>
+            <ProfileDetails />
+            {children}
+            <ChatbotWidget />
+            <CallButton />
+            <WhatsAppButton />
+            <RegistrationPopup />
+          </SessionProvider>
+        </NextAuthSessionProvider>
       </body>
     </html>
   );
