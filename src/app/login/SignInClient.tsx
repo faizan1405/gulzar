@@ -30,18 +30,20 @@ export default function SignInClient() {
         redirect: 'manual',
       });
 
-      const data = await res.json();
-
-      if (data.url) {
-        // NextAuth returned the Google authorization URL — redirect the browser
-        window.location.href = data.url;
-      } else if (data.error) {
-        setError(data.error || 'Sign-in failed. Please try again.');
-        setIsLoading(false);
-      } else {
-        setError('Sign-in failed. Please try again.');
-        setIsLoading(false);
+      // NextAuth returns a 302 redirect on success — the browser
+      // won't follow it automatically, so we redirect manually.
+      if (res.status === 302 || res.status === 303) {
+        const location = res.headers.get('location');
+        if (location) {
+          window.location.href = location;
+          return;
+        }
       }
+
+      // Any non-redirect response is an error
+      const data = await res.json().catch(() => ({}));
+      setError(data.error || 'Sign-in failed. Please try again.');
+      setIsLoading(false);
     } catch {
       setError('Sign-in failed. Please try again.');
       setIsLoading(false);

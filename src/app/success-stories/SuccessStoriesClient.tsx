@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
+import { ROUTES } from '../../lib/routes';
 import Image from 'next/image';
 import Navbar from '../../components/Navbar';
 import { SectionHeading, SuccessStoryCard, PremiumFooter } from '../../components/NikahComponents';
@@ -10,7 +11,14 @@ export default function SuccessStoriesClient() {
   const router = useRouter();
 
   const handleNavigate = (view: string) => {
-    router.push('/' + (view === 'home' ? '' : view));
+    const routeMap: Record<string, string> = {
+      home: ROUTES.HOME,
+      search: ROUTES.SEARCH,
+      packages: ROUTES.PACKAGES,
+      'how-it-works': ROUTES.HOW_IT_WORKS,
+      'event-management': ROUTES.EVENT_MANAGEMENT,
+    };
+    router.push(routeMap[view] || ROUTES.HOME);
   };
 
   return (

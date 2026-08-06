@@ -4,6 +4,7 @@ import Link from 'next/link';
 
 import { Profile } from '../types';
 import { getSupportWhatsAppLink } from '../lib/whatsapp';
+import { ROUTES } from '../lib/routes';
 
 export const DecorativeArch: React.FC<{ children: React.ReactNode; className?: string }> = ({
   children,
@@ -588,7 +589,7 @@ export const ZaichaPromoCard: React.FC = () => {
             Get thoughtful compatibility guidance from an Islamic perspective to help families make informed marriage decisions with care, privacy, and trust.
           </p>
 
-          <Link href="/zaicha" className="btn btn-gold zaicha-cta-btn">
+          <Link href={ROUTES.ZAICHA} className="btn btn-gold zaicha-cta-btn">
             Explore Zaicha
           </Link>
         </div>
@@ -715,7 +716,7 @@ export const PremiumFooter: React.FC<PremiumFooterProps> = ({ onNavigate }) => {
               <li><button onClick={() => onNavigate('search')} className="footer-link">Browse Profiles</button></li>
               <li><button onClick={() => onNavigate('packages')} className="footer-link">Pricing & Packages</button></li>
               <li><button onClick={() => onNavigate('how-it-works')} className="footer-link">How It Works</button></li>
-              <li><Link href="/event-management" className="footer-link">Event Management</Link></li>
+              <li><Link href={ROUTES.EVENT_MANAGEMENT} className="footer-link">Event Management</Link></li>
             </ul>
           </div>
           <div>
@@ -723,7 +724,7 @@ export const PremiumFooter: React.FC<PremiumFooterProps> = ({ onNavigate }) => {
             <ul className="footer-nav-list">
               <li><Link href="/faq" className="footer-link">FAQ</Link></li>
               <li><Link href="/safety" className="footer-link">Verification & Safety</Link></li>
-              <li><Link href="/zaicha" className="footer-link">Zaicha Guidance</Link></li>
+              <li><Link href={ROUTES.ZAICHA} className="footer-link">Zaicha Guidance</Link></li>
               <li><Link href="/success-stories" className="footer-link">Success Stories</Link></li>
               <li><Link href="/about" className="footer-link">About Us</Link></li>
               <li><Link href="/contact" className="footer-link">Contact Support</Link></li>

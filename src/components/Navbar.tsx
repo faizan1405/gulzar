@@ -5,18 +5,19 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useSession } from '../context/SessionContext';
+import { ROUTES } from '../lib/routes';
 
 const navItems = [
-  { href: '/', label: 'Home', icon: 'home' },
-  { href: '/search', label: 'Browse Profiles', icon: 'search' },
-  { href: '/how-it-works', label: 'How It Works', icon: 'info' },
+  { href: ROUTES.HOME, label: 'Home', icon: 'home' },
+  { href: ROUTES.SEARCH, label: 'Browse Profiles', icon: 'search' },
+  { href: ROUTES.HOW_IT_WORKS, label: 'How It Works', icon: 'info' },
 ];
 
 const secondaryItems = [
-  { href: '/packages', label: 'Packages', icon: 'crown' },
-  { href: '/safety', label: 'Safety', icon: 'shield' },
-  { href: '/zaicha', label: 'Zaicha', icon: 'star' },
-  { href: '/event-management', label: 'Events', icon: 'event' },
+  { href: ROUTES.PACKAGES, label: 'Packages', icon: 'crown' },
+  { href: ROUTES.SAFETY, label: 'Safety', icon: 'shield' },
+  { href: ROUTES.ZAICHA, label: 'Zaicha', icon: 'star' },
+  { href: ROUTES.EVENT_MANAGEMENT, label: 'Events', icon: 'event' },
 ];
 
 const Icon: React.FC<{ name: string; size?: number }> = ({ name, size = 16 }) => {
@@ -121,10 +122,10 @@ export default function Navbar() {
             <div className="nav-actions-group">
               {isLoggedIn ? (
                 <>
-                  <Link href="/my-account" className="btn btn-secondary nav-btn-sm" title="My Account">
+                  <Link href={ROUTES.MY_ACCOUNT} className="btn btn-secondary nav-btn-sm" title="My Account">
                     <Icon name="user" size={14} />
                   </Link>
-                  <button onClick={() => { router.push('/my-account'); }} className="btn btn-secondary nav-btn-sm salutation">
+                  <button onClick={() => { router.push(ROUTES.MY_ACCOUNT); }} className="btn btn-secondary nav-btn-sm salutation">
                     Salaam!
                   </button>
                   <button onClick={handleLogout} className="btn btn-primary nav-btn-sm">
@@ -134,17 +135,17 @@ export default function Navbar() {
                 </>
               ) : (
                 <>
-                  <Link href="/register" className="btn btn-gold nav-btn-sm">
+                  <Link href={ROUTES.REGISTER} className="btn btn-gold nav-btn-sm">
                     <Icon name="add" size={14} />
                     Register Free
                   </Link>
-                  <Link href="/login" className="btn btn-secondary nav-btn-sm">
+                  <Link href={ROUTES.LOGIN} className="btn btn-secondary nav-btn-sm">
                     <Icon name="lock" size={14} />
                     Sign In
                   </Link>
                 </>
               )}
-              <Link href="/admin" className="btn btn-ghost nav-btn-sm admin-link" title="Admin">
+              <Link href={ROUTES.ADMIN} className="btn btn-ghost nav-btn-sm admin-link" title="Admin">
                 <Icon name="settings" size={14} />
               </Link>
             </div>
@@ -205,7 +206,7 @@ export default function Navbar() {
             <div className="mobile-drawer-section">
               {isLoggedIn ? (
                 <>
-                  <button onClick={() => { setIsMobileMenuOpen(false); router.push('/my-account'); }} className="mobile-link">
+                  <button onClick={() => { setIsMobileMenuOpen(false); router.push(ROUTES.MY_ACCOUNT); }} className="mobile-link">
                     <Icon name="user" size={18} />
                     My Account
                   </button>
@@ -216,17 +217,17 @@ export default function Navbar() {
                 </>
               ) : (
                 <>
-                  <button onClick={() => { setIsMobileMenuOpen(false); router.push('/register'); }} className="mobile-link">
+                  <button onClick={() => { setIsMobileMenuOpen(false); router.push(ROUTES.REGISTER); }} className="mobile-link">
                     <Icon name="add" size={18} />
                     Register Free
                   </button>
-                  <button onClick={() => { setIsMobileMenuOpen(false); router.push('/login'); }} className="mobile-link">
+                  <button onClick={() => { setIsMobileMenuOpen(false); router.push(ROUTES.LOGIN); }} className="mobile-link">
                     <Icon name="lock" size={18} />
                     Sign In
                   </button>
                 </>
               )}
-              <Link href="/admin" onClick={() => setIsMobileMenuOpen(false)} className="mobile-link">
+              <Link href={ROUTES.ADMIN} onClick={() => setIsMobileMenuOpen(false)} className="mobile-link">
                 <Icon name="settings" size={18} />
                 Admin Panel
               </Link>

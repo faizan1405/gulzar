@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useSession } from '../context/SessionContext';
 import { getProfileImage, getThemeClass } from '../lib/helpers';
 import { getSupportWhatsAppLink } from '../lib/whatsapp';
+import { ROUTES } from '../lib/routes';
 import Navbar from '../components/Navbar';
 import {
   BismillahCalligraphy,
@@ -234,7 +235,7 @@ export default function HomeClient() {
             )}
 
             <div className="section-actions">
-              <button onClick={() => router.push('/search')} className="btn btn-gold">
+              <button onClick={() => router.push(ROUTES.SEARCH)} className="btn btn-gold">
                 Explore More Profiles
               </button>
             </div>
@@ -477,7 +478,7 @@ export default function HomeClient() {
             </div>
 
             <div className="section-actions">
-              <button onClick={() => router.push('/event-management')} className="btn btn-gold">
+              <button onClick={() => router.push(ROUTES.EVENT_MANAGEMENT)} className="btn btn-gold">
                 Explore Event Services
               </button>
               <a
@@ -498,14 +499,14 @@ export default function HomeClient() {
         <FinalCTA
           onRegister={() => {
             if (!isLoggedIn) {
-              router.push('/register');
+              router.push(ROUTES.REGISTER);
             } else if (userProfile?.profileCompletionStatus === 'COMPLETE') {
-              router.push('/my-account');
+              router.push(ROUTES.MY_ACCOUNT);
             } else {
-              router.push('/register');
+              router.push(ROUTES.REGISTER);
             }
           }}
-          onBrowse={() => router.push('/search')}
+          onBrowse={() => router.push(ROUTES.SEARCH)}
           isLoggedIn={isLoggedIn}
           hasProfile={!!userProfile}
         />

@@ -7,6 +7,7 @@ import Navbar from '../../components/Navbar';
 import { SectionHeading, PremiumFooter } from '../../components/NikahComponents';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { ROUTES } from '../../lib/routes';
 
 export default function MyAccountPage() {
   const { isLoggedIn, userProfile, hasPaid300, setIsRegistering, setRegStep, activePackages } = useSession();

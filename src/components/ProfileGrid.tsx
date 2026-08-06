@@ -6,6 +6,7 @@ import { useSession } from '../context/SessionContext';
 import { Profile } from '../types';
 import { ProfileCard } from './NikahComponents';
 import { getProfileImage, getThemeClass } from '../lib/helpers';
+import { ROUTES } from '../lib/routes';
 
 interface ProfileGridProps {
   filteredProfiles: Profile[];
@@ -56,7 +57,7 @@ export const ProfileGrid: React.FC<ProfileGridProps> = ({ filteredProfiles, isFi
           </p>
           <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
             <Link
-              href="/login"
+              href={ROUTES.LOGIN}
               style={{
                 padding: '11px 24px',
                 background: 'linear-gradient(135deg,var(--deep-maroon),#8b2252)',
@@ -103,7 +104,7 @@ export const ProfileGrid: React.FC<ProfileGridProps> = ({ filteredProfiles, isFi
         </p>
         <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
           <Link
-            href="/search"
+            href={ROUTES.SEARCH}
             style={{
               padding: '11px 24px',
               background: 'linear-gradient(135deg,var(--deep-maroon),#8b2252)',
@@ -119,7 +120,7 @@ export const ProfileGrid: React.FC<ProfileGridProps> = ({ filteredProfiles, isFi
             Clear All Filters
           </Link>
           <Link
-            href="/login"
+            href={ROUTES.LOGIN}
             style={{
               padding: '11px 24px',
               background: 'transparent',

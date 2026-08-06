@@ -8,6 +8,7 @@ import { useSession } from '../context/SessionContext';
 import { getProfileImage } from '../lib/helpers';
 import { VerifiedBadge } from './NikahComponents';
 import { ProfileInterestForm } from './ProfileInterestForm';
+import { ROUTES } from '../lib/routes';
 
 
 export const ProfileDetails: React.FC = () => {
@@ -79,11 +80,11 @@ export const ProfileDetails: React.FC = () => {
   const handleUnlockClick = () => {
     setSelectedProfileForDetails(null);
     if (!isLoggedIn) {
-      router.push('/login');
+      router.push(ROUTES.REGISTER);
     } else if (!userProfile || userProfile.profileCompletionStatus !== 'COMPLETE') {
-      router.push('/register');
+      router.push(ROUTES.REGISTER);
     } else {
-      router.push('/packages');
+      router.push(ROUTES.PACKAGES);
     }
   };
 
