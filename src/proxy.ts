@@ -86,13 +86,19 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
+  // Match all admin and API routes EXCEPT auth.
+  // Auth routes are handled entirely by NextAuth — never proxy them.
   matcher: [
     '/admin/:path*',
-    '/api/:path*',
+    '/api/admin/:path*',
+    '/api/leads/:path*',
+    '/api/packages/:path*',
+    '/api/payment/:path*',
+    '/api/profile/:path*',
+    '/api/profiles/:path*',
+    '/api/user/:path*',
+    '/api/business-location/:path*',
+    '/api/chatbot/:path*',
     '/premium',
-  ],
-  // Exclude auth routes — let NextAuth handle its own flow
-  skip: [
-    '/api/auth/:path*',
   ],
 };
