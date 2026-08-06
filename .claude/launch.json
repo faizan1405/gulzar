@@ -2,11 +2,11 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "nextjs",
-      "runtimeExecutable": "cmd",
-      "runtimeArgs": ["/c", "npx", "next", "dev", "-p", "3000"],
+      "name": "Rishte Forever Dev",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
       "port": 3000,
-      "url": "http://localhost:3000/login"
+      "cwd": "E:/012/website/gulzar-bhai/main project"
     }
   ]
 }
