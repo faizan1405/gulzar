@@ -1,11 +1,13 @@
 import NextAuth from 'next-auth';
 import Google from 'next-auth/providers/google';
-import Credentials from 'next-auth/providers/credentials';
-import bcrypt from 'bcryptjs';
 import { PrismaAdapter } from '@auth/prisma-adapter';
 import { prisma } from './lib/db';
 
-// Extend the session types
+// Resolve the lazy Prisma instance once — PrismaAdapter needs a real client, not a getter.
+const prismaClient = (prisma as () => import('@prisma/client').PrismaClient)();
+
+export const { handlers, auth, signOut } = NextAuth({
+  adapter: PrismaAdapter(prismaClient),
 declare module 'next-auth' {
   interface Session {
     user: {
@@ -45,46 +47,12 @@ export const { handlers, auth, signOut } = NextAuth({
       token: 'https://oauth2.googleapis.com/token',
       userinfo: 'https://openidconnect.googleapis.com/v1/userinfo',
     }),
-    Credentials({
-      name: 'Credentials',
-      credentials: {
-        email: { label: 'Email', type: 'email' },
-        password: { label: 'Password', type: 'password' },
-      },
-      async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) return null;
-
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email as string },
-        });
-
-        if (!user || user.role !== 'ADMIN') return null;
-        if (!user.passwordHash) return null;
-        if (user.accountStatus === 'SUSPENDED') return null;
-
-        const isValid = await bcrypt.compare(credentials.password as string, user.passwordHash);
-        if (!isValid) return null;
-
-        return {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          image: user.image,
-          role: user.role,
-          accountStatus: user.accountStatus,
-          requiresPasswordChange: user.requiresPasswordChange,
-          tokenVersion: user.tokenVersion,
-        };
-      },
-    }),
   ],
   callbacks: {
     async signIn({ user, account }) {
-      // Google OAuth sign-in — ensure role is USER
-      if (account?.provider === 'google') {
-        if (!user.email) return false;
-        return true;
-      }
+      // Only allow Google OAuth — this is the sole customer sign-in method.
+      if (account?.provider !== 'google') return false;
+      if (!user.email) return false;
       return true;
     },
     async jwt({ token, user }) {

@@ -4,20 +4,21 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
-let prisma: PrismaClient;
+export const prisma = (() => {
+  // Lazy singleton — avoids crashing the module on Vercel cold-start
+  // when the database is temporarily unreachable during function init.
+  if (globalForPrisma.prisma) return globalForPrisma.prisma;
 
-try {
-  prisma = new PrismaClient({
+  const client = new PrismaClient({
     log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
   });
 
   if (process.env.NODE_ENV !== 'production') {
-    globalForPrisma.prisma = prisma;
+    globalForPrisma.prisma = client;
   }
-} catch (err) {
-  console.error('Fatal: Failed to instantiate PrismaClient — database may be unreachable:', err);
-  throw err;
-}
+
+  return client;
+})();
 
 export async function testDbConnection(): Promise<boolean> {
   try {
@@ -28,5 +29,3 @@ export async function testDbConnection(): Promise<boolean> {
     return false;
   }
 }
-
-export { prisma };

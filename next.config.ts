@@ -15,6 +15,15 @@ const nextConfig: NextConfig = {
       'next/server': 'next/server.js',
     },
   },
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        'next/server': 'next/server.js',
+      };
+    }
+    return config;
+  },
   async headers() {
     const cspScript = isDev
       ? "'self' 'unsafe-inline' 'unsafe-eval' https://accounts.google.com https://*.gstatic.com"
