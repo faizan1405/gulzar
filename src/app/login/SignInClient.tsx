@@ -5,7 +5,6 @@ import { signIn } from 'next-auth/react';
 
 export default function SignInClient() {
   const [error, setError] = useState('');
-  const [clicked, setClicked] = useState(false);
   const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
@@ -22,30 +21,10 @@ export default function SignInClient() {
   }, []);
 
   const handleGoogleSignIn = async () => {
-    console.log('=== handleGoogleSignIn STARTED ===');
-    console.log('=== About to fetch CSRF ===');
-
     try {
-      const csrfRes = await fetch('/api/auth/csrf');
-      console.log('=== CSRF status:', csrfRes.status);
-      const csrfData = await csrfRes.json();
-      console.log('=== CSRF token:', !!csrfData?.csrfToken);
-
-      if (!csrfData?.csrfToken) {
-        throw new Error('No CSRF token');
-      }
-
-      console.log('=== Calling signIn ===');
-      const result = await signIn('google', { callbackUrl: '/', redirect: false });
-      console.log('=== signIn result:', JSON.stringify(result));
-
-      if (result?.url) {
-        window.location.href = result.url;
-      }
+      await signIn('google', { callbackUrl: '/' });
     } catch (err) {
-      console.error('=== ERROR ===', err);
-      setError(err instanceof Error ? err.message : 'Sign-in failed');
-      setClicked(false);
+      setError('Sign-in failed. Please try again.');
     }
   };
 
