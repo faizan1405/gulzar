@@ -127,7 +127,6 @@ export async function POST(req: NextRequest) {
       'maritalStatus',
       'phoneNumber',
       'city',
-      'areaOrLocality',
       'state',
       'country',
       'education',

@@ -1,23 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getToken } from 'next-auth/jwt';
+import { auth } from '@/auth';
 
 /**
  * JWT auth guard for state-changing API routes.
  *
- * Returns null if the request carries a valid JWT session (allowing the
- * handler to continue), or a 401 Response if the token is missing or invalid.
+ * Uses `auth()` (proven working in every other route handler) instead of
+ * `getToken()` to avoid cookie-resolution mismatches in Auth.js v5 beta.
  *
- * GET/HEAD/OPTIONS are allowed through without a token so public read
- * endpoints keep working.
+ * Returns null if the request has a valid session (allowing the handler to
+ * continue), or a 401 Response if the session is missing/invalid.
  */
 export async function jwtGuard(req: NextRequest): Promise<NextResponse | null> {
-  if (req.method === 'GET' || req.method === 'HEAD' || req.method === 'OPTIONS') {
-    return null;
-  }
-
   try {
-    const token = await getToken({ req, secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET });
-    if (!token?.sub) {
+    const session = await auth();
+    if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
     }
   } catch {

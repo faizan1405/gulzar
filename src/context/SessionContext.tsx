@@ -468,7 +468,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
 
     setIsSubmittingForm(true);
-    let profileData = null;
+    const profileData = null;
     try {
       const res = await fetch('/api/profile', {
         method: 'POST',
