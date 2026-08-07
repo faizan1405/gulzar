@@ -82,13 +82,6 @@ export const RAZORPAY_KEY_ID = env('RAZORPAY_KEY_ID', '');
 export const RAZORPAY_KEY_SECRET = env('RAZORPAY_KEY_SECRET', '');
 
 /* ------------------------------------------------------------------ */
-/*  Email / SMS (Resend)                                             */
-/* ------------------------------------------------------------------ */
-
-export const RESEND_API_KEY = env('RESEND_API_KEY', '');
-export const RESEND_FROM_EMAIL = env('RESEND_FROM_EMAIL', 'noreply@rishteforever.in');
-
-/* ------------------------------------------------------------------ */
 /*  Feature flags                                                    */
 /* ------------------------------------------------------------------ */
 
