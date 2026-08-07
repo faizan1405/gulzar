@@ -9,11 +9,11 @@ import {
   getRelevantFaqContext,
 } from '@/lib/faqData';
 import { auth } from '@/auth';
-import { csrfGuard } from '@/lib/csrfGuard';
+import { jwtGuard } from '@/lib/jwtGuard';
 
 export async function POST(req: NextRequest) {
-  const csrfResult = await csrfGuard(req);
-  if (csrfResult) return csrfResult;
+  const jwtResult = await jwtGuard(req);
+  if (jwtResult) return jwtResult;
 
   const session = await auth();
   if (!session?.user?.id) {

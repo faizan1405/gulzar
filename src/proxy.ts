@@ -60,24 +60,6 @@ export async function proxy(request: NextRequest) {
   // Apply CORS headers to all API responses
   if (pathname.startsWith('/api')) {
     applyCors(response, origin);
-
-    // CSRF token cookie initialization
-    const csrfToken = crypto.randomUUID();
-    response.cookies.set('x-csrf-token', csrfToken, {
-      httpOnly: true,
-      sameSite: 'strict',
-      secure: process.env.NODE_ENV === 'production',
-      path: '/',
-      maxAge: 60 * 60 * 24,
-    });
-
-    // Non-httpOnly copy for client-side JS to read
-    response.cookies.set('x-csrf-token-client', csrfToken, {
-      sameSite: 'strict',
-      secure: process.env.NODE_ENV === 'production',
-      path: '/',
-      maxAge: 60 * 60 * 24,
-    });
   } else {
     applyCors(response, origin);
   }

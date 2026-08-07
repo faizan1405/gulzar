@@ -4,7 +4,7 @@ import { prisma } from '@/lib/db';
 import { getValidObjectId, isFallbackAllowed, logFallbackWarning } from '@/lib/profileStore';
 import { checkRateLimitByName, buildRateLimitHeaders } from '@/lib/rateLimit';
 import { logAudit } from '@/lib/audit';
-import { csrfGuard } from '@/lib/csrfGuard';
+import { jwtGuard } from '@/lib/jwtGuard';
 import { safeJsonBody } from '@/lib/requestUtils';
 
 async function isAdmin(): Promise<boolean> {
@@ -17,8 +17,8 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const csrfResult = await csrfGuard(req);
-    if (csrfResult) return csrfResult;
+    const jwtResult = await jwtGuard(req);
+    if (jwtResult) return jwtResult;
 
     if (!(await isAdmin())) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
@@ -99,8 +99,8 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const csrfResult = await csrfGuard(req);
-    if (csrfResult) return csrfResult;
+    const jwtResult = await jwtGuard(req);
+    if (jwtResult) return jwtResult;
 
     if (!(await isAdmin())) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });

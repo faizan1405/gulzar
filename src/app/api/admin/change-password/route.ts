@@ -4,7 +4,7 @@ import { prisma } from '@/lib/db';
 import bcrypt from 'bcryptjs';
 import { checkRateLimitByName, buildRateLimitHeaders } from '@/lib/rateLimit';
 import { logAudit } from '@/lib/audit';
-import { csrfGuard } from '@/lib/csrfGuard';
+import { jwtGuard } from '@/lib/jwtGuard';
 import { safeJsonBody } from '@/lib/requestUtils';
 
 const PASSWORD_MIN_LENGTH = 12;
@@ -16,8 +16,8 @@ function hasPasswordComplexity(pw: string): boolean {
 
 export async function POST(req: NextRequest) {
   try {
-    const csrfResult = await csrfGuard(req);
-    if (csrfResult) return csrfResult;
+    const jwtResult = await jwtGuard(req);
+    if (jwtResult) return jwtResult;
 
     const session = await auth();
 

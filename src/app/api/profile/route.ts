@@ -5,7 +5,7 @@ import { prisma } from '@/lib/db';
 import { redactProfile } from '@/lib/profilePrivacy';
 import { notifyRegistration, notifyAdminNewProfile } from '@/lib/notifications';
 import { checkRateLimit, buildRateLimitHeaders } from '@/lib/rateLimit';
-import { csrfGuard } from '@/lib/csrfGuard';
+import { jwtGuard } from '@/lib/jwtGuard';
 import { safeJsonBody } from '@/lib/requestUtils';
 import {
   hasPaidAccess,
@@ -89,8 +89,8 @@ export async function GET() {
 // Create or update matrimonial profile
 export async function POST(req: NextRequest) {
   try {
-    const csrfResult = await csrfGuard(req);
-    if (csrfResult) return csrfResult;
+    const jwtResult = await jwtGuard(req);
+    if (jwtResult) return jwtResult;
 
     const session = await auth();
 

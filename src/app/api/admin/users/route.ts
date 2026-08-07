@@ -4,7 +4,7 @@ import { prisma } from '@/lib/db';
 import { Role } from '@prisma/client';
 import { checkRateLimitByName, buildRateLimitHeaders } from '@/lib/rateLimit';
 import { logAudit } from '@/lib/audit';
-import { csrfGuard } from '@/lib/csrfGuard';
+import { jwtGuard } from '@/lib/jwtGuard';
 import { safeJsonBody } from '@/lib/requestUtils';
 
 async function isAdmin() {
@@ -79,8 +79,8 @@ export async function GET(req: NextRequest) {
 
 export async function PATCH(req: NextRequest) {
   try {
-    const csrfResult = await csrfGuard(req);
-    if (csrfResult) return csrfResult;
+    const jwtResult = await jwtGuard(req);
+    if (jwtResult) return jwtResult;
 
     if (!(await isAdmin())) {
       return NextResponse.json({ error: 'Unauthorized. Admin role required.' }, { status: 403 });

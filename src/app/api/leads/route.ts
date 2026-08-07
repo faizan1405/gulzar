@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createLead, getAllLeads } from '@/lib/profileStore';
 import { notifyAdminNewLead } from '@/lib/notifications';
 import { checkRateLimit, buildRateLimitHeaders } from '@/lib/rateLimit';
-import { csrfGuard } from '@/lib/csrfGuard';
+import { jwtGuard } from '@/lib/jwtGuard';
 import { safeJsonBody } from '@/lib/requestUtils';
 
 // Basic phone validation helper
@@ -28,8 +28,8 @@ function sanitizeText(str: string): string {
 
 export async function POST(req: NextRequest) {
   try {
-    const csrfResult = await csrfGuard(req);
-    if (csrfResult) return csrfResult;
+    const jwtResult = await jwtGuard(req);
+    if (jwtResult) return jwtResult;
 
     const ip = (req as any).ip || req.headers.get('x-forwarded-for') || 'anonymous';
     const leadResult = await checkRateLimit(`leads:${ip}`, 5, 60 * 1000);

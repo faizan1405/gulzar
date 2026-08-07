@@ -5,7 +5,7 @@ const ALLOWED_ORIGINS = (process.env.CORS_ORIGINS || 'http://localhost:3000')
   .map((o) => o.trim());
 
 const ALLOWED_METHODS = 'GET, POST, PUT, PATCH, DELETE, OPTIONS';
-const ALLOWED_HEADERS = 'Content-Type, Authorization, X-CSRF-Token, X-Requested-With';
+const ALLOWED_HEADERS = 'Content-Type, Authorization, X-Requested-With';
 
 function getOrigin(origin: string | null): string {
   if (!origin) return ALLOWED_ORIGINS[0];

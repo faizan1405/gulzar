@@ -3,14 +3,14 @@ import { auth } from '@/auth';
 import { submitUserPaymentClaim } from '@/lib/profileStore';
 import { prisma } from '@/lib/db';
 import { escapeHTML } from '@/lib/sanitize';
-import { csrfGuard } from '@/lib/csrfGuard';
+import { jwtGuard } from '@/lib/jwtGuard';
 import { safeJsonBody } from '@/lib/requestUtils';
 import { checkRateLimitByName, buildRateLimitHeaders } from '@/lib/rateLimit';
 
 export async function POST(req: NextRequest) {
   try {
-    const csrfResult = await csrfGuard(req);
-    if (csrfResult) return csrfResult;
+    const jwtResult = await jwtGuard(req);
+    if (jwtResult) return jwtResult;
 
     const session = await auth();
     if (!session?.user?.id) {
