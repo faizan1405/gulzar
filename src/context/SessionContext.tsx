@@ -210,7 +210,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
     async function detectRealSession() {
       try {
-        const res = await fetch('/api/auth/session', { cache: 'no-store' });
+        const res = await fetch('/api/auth/session', { cache: 'no-store', credentials: 'include' });
         if (!res.ok) throw new Error('Session fetch failed');
         const session = await res.json();
         if (session?.user) {
@@ -293,11 +293,10 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
     wasLoadingRef.current = isLoading;
   }, [isLoading, isLoggedIn, pendingProfileId, userProfile, profiles]);
 
-  // Headers helper — plain JSON
+  // Headers helper — plain JSON (credentials handled separately in fetch options)
   const getHeaders = useCallback(() => {
     return {
       'Content-Type': 'application/json',
-      credentials: 'include',
     } as Record<string, string>;
   }, []);
 
@@ -313,7 +312,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
       // 1. Fetch current user profile
       if (isLoggedIn) {
-        const res = await fetch('/api/profile', { headers });
+        const res = await fetch('/api/profile', { headers, credentials: 'include' });
         if (!res.ok) {
           throw new Error(`Unable to load your profile (status ${res.status}).`);
         }

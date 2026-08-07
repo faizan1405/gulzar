@@ -1,12 +1,10 @@
 'use client';
 
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { useSession } from '../context/SessionContext';
 import SearchableCombobox from './SearchableCombobox';
 import { DEFAULT_FIQHS } from '../lib/masterData';
-
 import RegistrationFormHeroImage from './RegistrationFormHeroImage';
-
 
 export default function MatrimonialRegistrationForm({
   onCancel,
@@ -30,6 +28,13 @@ export default function MatrimonialRegistrationForm({
     isSubmittingForm,
   } = useSession();
 
+  // Refs to always read the latest state inside event handlers
+  const regStepRef = useRef(regStep);
+  const formDataRef = useRef(formData);
+
+  useEffect(() => { regStepRef.current = regStep; }, [regStep]);
+  useEffect(() => { formDataRef.current = formData; }, [formData]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isSubmittingForm) return;
@@ -39,15 +44,18 @@ export default function MatrimonialRegistrationForm({
   const validateStep = (step: number): boolean => {
     setRegistrationError('');
     try {
+      const fd = formDataRef.current;
       if (step === 1) {
-        // Core identity — all required
-        for (const f of ['fullName', 'dateOfBirth', 'phoneNumber', 'bio']) {
-          if (!(formData as Record<string, unknown>)[f]) {
-            setRegistrationError('Please fill in all personal details (name, date of birth, phone, and bio).');
-            return false;
-          }
+        const missing: string[] = [];
+        if (!fd.fullName?.trim()) missing.push('Full Name');
+        if (!fd.dateOfBirth) missing.push('Date of Birth');
+        if (!fd.phoneNumber?.trim()) missing.push('Phone Number');
+        if (!fd.bio?.trim()) missing.push('About Me');
+        if (missing.length > 0) {
+          setRegistrationError(`Please fill in: ${missing.join(', ')}`);
+          return false;
         }
-        const dob = new Date(formData.dateOfBirth);
+        const dob = new Date(fd.dateOfBirth);
         if (isNaN(dob.getTime())) {
           setRegistrationError('Please provide a valid date of birth.');
           return false;
@@ -61,19 +69,16 @@ export default function MatrimonialRegistrationForm({
           return false;
         }
       } else if (step === 2) {
-        // Location essentials
-        if (!formData.state || !formData.city) {
-          setRegistrationError('Please fill in your state and city.');
+        if (!fd.state?.trim() || !fd.city?.trim()) {
+          setRegistrationError('Please select your state and city/district.');
           return false;
         }
       } else if (step === 3) {
-        // Professional essentials
-        if (!formData.education || !formData.occupation) {
+        if (!fd.education?.trim() || !fd.occupation?.trim()) {
           setRegistrationError('Please provide your education and occupation.');
           return false;
         }
       }
-      // Step 4 (community/preferences) is fully optional — no blocking validation
       return true;
     } catch {
       setRegistrationError('An unexpected error occurred. Please try again.');
@@ -82,8 +87,12 @@ export default function MatrimonialRegistrationForm({
   };
 
   const handleNextStep = () => {
-    if (validateStep(regStep)) {
-      setRegStep((prev) => prev + 1);
+    const currentStep = regStepRef.current;
+    if (validateStep(currentStep)) {
+      setRegStep((prev) => {
+        const next = prev + 1;
+        return next;
+      });
     }
   };
 
@@ -130,13 +139,14 @@ export default function MatrimonialRegistrationForm({
       <div className="registration-wizard" style={{ maxWidth: '600px', margin: '0 auto', background: 'var(--card-bg)', borderRadius: '12px', padding: '30px', boxShadow: '0 4px 15px rgba(0,0,0,0.05)' }}>
 
         {/* Error / success feedback */}
-      {registrationError && (
+        {registrationError && (
           <div className="error-message" style={{ marginBottom: '20px', padding: '12px 16px', backgroundColor: '#fef2f2', border: '1px solid #fca5a5', borderRadius: '8px', color: '#991b1b', fontSize: '14px' }}>
             {registrationError}
           </div>
         )}
 
         <form onSubmit={handleSubmit}>
+          {/* STEP 1 — Personal Information */}
           {regStep === 1 && (
             <div>
               <div className="form-group">
@@ -316,7 +326,7 @@ export default function MatrimonialRegistrationForm({
             </div>
           )}
 
-          {/* STEP 4 — Community & Preferences (all optional, no blocking validation) */}
+          {/* STEP 4 — Community & Preferences */}
           {regStep === 4 && (
             <div>
               <div className="form-group-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
