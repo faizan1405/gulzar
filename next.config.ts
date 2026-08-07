@@ -3,6 +3,11 @@ import type { NextConfig } from "next";
 const isDev = process.env.NODE_ENV !== 'production';
 
 const nextConfig: NextConfig = {
+  // Use webpack instead of turbopack — next-auth v5 is not yet
+  // compatible with Turbopack's module resolution.
+  experimental: {
+    turbopack: { resolveAlias: {} },
+  },
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: 'images.unsplash.com' },
