@@ -10,11 +10,6 @@ const nextConfig: NextConfig = {
       { protocol: 'https', hostname: '*.public.blob.vercel-storage.com' },
     ],
   },
-  turbopack: {
-    resolveAlias: {
-      'next/server': 'next/server.js',
-    },
-  },
   webpack: (config, { isServer }) => {
     if (!isServer) {
       config.resolve.alias = {
