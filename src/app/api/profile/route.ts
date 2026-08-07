@@ -181,8 +181,33 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Registration is restricted to eligible adults (18 years and older).' }, { status: 400 });
     }
 
-    // 2. Age limit verification (Restricted to eligible adults >= 18)
-    const profile = await upsertProfile(session.user.id, body);
+    // 2. Sanitize body — only pass schema-known fields to the DB layer
+    const {
+      fullName, gender, dateOfBirth, maritalStatus, phoneNumber,
+      city, areaOrLocality, state, country, education, occupation,
+      annualIncomeRange, familyInfo, bio, themeColor,
+      latitude, longitude,
+      maslak, fiqh, biradari, biradariAliases,
+      district, locality,
+      preferredLocations,
+      sameCastePreference, sameMaslakPreference,
+      noCastePreference, noMaslakPreference, willingToRelocate,
+      category,
+    } = body;
+
+    // 3. Age limit verification (Restricted to eligible adults >= 18)
+    const profile = await upsertProfile(session.user.id, {
+      fullName, gender, dateOfBirth, maritalStatus, phoneNumber,
+      city, areaOrLocality, state, country, education, occupation,
+      annualIncomeRange, familyInfo, bio, themeColor,
+      latitude, longitude,
+      maslak, fiqh, biradari, biradariAliases,
+      district, locality,
+      preferredLocations,
+      sameCastePreference, sameMaslakPreference,
+      noCastePreference, noMaslakPreference, willingToRelocate,
+      category,
+    });
 
     if (!profile) {
       return NextResponse.json({ error: 'Profile could not be saved. Please try again.' }, { status: 500 });
