@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { useSession } from '../../context/SessionContext';
 import Navbar from '../../components/Navbar';
 import { ProfileFilters } from '../../components/ProfileFilters';
@@ -12,6 +12,7 @@ import { Profile } from '@/types';
 
 export default function SearchClient() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const { profiles, isLoggedIn, userProfile, isLoading, masterLocations } = useSession();
 
   const queryState = searchParams.get('state') || undefined;
@@ -271,7 +272,7 @@ export default function SearchClient() {
           )}
         </div>
       </main>
-      <PremiumFooter onNavigate={(view) => window.location.href = `/${view === 'home' ? '' : view}`} />
+      <PremiumFooter onNavigate={(view) => router.push(`/${view === 'home' ? '' : view}`)} />
     </>
   );
 }

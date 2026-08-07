@@ -3,8 +3,10 @@
 import React from 'react';
 import Navbar from '../../components/Navbar';
 import { SectionHeading, PremiumFooter } from '../../components/NikahComponents';
+import { useRouter } from 'next/navigation';
 
 export default function PrivacyPolicyPage() {
+  const router = useRouter();
   return (
     <>
       <Navbar />
@@ -51,7 +53,7 @@ export default function PrivacyPolicyPage() {
           </div>
         </div>
       </main>
-      <PremiumFooter onNavigate={(view) => window.location.href = `/${view === 'home' ? '' : view}`} />
+      <PremiumFooter onNavigate={(view) => router.push(`/${view === 'home' ? '' : view}`)} />
     </>
   );
 }

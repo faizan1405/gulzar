@@ -6,7 +6,10 @@ import { SectionHeading, PremiumFooter } from '@/components/NikahComponents';
 import { Profile } from '@/types';
 import { ProfileGrid } from '@/components/ProfileGrid';
 
+import { useRouter } from 'next/navigation';
+
 export default function ShortlistedProfilesPage() {
+  const router = useRouter();
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -48,7 +51,7 @@ export default function ShortlistedProfilesPage() {
           )}
         </div>
       </main>
-      <PremiumFooter onNavigate={(view) => window.location.href = `/${view === 'home' ? '' : view}`} />
+      <PremiumFooter onNavigate={(view) => router.push(`/${view === 'home' ? '' : view}`)} />
     </>
   );
 }

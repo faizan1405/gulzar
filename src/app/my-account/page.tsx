@@ -10,14 +10,15 @@ import Link from 'next/link';
 import { ROUTES } from '../../lib/routes';
 
 export default function MyAccountPage() {
-  const { isLoggedIn, userProfile, hasPaid300, setIsRegistering, setRegStep, activePackages } = useSession();
+  const { isLoggedIn, authChecked, userProfile, hasPaid300, setIsRegistering, setRegStep, activePackages } = useSession();
   const router = useRouter();
 
   useEffect(() => {
+    if (!authChecked) return;
     if (!isLoggedIn) {
       window.location.href = '/';
     }
-  }, [isLoggedIn]);
+  }, [isLoggedIn, authChecked]);
 
   const handleEditProfile = () => {
     setIsRegistering(true);

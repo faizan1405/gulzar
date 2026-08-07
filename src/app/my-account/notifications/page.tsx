@@ -13,7 +13,10 @@ interface NotificationItem {
   createdAt: string;
 }
 
+import { useRouter } from 'next/navigation';
+
 export default function NotificationsPage() {
+  const router = useRouter();
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -74,7 +77,7 @@ export default function NotificationsPage() {
     }
     
     if (notif.actionUrl && notif.actionUrl.startsWith('/')) {
-      window.location.href = notif.actionUrl;
+      router.push(notif.actionUrl);
     }
   };
 
@@ -167,7 +170,7 @@ export default function NotificationsPage() {
           )}
         </div>
       </main>
-      <PremiumFooter onNavigate={(view) => window.location.href = `/${view === 'home' ? '' : view}`} />
+      <PremiumFooter onNavigate={(view) => router.push(`/${view === 'home' ? '' : view}`)} />
     </>
   );
 }

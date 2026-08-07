@@ -6,8 +6,10 @@ import { SectionHeading, PremiumFooter, ProfileCard } from '@/components/NikahCo
 import { useSession } from '@/context/SessionContext';
 import { getProfileImage, getThemeClass } from '@/lib/helpers';
 import { InterestRequest } from '@/types';
+import { useRouter } from 'next/navigation';
 
 export default function InterestsPage() {
+  const router = useRouter();
   const {
     isLoggedIn,
     hasPaid300: hasPaidSubscription,
@@ -169,7 +171,7 @@ export default function InterestsPage() {
           )}
         </div>
       </main>
-      <PremiumFooter onNavigate={(view) => window.location.href = `/${view === 'home' ? '' : view}`} />
+      <PremiumFooter onNavigate={(view) => router.push(`/${view === 'home' ? '' : view}`)} />
     </>
   );
 }
