@@ -51,49 +51,54 @@ export default function MatrimonialRegistrationForm({
   };
 
   const handleNextStep = () => {
-    if (regStep === 1) {
-      if (!formData.fullName || !formData.dateOfBirth || !formData.phoneNumber || !formData.bio) {
-        setRegistrationError('Please fill in all personal details.');
-        return;
+    try {
+      if (regStep === 1) {
+        if (!formData.fullName || !formData.dateOfBirth || !formData.phoneNumber || !formData.bio) {
+          setRegistrationError('Please fill in all personal details (name, date of birth, phone, and bio).');
+          return;
+        }
+        const dob = new Date(formData.dateOfBirth);
+        if (isNaN(dob.getTime())) {
+          setRegistrationError('Please provide a valid date of birth.');
+          return;
+        }
+        const today = new Date();
+        let age = today.getFullYear() - dob.getFullYear();
+        const m = today.getMonth() - dob.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) age--;
+        if (age < 18) {
+          setRegistrationError('Registration is restricted to eligible adults (18 years and older).');
+          return;
+        }
+      } else if (regStep === 2) {
+        if (!formData.city || !formData.state) {
+          setRegistrationError('Please fill in your current state and city.');
+          return;
+        }
+      } else if (regStep === 3) {
+        if (!formData.education || !formData.occupation) {
+          setRegistrationError('Please provide your education and occupation info.');
+          return;
+        }
+      } else if (regStep === 4) {
+        // Community Preferences step has optional inputs, no mandatory validation required
+      } else if (regStep === 5) {
+        if (!formData.familyInfo) {
+          setRegistrationError('Please enter family background details.');
+          return;
+        }
       }
-      const dob = new Date(formData.dateOfBirth);
-      if (isNaN(dob.getTime())) {
-        setRegistrationError('Please provide a valid date of birth.');
-        return;
-      }
-      const today = new Date();
-      let age = today.getFullYear() - dob.getFullYear();
-      const m = today.getMonth() - dob.getMonth();
-      if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) age--;
-      if (age < 18) {
-        setRegistrationError('Registration is restricted to eligible adults (18 years and older).');
-        return;
-      }
-    } else if (regStep === 2) {
-      if (!formData.city || !formData.state) {
-        setRegistrationError('Please fill in your current state and city.');
-        return;
-      }
-    } else if (regStep === 3) {
-      if (!formData.education || !formData.occupation) {
-        setRegistrationError('Please provide your education and occupation info.');
-        return;
-      }
-    } else if (regStep === 4) {
-      // Community Preferences step has optional inputs, no mandatory validation required
-    } else if (regStep === 5) {
-      if (!formData.familyInfo) {
-        setRegistrationError('Please enter family background details.');
-        return;
-      }
+      setRegistrationError('');
+      setRegStep((prev) => prev + 1);
+    } catch (err) {
+      console.error('Next step error:', err);
+      setRegistrationError('An unexpected error occurred. Please try again.');
     }
-    setRegistrationError('');
-    setRegStep(regStep + 1);
   };
 
   const handlePrevStep = () => {
     setRegistrationError('');
-    setRegStep(regStep - 1);
+    setRegStep((prev) => prev - 1);
   };
 
   return (

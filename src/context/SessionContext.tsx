@@ -197,6 +197,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   // Tracks isLoading transitions to run post-load logic for the gated profile flow
   const wasLoadingRef = useRef(false);
+  const hasLoadedProfileRef = useRef(false);
 
   // Detect a real NextAuth session — runs on mount and whenever reloadTrigger changes
   const [, setUserRole] = useState<string | null>(null);
@@ -228,142 +229,50 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
     detectRealSession();
     return () => { cancelled = true; };
-     
+
+  }, [reloadTrigger]);
+
+  // Reset the loaded-profile guard whenever the auth state resets,
+  // so that a fresh login triggers a new data load.
+  useEffect(() => {
+    hasLoadedProfileRef.current = false;
   }, [reloadTrigger]);
 
   // After a successful login, if the user has no complete profile yet,
   // auto-open the registration wizard so onboarding is seamless.
+  // Uses a ref to only react to the logged-in transition, avoiding
+  // re-triggers when userProfile updates from loadAllData.
+  const prevLoggedInRef = useRef(isLoggedIn);
   useEffect(() => {
     if (!isLoggedIn || !userProfile) return;
-    if (userProfile.profileCompletionStatus !== 'COMPLETE') {
+    const justLoggedIn = prevLoggedInRef.current === false && isLoggedIn === true;
+    if (justLoggedIn && userProfile.profileCompletionStatus !== 'COMPLETE') {
       setIsRegistering(true);
       setRegStep(1);
     }
+    prevLoggedInRef.current = isLoggedIn;
   }, [isLoggedIn, userProfile, setIsRegistering, setRegStep]);
 
-  // Headers helper — plain JSON
-  const getHeaders = useCallback(() => {
-    return { 'Content-Type': 'application/json' } as Record<string, string>;
-  }, []);
-
   // Fetch all data
+  // userProfile is intentionally excluded from deps to prevent an infinite
+  // render loop: loadAllData calls setUserProfile internally.
+  const loadAllDataRef = useRef<(() => void) | null>(null);
+
+  const [loadTick, setLoadTick] = useState(0);
+  const loadTickRef = useRef(0);
+
   useEffect(() => {
-    async function loadAllData() {
-      setIsLoading(true);
-      setProfileLoadError('');
-      try {
-        const headers = getHeaders();
+    if (!isLoggedIn) return;
+    if (hasLoadedProfileRef.current) return;
+    loadTickRef.current += 1;
+    setLoadTick(loadTickRef.current);
+  }, [isLoggedIn]);
 
-        // 1. Fetch current user profile
-        if (isLoggedIn) {
-          const res = await fetch('/api/profile', { headers });
-          if (!res.ok) {
-            throw new Error(`Unable to load your profile (status ${res.status}).`);
-          }
-          const data = await res.json();
-          if (data.user) {
-            setAccountData(data.user);
-          }
-          if (data.profile) {
-            setUserProfile(data.profile);
-            setFormData({
-              fullName: data.profile.fullName || '',
-              gender: data.profile.gender || 'Female',
-              dateOfBirth: data.profile.dateOfBirth ? new Date(data.profile.dateOfBirth).toISOString().slice(0, 10) : '',
-              maritalStatus: data.profile.maritalStatus || 'Single',
-              phoneNumber: data.profile.phoneNumber || '',
-              city: data.profile.city || '',
-              areaOrLocality: data.profile.areaOrLocality || '',
-              state: data.profile.state || '',
-              country: data.profile.country || 'India',
-              education: data.profile.education || '',
-              occupation: data.profile.occupation || '',
-              annualIncomeRange: data.profile.annualIncomeRange || '₹3 LPA - ₹5 LPA',
-              familyInfo: data.profile.familyInfo || '',
-              bio: data.profile.bio || '',
-              partnerPref: data.profile.partnerPref || '',
-              themeColor: data.profile.themeColor || 'emerald',
-              consent: true,
-              terms: true,
-              termsAccepted: true,
-              maslak: data.profile.maslak || '',
-              fiqh: data.profile.fiqh || '',
-              biradari: data.profile.biradari || '',
-              district: data.profile.district || '',
-              locality: data.profile.locality || '',
-              preferredLocations: data.profile.preferredLocations || [],
-              sameCastePreference: data.profile.sameCastePreference || false,
-              sameMaslakPreference: data.profile.sameMaslakPreference || false,
-              noCastePreference: data.profile.noCastePreference || false,
-              noMaslakPreference: data.profile.noMaslakPreference || false,
-              willingToRelocate: data.profile.willingToRelocate || false,
-              familyOrigin: data.profile.familyOrigin || '',
-            });
-            // If profile exists but is incomplete, show the registration wizard
-            if (data.profile.profileCompletionStatus !== 'COMPLETE') {
-              setIsRegistering(true);
-              setRegStep(1);
-            } else {
-              setIsRegistering(false);
-            }
-          } else {
-            setUserProfile(null);
-            setIsRegistering(false);
-          }
-        } else {
-          setUserProfile(null);
-          setAccountData(null);
-          setIsRegistering(false);
-        }
-
-        // 2. Fetch public profiles
-        const resProfiles = await fetch('/api/profiles', { headers });
-        const dataProfiles = await resProfiles.json();
-        if (dataProfiles.profiles) {
-          setProfiles(dataProfiles.profiles);
-
-          // Check query parameters to open profile details automatically if a profile id is provided
-          if (typeof window !== 'undefined') {
-            const searchParams = new URLSearchParams(window.location.search);
-            const profileId = searchParams.get('profile');
-            if (profileId) {
-              const matched = dataProfiles.profiles.find((p: Profile) => p.id === profileId);
-              if (matched) {
-                setSelectedProfileForDetails(matched);
-              }
-            }
-          }
-        }
-
-        // 3. Fetch user purchases (for package access checks on client side)
-        if (isLoggedIn && userProfile) {
-          try {
-            const resPkg = await fetch('/api/user/purchases', { headers });
-            if (resPkg.ok) {
-              const pkgData = await resPkg.json();
-              const pkgs: string[] = Array.isArray(pkgData.purchases)
-                ? pkgData.purchases
-                    .filter((p: Record<string, unknown>) => (p as Record<string, unknown>).paymentStatus === 'PAID' && (p as Record<string, unknown>).accessStatus === 'ACTIVE')
-                    .map((p: Record<string, unknown>) => typeof (p as Record<string, unknown>).packageType === 'string' ? (p as Record<string, unknown>).packageType as string : '')
-                : [];
-              setActivePackages(pkgs);
-            }
-          } catch {
-            // ignore — purchases will just be empty if DB is down
-          }
-        } else {
-          setActivePackages([]);
-        }
-      } catch (err) {
-        console.error('Failed fetching database state', err);
-        setProfileLoadError(err instanceof Error ? err.message : 'Failed to load account data.');
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
-    loadAllData();
-  }, [isLoggedIn, reloadTrigger, getHeaders, userProfile]);
+  useEffect(() => {
+    if (!isLoggedIn) return;
+    if (hasLoadedProfileRef.current) return;
+    loadAllDataRef.current?.();
+  }, [isLoggedIn, loadTick]);
 
   // After loadAllData completes, continue any pending gated profile flow
   useEffect(() => {
@@ -380,6 +289,132 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
     wasLoadingRef.current = isLoading;
   }, [isLoading, isLoggedIn, pendingProfileId, userProfile, profiles]);
+
+  // Headers helper — plain JSON
+  const getHeaders = useCallback(() => {
+    return { 'Content-Type': 'application/json' } as Record<string, string>;
+  }, []);
+
+  // Data-loading function — defined outside useEffect so the ref can point to it.
+  // userProfile is intentionally read from the closure at call time, not from deps,
+  // to prevent an infinite render loop.
+  const loadAllData = async () => {
+    if (hasLoadedProfileRef.current) return;
+    setIsLoading(true);
+    setProfileLoadError('');
+    try {
+      const headers = getHeaders();
+
+      // 1. Fetch current user profile
+      if (isLoggedIn) {
+        const res = await fetch('/api/profile', { headers });
+        if (!res.ok) {
+          throw new Error(`Unable to load your profile (status ${res.status}).`);
+        }
+        const data = await res.json();
+        if (data.user) {
+          setAccountData(data.user);
+        }
+        if (data.profile) {
+          setUserProfile(data.profile);
+          hasLoadedProfileRef.current = true;
+          setFormData({
+            fullName: data.profile.fullName || '',
+            gender: data.profile.gender || 'Female',
+            dateOfBirth: data.profile.dateOfBirth ? new Date(data.profile.dateOfBirth).toISOString().slice(0, 10) : '',
+            maritalStatus: data.profile.maritalStatus || 'Single',
+            phoneNumber: data.profile.phoneNumber || '',
+            city: data.profile.city || '',
+            areaOrLocality: data.profile.areaOrLocality || '',
+            state: data.profile.state || '',
+            country: data.profile.country || 'India',
+            education: data.profile.education || '',
+            occupation: data.profile.occupation || '',
+            annualIncomeRange: data.profile.annualIncomeRange || '₹3 LPA - ₹5 LPA',
+            familyInfo: data.profile.familyInfo || '',
+            bio: data.profile.bio || '',
+            partnerPref: data.profile.partnerPref || '',
+            themeColor: data.profile.themeColor || 'emerald',
+            consent: true,
+            terms: true,
+            termsAccepted: true,
+            maslak: data.profile.maslak || '',
+            fiqh: data.profile.fiqh || '',
+            biradari: data.profile.biradari || '',
+            district: data.profile.district || '',
+            locality: data.profile.locality || '',
+            preferredLocations: data.profile.preferredLocations || [],
+            sameCastePreference: data.profile.sameCastePreference || false,
+            sameMaslakPreference: data.profile.sameMaslakPreference || false,
+            noCastePreference: data.profile.noCastePreference || false,
+            noMaslakPreference: data.profile.noMaslakPreference || false,
+            willingToRelocate: data.profile.willingToRelocate || false,
+            familyOrigin: data.profile.familyOrigin || '',
+          });
+          if (data.profile.profileCompletionStatus !== 'COMPLETE') {
+            setIsRegistering(true);
+          } else {
+            setIsRegistering(false);
+          }
+        } else {
+          setUserProfile(null);
+          hasLoadedProfileRef.current = true;
+          setIsRegistering(false);
+        }
+      } else {
+        setUserProfile(null);
+        setAccountData(null);
+        setIsRegistering(false);
+        hasLoadedProfileRef.current = true;
+      }
+
+      // 2. Fetch public profiles
+      const resProfiles = await fetch('/api/profiles', { headers });
+      const dataProfiles = await resProfiles.json();
+      if (dataProfiles.profiles) {
+        setProfiles(dataProfiles.profiles);
+
+        if (typeof window !== 'undefined') {
+          const searchParams = new URLSearchParams(window.location.search);
+          const profileId = searchParams.get('profile');
+          if (profileId) {
+            const matched = dataProfiles.profiles.find((p: Profile) => p.id === profileId);
+            if (matched) {
+              setSelectedProfileForDetails(matched);
+            }
+          }
+        }
+      }
+
+      // 3. Fetch user purchases
+      if (isLoggedIn) {
+        try {
+          const resPkg = await fetch('/api/user/purchases', { headers });
+          if (resPkg.ok) {
+            const pkgData = await resPkg.json();
+            const pkgs: string[] = Array.isArray(pkgData.purchases)
+              ? pkgData.purchases
+                  .filter((p: Record<string, unknown>) => (p as Record<string, unknown>).paymentStatus === 'PAID' && (p as Record<string, unknown>).accessStatus === 'ACTIVE')
+                  .map((p: Record<string, unknown>) => typeof (p as Record<string, unknown>).packageType === 'string' ? (p as Record<string, unknown>).packageType as string : '')
+              : [];
+            setActivePackages(pkgs);
+          }
+        } catch {
+          // ignore — purchases will just be empty if DB is down
+        }
+      } else {
+        setActivePackages([]);
+      }
+    } catch (err) {
+      console.error('Failed fetching database state', err);
+      setProfileLoadError(err instanceof Error ? err.message : 'Failed to load account data.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Point the ref at the function now that it's defined
+  loadAllDataRef.current = loadAllData;
 
   const handleViewProfile = useCallback((profile: Profile) => {
     if (!isLoggedIn) {
