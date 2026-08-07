@@ -89,6 +89,24 @@ interface SessionContextType {
   // Headers helper for API requests
   getHeaders: () => Record<string, string>;
 
+  // UPI Payment Modal state
+  showUPIModal: boolean;
+  setShowUPIModal: (val: boolean) => void;
+  upiModalData: {
+    purchaseId: string;
+    amount: number;
+    planName: string;
+    upiId: string;
+    qrCodeUrl: string;
+  } | null;
+  setUpiModalData: (val: {
+    purchaseId: string;
+    amount: number;
+    planName: string;
+    upiId: string;
+    qrCodeUrl: string;
+  } | null) => void;
+
   // Purchase access (populated by loadAllData)
   activePackages: string[];
   hasPaid300: boolean;
@@ -189,8 +207,8 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [formData, setFormData] = useState(initialFormData);
 
   // UPI Payment Modal state
-  const [, setShowUPIModal] = useState(false);
-  const [, setUpiModalData] = useState<{
+  const [showUPIModal, setShowUPIModal] = useState(false);
+  const [upiModalData, setUpiModalData] = useState<{
     purchaseId: string;
     amount: number;
     planName: string;
@@ -755,6 +773,11 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
         formData,
         setFormData,
+
+        showUPIModal,
+        setShowUPIModal,
+        upiModalData,
+        setUpiModalData,
 
         handleLogout,
         toggleSaveProfile,

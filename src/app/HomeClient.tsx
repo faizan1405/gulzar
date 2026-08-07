@@ -21,6 +21,7 @@ import {
   ZaichaPromoCard
 } from '../components/NikahComponents';
 import PackageInquiryForm from '../components/PackageInquiryForm';
+import UPIPaymentModal from '../components/UPIPaymentModal';
 
 export default function HomeClient() {
   const router = useRouter();
@@ -33,6 +34,8 @@ export default function HomeClient() {
   const [quickCommunity, setQuickCommunity] = React.useState('');
   const [quickCaste, setQuickCaste] = React.useState('');
   const [quickAgeError, setQuickAgeError] = React.useState(false);
+  const [isProcessingPayment, setIsProcessingPayment] = React.useState(false);
+  const [paymentError, setPaymentError] = React.useState('');
 
   const {
     isLoggedIn,
@@ -50,6 +53,11 @@ export default function HomeClient() {
     activePackages,
     hasPaid300,
     highProfileApproved,
+    showUPIModal,
+    setShowUPIModal,
+    upiModalData,
+    setUpiModalData,
+    accountData,
   } = useSession();
 
   const isFormComplete = isLoggedIn && userProfile?.profileCompletionStatus === 'COMPLETE';
@@ -83,6 +91,47 @@ export default function HomeClient() {
 
   const handleNavigate = (view: string) => {
     router.push('/' + (view === 'home' ? '' : view));
+  };
+
+  const userName = React.useMemo(
+    () => userProfile?.fullName || accountData?.name || '',
+    [userProfile, accountData]
+  );
+  const userPhone = React.useMemo(
+    () => userProfile?.phoneNumber || accountData?.phone || '',
+    [userProfile, accountData]
+  );
+
+  const handleBuyPackage = async (packageType: string, planName: string) => {
+    if (!isLoggedIn) {
+      router.push('/register?returnTo=/');
+      return;
+    }
+    const isFormComplete = userProfile?.profileCompletionStatus === 'COMPLETE';
+    if (!isFormComplete) {
+      router.push('/register?returnTo=/');
+      return;
+    }
+    setIsProcessingPayment(true);
+    setPaymentError('');
+    try {
+      await handleUPIPayment(packageType, planName);
+    } catch {
+      setPaymentError('Unable to initiate payment. Please try again or contact support.');
+    } finally {
+      setIsProcessingPayment(false);
+    }
+  };
+
+  const handlePaymentSubmitted = () => {
+    setShowUPIModal(false);
+    setUpiModalData(null);
+    window.location.reload();
+  };
+
+  const handleClosePaymentModal = () => {
+    setShowUPIModal(false);
+    setUpiModalData(null);
   };
 
   const eventServices = [
@@ -378,7 +427,7 @@ export default function HomeClient() {
                 planTier="basic"
                 imageUrl="/images/monthly_active.png"
                 ctaText="Start Monthly Membership"
-                onActivate={() => handleUPIPayment('monthly_membership', 'Standard Monthly Membership')}
+                onActivate={() => handleBuyPackage('monthly_membership', 'Standard Monthly Membership')}
                 onInquire={() => setInquiryPackage('₹300 Monthly Membership')}
                 whatsappMessage="Assalamu Alaikum, I want to know more about the ₹300 monthly membership on Rishte Forever."
               />
@@ -397,7 +446,7 @@ export default function HomeClient() {
                 planTier="basic"
                 imageUrl="/images/good_profile.png"
                 ctaText="Choose Good Profile Package"
-                onActivate={() => handleUPIPayment('good_profile_package', 'Good Profile Package')}
+                onActivate={() => handleBuyPackage('good_profile_package', 'Good Profile Package')}
                 onInquire={() => setInquiryPackage('₹5,500 Good Profiles Package')}
                 whatsappMessage="Assalamu Alaikum, I am interested in the ₹5,500 Good Profiles Package on Rishte Forever. Please guide me."
               />
@@ -417,7 +466,7 @@ export default function HomeClient() {
                 planTier="silver"
                 imageUrl="/images/second_marriage.png"
                 ctaText="Choose Silver Plan"
-                onActivate={() => handleUPIPayment('second_marriage_package', 'Silver Plan')}
+                onActivate={() => handleBuyPackage('second_marriage_package', 'Silver Plan')}
                 onInquire={() => setInquiryPackage('₹11,000 Silver Plan')}
                 whatsappMessage="Assalamu Alaikum, I am interested in the ₹11,000 Silver Plan on Rishte Forever. Please guide me."
               />
@@ -437,7 +486,7 @@ export default function HomeClient() {
                 planTier="gold"
                 imageUrl="/images/high_profile.png"
                 ctaText="Choose Gold Package"
-                onActivate={() => handleUPIPayment('high_profile_package', 'Gold Package')}
+                onActivate={() => handleBuyPackage('high_profile_package', 'Gold Package')}
                 onInquire={() => setInquiryPackage('₹21,000 Gold Package')}
                 whatsappMessage="Assalamu Alaikum, I am interested in the ₹21,000 Gold Package on Rishte Forever. Please guide me."
               />
@@ -535,6 +584,107 @@ export default function HomeClient() {
               onSuccess={() => setInquiryPackage(null)}
               onCancel={() => setInquiryPackage(null)}
             />
+          </div>
+        </div>
+      )}
+
+      {/* UPI Payment Modal */}
+      <UPIPaymentModal
+        isOpen={showUPIModal}
+        onClose={handleClosePaymentModal}
+        onPaymentSubmitted={handlePaymentSubmitted}
+        purchaseId={upiModalData?.purchaseId || ''}
+        amount={upiModalData?.amount || 0}
+        planName={upiModalData?.planName || ''}
+        userName={userName}
+        userPhone={userPhone}
+      />
+
+      {/* Payment processing overlay */}
+      {isProcessingPayment && (
+        <div
+          className="modal-overlay"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 2000,
+          }}
+        >
+          <div
+            className="card-theme-wrapper"
+            style={{
+              padding: '32px 40px',
+              textAlign: 'center',
+              maxWidth: '360px',
+            }}
+          >
+            <div
+              style={{
+                width: '40px',
+                height: '40px',
+                border: '4px solid var(--border-color)',
+                borderTopColor: 'var(--deep-maroon)',
+                borderRadius: '50%',
+                animation: 'spin 1s linear infinite',
+                margin: '0 auto 16px',
+              }}
+            />
+            <p style={{ fontSize: '15px', color: 'var(--text-muted)' }}>
+              Setting up your payment…
+            </p>
+            <style>{`
+              @keyframes spin {
+                to { transform: rotate(360deg); }
+              }
+            `}</style>
+          </div>
+        </div>
+      )}
+
+      {/* Payment error toast */}
+      {paymentError && (
+        <div
+          className="modal-overlay"
+          style={{
+            display: 'flex',
+            alignItems: 'flex-start',
+            justifyContent: 'center',
+            paddingTop: '80px',
+            zIndex: 2000,
+          }}
+          onClick={() => setPaymentError('')}
+        >
+          <div
+            className="card-theme-wrapper"
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              padding: '16px 24px',
+              textAlign: 'center',
+              maxWidth: '420px',
+              background: 'rgba(111,29,53,0.95)',
+              color: 'white',
+              borderRadius: '12px',
+              fontSize: '14px',
+              lineHeight: 1.6,
+            }}
+          >
+            <p style={{ margin: 0, marginBottom: '8px' }}>{paymentError}</p>
+            <button
+              onClick={() => setPaymentError('')}
+              style={{
+                background: 'rgba(255,255,255,0.2)',
+                border: 'none',
+                color: 'white',
+                borderRadius: '6px',
+                padding: '6px 16px',
+                cursor: 'pointer',
+                fontWeight: 600,
+                fontSize: '13px',
+              }}
+            >
+              Dismiss
+            </button>
           </div>
         </div>
       )}

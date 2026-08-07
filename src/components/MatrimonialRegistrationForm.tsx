@@ -161,26 +161,24 @@ export default function MatrimonialRegistrationForm({
             {/* Education & Occupation */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
               <div className="form-group">
-                <label className="form-label">Education *</label>
+                <label className="form-label">Education</label>
                 <input
                   type="text"
                   className="form-control"
                   value={formData.education}
                   onChange={(e) => setFormData({ ...formData, education: e.target.value })}
-                  placeholder="e.g. MBBS, M.Tech, B.Com"
-                  required
+                  placeholder="e.g. MBBS, M.Tech, B.Com (optional)"
                 />
               </div>
 
               <div className="form-group">
-                <label className="form-label">Occupation *</label>
+                <label className="form-label">Occupation</label>
                 <input
                   type="text"
                   className="form-control"
                   value={formData.occupation}
                   onChange={(e) => setFormData({ ...formData, occupation: e.target.value })}
-                  placeholder="e.g. Doctor, Engineer"
-                  required
+                  placeholder="e.g. Doctor, Engineer (optional)"
                 />
               </div>
             </div>
@@ -192,6 +190,7 @@ export default function MatrimonialRegistrationForm({
                 value={formData.annualIncomeRange}
                 onChange={(e) => setFormData({ ...formData, annualIncomeRange: e.target.value })}
               >
+                <option value="">Select income range (optional)</option>
                 <option value="Under ₹3 LPA">Under ₹3 LPA</option>
                 <option value="₹3 LPA - ₹5 LPA">₹3 LPA - ₹5 LPA</option>
                 <option value="₹5 LPA - ₹10 LPA">₹5 LPA - ₹10 LPA</option>
