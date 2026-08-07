@@ -462,10 +462,6 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
       setRegistrationError('Please accept the Terms & Conditions before submitting.');
       return;
     }
-    if (!formData.consent || !formData.terms) {
-      setRegistrationError('You must accept the terms and provide consent.');
-      return;
-    }
 
     setIsSubmittingForm(true);
     const profileData = null;
