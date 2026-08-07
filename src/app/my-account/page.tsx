@@ -44,7 +44,7 @@ export default function MyAccountPage() {
           <div style={{ textAlign: 'center', maxWidth: '500px', padding: '40px' }}>
             <h2 style={{ fontSize: '24px', color: 'var(--primary-dark)', marginBottom: '16px' }}>Welcome!</h2>
             <p style={{ color: 'var(--text-secondary)', marginBottom: '24px' }}>
-              You don't have a profile yet. Complete your registration to access your account dashboard.
+              You don&apos;t have a profile yet. Complete your registration to access your account dashboard.
             </p>
             <button
               onClick={() => router.push('/register')}

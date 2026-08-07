@@ -38,16 +38,13 @@ export default function MatrimonialRegistrationForm({
     masterCastes,
     masterLocations,
     masterMaslaks,
+    isSubmittingForm,
   } = useSession();
-
-  const [isSubmittingForm, setIsSubmittingForm] = React.useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isSubmittingForm) return;
-    setIsSubmittingForm(true);
     await handleRegisterSubmit(e);
-    setIsSubmittingForm(false);
   };
 
   const handleNextStep = () => {

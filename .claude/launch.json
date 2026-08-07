@@ -2,11 +2,11 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "Rishte Forever Dev",
-      "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev"],
+      "name": "gulzar-bhai-dev",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["next", "dev", "-p", "3000"],
       "port": 3000,
-      "cwd": "E:/012/website/gulzar-bhai/main project"
+      "url": "http://localhost:3000"
     }
   ]
 }

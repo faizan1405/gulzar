@@ -43,6 +43,8 @@ interface SessionContextType {
   } | null;
   isRegistering: boolean;
   setIsRegistering: (val: boolean) => void;
+  isSubmittingForm: boolean;
+  setIsSubmittingForm: (val: boolean) => void;
   regStep: number;
   setRegStep: (val: number | ((prev: number) => number)) => void;
   registrationError: string;
@@ -151,6 +153,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [userProfile, setUserProfile] = useState<Profile | null>(null);
   const [accountData, setAccountData] = useState<{ name?: string; email?: string; phone?: string; createdAt?: string | Date | null } | null>(null);
   const [isRegistering, setIsRegistering] = useState(false);
+  const [isSubmittingForm, setIsSubmittingForm] = useState(false);
   const [regStep, setRegStep] = useState(1);
   const [registrationError, setRegistrationError] = useState('');
 
@@ -292,7 +295,10 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   // Headers helper — plain JSON
   const getHeaders = useCallback(() => {
-    return { 'Content-Type': 'application/json' } as Record<string, string>;
+    return {
+      'Content-Type': 'application/json',
+      credentials: 'include',
+    } as Record<string, string>;
   }, []);
 
   // Data-loading function — defined outside useEffect so the ref can point to it.
@@ -462,11 +468,13 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
       return;
     }
 
+    setIsSubmittingForm(true);
     try {
       const res = await fetch('/api/profile', {
         method: 'POST',
         headers: getHeaders(),
         body: JSON.stringify(formData),
+        credentials: 'include',
       });
 
       if (res.ok) {
@@ -475,22 +483,24 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
           window.dispatchEvent(new Event('rf_profile_completed'));
         }
         if (pendingProfileId) {
-          alert('Profile saved! Please choose a package to view full profiles.');
+          setRegistrationError('');
           setIsRegistering(false);
           setReloadTrigger((prev) => prev + 1);
           router.push(`/packages?returnProfile=${pendingProfileId}`);
           setPendingProfileId(null);
         } else {
-          alert('Matrimonial profile saved successfully! Entering manual verification queue.');
+          setRegistrationError('');
           setReloadTrigger((prev) => prev + 1);
           setIsRegistering(false);
         }
       } else {
-        const data = await res.json();
-        setRegistrationError(data.error || 'Failed to save profile.');
+        const data = await res.json().catch(() => ({}));
+        setRegistrationError(data.error || 'Failed to save profile. Please try again.');
       }
     } catch {
-      setRegistrationError('Network error saving profile.');
+      setRegistrationError('Network error saving profile. Please check your connection and try again.');
+    } finally {
+      setIsSubmittingForm(false);
     }
   };
 
@@ -708,6 +718,8 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
         accountData,
         isRegistering,
         setIsRegistering,
+        isSubmittingForm,
+        setIsSubmittingForm,
         regStep,
         setRegStep,
         registrationError,
