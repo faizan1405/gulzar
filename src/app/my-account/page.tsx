@@ -26,12 +26,40 @@ export default function MyAccountPage() {
     router.push('/');
   };
 
-  if (!isLoggedIn || !userProfile) {
+  if (!isLoggedIn) {
     return (
       <>
         <Navbar />
         <main className="flex-grow flex items-center justify-center min-h-[50vh]">
           <p>Loading...</p>
+        </main>
+      </>
+    );
+  }
+
+  // User is logged in but has no profile yet — show onboarding prompt
+  if (!userProfile) {
+    return (
+      <>
+        <Navbar />
+        <main className="flex-grow flex items-center justify-center min-h-[50vh]">
+          <div style={{ textAlign: 'center', maxWidth: '500px', padding: '40px' }}>
+            <h2 style={{ fontSize: '24px', color: 'var(--primary-dark)', marginBottom: '16px' }}>Welcome!</h2>
+            <p style={{ color: 'var(--text-secondary)', marginBottom: '24px' }}>
+              You don't have a profile yet. Complete your registration to access your account dashboard.
+            </p>
+            <button
+              onClick={() => {
+                setIsRegistering(true);
+                setRegStep(1);
+                router.push('/');
+              }}
+              className="btn btn-primary"
+              style={{ padding: '12px 32px', fontSize: '16px' }}
+            >
+              Create Your Profile
+            </button>
+          </div>
         </main>
       </>
     );
