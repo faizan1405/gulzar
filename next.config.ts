@@ -10,15 +10,7 @@ const nextConfig: NextConfig = {
       { protocol: 'https', hostname: '*.public.blob.vercel-storage.com' },
     ],
   },
-  webpack: (config, { isServer }) => {
-    if (!isServer) {
-      config.resolve.alias = {
-        ...config.resolve.alias,
-        'next/server': 'next/server.js',
-      };
-    }
-    return config;
-  },
+  turbopack: {},
   async headers() {
     const cspScript = isDev
       ? "'self' 'unsafe-inline' 'unsafe-eval' https://accounts.google.com https://*.gstatic.com"
