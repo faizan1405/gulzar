@@ -366,35 +366,10 @@ a {
   border-radius: 8px;
   gap: 6px;
   text-transform: none;
-}
-
-.nav-btn-sm.salutation {
-  background: rgba(184, 146, 74, 0.08);
-  color: var(--deep-maroon);
-  border: 1px solid rgba(184, 146, 74, 0.3);
-  font-family: var(--font-serif);
-  font-style: italic;
-  font-weight: 600;
-  letter-spacing: 0;
-}
-
-.nav-btn-sm.salutation:hover {
-  background: rgba(184, 146, 74, 0.14);
-}
-
-/* Outline variant for Login */
-.btn-outline {
   background: transparent;
   color: var(--deep-maroon);
   border: 1.5px solid var(--deep-maroon);
   box-shadow: none;
-}
-
-.btn-outline:hover {
-  background: var(--deep-maroon);
-  color: var(--white);
-  transform: translateY(-2px);
-  box-shadow: var(--maroon-glow-shadow);
 }
 
 /* Ghost variant for admin/settings link */
@@ -565,8 +540,7 @@ a {
   .hamburger-btn {
     display: flex;
   }
-  .nav-actions-group .admin-link,
-  .nav-actions-group .salutation {
+  .nav-actions-group .admin-link {
     display: none;
   }
 }

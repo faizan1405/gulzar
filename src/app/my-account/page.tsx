@@ -21,9 +21,7 @@ export default function MyAccountPage() {
   }, [isLoggedIn, authChecked]);
 
   const handleEditProfile = () => {
-    setIsRegistering(true);
-    setRegStep(1);
-    router.push('/');
+    router.push('/register');
   };
 
   if (!isLoggedIn) {
@@ -49,11 +47,7 @@ export default function MyAccountPage() {
               You don't have a profile yet. Complete your registration to access your account dashboard.
             </p>
             <button
-              onClick={() => {
-                setIsRegistering(true);
-                setRegStep(1);
-                router.push('/');
-              }}
+              onClick={() => router.push('/register')}
               className="btn btn-primary"
               style={{ padding: '12px 32px', fontSize: '16px' }}
             >

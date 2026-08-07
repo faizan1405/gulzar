@@ -125,9 +125,6 @@ export default function Navbar() {
                   <Link href={ROUTES.MY_ACCOUNT} className="btn btn-secondary nav-btn-sm" title="My Account">
                     <Icon name="user" size={14} />
                   </Link>
-                  <button onClick={() => { router.push(ROUTES.MY_ACCOUNT); }} className="btn btn-secondary nav-btn-sm salutation">
-                    Salaam!
-                  </button>
                   <button onClick={handleLogout} className="btn btn-primary nav-btn-sm">
                     <Icon name="logout" size={14} />
                     Logout
