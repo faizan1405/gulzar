@@ -3,10 +3,7 @@ import Google from 'next-auth/providers/google';
 import { PrismaAdapter } from '@auth/prisma-adapter';
 import { prisma } from './lib/db';
 
-// The lazy IIFE in db.ts already returns a PrismaClient instance directly.
-const prismaClient = prisma;
-
-// Augment next-auth types with our custom user fields.
+// Type augmentation for custom session/User fields
 declare module 'next-auth' {
   interface Session {
     user: {
@@ -30,7 +27,7 @@ declare module 'next-auth' {
 }
 
 export const { handlers, auth, signOut } = NextAuth({
-  adapter: PrismaAdapter(prismaClient),
+  adapter: PrismaAdapter(prisma),
   secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET,
   trustHost: true,
   useSecureCookies: process.env.NODE_ENV === 'production',
@@ -48,11 +45,6 @@ export const { handlers, auth, signOut } = NextAuth({
     }),
   ],
   callbacks: {
-    async signIn({ user, account }) {
-      if (account?.provider !== 'google') return false;
-      if (!user.email) return false;
-      return true;
-    },
     async jwt({ token, user }) {
       if (user) {
         token.sub = user.id;

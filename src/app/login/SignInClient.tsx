@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { signIn } from 'next-auth/react';
 
 export default function SignInClient() {
@@ -23,7 +24,7 @@ export default function SignInClient() {
   const handleGoogleSignIn = async () => {
     try {
       await signIn('google', { callbackUrl: '/' });
-    } catch (err) {
+    } catch {
       setError('Sign-in failed. Please try again.');
     }
   };
@@ -82,9 +83,9 @@ export default function SignInClient() {
           Continue with Google
         </button>
 
-        <a style={{ display: 'inline-block', marginTop: '20px', fontSize: '12px', color: 'var(--gold-dark)', textDecoration: 'underline' }} href="/">
+        <Link href="/" style={{ display: 'inline-block', marginTop: '20px', fontSize: '12px', color: 'var(--gold-dark)', textDecoration: 'underline' }}>
           Back to Rishte Forever
-        </a>
+        </Link>
       </div>
     </div>
   );
