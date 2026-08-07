@@ -469,6 +469,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
 
     setIsSubmittingForm(true);
+    let profileData = null;
     try {
       const res = await fetch('/api/profile', {
         method: 'POST',
@@ -477,25 +478,35 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
         credentials: 'include',
       });
 
-      if (res.ok) {
-        if (typeof window !== 'undefined') {
-          localStorage.setItem('rf_matrimonial_profile_completed', 'true');
-          window.dispatchEvent(new Event('rf_profile_completed'));
-        }
-        if (pendingProfileId) {
-          setRegistrationError('');
-          setIsRegistering(false);
-          setReloadTrigger((prev) => prev + 1);
-          router.push(`/packages?returnProfile=${pendingProfileId}`);
-          setPendingProfileId(null);
-        } else {
-          setRegistrationError('');
-          setReloadTrigger((prev) => prev + 1);
-          setIsRegistering(false);
-        }
-      } else {
-        const data = await res.json().catch(() => ({}));
-        setRegistrationError(data.error || 'Failed to save profile. Please try again.');
+      const data = await res.json().catch(() => ({ error: 'Unknown server error.' }));
+
+      if (!res.ok) {
+        setRegistrationError(data.error || `Server returned ${res.status}. Please try again.`);
+        return;
+      }
+
+      // Success — set the profile directly from the API response so the UI updates immediately
+      if (data.profile) {
+        setUserProfile(data.profile);
+      }
+      // Set account data from session
+      if (data.user) {
+        setAccountData(data.user);
+      }
+
+      setRegistrationError('');
+      setIsRegistering(false);
+      setReloadTrigger((prev) => prev + 1);
+      setLoadTick((prev) => prev + 1);
+
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('rf_matrimonial_profile_completed', 'true');
+        window.dispatchEvent(new Event('rf_profile_completed'));
+      }
+
+      if (pendingProfileId) {
+        router.push(`/packages?returnProfile=${pendingProfileId}`);
+        setPendingProfileId(null);
       }
     } catch {
       setRegistrationError('Network error saving profile. Please check your connection and try again.');
