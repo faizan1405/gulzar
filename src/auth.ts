@@ -36,13 +36,6 @@ export const { handlers, auth, signOut } = NextAuth({
     Google({
       clientId: process.env.AUTH_GOOGLE_ID!,
       clientSecret: process.env.AUTH_GOOGLE_SECRET!,
-      // Override OAuth URLs to avoid oauth4webapi iss mismatch with Google
-      authorization: {
-        url: 'https://accounts.google.com/o/oauth2/v2/auth',
-        params: { prompt: 'consent', access_type: 'offline', response_type: 'code' },
-      },
-      token: 'https://oauth2.googleapis.com/token',
-      userinfo: 'https://openidconnect.googleapis.com/v1/userinfo',
     }),
   ],
   callbacks: {
