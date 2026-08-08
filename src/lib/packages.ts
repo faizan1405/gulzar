@@ -105,3 +105,15 @@ export const PREMIUM_PACKAGES: Record<PackageType, PackageDefinition> = {
     ]
   }
 };
+
+/**
+ * Canonical display-name lookup for package keys.
+ * Used by the Membership section and any component that needs to render
+ * a human-readable package name from an internal key.
+ */
+export const PACKAGE_DISPLAY: Record<string, string> = {
+  monthly_membership: 'Monthly Membership',
+  good_profile_package: 'Good Profile Package',
+  second_marriage_package: 'Silver Plan',
+  high_profile_package: 'Gold Package',
+};

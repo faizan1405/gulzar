@@ -8,6 +8,7 @@ import { SectionHeading, PremiumFooter } from '../../components/NikahComponents'
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ROUTES } from '../../lib/routes';
+import { PACKAGE_DISPLAY } from '../../lib/packages';
 
 export default function MyAccountPage() {
   const { isLoggedIn, authChecked, userProfile, hasPaid300, setIsRegistering, setRegStep, activePackages } = useSession();
@@ -172,8 +173,14 @@ export default function MyAccountPage() {
               
               <div style={{ marginBottom: '24px' }}>
                 <p style={{ color: 'var(--text-secondary)', marginBottom: '8px' }}>Active Subscription</p>
-                <div style={{ fontSize: '18px', fontWeight: 600, color: hasPaid300 ? 'var(--primary-brand)' : 'var(--text-primary)' }}>
-                  {hasPaid300 ? 'Standard Monthly Membership' : 'Free Basic Plan'}
+                <div style={{ fontSize: '18px', fontWeight: 600, color: hasPaid300 || activePackages.length > 0 ? 'var(--primary-brand)' : 'var(--text-primary)' }}>
+                  {activePackages.length > 0
+                    ? activePackages
+                        .map((key) => PACKAGE_DISPLAY[key] || key.replace(/_/g, ' '))
+                        .join(', ')
+                    : hasPaid300
+                      ? 'Monthly Membership'
+                      : 'Free Basic Plan'}
                 </div>
               </div>
 

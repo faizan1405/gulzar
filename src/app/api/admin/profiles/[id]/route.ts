@@ -1,145 +1,203 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/db';
-import { getValidObjectId, isFallbackAllowed, logFallbackWarning } from '@/lib/profileStore';
-import { checkRateLimitByName, buildRateLimitHeaders } from '@/lib/rateLimit';
-import { logAudit } from '@/lib/audit';
-import { jwtGuard } from '@/lib/jwtGuard';
+import { getProfileById } from '@/lib/profileStore';
 import { safeJsonBody } from '@/lib/requestUtils';
+import { checkRateLimit, buildRateLimitHeaders } from '@/lib/rateLimit';
+import { RATE_LIMITS } from '@/lib/config';
+import { sanitizeErrorMessage } from '@/lib/fallbackStore';
 
-async function isAdmin(): Promise<boolean> {
+async function isAdmin() {
   const session = await auth();
-  return session?.user?.role === 'ADMIN';
+  return session?.user?.role === 'ADMIN' && session?.user?.authMethod === 'CREDENTIALS';
 }
 
-export async function PATCH(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(_req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
   try {
-    const jwtResult = await jwtGuard(req);
-    if (jwtResult) return jwtResult;
-
     if (!(await isAdmin())) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
-
-    const session = await auth();
-
-    // Rate limit admin mutations: 30/min
-    const pResult = await checkRateLimitByName('adminMutation', session?.user?.id || 'anon');
-    if (!pResult.allowed) {
-      return NextResponse.json({ error: 'Too many requests. Please slow down.' }, {
-        status: 429, headers: buildRateLimitHeaders(pResult),
-      });
+    const { id } = await ctx.params;
+    const profile = await getProfileById(id);
+    if (!profile) {
+      return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
     }
-
-    const { id } = await params;
-    const bodyOrResponse = await safeJsonBody(req, { maxSizeKB: 100 });
-    if (bodyOrResponse instanceof Response) return bodyOrResponse;
-    const body = bodyOrResponse as any;
-
-    // Whitelist updatable fields to prevent mass-assignment
-    const allowed = [
-      'verificationStatus',
-      'adminApprovalStatus',
-      'profileCompletionStatus',
-      'category',
-      'fullName',
-      'phoneNumber',
-      'city',
-      'state',
-      'occupation',
-      'education',
-      'bio',
-      'maslak',
-      'biradari',
-      'themeColor',
-      'profileImageUrl',
-      'profileImageStatus',
-    ];
-    const updateData: Record<string, any> = {};
-    for (const key of allowed) {
-      if (key in body) updateData[key] = body[key];
-    }
-    updateData.updatedAt = new Date();
-
-    try {
-      const dbId = getValidObjectId(id);
-      if (!dbId) {
-        return NextResponse.json({ error: 'Invalid profile ID.' }, { status: 400 });
-      }
-      const updated = await prisma.matrimonialProfile.update({
-        where: { id: dbId },
-        data: updateData,
-      });
-
-      await logAudit({
-        actorUserId: session?.user?.id || 'unknown',
-        action: 'ADMIN_UPDATE_PROFILE',
-        targetType: 'MatrimonialProfile',
-        targetId: id,
-        metadata: JSON.stringify({ fields: Object.keys(updateData) }),
-      });
-
-      return NextResponse.json({ success: true, profile: updated });
-    } catch (dbErr: any) {
-      if (!isFallbackAllowed()) throw dbErr;
-      logFallbackWarning('Profile update');
-      return NextResponse.json({ success: true, profile: { id, ...updateData } });
-    }
-  } catch (error: any) {
-    console.error('Admin profile PATCH failed:', error);
+    return NextResponse.json({ profile });
+  } catch (error) {
+    console.error('Admin profile GET failed:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
   try {
-    const jwtResult = await jwtGuard(req);
-    if (jwtResult) return jwtResult;
-
     if (!(await isAdmin())) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
-    const session = await auth();
+    const { id } = await ctx.params;
 
-    // Rate limit admin deletions: 10/min
-    const pDelResult = await checkRateLimitByName('adminDelete', session?.user?.id || 'anon');
-    if (!pDelResult.allowed) {
-      return NextResponse.json({ error: 'Too many requests. Please slow down.' }, {
-        status: 429, headers: buildRateLimitHeaders(pDelResult),
+    const rateKey = `admin:profile:patch:${id}`;
+    const rl = await checkRateLimit(rateKey, RATE_LIMITS.adminMutation.limit, RATE_LIMITS.adminMutation.windowMs);
+    if (!rl.allowed) {
+      return NextResponse.json(
+        { error: 'Too many requests.' },
+        { status: 429, headers: buildRateLimitHeaders(rl) }
+      );
+    }
+
+    const bodyOrResponse = await safeJsonBody(req, { maxSizeKB: 32 });
+    if (bodyOrResponse instanceof Response) return bodyOrResponse;
+    const body = bodyOrResponse as Record<string, unknown>;
+
+    const allowedFields = new Set([
+      'verificationStatus',
+      'adminApprovalStatus',
+      'category',
+      'hasPaid',
+      'paymentStatus',
+      'packageType',
+      'adminNotes',
+    ]);
+
+    const data: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(body)) {
+      if (allowedFields.has(k)) data[k] = v;
+    }
+
+    if (Object.keys(data).length === 0) {
+      return NextResponse.json({ error: 'No updatable fields provided' }, { status: 400 });
+    }
+
+    const profile = await getProfileById(id);
+    if (!profile) {
+      return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
+    }
+
+    // Update the matrimonial profile fields
+    const profileUpdate: Record<string, unknown> = {};
+    if ('verificationStatus' in data) profileUpdate.verificationStatus = data.verificationStatus;
+    if ('adminApprovalStatus' in data) profileUpdate.adminApprovalStatus = data.adminApprovalStatus;
+    if ('category' in data) profileUpdate.category = data.category;
+    if ('hasPaid' in data) profileUpdate.hasPaid = data.hasPaid;
+    if ('adminNotes' in data) profileUpdate.adminNotes = data.adminNotes;
+
+    if (Object.keys(profileUpdate).length > 0) {
+      await prisma.matrimonialProfile.update({
+        where: { id },
+        data: profileUpdate,
       });
     }
 
-    const { id } = await params;
-
-    try {
-      const dbId = getValidObjectId(id);
-      if (!dbId) {
-        return NextResponse.json({ error: 'Invalid profile ID.' }, { status: 400 });
+    // Payment status / package binding:
+    // When admin sets paymentStatus = 'PAID' for a profile, ensure a corresponding
+    // PackagePurchase row exists with the chosen packageType. This is what makes
+    // /api/user/purchases return the correct active package, which in turn
+    // activates entitlements and updates the Membership section.
+    if (data.paymentStatus === 'PAID' && data.packageType) {
+      const packageType = String(data.packageType);
+      const validTypes = ['monthly_membership', 'good_profile_package', 'second_marriage_package', 'high_profile_package'];
+      if (!validTypes.includes(packageType)) {
+        return NextResponse.json({ error: 'Invalid packageType' }, { status: 400 });
       }
-      await prisma.matrimonialProfile.delete({ where: { id: dbId } });
 
-      await logAudit({
-        actorUserId: session?.user?.id || 'unknown',
-        action: 'ADMIN_DELETE_PROFILE',
-        targetType: 'MatrimonialProfile',
-        targetId: id,
-        metadata: null,
+      const yearlyExpiry = new Date();
+      yearlyExpiry.setFullYear(yearlyExpiry.getFullYear() + 1);
+      const monthlyExpiry = new Date();
+      monthlyExpiry.setMonth(monthlyExpiry.getMonth() + 1);
+      const expiryDate = packageType === 'monthly_membership' ? monthlyExpiry : yearlyExpiry;
+
+      // Reuse an existing pending/failed purchase for the same profile+package
+      const existing = await prisma.packagePurchase.findFirst({
+        where: { profileId: id, packageType: packageType as never },
+        orderBy: { createdAt: 'desc' },
       });
 
-      return NextResponse.json({ success: true });
-    } catch (dbErr: any) {
-      if (!isFallbackAllowed()) throw dbErr;
-      logFallbackWarning('Profile deletion');
-      return NextResponse.json({ success: true });
+      if (existing) {
+        await prisma.packagePurchase.update({
+          where: { id: existing.id },
+          data: {
+            paymentStatus: 'PAID',
+            accessStatus: 'ACTIVE',
+            expiryDate,
+            eligibilityStatus: packageType === 'high_profile_package' ? existing.eligibilityStatus : 'APPROVED',
+            internalNotes: `${existing.internalNotes || ''}\n[Admin marked paid at ${new Date().toISOString()}]`,
+          },
+        });
+      } else {
+        await prisma.packagePurchase.create({
+          data: {
+            profileId: id,
+            packageType: packageType as never,
+            basePrice: 0,
+            gstRate: 0,
+            totalAmount: 0,
+            billingType: packageType === 'monthly_membership' ? 'MONTHLY' : 'ONE_TIME',
+            successFeeAmount: 0,
+            paymentReferenceId: `ADMIN_${Date.now()}_${id.slice(-6)}`,
+            paymentMode: 'UPI',
+            paymentStatus: 'PAID',
+            accessStatus: 'ACTIVE',
+            eligibilityStatus: packageType === 'high_profile_package' ? 'PENDING' : 'APPROVED',
+            marriageConfirmation: 'PENDING',
+            successFeePaymentStatus: 'PENDING',
+            expiryDate,
+            internalNotes: `[Admin marked paid at ${new Date().toISOString()}]`,
+          },
+        });
+      }
+
+      // Keep profile.hasPaid in sync for monthly membership (legacy flag)
+      if (packageType === 'monthly_membership') {
+        await prisma.matrimonialProfile.update({
+          where: { id },
+          data: { hasPaid: true },
+        });
+      }
+    } else if (data.paymentStatus === 'NOT_PAID' || data.paymentStatus === 'FAILED') {
+      // Revoke paid purchases for this profile that the admin is un-paying.
+      // We do NOT delete the records — we mark them FAILED so the audit trail
+      // remains intact and the entitlement disappears immediately.
+      const packageType = data.packageType ? String(data.packageType) : undefined;
+      await prisma.packagePurchase.updateMany({
+        where: {
+          profileId: id,
+          ...(packageType ? { packageType: packageType as never } : {}),
+          paymentStatus: 'PAID',
+        },
+        data: {
+          paymentStatus: 'FAILED',
+          accessStatus: 'REVOKED',
+        },
+      });
+
+      if (!packageType || packageType === 'monthly_membership') {
+        await prisma.matrimonialProfile.update({
+          where: { id },
+          data: { hasPaid: false },
+        });
+      }
     }
-  } catch (error: any) {
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('Admin profile PATCH failed:', error);
+    return NextResponse.json(
+      { error: sanitizeErrorMessage(error instanceof Error ? error.message : String(error)) },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(_req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
+  try {
+    if (!(await isAdmin())) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    }
+    const { id } = await ctx.params;
+    await prisma.matrimonialProfile.delete({ where: { id } });
+    return NextResponse.json({ success: true });
+  } catch (error) {
     console.error('Admin profile DELETE failed:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

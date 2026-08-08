@@ -375,13 +375,26 @@ export default function AdminProfilesPage() {
               </AdminField>
               <AdminField label="Payment Status">
                 <AdminSelect
-                  value={selected.hasPaid ? 'true' : 'false'}
-                  onChange={(e) => setSelected((s) => s ? { ...s, hasPaid: e.target.value === 'true' } : s)}
+                  value={selected.hasPaid ? 'paid' : 'free'}
+                  onChange={(e) => setSelected((s) => s ? { ...s, hasPaid: e.target.value !== 'free', paymentStatusAction: e.target.value } : s)}
                 >
-                  <option value="false">Not Paid (Free)</option>
-                  <option value="true">Paid / Active</option>
+                  <option value="free">Not Paid (Free)</option>
+                  <option value="paid">Paid / Active</option>
                 </AdminSelect>
               </AdminField>
+              {selected.hasPaid && (
+                <AdminField label="Assign Package">
+                  <AdminSelect
+                    value={selected.packageType || 'monthly_membership'}
+                    onChange={(e) => setSelected((s) => s ? { ...s, packageType: e.target.value } : s)}
+                  >
+                    <option value="monthly_membership">Monthly Membership</option>
+                    <option value="good_profile_package">Good Profile Package</option>
+                    <option value="second_marriage_package">Silver Plan</option>
+                    <option value="high_profile_package">Gold Package</option>
+                  </AdminSelect>
+                </AdminField>
+              )}
             </div>
 
             <div style={{ display: 'flex', gap: 10, justifyContent: 'space-between', alignItems: 'center' }}>
@@ -400,6 +413,8 @@ export default function AdminProfilesPage() {
                     adminApprovalStatus: selected.adminApprovalStatus,
                     category: selected.category,
                     hasPaid: selected.hasPaid,
+                    paymentStatus: selected.hasPaid ? (selected.paymentStatusAction || 'paid') : 'free',
+                    packageType: selected.hasPaid ? (selected.packageType || 'monthly_membership') : undefined,
                   })}
                 >
                   {saving ? 'Saving…' : '💾 Save Changes'}
@@ -433,4 +448,6 @@ interface AdminProfile {
   category: string | null;
   profileImageUrl?: string | null;
   createdAt: string | Date;
+  paymentStatusAction?: 'paid' | 'free';
+  packageType?: string;
 }

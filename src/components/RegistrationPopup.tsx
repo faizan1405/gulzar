@@ -7,7 +7,7 @@ import { signIn } from 'next-auth/react';
 
 export default function RegistrationPopup() {
   const pathname = usePathname();
-  const { userProfile, authChecked, isRegistering } = useSession();
+  const { userProfile, authChecked, isRegistering, isLoggedIn } = useSession();
 
   const [isOpen, setIsOpen] = useState(false);
   const [isPermanentlyHidden, setIsPermanentlyHidden] = useState(false);
@@ -37,6 +37,9 @@ export default function RegistrationPopup() {
 
   const isRegisteringRef = useRef(isRegistering);
   isRegisteringRef.current = isRegistering;
+
+  const isLoggedInRef = useRef(isLoggedIn);
+  isLoggedInRef.current = isLoggedIn;
 
   const clearTimer = useCallback(() => {
     if (timerRef.current) {
@@ -94,7 +97,8 @@ export default function RegistrationPopup() {
       hasCompletedRef.current ||
       !authChecked ||
       isExcludedRef.current ||
-      isRegisteringRef.current
+      isRegisteringRef.current ||
+      !isLoggedIn
     ) {
       return;
     }
@@ -106,19 +110,20 @@ export default function RegistrationPopup() {
         !isPermanentlyHiddenRef.current &&
         !hasCompletedRef.current &&
         !isExcludedRef.current &&
-        !isRegisteringRef.current
+        !isRegisteringRef.current &&
+        isLoggedInRef.current
       ) {
         setIsOpen(true);
       }
     }, 60000);
-  }, [clearTimer, authChecked]);
+  }, [clearTimer, authChecked, isLoggedIn]);
 
   useEffect(() => {
     if (!authChecked) return;
 
-    if (hasCompletedProfile || isPermanentlyHidden || isExcludedPage || isRegistering) {
+    if (hasCompletedProfile || isPermanentlyHidden || isExcludedPage || isRegistering || !isLoggedIn) {
       clearTimer();
-      if (isExcludedPage || hasCompletedProfile || isRegistering) {
+      if (isExcludedPage || hasCompletedProfile || isRegistering || !isLoggedIn) {
         setIsOpen(false);
       }
       return;
@@ -131,14 +136,14 @@ export default function RegistrationPopup() {
     return () => {
       clearTimer();
     };
-  }, [authChecked, hasCompletedProfile, isPermanentlyHidden, isExcludedPage, isRegistering, isOpen, startTimer, clearTimer]);
+  }, [authChecked, hasCompletedProfile, isPermanentlyHidden, isExcludedPage, isRegistering, isOpen, isLoggedIn, startTimer, clearTimer]);
 
   const handleCloseWithoutRegistering = useCallback(() => {
     setIsOpen(false);
-    if (authChecked && !hasCompletedProfile && !isPermanentlyHidden && !isExcludedPage) {
+    if (authChecked && !hasCompletedProfile && !isPermanentlyHidden && !isExcludedPage && isLoggedIn) {
       startTimer();
     }
-  }, [clearTimer, authChecked, hasCompletedProfile, isPermanentlyHidden, isExcludedPage, startTimer]);
+  }, [clearTimer, authChecked, hasCompletedProfile, isPermanentlyHidden, isExcludedPage, isLoggedIn, startTimer]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -163,7 +168,7 @@ export default function RegistrationPopup() {
     }
   }, [isOpen]);
 
-  if (!isOpen || hasCompletedProfile || isPermanentlyHidden || isExcludedPage || isRegistering) {
+  if (!isOpen || hasCompletedProfile || isPermanentlyHidden || isExcludedPage || isRegistering || !isLoggedIn) {
     return null;
   }
 
