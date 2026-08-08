@@ -357,6 +357,8 @@ interface PremiumPlanCardProps {
   hidePrices?: boolean;
   isLoggedIn?: boolean;
   onCompleteForm?: () => void;
+  loginPromptText?: string;
+  loginCtaText?: string;
 }
 
 interface SuccessStoryCardProps {
@@ -399,6 +401,10 @@ export const PremiumPlanCard: React.FC<PremiumPlanCardProps> = ({
   planTier,
   positioning,
   hidePrices = true,
+  isLoggedIn,
+  onCompleteForm,
+  loginPromptText = 'Login to view pricing and purchase a membership.',
+  loginCtaText = 'Login to View Plans',
 }: PremiumPlanCardProps) => {
   const finalBadge = badgeText || (isPopular ? 'Recommended' : undefined);
 
@@ -430,10 +436,14 @@ export const PremiumPlanCard: React.FC<PremiumPlanCardProps> = ({
       )}
 
       {hidePrices ? (
-        <div className="pkg-pricing-box">
-          <div className="pkg-pricing-label">Starting from</div>
-          <div className="pkg-pricing-value">₹{price.toLocaleString()}{(gstRate ?? 0) > 0 ? ' + GST' : ''}</div>
-          <div className="pkg-pricing-note">Complete profile for member-only discounts</div>
+        <div className="pkg-pricing-box" style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: '40px', marginBottom: '8px', opacity: 0.7 }}>🔒</div>
+          <div className="pkg-pricing-label" style={{ fontWeight: 600, marginBottom: '4px' }}>
+            {loginPromptText}
+          </div>
+          <div className="pkg-pricing-note" style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
+            Sign in to see full pricing &amp; benefits
+          </div>
         </div>
       ) : (
         <div className="pkg-price">
@@ -452,12 +462,12 @@ export const PremiumPlanCard: React.FC<PremiumPlanCardProps> = ({
 
       <div className="pkg-cta-area">
         <button
-          onClick={onActivate}
+          onClick={hidePrices ? undefined : onActivate}
           className={`btn btn-primary btn-full`}
         >
-          {hidePrices ? 'Register & Buy Package' : (isActive ? 'Active Package' : ctaText)}
+          {hidePrices ? loginCtaText : (isActive ? 'Active Package' : ctaText)}
         </button>
-        {whatsappMessage && !isActive && (
+        {whatsappMessage && !isActive && !hidePrices && (
           <a
             href={getSupportWhatsAppLink(whatsappMessage)}
             target="_blank"

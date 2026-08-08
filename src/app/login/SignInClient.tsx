@@ -7,9 +7,15 @@ import { signIn } from 'next-auth/react';
 export default function SignInClient() {
   const [error, setError] = useState('');
   const [isHydrated, setIsHydrated] = useState(false);
+  const [returnTo, setReturnTo] = useState('/');
 
   useEffect(() => {
     setIsHydrated(true);
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const rt = params.get('returnTo');
+      if (rt) setReturnTo(rt);
+    }
   }, []);
 
   useEffect(() => {
@@ -23,7 +29,7 @@ export default function SignInClient() {
 
   const handleGoogleSignIn = async () => {
     try {
-      await signIn('google', { callbackUrl: '/' });
+      await signIn('google', { callbackUrl: returnTo });
     } catch {
       setError('Sign-in failed. Please try again.');
     }

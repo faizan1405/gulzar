@@ -131,20 +131,17 @@ export default function PackagesClient() {
   );
 
   const handleBuyPackage = async (packageType: string, planName: string) => {
-    // 1. Not logged in → send to register first
     if (!isLoggedIn) {
-      router.push('/register?returnTo=/packages');
+      router.push('/login?returnTo=/packages');
       return;
     }
 
-    // 2. Profile incomplete → send to register to finish
     const isFormComplete = userProfile?.profileCompletionStatus === 'COMPLETE';
     if (!isFormComplete) {
       router.push('/register?returnTo=/packages');
       return;
     }
 
-    // 3. Initiate payment via API
     setIsProcessing(true);
     setErrorMessage('');
     try {
@@ -156,6 +153,10 @@ export default function PackagesClient() {
     } finally {
       setIsProcessing(false);
     }
+  };
+
+  const handleLoginToView = () => {
+    router.push('/login?returnTo=/packages');
   };
 
   const handlePaymentSubmitted = () => {
@@ -233,9 +234,17 @@ export default function PackagesClient() {
                   planTier={plan.planTier}
                   imageUrl={plan.imageUrl}
                   ctaText={plan.ctaText}
-                  onActivate={() => handleBuyPackage(plan.packageType, plan.title)}
+                  onActivate={() => {
+                    if (!isLoggedIn) {
+                      handleLoginToView();
+                    } else {
+                      handleBuyPackage(plan.packageType, plan.title);
+                    }
+                  }}
                   whatsappMessage={plan.whatsappMessage}
                   hidePrices={!isLoggedIn || userProfile?.profileCompletionStatus !== 'COMPLETE'}
+                  isLoggedIn={isLoggedIn}
+                  loginCtaText="Login to View Plans"
                 />
               ))}
             </div>
