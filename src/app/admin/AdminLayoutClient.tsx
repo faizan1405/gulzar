@@ -10,18 +10,15 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
   const router = useRouter();
   const { isAdminMobileOpen, setIsAdminMobileOpen } = useSession();
 
-  const handleExitAdmin = () => {
-    router.push('/');
-  };
-
   return (
     <>
-      {/* Admin Mobile Bar */}
-      <div className="admin-mobile-bar font-sans">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+      {/* Mobile bar */}
+      <div className="admin-mobile-bar">
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <button
             onClick={() => setIsAdminMobileOpen(!isAdminMobileOpen)}
-            style={{ background: 'none', border: 'none', color: 'var(--white)', fontSize: '20px', cursor: 'pointer' }}
+            style={{ background: 'none', border: 'none', color: 'inherit', fontSize: 22, cursor: 'pointer', padding: 4 }}
+            aria-label="Toggle menu"
           >
             ☰
           </button>
@@ -30,28 +27,22 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
             alt="Rishte Forever"
             width={130}
             height={49}
-            style={{ height: '28px', width: 'auto', background: 'var(--white)', padding: '5px 7px', borderRadius: '7px' }}
+            style={{ height: 28, width: 'auto', background: '#fff', padding: '5px 7px', borderRadius: 7 }}
           />
-          <span style={{ fontWeight: 'bold', fontFamily: 'var(--font-serif)', color: 'var(--gold-accent)', fontSize: '13px' }}>
-            Admin
+          <span style={{ fontWeight: 700, fontFamily: 'var(--font-serif,Georgia,serif)', color: 'var(--primary-brand, #6F1D35)', fontSize: 14 }}>
+            Admin Panel
           </span>
         </div>
         <button
-          onClick={handleExitAdmin}
-          className="btn btn-gold"
-          style={{ padding: '6px 12px', fontSize: '11px' }}
+          onClick={() => router.push('/')}
+          style={{ background: 'none', border: '1px solid #e2e8f0', borderRadius: 6, padding: '4px 10px', fontSize: 12, cursor: 'pointer', color: '#64748b' }}
         >
           Exit Admin
         </button>
       </div>
 
-      {/* Mobile drawer overlay */}
-      {isAdminMobileOpen && (
-        <div className="admin-drawer-overlay" onClick={() => setIsAdminMobileOpen(false)} />
-      )}
-
-      {/* Main Admin Grid */}
-      <div className="admin-grid container font-sans">
+      {/* Admin shell */}
+      <div className="admin-grid">
         <AdminSidebar />
         <main className="admin-view-area">
           {children}

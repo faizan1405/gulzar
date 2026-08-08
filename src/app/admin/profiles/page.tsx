@@ -2,7 +2,417 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useSession } from '../../../context/SessionContext';
-import { SectionHeading } from '../../../components/NikahComponents';
+import {
+  AdminPageHeader,
+  AdminCard,
+  AdminBadge,
+  AdminButton,
+  AdminModal,
+  AdminField,
+  AdminInput,
+  AdminSelect,
+  AdminTextarea,
+  AdminFilterBar,
+  AdminTable,
+  AdminAlert,
+  AdminLoading,
+} from '../../../components/AdminUI';
+
+const VERIFICATION_COLORS: Record<string, React.CSSProperties> = {
+  PENDING:         { background: '#fef3c7', color: '#92400e' },
+  APPROVED:        { background: '#d1fae5', color: '#065f46' },
+  REJECTED:        { background: '#fee2e2', color: '#991b1b' },
+  NEEDS_FOLLOW_UP: { background: '#ede9fe', color: '#5b21b6' },
+};
+
+const APPROVAL_COLORS: Record<string, React.CSSProperties> = {
+  PENDING:  { background: '#fef3c7', color: '#92400e' },
+  APPROVED: { background: '#d1fae5', color: '#065f46' },
+  REJECTED: { background: '#fee2e2', color: '#991b1b' },
+};
+
+function calcAge(dob: string | Date): string {
+  const d = new Date(dob);
+  if (isNaN(d.getTime())) return '—';
+  return `${Math.floor((Date.now() - d.getTime()) / (1000 * 60 * 60 * 24 * 365.25))} yrs`;
+}
+
+export default function AdminProfilesPage() {
+  const { reloadTrigger } = useSession();
+
+  const [profiles, setProfiles] = useState<AdminProfile[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [total, setTotal] = useState(0);
+
+  const [search, setSearch] = useState('');
+  const [gender, setGender] = useState('');
+  const [state, setState] = useState('');
+  const [verificationStatus, setVerificationStatus] = useState('');
+  const [approvalStatus, setApprovalStatus] = useState('');
+
+  const [selected, setSelected] = useState<AdminProfile | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [saveMsg, setSaveMsg] = useState('');
+  const [deleteConfirm, setDeleteConfirm] = useState('');
+
+  const fetchProfiles = useCallback(async () => {
+    setLoading(true);
+    try {
+      const q = new URLSearchParams();
+      if (search) q.set('search', search);
+      if (gender) q.set('gender', gender);
+      if (state) q.set('state', state);
+      if (verificationStatus) q.set('verificationStatus', verificationStatus);
+      if (approvalStatus) q.set('approvalStatus', approvalStatus);
+
+      const res = await fetch(`/api/admin/profiles?${q}`, {
+        headers: { 'Content-Type': 'application/json' },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setProfiles(data.profiles || []);
+        setTotal(data.total || 0);
+      }
+    } catch {
+      console.error('Failed to fetch profiles');
+    } finally {
+      setLoading(false);
+    }
+  }, [search, gender, state, verificationStatus, approvalStatus]);
+
+  useEffect(() => {
+    fetchProfiles();
+  }, [fetchProfiles, reloadTrigger]);
+
+  const handleUpdate = async (profileId: string, updates: Record<string, string | boolean | number | null>) => {
+    setSaving(true);
+    setSaveMsg('');
+    try {
+      const res = await fetch(`/api/admin/profiles/${profileId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setSaveMsg('✓ Saved');
+        setProfiles((prev) => prev.map((p) => (p.id === profileId ? { ...p, ...updates } : p)));
+        setSelected((prev) => (prev && prev.id === profileId ? { ...prev, ...updates } : prev));
+      } else {
+        setSaveMsg(data.error || 'Save failed.');
+      }
+    } catch {
+      setSaveMsg('Network error.');
+    } finally {
+      setSaving(false);
+      setTimeout(() => setSaveMsg(''), 3000);
+    }
+  };
+
+  const handleDelete = async (profileId: string) => {
+    if (deleteConfirm !== profileId) {
+      setDeleteConfirm(profileId);
+      setTimeout(() => setDeleteConfirm(''), 4000);
+      return;
+    }
+    try {
+      const res = await fetch(`/api/admin/profiles/${profileId}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      if (res.ok) {
+        setProfiles((prev) => prev.filter((p) => p.id !== profileId));
+        setSelected(null);
+        setDeleteConfirm('');
+        setTotal((t) => t - 1);
+      } else {
+        alert('Delete failed.');
+      }
+    } catch {
+      alert('Network error.');
+    }
+  };
+
+  return (
+    <div style={{ paddingBottom: 60 }}>
+      <AdminPageHeader
+        title="Profile Management"
+        subtitle="View, edit, approve, reject, and manage all matrimonial profiles in one place."
+        actions={
+          <AdminButton onClick={() => fetchProfiles()} variant="secondary">
+            ↻ Refresh
+          </AdminButton>
+        }
+      />
+
+      {/* Filters */}
+      <AdminCard style={{ marginBottom: 20 }}>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
+            gap: 14,
+          }}
+        >
+          <AdminField label="Search" htmlFor="pf-search">
+            <AdminInput
+              id="pf-search"
+              placeholder="Name, city, phone, biradari…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </AdminField>
+          <AdminField label="Gender">
+            <AdminSelect value={gender} onChange={(e) => setGender(e.target.value)}>
+              <option value="">All</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+            </AdminSelect>
+          </AdminField>
+          <AdminField label="State">
+            <AdminInput
+              placeholder="e.g. Maharashtra"
+              value={state}
+              onChange={(e) => setState(e.target.value)}
+            />
+          </AdminField>
+          <AdminField label="Verification">
+            <AdminSelect value={verificationStatus} onChange={(e) => setVerificationStatus(e.target.value)}>
+              <option value="">All</option>
+              <option value="PENDING">Pending</option>
+              <option value="APPROVED">Approved</option>
+              <option value="REJECTED">Rejected</option>
+              <option value="NEEDS_FOLLOW_UP">Follow Up</option>
+            </AdminSelect>
+          </AdminField>
+          <AdminField label="Approval">
+            <AdminSelect value={approvalStatus} onChange={(e) => setApprovalStatus(e.target.value)}>
+              <option value="">All</option>
+              <option value="PENDING">Pending</option>
+              <option value="APPROVED">Approved</option>
+              <option value="REJECTED">Rejected</option>
+            </AdminSelect>
+          </AdminField>
+        </div>
+        <div style={{ marginTop: 10, fontSize: 12.5, color: '#64748b' }}>
+          {loading ? 'Loading…' : `Showing ${profiles.length} of ${total} profiles`}
+        </div>
+      </AdminCard>
+
+      {/* Table */}
+      {loading ? (
+        <AdminCard>
+          <AdminLoading />
+        </AdminCard>
+      ) : profiles.length === 0 ? (
+        <AdminCard>
+          <div className="admin-empty" style={{ padding: 24 }}>
+            <div className="admin-empty__icon">👥</div>
+            <div className="admin-empty__title">No profiles found</div>
+            <div className="admin-empty__desc">Try adjusting the filters above.</div>
+          </div>
+        </AdminCard>
+      ) : (
+        <AdminTable headers={['Profile', 'Location', 'Profession', 'Verification', 'Approval', 'Paid', 'Actions']}>
+          {profiles.map((profile) => (
+            <tr key={profile.id}>
+              <td>
+                <div style={{ fontWeight: 600 }}>{profile.fullName}</div>
+                <div style={{ fontSize: 11, color: '#64748b' }}>
+                  {profile.gender} · {calcAge(profile.dateOfBirth)} · {profile.maritalStatus}
+                </div>
+                <div style={{ fontSize: 10.5, color: '#64748b' }}>{profile.phoneNumber}</div>
+              </td>
+              <td>
+                <div>{profile.city || '—'}</div>
+                <div style={{ fontSize: 11, color: '#64748b' }}>{profile.state || ''}</div>
+              </td>
+              <td>
+                <div>{profile.occupation}</div>
+                <div style={{ fontSize: 11, color: '#64748b' }}>{profile.education}</div>
+              </td>
+              <td style={{ textAlign: 'center' }}>
+                <span style={{
+                  display: 'inline-block',
+                  padding: '3px 9px',
+                  borderRadius: 10,
+                  fontSize: 11,
+                  fontWeight: 600,
+                  ...(VERIFICATION_COLORS[profile.verificationStatus] || {}),
+                }}>
+                  {profile.verificationStatus?.replace('_', ' ')}
+                </span>
+              </td>
+              <td style={{ textAlign: 'center' }}>
+                <span style={{
+                  display: 'inline-block',
+                  padding: '3px 9px',
+                  borderRadius: 10,
+                  fontSize: 11,
+                  fontWeight: 600,
+                  ...(APPROVAL_COLORS[profile.adminApprovalStatus] || {}),
+                }}>
+                  {profile.adminApprovalStatus || 'PENDING'}
+                </span>
+              </td>
+              <td style={{ textAlign: 'center' }}>
+                <AdminBadge variant={profile.hasPaid ? 'approved' : 'neutral'}>
+                  {profile.hasPaid ? 'Paid' : 'Free'}
+                </AdminBadge>
+              </td>
+              <td>
+                <div className="admin-table__actions">
+                  <AdminButton size="sm" onClick={() => setSelected(profile)}>Manage</AdminButton>
+                  {profile.verificationStatus !== 'APPROVED' && (
+                    <AdminButton size="sm" variant="success" onClick={() => handleUpdate(profile.id, { verificationStatus: 'APPROVED', adminApprovalStatus: 'APPROVED' })}>
+                      ✓ Approve
+                    </AdminButton>
+                  )}
+                  {profile.verificationStatus !== 'REJECTED' && (
+                    <AdminButton size="sm" variant="danger" onClick={() => handleUpdate(profile.id, { verificationStatus: 'REJECTED', adminApprovalStatus: 'REJECTED' })}>
+                      ✗ Reject
+                    </AdminButton>
+                  )}
+                </div>
+              </td>
+            </tr>
+          ))}
+        </AdminTable>
+      )}
+
+      {/* Detail / Edit Modal */}
+      <AdminModal title={`Manage Profile — ${selected?.fullName || ''}`} isOpen={!!selected} onClose={() => setSelected(null)} width={640}>
+        {selected && (
+          <>
+            {saveMsg && <AdminAlert type={saveMsg.startsWith('✓') ? 'success' : 'error'}>{saveMsg}</AdminAlert>}
+
+            {/* Identity */}
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+                gap: 14,
+                marginBottom: 18,
+              }}
+            >
+              <div>
+                <div style={{ fontSize: 10.5, color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', marginBottom: 3, letterSpacing: 0.4 }}>Full Name</div>
+                <div style={{ fontWeight: 600 }}>{selected.fullName}</div>
+              </div>
+              <div>
+                <div style={{ fontSize: 10.5, color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', marginBottom: 3, letterSpacing: 0.4 }}>Phone</div>
+                <a href={`tel:${selected.phoneNumber}`} style={{ color: 'var(--deep-maroon, #6F1D35)', fontWeight: 600 }}>{selected.phoneNumber}</a>
+              </div>
+              <div>
+                <div style={{ fontSize: 10.5, color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', marginBottom: 3, letterSpacing: 0.4 }}>Gender / Age</div>
+                <div>{selected.gender} · {calcAge(selected.dateOfBirth)}</div>
+              </div>
+              <div>
+                <div style={{ fontSize: 10.5, color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', marginBottom: 3, letterSpacing: 0.4 }}>Location</div>
+                <div>{selected.city}, {selected.state}</div>
+              </div>
+              <div>
+                <div style={{ fontSize: 10.5, color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', marginBottom: 3, letterSpacing: 0.4 }}>Occupation</div>
+                <div>{selected.occupation}</div>
+              </div>
+              <div>
+                <div style={{ fontSize: 10.5, color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', marginBottom: 3, letterSpacing: 0.4 }}>Education</div>
+                <div>{selected.education}</div>
+              </div>
+              <div>
+                <div style={{ fontSize: 10.5, color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', marginBottom: 3, letterSpacing: 0.4 }}>Maslak</div>
+                <div>{selected.maslak || '—'}</div>
+              </div>
+              <div>
+                <div style={{ fontSize: 10.5, color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', marginBottom: 3, letterSpacing: 0.4 }}>Biradari</div>
+                <div>{selected.biradari || '—'}</div>
+              </div>
+            </div>
+
+            <hr style={{ borderColor: '#e2e8f0', margin: '16px 0' }} />
+
+            {/* Admin controls */}
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                gap: 14,
+                marginBottom: 18,
+              }}
+            >
+              <AdminField label="Verification Status">
+                <AdminSelect
+                  value={selected.verificationStatus}
+                  onChange={(e) => setSelected((s) => s ? { ...s, verificationStatus: e.target.value } : s)}
+                >
+                  <option value="PENDING">Pending</option>
+                  <option value="APPROVED">Approved</option>
+                  <option value="REJECTED">Rejected</option>
+                  <option value="NEEDS_FOLLOW_UP">Needs Follow Up</option>
+                </AdminSelect>
+              </AdminField>
+              <AdminField label="Admin Approval">
+                <AdminSelect
+                  value={selected.adminApprovalStatus || 'PENDING'}
+                  onChange={(e) => setSelected((s) => s ? { ...s, adminApprovalStatus: e.target.value } : s)}
+                >
+                  <option value="PENDING">Pending</option>
+                  <option value="APPROVED">Approved</option>
+                  <option value="REJECTED">Rejected</option>
+                </AdminSelect>
+              </AdminField>
+              <AdminField label="Category">
+                <AdminSelect
+                  value={selected.category || 'normal'}
+                  onChange={(e) => setSelected((s) => s ? { ...s, category: e.target.value } : s)}
+                >
+                  <option value="normal">Normal</option>
+                  <option value="featured">Featured</option>
+                  <option value="premium">Premium</option>
+                  <option value="second_marriage">Second Marriage</option>
+                  <option value="high_profile">High Profile</option>
+                </AdminSelect>
+              </AdminField>
+              <AdminField label="Payment Status">
+                <AdminSelect
+                  value={selected.hasPaid ? 'true' : 'false'}
+                  onChange={(e) => setSelected((s) => s ? { ...s, hasPaid: e.target.value === 'true' } : s)}
+                >
+                  <option value="false">Not Paid (Free)</option>
+                  <option value="true">Paid / Active</option>
+                </AdminSelect>
+              </AdminField>
+            </div>
+
+            <div style={{ display: 'flex', gap: 10, justifyContent: 'space-between', alignItems: 'center' }}>
+              <AdminButton
+                variant="danger"
+                onClick={() => handleDelete(selected.id)}
+                disabled={deleteConfirm !== selected.id}
+              >
+                {deleteConfirm === selected.id ? 'Confirm delete?' : '🗑 Delete Profile'}
+              </AdminButton>
+              <div style={{ display: 'flex', gap: 10 }}>
+                <AdminButton variant="secondary" onClick={() => setSelected(null)}>Cancel</AdminButton>
+                <AdminButton
+                  disabled={saving}
+                  onClick={() => handleUpdate(selected.id, {
+                    verificationStatus: selected.verificationStatus,
+                    adminApprovalStatus: selected.adminApprovalStatus,
+                    category: selected.category,
+                    hasPaid: selected.hasPaid,
+                  })}
+                >
+                  {saving ? 'Saving…' : '💾 Save Changes'}
+                </AdminButton>
+              </div>
+            </div>
+          </>
+        )}
+      </AdminModal>
+    </div>
+  );
+}
 
 interface AdminProfile {
   id: string;
@@ -24,452 +434,4 @@ interface AdminProfile {
   category: string | null;
   profileImageUrl?: string | null;
   createdAt: string | Date;
-}
-
-const VERIFICATION_COLORS: Record<string, React.CSSProperties> = {
-  PENDING:         { background: '#fef3c7', color: '#92400e' },
-  APPROVED:        { background: '#d1fae5', color: '#065f46' },
-  REJECTED:        { background: '#fee2e2', color: '#991b1b' },
-  NEEDS_FOLLOW_UP: { background: '#ede9fe', color: '#5b21b6' },
-};
-
-const APPROVAL_COLORS: Record<string, React.CSSProperties> = {
-  PENDING:  { background: '#fef3c7', color: '#92400e' },
-  APPROVED: { background: '#d1fae5', color: '#065f46' },
-  REJECTED: { background: '#fee2e2', color: '#991b1b' },
-};
-
-function calcAge(dob: string | Date): string {
-  const d = new Date(dob);
-  if (isNaN(d.getTime())) return '—';
-  const age = Math.floor((Date.now() - d.getTime()) / (1000 * 60 * 60 * 24 * 365.25));
-  return `${age} yrs`;
-}
-
-export default function AdminProfilesPage() {
-  const { reloadTrigger } = useSession();
-
-  const [profiles, setProfiles] = useState<AdminProfile[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [total, setTotal] = useState(0);
-
-  // Filters
-  const [search, setSearch] = useState('');
-  const [gender, setGender] = useState('');
-  const [state, setState] = useState('');
-  const [verificationStatus, setVerificationStatus] = useState('');
-  const [approvalStatus, setApprovalStatus] = useState('');
-
-  // Selected profile for detail/edit panel
-  const [selected, setSelected] = useState<AdminProfile | null>(null);
-  const [saving, setSaving] = useState(false);
-  const [saveMsg, setSaveMsg] = useState('');
-
-  const getHeaders = () => ({ 'Content-Type': 'application/json' } as Record<string, string>);
-
-  const fetchProfiles = useCallback(async () => {
-    setLoading(true);
-    try {
-      const q = new URLSearchParams();
-      if (search) q.set('search', search);
-      if (gender) q.set('gender', gender);
-      if (state) q.set('state', state);
-      if (verificationStatus) q.set('verificationStatus', verificationStatus);
-      if (approvalStatus) q.set('approvalStatus', approvalStatus);
-
-      const res = await fetch(`/api/admin/profiles?${q}`, {
-        headers: getHeaders(),
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setProfiles(data.profiles || []);
-        setTotal(data.total || 0);
-      }
-    } catch (e) {
-      console.error('Failed to fetch profiles', e);
-    } finally {
-      setLoading(false);
-    }
-  }, [search, gender, state, verificationStatus, approvalStatus]);
-
-  useEffect(() => {
-    fetchProfiles();
-  }, [fetchProfiles, reloadTrigger]);
-
-  const handleUpdate = async (profileId: string, updates: Record<string, string | boolean | number | null>) => {
-    setSaving(true);
-    setSaveMsg('');
-    try {
-      const res = await fetch(`/api/admin/profiles/${profileId}`, {
-        method: 'PATCH',
-        headers: { ...getHeaders(), 'Content-Type': 'application/json' },
-        body: JSON.stringify(updates),
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setSaveMsg('✓ Saved');
-        setProfiles(prev => prev.map(p => p.id === profileId ? { ...p, ...updates } : p));
-        if (selected?.id === profileId) setSelected(prev => prev ? { ...prev, ...updates } : prev);
-      } else {
-        setSaveMsg(data.error || 'Save failed.');
-      }
-    } catch {
-      setSaveMsg('Network error.');
-    } finally {
-      setSaving(false);
-      setTimeout(() => setSaveMsg(''), 3000);
-    }
-  };
-
-  const handleDelete = async (profileId: string) => {
-    if (!confirm('Permanently delete this profile? This cannot be undone.')) return;
-    try {
-      const res = await fetch(`/api/admin/profiles/${profileId}`, {
-        method: 'DELETE',
-        headers: getHeaders(),
-      });
-      if (res.ok) {
-        setProfiles(prev => prev.filter(p => p.id !== profileId));
-        if (selected?.id === profileId) setSelected(null);
-        setTotal(t => t - 1);
-      } else {
-        alert('Delete failed.');
-      }
-    } catch {
-      alert('Network error.');
-    }
-  };
-
-  return (
-    <div style={{ padding: '20px 0 60px' }} className="font-sans">
-      <SectionHeading
-        title="Profile Management"
-        subtitle="View, edit, approve, reject, and manage all matrimonial profiles in one place."
-        scriptText="Admin Desk"
-      />
-
-      {/* Filters */}
-      <div className="card-theme-wrapper" style={{ padding: '20px', marginBottom: '24px' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr repeat(4, 160px)', gap: '14px' }} className="grid-mobile-1">
-          <div>
-            <label className="form-label">Search</label>
-            <input
-              type="text"
-              className="form-control"
-              placeholder="Name, city, phone, biradari…"
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-            />
-          </div>
-          <div>
-            <label className="form-label">Gender</label>
-            <select className="form-control" value={gender} onChange={e => setGender(e.target.value)}>
-              <option value="">All</option>
-              <option value="Male">Male</option>
-              <option value="Female">Female</option>
-            </select>
-          </div>
-          <div>
-            <label className="form-label">State</label>
-            <input
-              type="text"
-              className="form-control"
-              placeholder="e.g. Maharashtra"
-              value={state}
-              onChange={e => setState(e.target.value)}
-            />
-          </div>
-          <div>
-            <label className="form-label">Verification</label>
-            <select className="form-control" value={verificationStatus} onChange={e => setVerificationStatus(e.target.value)}>
-              <option value="">All</option>
-              <option value="PENDING">Pending</option>
-              <option value="APPROVED">Approved</option>
-              <option value="REJECTED">Rejected</option>
-              <option value="NEEDS_FOLLOW_UP">Follow Up</option>
-            </select>
-          </div>
-          <div>
-            <label className="form-label">Approval</label>
-            <select className="form-control" value={approvalStatus} onChange={e => setApprovalStatus(e.target.value)}>
-              <option value="">All</option>
-              <option value="PENDING">Pending</option>
-              <option value="APPROVED">Approved</option>
-              <option value="REJECTED">Rejected</option>
-            </select>
-          </div>
-        </div>
-        <div style={{ marginTop: '10px', fontSize: '12.5px', color: 'var(--text-muted)' }}>
-          {loading ? 'Loading…' : `Showing ${profiles.length} of ${total} profiles`}
-        </div>
-      </div>
-
-      {/* Table */}
-      <div className="card-theme-wrapper" style={{ padding: 0, overflow: 'hidden' }}>
-        {loading ? (
-          <div style={{ textAlign: 'center', padding: '48px', color: 'var(--text-muted)' }}>Loading profiles…</div>
-        ) : profiles.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '48px', color: 'var(--text-muted)' }}>No profiles found.</div>
-        ) : (
-          <div className="table-responsive">
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
-              <thead>
-                <tr style={{ background: 'var(--soft-cream)', borderBottom: '2px solid var(--border-color)', color: 'var(--deep-maroon)', fontWeight: 'bold', height: '44px' }}>
-                  <th style={{ padding: '12px', textAlign: 'left' }}>Profile</th>
-                  <th style={{ padding: '12px', textAlign: 'left' }}>Location</th>
-                  <th style={{ padding: '12px', textAlign: 'left' }}>Profession</th>
-                  <th style={{ padding: '12px', textAlign: 'center' }}>Verification</th>
-                  <th style={{ padding: '12px', textAlign: 'center' }}>Approval</th>
-                  <th style={{ padding: '12px', textAlign: 'center' }}>Paid</th>
-                  <th style={{ padding: '12px', textAlign: 'center' }}>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {profiles.map(profile => (
-                  <tr key={profile.id} style={{ borderBottom: '1px solid var(--border-color)' }} className="table-row-hover">
-                    <td style={{ padding: '12px' }}>
-                      <div style={{ fontWeight: 600, color: 'var(--text-dark)' }}>{profile.fullName}</div>
-                      <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
-                        {profile.gender} · {calcAge(profile.dateOfBirth)} · {profile.maritalStatus}
-                      </div>
-                      <div style={{ fontSize: '10.5px', color: 'var(--text-muted)' }}>{profile.phoneNumber}</div>
-                    </td>
-                    <td style={{ padding: '12px' }}>
-                      <div style={{ fontSize: '13px' }}>{profile.city || '—'}</div>
-                      <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{profile.state || ''}</div>
-                    </td>
-                    <td style={{ padding: '12px' }}>
-                      <div style={{ fontSize: '13px' }}>{profile.occupation}</div>
-                      <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{profile.education}</div>
-                    </td>
-                    <td style={{ padding: '12px', textAlign: 'center' }}>
-                      <span style={{
-                        display: 'inline-block',
-                        padding: '3px 9px',
-                        borderRadius: '10px',
-                        fontSize: '11px',
-                        fontWeight: 600,
-                        ...(VERIFICATION_COLORS[profile.verificationStatus] || {}),
-                      }}>
-                        {profile.verificationStatus?.replace('_', ' ')}
-                      </span>
-                    </td>
-                    <td style={{ padding: '12px', textAlign: 'center' }}>
-                      <span style={{
-                        display: 'inline-block',
-                        padding: '3px 9px',
-                        borderRadius: '10px',
-                        fontSize: '11px',
-                        fontWeight: 600,
-                        ...(APPROVAL_COLORS[profile.adminApprovalStatus] || {}),
-                      }}>
-                        {profile.adminApprovalStatus || 'PENDING'}
-                      </span>
-                    </td>
-                    <td style={{ padding: '12px', textAlign: 'center' }}>
-                      <span style={{
-                        display: 'inline-block',
-                        padding: '3px 8px',
-                        borderRadius: '10px',
-                        fontSize: '11px',
-                        fontWeight: 600,
-                        background: profile.hasPaid ? '#d1fae5' : '#f3f4f6',
-                        color: profile.hasPaid ? '#065f46' : '#6b7280',
-                      }}>
-                        {profile.hasPaid ? 'Paid' : 'Free'}
-                      </span>
-                    </td>
-                    <td style={{ padding: '12px', textAlign: 'center' }}>
-                      <div style={{ display: 'flex', gap: '6px', justifyContent: 'center', flexWrap: 'wrap' }}>
-                        <button
-                          className="btn btn-primary"
-                          style={{ padding: '4px 10px', fontSize: '11px' }}
-                          onClick={() => setSelected(profile)}
-                        >
-                          Manage
-                        </button>
-                        {profile.verificationStatus !== 'APPROVED' && (
-                          <button
-                            className="btn btn-gold"
-                            style={{ padding: '4px 10px', fontSize: '11px' }}
-                            onClick={() => handleUpdate(profile.id, { verificationStatus: 'APPROVED', adminApprovalStatus: 'APPROVED' })}
-                          >
-                            ✓ Approve
-                          </button>
-                        )}
-                        {profile.verificationStatus !== 'REJECTED' && (
-                          <button
-                            className="btn btn-secondary"
-                            style={{ padding: '4px 10px', fontSize: '11px', color: 'var(--deep-maroon)' }}
-                            onClick={() => handleUpdate(profile.id, { verificationStatus: 'REJECTED', adminApprovalStatus: 'REJECTED' })}
-                          >
-                            ✗ Reject
-                          </button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-
-      {/* Detail / Edit Modal */}
-      {selected && (
-        <div className="modal-overlay" onClick={() => setSelected(null)}>
-          <div
-            className="card-theme-wrapper"
-            onClick={e => e.stopPropagation()}
-            style={{
-              maxWidth: '620px',
-              width: '95%',
-              margin: '20px',
-              padding: '36px',
-              border: '2px solid var(--gold-accent)',
-              position: 'relative',
-              maxHeight: '90vh',
-              overflowY: 'auto',
-            }}
-          >
-            <button
-              onClick={() => setSelected(null)}
-              style={{ position: 'absolute', top: 16, right: 16, fontSize: 24, background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}
-            >×</button>
-
-            <h3 style={{ fontFamily: 'var(--font-serif)', color: 'var(--deep-maroon)', fontSize: '22px', marginBottom: '20px' }}>
-              Manage Profile — {selected.fullName}
-            </h3>
-
-            {saveMsg && (
-              <div style={{ background: saveMsg.startsWith('✓') ? '#d1fae5' : '#fee2e2', color: saveMsg.startsWith('✓') ? '#065f46' : '#991b1b', padding: '8px 14px', borderRadius: '8px', fontSize: '12px', marginBottom: '16px' }}>
-                {saveMsg}
-              </div>
-            )}
-
-            {/* Identity */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginBottom: '20px' }} className="grid-mobile-1">
-              <div>
-                <span style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', display: 'block', marginBottom: 4 }}>Full Name</span>
-                <div style={{ fontWeight: 600 }}>{selected.fullName}</div>
-              </div>
-              <div>
-                <span style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', display: 'block', marginBottom: 4 }}>Phone</span>
-                <a href={`tel:${selected.phoneNumber}`} style={{ color: 'var(--deep-maroon)', fontWeight: 600 }}>{selected.phoneNumber}</a>
-              </div>
-              <div>
-                <span style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', display: 'block', marginBottom: 4 }}>Gender / Age</span>
-                <div>{selected.gender} · {calcAge(selected.dateOfBirth)}</div>
-              </div>
-              <div>
-                <span style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', display: 'block', marginBottom: 4 }}>Location</span>
-                <div>{selected.city}, {selected.state}</div>
-              </div>
-              <div>
-                <span style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', display: 'block', marginBottom: 4 }}>Occupation</span>
-                <div>{selected.occupation}</div>
-              </div>
-              <div>
-                <span style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', display: 'block', marginBottom: 4 }}>Education</span>
-                <div>{selected.education}</div>
-              </div>
-              <div>
-                <span style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', display: 'block', marginBottom: 4 }}>Maslak</span>
-                <div>{selected.maslak || '—'}</div>
-              </div>
-              <div>
-                <span style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', display: 'block', marginBottom: 4 }}>Biradari</span>
-                <div>{selected.biradari || '—'}</div>
-              </div>
-            </div>
-
-            <hr style={{ borderColor: 'var(--border-color)', margin: '16px 0' }} />
-
-            {/* Admin controls */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginBottom: '20px' }} className="grid-mobile-1">
-              <div>
-                <label className="form-label">Verification Status</label>
-                <select
-                  className="form-control"
-                  value={selected.verificationStatus}
-                  onChange={e => setSelected(s => s ? { ...s, verificationStatus: e.target.value } : s)}
-                >
-                  <option value="PENDING">Pending</option>
-                  <option value="APPROVED">Approved</option>
-                  <option value="REJECTED">Rejected</option>
-                  <option value="NEEDS_FOLLOW_UP">Needs Follow Up</option>
-                </select>
-              </div>
-              <div>
-                <label className="form-label">Admin Approval</label>
-                <select
-                  className="form-control"
-                  value={selected.adminApprovalStatus || 'PENDING'}
-                  onChange={e => setSelected(s => s ? { ...s, adminApprovalStatus: e.target.value } : s)}
-                >
-                  <option value="PENDING">Pending</option>
-                  <option value="APPROVED">Approved</option>
-                  <option value="REJECTED">Rejected</option>
-                </select>
-              </div>
-              <div>
-                <label className="form-label">Category</label>
-                <select
-                  className="form-control"
-                  value={selected.category || 'normal'}
-                  onChange={e => setSelected(s => s ? { ...s, category: e.target.value } : s)}
-                >
-                  <option value="normal">Normal</option>
-                  <option value="featured">Featured</option>
-                  <option value="premium">Premium</option>
-                  <option value="second_marriage">Second Marriage</option>
-                  <option value="high_profile">High Profile</option>
-                </select>
-              </div>
-              <div>
-                <label className="form-label">Payment Status</label>
-                <select
-                  className="form-control"
-                  value={selected.hasPaid ? 'true' : 'false'}
-                  onChange={e => setSelected(s => s ? { ...s, hasPaid: e.target.value === 'true' } : s)}
-                >
-                  <option value="false">Not Paid (Free)</option>
-                  <option value="true">Paid / Active</option>
-                </select>
-              </div>
-            </div>
-
-            <div style={{ display: 'flex', gap: '10px', justifyContent: 'space-between' }}>
-              <button
-                className="btn btn-secondary"
-                style={{ color: 'var(--deep-maroon)', fontSize: '13px' }}
-                onClick={() => handleDelete(selected.id)}
-              >
-                🗑 Delete Profile
-              </button>
-              <div style={{ display: 'flex', gap: '10px' }}>
-                <button className="btn btn-secondary" style={{ fontSize: '13px' }} onClick={() => setSelected(null)}>
-                  Cancel
-                </button>
-                <button
-                  className="btn btn-gold"
-                  style={{ fontSize: '13px' }}
-                  disabled={saving}
-                  onClick={() => handleUpdate(selected.id, {
-                    verificationStatus: selected.verificationStatus,
-                    adminApprovalStatus: selected.adminApprovalStatus,
-                    category: selected.category,
-                    hasPaid: selected.hasPaid,
-                  })}
-                >
-                  {saving ? 'Saving…' : '💾 Save Changes'}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
 }

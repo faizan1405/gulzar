@@ -1,10 +1,47 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useSession } from '../../../context/SessionContext';
 import { Lead } from '../../../types';
 import { getWhatsAppLink } from '../../../lib/whatsapp';
-import { SectionHeading } from '../../../components/NikahComponents';
+import {
+  AdminPageHeader,
+  AdminCard,
+  AdminBadge,
+  AdminButton,
+  AdminField,
+  AdminInput,
+  AdminSelect,
+  AdminTextarea,
+  AdminTable,
+  AdminModal,
+  AdminAlert,
+  AdminLoading,
+} from '../../../components/AdminUI';
+
+const STATUS_OPTIONS = [
+  { value: 'new', label: 'New Inquiry' },
+  { value: 'contacted', label: 'Contacted' },
+  { value: 'follow_up', label: 'Follow Up' },
+  { value: 'converted', label: 'Converted / Active Match' },
+  { value: 'closed', label: 'Closed' },
+  { value: 'spam', label: 'Spam / Blocked' },
+] as const;
+
+const STATUS_VARIANT: Record<string, 'pending' | 'info' | 'approved' | 'neutral' | 'rejected'> = {
+  new: 'pending',
+  contacted: 'info',
+  follow_up: 'pending',
+  converted: 'approved',
+  closed: 'neutral',
+  spam: 'rejected',
+};
+
+const PRIORITY_STYLES: Record<string, { label: string; tone: string }> = {
+  high: { label: 'HIGH', tone: 'maroon' },
+  normal: { label: 'NORMAL', tone: 'neutral' },
+  low: { label: 'LOW', tone: 'info' },
+};
 
 export default function AdminLeadsPage() {
   const { getHeaders, reloadTrigger, setReloadTrigger } = useSession();
@@ -16,60 +53,50 @@ export default function AdminLeadsPage() {
   const [packageFilter, setPackageFilter] = useState('');
   const [loading, setLoading] = useState(true);
 
-  // Detail Modal / Drawer states
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [notesInput, setNotesInput] = useState('');
   const [actionError, setActionError] = useState('');
   const [isUpdating, setIsUpdating] = useState(false);
 
-  // Fetch leads on filter/search updates or trigger refreshes
-  useEffect(() => {
-    async function fetchLeads() {
-      setLoading(true);
-      try {
-        const queryParams = new URLSearchParams();
-        if (search) queryParams.set('search', search);
-        if (statusFilter) queryParams.set('status', statusFilter);
-        if (typeFilter) queryParams.set('inquiryType', typeFilter);
-        if (packageFilter) queryParams.set('interestedPackage', packageFilter);
+  const fetchLeads = useCallback(async () => {
+    setLoading(true);
+    try {
+      const queryParams = new URLSearchParams();
+      if (search) queryParams.set('search', search);
+      if (statusFilter) queryParams.set('status', statusFilter);
+      if (typeFilter) queryParams.set('inquiryType', typeFilter);
+      if (packageFilter) queryParams.set('interestedPackage', packageFilter);
 
-        const url = `/api/admin/leads?${queryParams.toString()}`;
-        const headers = getHeaders();
-
-        const res = await fetch(url, { headers });
-        if (res.ok) {
-          const data = await res.json();
-          setLeads(data.leads || []);
-        }
-      } catch (err) {
-        console.error('Failed to fetch admin leads:', err);
-      } finally {
-        setLoading(false);
+      const res = await fetch(`/api/admin/leads?${queryParams.toString()}`, { headers: getHeaders() });
+      if (res.ok) {
+        const data = await res.json();
+        setLeads(data.leads || []);
       }
+    } catch {
+      console.error('Failed to fetch admin leads');
+    } finally {
+      setLoading(false);
     }
-    fetchLeads();
   }, [search, statusFilter, typeFilter, packageFilter, reloadTrigger, getHeaders]);
 
-  // Handle opening lead details
-  const handleOpenLead = (lead: Lead) => {
+  useEffect(() => {
+    fetchLeads();
+  }, [fetchLeads]);
+
+  const handleOpenLead = useCallback((lead: Lead) => {
     setSelectedLead(lead);
     setNotesInput(lead.adminNotes || '');
     setActionError('');
-  };
+  }, []);
 
-  // Perform lead update
-interface LeadUpdateData {
-  [key: string]: string | boolean | number | null;
-}
-
-  const handleUpdateLead = async (leadId: string, updateData: LeadUpdateData) => {
+  const handleUpdateLead = useCallback(async (leadId: string, updateData: Record<string, string | boolean | number | null>) => {
     setIsUpdating(true);
     setActionError('');
     try {
       const res = await fetch(`/api/admin/leads/${leadId}`, {
         method: 'PATCH',
         headers: getHeaders(),
-        body: JSON.stringify(updateData)
+        body: JSON.stringify(updateData),
       });
       const data = await res.json();
       if (res.ok) {
@@ -85,20 +112,14 @@ interface LeadUpdateData {
     } finally {
       setIsUpdating(false);
     }
-  };
+  }, [selectedLead, getHeaders, setReloadTrigger]);
 
-  // Delete lead
-  const handleDeleteLead = async (leadId: string) => {
+  const handleDeleteLead = useCallback(async (leadId: string) => {
     if (!confirm('Are you sure you want to delete this lead record? This action is permanent.')) return;
     try {
-      const res = await fetch(`/api/admin/leads/${leadId}`, {
-        method: 'DELETE',
-        headers: getHeaders()
-      });
+      const res = await fetch(`/api/admin/leads/${leadId}`, { method: 'DELETE', headers: getHeaders() });
       if (res.ok) {
-        if (selectedLead && selectedLead.id === leadId) {
-          setSelectedLead(null);
-        }
+        if (selectedLead && selectedLead.id === leadId) setSelectedLead(null);
         setReloadTrigger((prev: number) => prev + 1);
         alert('Lead record deleted.');
       } else {
@@ -108,78 +129,46 @@ interface LeadUpdateData {
     } catch {
       alert('Network error deleting lead.');
     }
-  };
-
-  // Helper for status badge styling
-  const getStatusBadgeStyle = (status: string) => {
-    const styles: Record<string, React.CSSProperties> = {
-      new: { backgroundColor: '#d1fae5', color: '#065f46' }, // soft green
-      contacted: { backgroundColor: '#dbeafe', color: '#1e40af' }, // soft blue
-      follow_up: { backgroundColor: '#fef3c7', color: '#92400e' }, // soft amber
-      converted: { backgroundColor: '#ecfdf5', color: '#047857', border: '1px solid #10b981' }, // emerald
-      closed: { backgroundColor: '#f3f4f6', color: '#374151' }, // grey
-      spam: { backgroundColor: '#fee2e2', color: '#991b1b' }, // soft red
-    };
-    return styles[status] || { backgroundColor: '#e5e7eb', color: '#374151' };
-  };
-
-  // Helper for priority badge styling
-  const getPriorityStyle = (priority: string) => {
-    const styles: Record<string, React.CSSProperties> = {
-      high: { color: 'var(--deep-maroon)', fontWeight: 'bold' },
-      normal: { color: 'var(--text-dark)' },
-      low: { color: 'var(--text-muted)' }
-    };
-    return styles[priority] || {};
-  };
+  }, [selectedLead, getHeaders, setReloadTrigger]);
 
   return (
-    <div style={{ padding: '20px 0 60px 0' }} className="font-sans">
-      <SectionHeading
-        title="Leads & Inquiries Manager"
+    <div style={{ paddingBottom: 60 }}>
+      <AdminPageHeader
+        title="Leads & Inquiries"
         subtitle="Track customer interest requests, callbacks, packages, and profile inquiries in one location."
-        scriptText="Admin Desk"
+        actions={
+          <AdminButton onClick={() => fetchLeads()} variant="secondary">
+            ↻ Refresh
+          </AdminButton>
+        }
       />
 
-      {/* Filter and Search Panel */}
-      <div className="card-theme-wrapper" style={{ padding: '24px', marginBottom: '30px' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr repeat(3, 180px)', gap: '16px' }} className="grid-mobile-1">
-          <div>
-            <label className="form-label" htmlFor="adminLeadSearch">Search Keyword</label>
-            <input
-              id="adminLeadSearch"
-              type="text"
-              className="form-control"
-              placeholder="Search by name, phone, city, package..."
+      <AdminCard style={{ marginBottom: 20 }}>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
+            gap: 14,
+          }}
+        >
+          <AdminField label="Search" htmlFor="lead-search">
+            <AdminInput
+              id="lead-search"
+              placeholder="Name, phone, city, package…"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
-          </div>
-          <div>
-            <label className="form-label" htmlFor="adminStatusFilter">Status Filter</label>
-            <select
-              id="adminStatusFilter"
-              className="form-control"
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-            >
+          </AdminField>
+          <AdminField label="Status">
+            <AdminSelect value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
               <option value="">All Statuses</option>
-              <option value="new">New</option>
-              <option value="contacted">Contacted</option>
-              <option value="follow_up">Follow Up</option>
-              <option value="converted">Converted</option>
-              <option value="closed">Closed</option>
-              <option value="spam">Spam</option>
-            </select>
-          </div>
-          <div>
-            <label className="form-label" htmlFor="adminTypeFilter">Inquiry Type</label>
-            <select
-              id="adminTypeFilter"
-              className="form-control"
-              value={typeFilter}
-              onChange={(e) => setTypeFilter(e.target.value)}
-            >
+              {STATUS_OPTIONS.map((s) => (
+                <option key={s.value} value={s.value}>{s.label}</option>
+              ))}
+            </AdminSelect>
+          </AdminField>
+          <AdminField label="Inquiry Type">
+            <AdminSelect value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)}>
               <option value="">All Types</option>
               <option value="General Inquiry">General Inquiry</option>
               <option value="Package Inquiry">Package Inquiry</option>
@@ -187,279 +176,206 @@ interface LeadUpdateData {
               <option value="Verification Help">Verification Help</option>
               <option value="Callback Request">Callback Request</option>
               <option value="Other">Other</option>
-            </select>
-          </div>
-          <div>
-            <label className="form-label" htmlFor="adminPkgFilter">Interested Package</label>
-            <select
-              id="adminPkgFilter"
-              className="form-control"
-              value={packageFilter}
-              onChange={(e) => setPackageFilter(e.target.value)}
-            >
+            </AdminSelect>
+          </AdminField>
+          <AdminField label="Interested Package">
+            <AdminSelect value={packageFilter} onChange={(e) => setPackageFilter(e.target.value)}>
               <option value="">All Packages</option>
               <option value="₹1 Monthly Membership">₹1 Monthly Membership</option>
               <option value="₹2 Good Profiles Package">₹2 Good Profiles Package</option>
               <option value="₹3 Silver Plan">₹3 Silver Plan</option>
               <option value="₹4 Gold Package">₹4 Gold Package</option>
-            </select>
-          </div>
+            </AdminSelect>
+          </AdminField>
         </div>
-      </div>
+        <div style={{ marginTop: 10, fontSize: 12.5, color: '#64748b' }}>
+          {loading ? 'Loading…' : `Showing ${leads.length} of records`}
+        </div>
+      </AdminCard>
 
-      {/* Leads Table Card */}
-      <div className="card-theme-wrapper" style={{ padding: '0', overflow: 'hidden' }}>
-        {loading ? (
-          <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)' }}>
-            Loading leads...
+      {loading ? (
+        <AdminCard><AdminLoading /></AdminCard>
+      ) : leads.length === 0 ? (
+        <AdminCard>
+          <div className="admin-empty" style={{ padding: 24 }}>
+            <div className="admin-empty__icon">📥</div>
+            <div className="admin-empty__title">No leads found</div>
+            <div className="admin-empty__desc">Try adjusting the filters above.</div>
           </div>
-        ) : leads.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)' }}>
-            No leads found matching current criteria.
-          </div>
-        ) : (
+        </AdminCard>
+      ) : (
+        <AdminCard style={{ padding: 0, overflow: 'hidden' }}>
           <div className="table-responsive">
-            <table className="admin-table" style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13.5px' }}>
-              <thead>
-                <tr style={{ backgroundColor: 'var(--soft-cream)', borderBottom: '2px solid var(--border-color)', height: '44px', color: 'var(--deep-maroon)', fontWeight: 'bold' }}>
-                  <th style={{ padding: '12px', textAlign: 'left' }}>Received Date</th>
-                  <th style={{ padding: '12px', textAlign: 'left' }}>Name</th>
-                  <th style={{ padding: '12px', textAlign: 'left' }}>Contact Info</th>
-                  <th style={{ padding: '12px', textAlign: 'left' }}>Type</th>
-                  <th style={{ padding: '12px', textAlign: 'left' }}>Details</th>
-                  <th style={{ padding: '12px', textAlign: 'center' }}>Priority</th>
-                  <th style={{ padding: '12px', textAlign: 'center' }}>Status</th>
-                  <th style={{ padding: '12px', textAlign: 'center' }}>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {leads.map((lead) => (
-                  <tr key={lead.id} style={{ borderBottom: '1px solid var(--border-color)', height: '54px' }} className="table-row-hover">
-                    <td style={{ padding: '12px', color: 'var(--text-muted)' }}>
+            <AdminTable headers={['Received', 'Name', 'Contact', 'Type', 'Details', 'Priority', 'Status', 'Actions']}>
+              {leads.map((lead) => {
+                const pStyle = PRIORITY_STYLES[lead.priority] || PRIORITY_STYLES.normal;
+                return (
+                  <tr key={lead.id}>
+                    <td style={{ color: '#64748b', whiteSpace: 'nowrap' }}>
                       {new Date(lead.createdAt).toLocaleDateString('en-IN', {
-                        day: '2-digit',
-                        month: 'short',
-                        hour: '2-digit',
-                        minute: '2-digit'
+                        day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit',
                       })}
                     </td>
-                    <td style={{ padding: '12px', fontWeight: 600, color: 'var(--text-dark)' }}>
-                      {lead.fullName}
-                      <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 'normal' }}>📍 {lead.city}</div>
+                    <td>
+                      <div style={{ fontWeight: 600 }}>{lead.fullName}</div>
+                      <div style={{ fontSize: 11, color: '#64748b' }}>📍 {lead.city}</div>
                     </td>
-                    <td style={{ padding: '12px' }}>
-                      <a href={`tel:${lead.phone}`} style={{ color: 'var(--deep-maroon)', textDecoration: 'underline', fontWeight: '500' }}>
+                    <td>
+                      <a href={`tel:${lead.phone}`} style={{ color: 'var(--deep-maroon, #6F1D35)', fontWeight: 500, textDecoration: 'underline' }}>
                         {lead.phone}
                       </a>
-                      {lead.email && <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{lead.email}</div>}
+                      {lead.email && <div style={{ fontSize: 11, color: '#64748b' }}>{lead.email}</div>}
                     </td>
-                    <td style={{ padding: '12px' }}>
-                      <span className="card-badge" style={{ backgroundColor: 'var(--warm-ivory)', border: '1px solid var(--border-color)', color: 'var(--text-dark)', fontSize: '11px', padding: '3px 8px' }}>
-                        {lead.inquiryType}
-                      </span>
+                    <td>
+                      <AdminBadge variant="neutral">{lead.inquiryType}</AdminBadge>
                     </td>
-                    <td style={{ padding: '12px', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    <td style={{ maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {lead.interestedPackage ? (
-                        <strong style={{ color: 'var(--gold-accent)' }}>{lead.interestedPackage.split(' ')[1] || lead.interestedPackage}</strong>
+                        <strong style={{ color: 'var(--gold-accent, #B8924A)' }}>{lead.interestedPackage.split(' ').slice(1).join(' ')}</strong>
                       ) : lead.interestedProfileId ? (
-                        <span style={{ fontSize: '12px' }}>Profile: {lead.interestedProfileId.substring(0, 8)}...</span>
+                        <span style={{ fontSize: 12 }}>Profile: {lead.interestedProfileId.substring(0, 8)}…</span>
                       ) : (
-                        <span style={{ color: 'var(--text-muted)' }}>{lead.message || '—'}</span>
+                        <span style={{ color: '#64748b' }}>{lead.message || '—'}</span>
                       )}
                     </td>
-                    <td style={{ padding: '12px', textAlign: 'center', ...getPriorityStyle(lead.priority) }}>
-                      {lead.priority.toUpperCase()}
+                    <td style={{ textAlign: 'center' }}>
+                      <AdminBadge variant={pStyle.tone as any}>{pStyle.label}</AdminBadge>
                     </td>
-                    <td style={{ padding: '12px', textAlign: 'center' }}>
-                      <span className="card-badge" style={{
-                        padding: '4px 10px',
-                        borderRadius: '12px',
-                        fontSize: '11px',
-                        fontWeight: 'bold',
-                        display: 'inline-block',
-                        ...getStatusBadgeStyle(lead.status)
-                      }}>
+                    <td style={{ textAlign: 'center' }}>
+                      <AdminBadge status={lead.status} variant={STATUS_VARIANT[lead.status]}>
                         {lead.status.replace('_', ' ').toUpperCase()}
-                      </span>
+                      </AdminBadge>
                     </td>
-                    <td style={{ padding: '12px', textAlign: 'center' }}>
-                      <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', alignItems: 'center' }}>
-                        <button
-                          className="btn btn-primary"
-                          style={{ padding: '4px 10px', fontSize: '11px' }}
-                          onClick={() => handleOpenLead(lead)}
-                        >
-                          View Details
-                        </button>
+                    <td>
+                      <div className="admin-table__actions">
+                        <AdminButton size="sm" onClick={() => handleOpenLead(lead)}>View Details</AdminButton>
                         {lead.phone && (
                           <a
                             href={getWhatsAppLink(lead.phone, `Assalamu Alaikum ${lead.fullName}, this is Rishte Forever support. We received your inquiry and would like to guide you further.`)}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="btn"
                             style={{
-                              padding: '4px 8px',
-                              fontSize: '11px',
-                              backgroundColor: '#25D366',
-                              color: '#ffffff',
-                              border: 'none',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              borderRadius: '4px',
+                              padding: '5px 10px',
+                              borderRadius: 6,
+                              background: '#25D366',
+                              color: '#fff',
+                              fontSize: 12,
+                              fontWeight: 600,
                               textDecoration: 'none',
-                              fontWeight: 600
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: 4,
                             }}
                             title="Chat on WhatsApp"
                           >
                             💬 WA
                           </a>
                         )}
-                        <button
-                          className="btn btn-secondary"
-                          style={{ padding: '4px 8px', fontSize: '11px', color: 'var(--deep-maroon)' }}
-                          onClick={() => handleDeleteLead(lead.id)}
-                        >
-                          Delete
-                        </button>
+                        <AdminButton size="sm" variant="danger" onClick={() => handleDeleteLead(lead.id)}>Delete</AdminButton>
                       </div>
                     </td>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                );
+              })}
+            </AdminTable>
           </div>
-        )}
-      </div>
+        </AdminCard>
+      )}
 
-      {/* Details Drawer / Modal */}
-      {selectedLead && (
-        <div className="modal-overlay font-sans" onClick={() => setSelectedLead(null)}>
-          <div className="card-theme-wrapper" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '600px', width: '95%', margin: '20px', padding: '36px', border: '2px solid var(--gold-accent)', position: 'relative' }}>
-            <button
-              onClick={() => setSelectedLead(null)}
-              style={{
-                position: 'absolute',
-                top: '16px',
-                right: '16px',
-                fontSize: '24px',
-                background: 'none',
-                border: 'none',
-                color: 'var(--text-muted)',
-                cursor: 'pointer'
-              }}
-            >
-              ×
-            </button>
+      {/* Lead Detail Modal */}
+      <AdminModal title="Inquiry / Lead Details" isOpen={!!selectedLead} onClose={() => setSelectedLead(null)} width={620}>
+        {selectedLead && (
+          <>
+            {actionError && <AdminAlert type="error">⚠️ {actionError}</AdminAlert>}
 
-            <h3 style={{ fontFamily: 'var(--font-serif)', color: 'var(--deep-maroon)', fontSize: '24px', marginBottom: '20px' }}>
-              Inquiry / Lead Details
-            </h3>
-
-            {actionError && (
-              <div style={{ backgroundColor: 'rgba(111, 29, 53, 0.08)', color: 'var(--deep-maroon)', padding: '10px 14px', borderRadius: '8px', fontSize: '12px', marginBottom: '16px' }}>
-                ⚠️ {actionError}
-              </div>
-            )}
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }} className="grid-mobile-1">
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 14, marginBottom: 16 }}>
               <div>
-                <span style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', display: 'block' }}>Customer Name</span>
-                <strong style={{ fontSize: '15px', color: 'var(--text-dark)' }}>{selectedLead.fullName}</strong>
+                <div style={{ fontSize: 10.5, color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', marginBottom: 3 }}>Customer Name</div>
+                <strong>{selectedLead.fullName}</strong>
               </div>
               <div>
-                <span style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', display: 'block' }}>City Location</span>
-                <strong style={{ fontSize: '15px', color: 'var(--text-dark)' }}>{selectedLead.city}</strong>
+                <div style={{ fontSize: 10.5, color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', marginBottom: 3 }}>City Location</div>
+                <strong>{selectedLead.city}</strong>
               </div>
               <div>
-                <span style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', display: 'block' }}>Phone Info</span>
-                <strong style={{ fontSize: '15px', color: 'var(--text-dark)' }}>{selectedLead.phone}</strong>
+                <div style={{ fontSize: 10.5, color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', marginBottom: 3 }}>Phone Info</div>
+                <strong>{selectedLead.phone}</strong>
               </div>
               <div>
-                <span style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', display: 'block' }}>Email Info</span>
-                <span style={{ fontSize: '14px', color: 'var(--text-dark)' }}>{selectedLead.email || 'None provided'}</span>
+                <div style={{ fontSize: 10.5, color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', marginBottom: 3 }}>Email Info</div>
+                <span>{selectedLead.email || 'None provided'}</span>
               </div>
             </div>
 
-            <hr style={{ borderColor: 'var(--border-color)', margin: '16px 0' }} />
+            <hr style={{ borderColor: '#e2e8f0', margin: '14px 0' }} />
 
-            <div style={{ marginBottom: '16px' }}>
-              <span style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', display: 'block' }}>Inquiry Context</span>
-              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '6px' }}>
-                <span className="card-badge" style={{ backgroundColor: 'var(--warm-ivory)', border: '1px solid var(--border-color)', fontSize: '12px', padding: '4px 10px' }}>
-                  Type: {selectedLead.inquiryType}
-                </span>
+            {/* Inquiry context badges */}
+            <div style={{ marginBottom: 16 }}>
+              <div style={{ fontSize: 10.5, color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', marginBottom: 6 }}>Inquiry Context</div>
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                <AdminBadge variant="neutral">Type: {selectedLead.inquiryType}</AdminBadge>
                 {selectedLead.interestedPackage && (
-                  <span className="card-badge" style={{ backgroundColor: '#fef3c7', border: '1px solid #f59e0b', color: '#b45309', fontSize: '12px', padding: '4px 10px' }}>
-                    Package: {selectedLead.interestedPackage}
-                  </span>
+                  <AdminBadge variant="orange">Package: {selectedLead.interestedPackage}</AdminBadge>
                 )}
                 {selectedLead.interestedProfileId && (
-                  <span className="card-badge" style={{ backgroundColor: '#ecfdf5', border: '1px solid #10b981', color: '#047857', fontSize: '12px', padding: '4px 10px' }}>
-                    Profile ID: {selectedLead.interestedProfileId}
-                  </span>
+                  <AdminBadge variant="green">Profile ID: {selectedLead.interestedProfileId}</AdminBadge>
                 )}
                 {selectedLead.sourcePage && (
-                  <span className="card-badge" style={{ backgroundColor: '#f3f4f6', border: '1px solid #d1d5db', color: '#4b5563', fontSize: '12px', padding: '4px 10px' }}>
-                    Page: {selectedLead.sourcePage}
-                  </span>
+                  <AdminBadge variant="info">Page: {selectedLead.sourcePage}</AdminBadge>
                 )}
               </div>
             </div>
 
-            <div style={{ marginBottom: '16px' }}>
-              <span style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', display: 'block' }}>Submitted Message</span>
-              <p style={{ backgroundColor: '#fafafa', padding: '12px', borderRadius: '8px', fontSize: '13.5px', color: 'var(--text-dark)', border: '1.5px solid var(--border-color)', lineHeight: '1.5', marginTop: '6px' }}>
+            {/* Message */}
+            <div style={{ marginBottom: 16 }}>
+              <div style={{ fontSize: 10.5, color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', marginBottom: 6 }}>Submitted Message</div>
+              <div style={{ background: '#fafbfd', padding: 12, borderRadius: 8, border: '1.5px solid #e2e8f0', fontSize: 13.5, lineHeight: 1.5 }}>
                 {selectedLead.message || 'No message provided.'}
-              </p>
+              </div>
             </div>
 
-            {/* Quick Contact buttons */}
-            <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
+            {/* Quick Contact */}
+            <div style={{ display: 'flex', gap: 10, marginBottom: 20 }}>
               <a
                 href={`tel:${selectedLead.phone}`}
-                className="btn btn-gold"
-                style={{ flex: 1, textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', fontSize: '13px' }}
+                style={{ flex: 1, textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
               >
-                📞 Call Client
+                <AdminButton variant="secondary" style={{ width: '100%' }}>📞 Call Client</AdminButton>
               </a>
               <a
                 href={getWhatsAppLink(selectedLead.phone, `Assalamu Alaikum ${selectedLead.fullName}, this is Rishte Forever support. We received your inquiry and would like to guide you further.`)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn btn-primary"
-                style={{ flex: 1, textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', fontSize: '13px' }}
+                style={{ flex: 1, textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
               >
-                💬 WhatsApp
+                <AdminButton variant="primary" style={{ width: '100%' }}>💬 WhatsApp</AdminButton>
               </a>
             </div>
 
-            <hr style={{ borderColor: 'var(--border-color)', margin: '16px 0' }} />
+            <hr style={{ borderColor: '#e2e8f0', margin: '14px 0' }} />
 
-            {/* Admin actions */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
-              <div>
-                <label className="form-label" htmlFor="drawerStatus">Update Status</label>
-                <select
-                  id="drawerStatus"
-                  className="form-control"
+            {/* Admin Actions */}
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+                gap: 14,
+                marginBottom: 16,
+              }}
+            >
+              <AdminField label="Update Status">
+                <AdminSelect
                   value={selectedLead.status}
                   onChange={(e) => handleUpdateLead(selectedLead.id, { status: e.target.value })}
                   disabled={isUpdating}
                 >
-                  <option value="new">New Inquiry</option>
-                  <option value="contacted">Contacted</option>
-                  <option value="follow_up">Follow Up</option>
-                  <option value="converted">Converted / Active Match</option>
-                  <option value="closed">Closed</option>
-                  <option value="spam">Spam / Blocked</option>
-                </select>
-              </div>
-              <div>
-                <label className="form-label" htmlFor="drawerPriority">Change Priority</label>
-                <select
-                  id="drawerPriority"
-                  className="form-control"
+                  {STATUS_OPTIONS.map((s) => (
+                    <option key={s.value} value={s.value}>{s.label}</option>
+                  ))}
+                </AdminSelect>
+              </AdminField>
+              <AdminField label="Change Priority">
+                <AdminSelect
                   value={selectedLead.priority}
                   onChange={(e) => handleUpdateLead(selectedLead.id, { priority: e.target.value })}
                   disabled={isUpdating}
@@ -467,54 +383,37 @@ interface LeadUpdateData {
                   <option value="low">Low</option>
                   <option value="normal">Normal</option>
                   <option value="high">High Priority</option>
-                </select>
-              </div>
+                </AdminSelect>
+              </AdminField>
             </div>
 
-            <div style={{ marginBottom: '24px' }}>
-              <label className="form-label" htmlFor="drawerNotes">Internal Admin Notes</label>
-              <textarea
-                id="drawerNotes"
-                className="form-control"
-                rows={3}
-                placeholder="Log follow-up calls, family references, or match preferences discussed..."
-                value={notesInput}
-                onChange={(e) => setNotesInput(e.target.value)}
-                disabled={isUpdating}
-              />
-              <button
-                type="button"
-                className="btn btn-secondary"
-                style={{ marginTop: '8px', fontSize: '12px', padding: '6px 12px' }}
+            <div style={{ marginBottom: 20 }}>
+              <AdminField label="Internal Admin Notes">
+                <AdminTextarea
+                  placeholder="Log follow-up calls, family references, or match preferences discussed…"
+                  value={notesInput}
+                  onChange={(e) => setNotesInput(e.target.value)}
+                  disabled={isUpdating}
+                />
+              </AdminField>
+              <AdminButton
+                size="sm"
+                variant="secondary"
+                style={{ marginTop: 8 }}
                 onClick={() => handleUpdateLead(selectedLead.id, { adminNotes: notesInput })}
                 disabled={isUpdating}
               >
-                {isUpdating ? 'Saving notes...' : 'Save Admin Notes'}
-              </button>
+                {isUpdating ? 'Saving notes…' : 'Save Admin Notes'}
+              </AdminButton>
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid var(--border-color)', paddingTop: '16px' }}>
-              <button
-                type="button"
-                className="btn btn-secondary"
-                style={{ color: 'var(--deep-maroon)' }}
-                onClick={() => {
-                  handleDeleteLead(selectedLead.id);
-                }}
-              >
-                Delete Lead
-              </button>
-              <button
-                type="button"
-                className="btn btn-primary"
-                onClick={() => setSelectedLead(null)}
-              >
-                Close View
-              </button>
+            <div style={{ display: 'flex', gap: 10, justifyContent: 'space-between', borderTop: '1px solid #e2e8f0', paddingTop: 16 }}>
+              <AdminButton variant="danger" onClick={() => handleDeleteLead(selectedLead.id)}>🗑 Delete Lead</AdminButton>
+              <AdminButton variant="secondary" onClick={() => setSelectedLead(null)}>Close View</AdminButton>
             </div>
-          </div>
-        </div>
-      )}
+          </>
+        )}
+      </AdminModal>
     </div>
   );
 }

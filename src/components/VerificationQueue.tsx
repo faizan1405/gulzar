@@ -4,149 +4,158 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import { useSession } from '../context/SessionContext';
 import { VerificationRequest } from '../types';
+import {
+  AdminReviewCard,
+  AdminField,
+  AdminTextarea,
+  AdminButton,
+  AdminBadge,
+  AdminTable,
+  AdminCard,
+  AdminEmpty,
+  AdminLoading,
+} from './AdminUI';
+
+const STATUS_VARIANT: Record<string, 'pending' | 'rejected' | 'info' | 'approved' | 'neutral'> = {
+  APPROVED: 'approved',
+  REJECTED: 'rejected',
+  NEEDS_FOLLOW_UP: 'info',
+  PENDING: 'pending',
+};
 
 export const VerificationQueue: React.FC = () => {
   const { adminRequests, handleReviewSubmit } = useSession();
   const [selectedRequest, setSelectedRequest] = useState<VerificationRequest | null>(null);
   const [notes, setNotes] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
   const onSubmitReview = async (status: 'APPROVED' | 'REJECTED' | 'NEEDS_FOLLOW_UP') => {
     if (!selectedRequest) return;
+    setSubmitting(true);
     await handleReviewSubmit(status, selectedRequest, notes);
     setSelectedRequest(null);
     setNotes('');
+    setSubmitting(false);
   };
+
+  if (!adminRequests) {
+    return <AdminCard><AdminLoading /></AdminCard>;
+  }
 
   return (
     <div>
       {selectedRequest && selectedRequest.profile && (
-        <div className="card-theme-wrapper" style={{ marginBottom: '30px', border: '1.5px solid var(--gold-accent)' }}>
-          <h3 style={{ fontFamily: 'var(--font-serif)', color: 'var(--gold-dark)', marginBottom: '16px' }}>
-            Reviewing: {selectedRequest.profile.fullName} (ID: {selectedRequest.profileId})
-          </h3>
-          
+        <AdminReviewCard
+          title={`Reviewing: ${selectedRequest.profile.fullName} (ID: ${selectedRequest.profileId.substring(0, 8)}…)`}
+          onCancel={() => { setSelectedRequest(null); setNotes(''); }}
+        >
+          {/* Profile Photo */}
           {selectedRequest.profile.profileImageUrl && (
-            <div style={{ marginBottom: '15px', textAlign: 'center' }}>
-              <Image 
-                src={selectedRequest.profile.profileImageUrl} 
-                alt="Uploaded Profile Photo" 
+            <div style={{ marginBottom: 16, textAlign: 'center' }}>
+              <Image
+                src={selectedRequest.profile.profileImageUrl}
+                alt="Uploaded Profile Photo"
                 width={150}
                 height={150}
-                style={{ objectFit: 'cover', borderRadius: '12px', border: '2px solid var(--border-color)' }}
+                style={{ objectFit: 'cover', borderRadius: 10, border: '1.5px solid #e2e8f0' }}
               />
-              <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '8px' }}>
+              <p style={{ fontSize: 12, color: '#64748b', marginTop: 6 }}>
                 Image Status: <strong>{selectedRequest.profile.profileImageStatus || 'PENDING'}</strong>
               </p>
             </div>
           )}
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', margin: '15px 0', fontSize: '13.5px', border: '1px solid var(--border-color)', padding: '20px', borderRadius: '8px', backgroundColor: '#fff' }}>
-            <p><strong>Phone:</strong> {selectedRequest.profile.phoneNumber}</p>
-            <p><strong>Location:</strong> {selectedRequest.profile.city}, {selectedRequest.profile.state}</p>
-            <p style={{ gridColumn: 'span 2' }}><strong>Bio:</strong> {selectedRequest.profile.bio}</p>
-            <p style={{ gridColumn: 'span 2' }}><strong>Family Background:</strong> {selectedRequest.profile.familyInfo}</p>
-            <p><strong>Submitted On:</strong> {new Date(selectedRequest.createdAt).toLocaleString()}</p>
-            <p>
-              <strong>Current Status: </strong> 
-              <span style={{ 
-                padding: '2px 8px', 
-                borderRadius: '4px', 
-                fontSize: '11px', 
-                fontWeight: 'bold',
-                backgroundColor: selectedRequest.status === 'APPROVED' ? 'rgba(18, 46, 34, 0.1)' : selectedRequest.status === 'REJECTED' ? 'rgba(230, 92, 92, 0.1)' : 'rgba(240, 190, 50, 0.1)',
-                color: selectedRequest.status === 'APPROVED' ? 'green' : selectedRequest.status === 'REJECTED' ? 'red' : 'orange'
-              }}>
-                {selectedRequest.status}
-              </span>
-            </p>
+          {/* Profile Info */}
+          <div className="admin-review-card__grid">
+            <div className="admin-review-card__field">
+              <strong>Phone:</strong> {selectedRequest.profile.phoneNumber}
+            </div>
+            <div className="admin-review-card__field">
+              <strong>Location:</strong> {selectedRequest.profile.city}, {selectedRequest.profile.state}
+            </div>
+            <div className="admin-review-card__field" style={{ gridColumn: 'span 2' }}>
+              <strong>Bio:</strong> {selectedRequest.profile.bio}
+            </div>
+            <div className="admin-review-card__field" style={{ gridColumn: 'span 2' }}>
+              <strong>Family Background:</strong> {selectedRequest.profile.familyInfo}
+            </div>
+            <div className="admin-review-card__field">
+              <strong>Submitted On:</strong> {new Date(selectedRequest.createdAt).toLocaleString()}
+            </div>
+            <div className="admin-review-card__field">
+              <strong>Current Status:</strong>{' '}
+              <AdminBadge status={selectedRequest.status}>{selectedRequest.status}</AdminBadge>
+            </div>
           </div>
 
-          <div className="form-group">
-            <label className="form-label" style={{ fontWeight: 'bold' }}>Phone call verification notes</label>
-            <textarea
-              className="form-control"
-              rows={3}
+          {/* Review Notes */}
+          <AdminField label="Phone call verification notes">
+            <AdminTextarea
+              placeholder="Log observations from manual telephone check…"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              placeholder="Log observations from manual telephone check..."
             />
-          </div>
+          </AdminField>
 
-          <div style={{ display: 'flex', gap: '10px', marginTop: '15px', flexWrap: 'wrap' }}>
-            <button onClick={() => onSubmitReview('APPROVED')} className="btn btn-gold" style={{ backgroundColor: 'green', borderColor: 'green' }}>
+          {/* Actions */}
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 16 }}>
+            <AdminButton onClick={() => onSubmitReview('APPROVED')} variant="success" disabled={submitting}>
               ✓ Approve Profile
-            </button>
-            <button onClick={() => onSubmitReview('REJECTED')} className="btn btn-primary" style={{ backgroundColor: 'red', borderColor: 'red' }}>
+            </AdminButton>
+            <AdminButton onClick={() => onSubmitReview('REJECTED')} variant="danger" disabled={submitting}>
               ✗ Reject Profile
-            </button>
-            <button onClick={() => onSubmitReview('NEEDS_FOLLOW_UP')} className="btn btn-secondary">
+            </AdminButton>
+            <AdminButton onClick={() => onSubmitReview('NEEDS_FOLLOW_UP')} variant="secondary" disabled={submitting}>
               Needs Follow Up
-            </button>
-            <button onClick={() => { setSelectedRequest(null); setNotes(''); }} className="btn btn-secondary" style={{ marginLeft: 'auto' }}>
+            </AdminButton>
+            <AdminButton variant="ghost" onClick={() => { setSelectedRequest(null); setNotes(''); }} disabled={submitting}>
               Cancel
-            </button>
+            </AdminButton>
           </div>
-        </div>
+        </AdminReviewCard>
       )}
 
-      <div className="table-responsive" style={{ backgroundColor: 'var(--white)', padding: '24px', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '700px' }}>
-          <thead>
-            <tr style={{ borderBottom: '2px solid var(--border-color)', height: '40px', fontSize: '12px', textTransform: 'uppercase', color: 'var(--gold-dark)' }}>
-              <th style={{ padding: '12px 8px' }}>Profile ID</th>
-              <th style={{ padding: '12px 8px' }}>Candidate Name</th>
-              <th style={{ padding: '12px 8px' }}>Phone Check Status</th>
-              <th style={{ padding: '12px 8px' }}>Submitted Date</th>
-              <th style={{ padding: '12px 8px' }}>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
+      {/* Queue Table */}
+      <AdminCard style={{ padding: 0, overflow: 'hidden' }}>
+        <div className="table-responsive">
+          <AdminTable headers={['Profile ID', 'Candidate Name', 'Phone Check Status', 'Submitted Date', 'Actions']}>
             {adminRequests.length === 0 ? (
               <tr>
-                <td colSpan={5} style={{ textAlign: 'center', padding: '30px' }}>
-                  <div className="empty-state">
-                    <h3>No Verification Requests</h3>
-                  </div>
+                <td colSpan={5} style={{ textAlign: 'center', padding: 40 }}>
+                  <AdminEmpty
+                    icon="✅"
+                    title="No Verification Requests"
+                    description="New profile verification requests will appear here."
+                  />
                 </td>
               </tr>
             ) : (
               adminRequests.map((req) => (
-                <tr key={req.id} style={{ borderBottom: '1px solid var(--border-color)', fontSize: '13.5px', height: '50px' }}>
-                  <td style={{ padding: '12px 8px' }}><code style={{ fontSize: '12px' }}>{req.profileId.substring(0, 8)}...</code></td>
-                  <td style={{ padding: '12px 8px' }}><strong>{req.profile?.fullName || 'N/A'}</strong></td>
-                  <td style={{ padding: '12px 8px' }}>
-                    <span style={{
-                      padding: '2px 6px',
-                      borderRadius: '4px',
-                      fontSize: '11px',
-                      fontWeight: 'bold',
-                      backgroundColor: req.status === 'APPROVED' ? 'rgba(18, 46, 34, 0.1)' : req.status === 'REJECTED' ? 'rgba(230, 92, 92, 0.1)' : 'rgba(240, 190, 50, 0.1)',
-                      color: req.status === 'APPROVED' ? 'green' : req.status === 'REJECTED' ? 'red' : 'orange'
-                    }}>
+                <tr key={req.id}>
+                  <td><code style={{ fontSize: 12, color: '#64748b' }}>{req.profileId.substring(0, 8)}…</code></td>
+                  <td><strong>{req.profile?.fullName || 'N/A'}</strong></td>
+                  <td>
+                    <AdminBadge status={req.status} variant={STATUS_VARIANT[req.status]}>
                       {req.status}
-                    </span>
+                    </AdminBadge>
                   </td>
-                  <td style={{ padding: '12px 8px' }}>{new Date(req.createdAt).toLocaleDateString()}</td>
-                  <td style={{ padding: '12px 8px' }}>
+                  <td>{new Date(req.createdAt).toLocaleDateString()}</td>
+                  <td>
                     {req.profile && (
-                      <button
-                        onClick={() => {
-                          setSelectedRequest(req);
-                          setNotes(req.notes || '');
-                        }}
-                        className="btn btn-gold"
-                        style={{ padding: '6px 12px', fontSize: '11px' }}
-                      >
+                      <AdminButton size="sm" onClick={() => {
+                        setSelectedRequest(req);
+                        setNotes(req.notes || '');
+                      }}>
                         Review Call
-                      </button>
+                      </AdminButton>
                     )}
                   </td>
                 </tr>
               ))
             )}
-          </tbody>
-        </table>
-      </div>
+          </AdminTable>
+        </div>
+      </AdminCard>
     </div>
   );
 };
