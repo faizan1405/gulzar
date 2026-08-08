@@ -25,7 +25,13 @@ export async function proxy(request: NextRequest) {
     } catch {
       // Missing or invalid session token — treat as unauthenticated
     }
-    if (!session?.user || session.user.role !== 'ADMIN') {
+    // Admin access requires both ADMIN role AND credentials-based auth.
+    // A Google session can never reach admin pages, even if the role claim
+    // somehow ended up set.
+    const isAdmin =
+      session?.user?.role === 'ADMIN' &&
+      session?.user?.authMethod === 'CREDENTIALS';
+    if (!isAdmin) {
       const loginUrl = new URL('/admin/login', request.url);
       loginUrl.searchParams.set('callbackUrl', pathname);
       return NextResponse.redirect(loginUrl);

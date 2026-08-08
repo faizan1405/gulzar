@@ -1,13 +1,12 @@
 'use client';
 
 import React, { useState } from 'react';
-import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 export default function AdminLoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -17,17 +16,23 @@ export default function AdminLoginPage() {
     setLoading(true);
     setError('');
     try {
-      const result = await signIn('credentials', {
-        email,
-        password,
-        redirect: false,
+      const res = await fetch('/api/admin/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
       });
-      if (result?.error) {
-        setError('Invalid email or password.');
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || 'Invalid credentials');
         setLoading(false);
-      } else if (result?.ok) {
-        router.push('/admin');
+        return;
       }
+
+      // Reload so the app re-reads the session cookie
+      // and the proxy + AdminLayout both recognise the admin session.
+      window.location.href = '/admin';
     } catch {
       setError('Sign-in failed. Please try again.');
       setLoading(false);
@@ -89,10 +94,10 @@ export default function AdminLoginPage() {
             textAlign: 'center',
           }}
         >
-          Sign In
+          Admin Sign In
         </h2>
         <p style={{ color: 'var(--text-muted)', fontSize: '13px', marginBottom: '28px', textAlign: 'center' }}>
-          Use your admin credentials to access the panel.
+          Enter your admin credentials to access the panel.
         </p>
 
         <div
@@ -123,15 +128,15 @@ export default function AdminLoginPage() {
         <form onSubmit={handleSubmit}>
           <div style={{ marginBottom: '16px' }}>
             <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: 'var(--text-dark)', marginBottom: '6px' }}>
-              Email
+              Username
             </label>
             <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
               required
-              autoComplete="email"
-              placeholder="admin@rishteforever.in"
+              autoComplete="username"
+              placeholder="Enter admin username"
               style={{
                 width: '100%',
                 padding: '12px 14px',
