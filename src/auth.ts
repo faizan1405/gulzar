@@ -65,8 +65,6 @@ export const { handlers, auth, signOut } = NextAuth({
     Credentials({
       id: 'admin-credentials',
       name: 'AdminCredentials',
-      // Admin auth uses JWT sessions only — no CSRF token required.
-      skipCSRFCheck: true,
       credentials: {
         username: { label: 'Username', type: 'text' },
         password: { label: 'Password', type: 'password' },
