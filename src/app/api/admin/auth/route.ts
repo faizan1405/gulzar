@@ -101,6 +101,13 @@ export async function POST(request: NextRequest) {
     // non-fatal
   }
 
+  // Derive the cookie name Auth.js will use for reading — must match
+  // the cookie name used as the JWT encryption salt by auth().
+  const cookieName =
+    process.env.NODE_ENV === 'production'
+      ? '__Secure-authjs.session-token'
+      : 'authjs.session-token';
+
   // Mint a JWT compatible with Auth.js v5 cookie format.
   const maxAge = 60 * 60 * 24;
   const sessionToken = await encode({
@@ -116,13 +123,8 @@ export async function POST(request: NextRequest) {
     },
     secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET || '',
     maxAge,
-    salt: 'authjs.session-token',
+    salt: cookieName,
   });
-
-  const cookieName =
-    process.env.NODE_ENV === 'production'
-      ? '__Secure-authjs.session-token'
-      : 'authjs.session-token';
 
   const response = NextResponse.json({
     ok: true,
