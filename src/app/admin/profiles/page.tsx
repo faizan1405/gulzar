@@ -376,7 +376,10 @@ export default function AdminProfilesPage() {
               <AdminField label="Payment Status">
                 <AdminSelect
                   value={selected.hasPaid ? 'paid' : 'free'}
-                  onChange={(e) => setSelected((s) => s ? { ...s, hasPaid: e.target.value !== 'free', paymentStatusAction: e.target.value } : s)}
+                  onChange={(e) => {
+                    const v = e.target.value as 'paid' | 'free';
+                    setSelected((s) => s ? { ...s, hasPaid: v !== 'free', paymentStatusAction: v } : s);
+                  }}
                 >
                   <option value="free">Not Paid (Free)</option>
                   <option value="paid">Paid / Active</option>
@@ -408,14 +411,19 @@ export default function AdminProfilesPage() {
                 <AdminButton variant="secondary" onClick={() => setSelected(null)}>Cancel</AdminButton>
                 <AdminButton
                   disabled={saving}
-                  onClick={() => handleUpdate(selected.id, {
-                    verificationStatus: selected.verificationStatus,
-                    adminApprovalStatus: selected.adminApprovalStatus,
-                    category: selected.category,
-                    hasPaid: selected.hasPaid,
-                    paymentStatus: selected.hasPaid ? (selected.paymentStatusAction || 'paid') : 'free',
-                    packageType: selected.hasPaid ? (selected.packageType || 'monthly_membership') : undefined,
-                  })}
+                  onClick={() => {
+                    const updates: Record<string, string | boolean | number | null> = {
+                      verificationStatus: selected.verificationStatus,
+                      adminApprovalStatus: selected.adminApprovalStatus,
+                      category: selected.category,
+                      hasPaid: selected.hasPaid,
+                      paymentStatus: selected.hasPaid ? (selected.paymentStatusAction || 'paid') : 'free',
+                    };
+                    if (selected.hasPaid) {
+                      updates.packageType = selected.packageType || 'monthly_membership';
+                    }
+                    handleUpdate(selected.id, updates);
+                  }}
                 >
                   {saving ? 'Saving…' : '💾 Save Changes'}
                 </AdminButton>
