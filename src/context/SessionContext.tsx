@@ -221,6 +221,10 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   // Detect a real NextAuth session — runs on mount and whenever reloadTrigger changes
   const [, setUserRole] = useState<string | null>(null);
+  const [, setUserAuthMethod] = useState<string | null>(null);
+  const userRoleRef = useRef<string | null>(null);
+  const userAuthMethodRef = useRef<string | null>(null);
+  const isAdminRef = useRef(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -233,13 +237,27 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
         if (session?.user) {
           setIsLoggedIn(true);
           if (session.user.role) setUserRole(session.user.role);
+          if (session.user.authMethod) setUserAuthMethod(session.user.authMethod);
+          userRoleRef.current = session.user.role || null;
+          userAuthMethodRef.current = session.user.authMethod || null;
+          isAdminRef.current =
+            (session.user.role === 'ADMIN') &&
+            (session.user.authMethod === 'CREDENTIALS');
         } else {
           setIsLoggedIn(false);
           setUserRole(null);
+          setUserAuthMethod(null);
+          userRoleRef.current = null;
+          userAuthMethodRef.current = null;
+          isAdminRef.current = false;
         }
       } catch {
         setIsLoggedIn(false);
         setUserRole(null);
+        setUserAuthMethod(null);
+        userRoleRef.current = null;
+        userAuthMethodRef.current = null;
+        isAdminRef.current = false;
       } finally {
         if (!cancelled) {
           setAuthChecked(true);
@@ -467,6 +485,37 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
         }
       } else {
         setActivePackages([]);
+      }
+
+      // 4. If admin, fetch admin-specific data for the dashboard
+      if (isAdminRef.current) {
+        try {
+          const [verifRes, purchasesRes, assignmentsRes, auditRes] = await Promise.all([
+            fetch('/api/admin/verification', { headers, credentials: 'include' }),
+            fetch('/api/admin/packages?mode=purchases', { headers, credentials: 'include' }),
+            fetch('/api/admin/packages?mode=assignments', { headers, credentials: 'include' }),
+            fetch('/api/admin/verification?mode=audit', { headers, credentials: 'include' }),
+          ]);
+
+          if (verifRes.ok) {
+            const vData = await verifRes.json();
+            if (Array.isArray(vData.requests)) setAdminRequests(vData.requests);
+          }
+          if (purchasesRes.ok) {
+            const pData = await purchasesRes.json();
+            if (Array.isArray(pData.purchases)) setAdminPurchases(pData.purchases);
+          }
+          if (assignmentsRes.ok) {
+            const aData = await assignmentsRes.json();
+            if (Array.isArray(aData.assignments)) setAdminAssignments(aData.assignments);
+          }
+          if (auditRes.ok) {
+            const aLog = await auditRes.json();
+            if (Array.isArray(aLog.logs)) setAuditLogs(aLog.logs);
+          }
+        } catch {
+          // ignore — admin data will be empty if DB is down
+        }
       }
     } catch (err) {
       console.error('Failed fetching database state', err);

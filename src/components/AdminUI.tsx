@@ -35,7 +35,7 @@ export const AdminCard = ({
 );
 
 // --- Stat Card ---
-export type StatTone = 'maroon' | 'gold' | 'green' | 'blue' | 'purple' | 'neutral';
+export type StatTone = 'maroon' | 'gold' | 'green' | 'blue' | 'purple' | 'neutral' | 'orange';
 
 export const AdminStatCard = ({
   label,

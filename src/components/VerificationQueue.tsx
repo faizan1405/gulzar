@@ -32,10 +32,15 @@ export const VerificationQueue: React.FC = () => {
   const onSubmitReview = async (status: 'APPROVED' | 'REJECTED' | 'NEEDS_FOLLOW_UP') => {
     if (!selectedRequest) return;
     setSubmitting(true);
-    await handleReviewSubmit(status, selectedRequest, notes);
-    setSelectedRequest(null);
-    setNotes('');
-    setSubmitting(false);
+    try {
+      await handleReviewSubmit(status, selectedRequest, notes);
+      setSelectedRequest(null);
+      setNotes('');
+    } catch {
+      // keep selectedRequest so the admin can retry; the context already alerted
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (!adminRequests) {

@@ -60,9 +60,14 @@ export default function PremiumPackagesPage() {
   };
 
   const onAssign = useCallback(async () => {
-    await handleAssignLead(assignBuyerId, assignLeadId);
-    setAssignLeadId('');
-    showAlert('Lead assigned successfully.');
+    if (!assignBuyerId || !assignLeadId) return;
+    try {
+      await handleAssignLead(assignBuyerId, assignLeadId);
+      setAssignLeadId('');
+      showAlert('Lead assigned successfully.');
+    } catch {
+      showAlert('Failed to assign lead. Please try again.');
+    }
   }, [assignBuyerId, assignLeadId, handleAssignLead]);
 
   const onApprovePayment = useCallback(async (purchaseId: string) => {

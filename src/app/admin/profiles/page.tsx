@@ -388,7 +388,6 @@ export default function AdminProfilesPage() {
               <AdminButton
                 variant="danger"
                 onClick={() => handleDelete(selected.id)}
-                disabled={deleteConfirm !== selected.id}
               >
                 {deleteConfirm === selected.id ? 'Confirm delete?' : '🗑 Delete Profile'}
               </AdminButton>

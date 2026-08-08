@@ -103,6 +103,7 @@ export default function AdminLeadsPage() {
         if (selectedLead && selectedLead.id === leadId) {
           setSelectedLead(data.lead);
         }
+        setLeads((prev) => prev.map((l) => (l.id === leadId ? { ...l, ...data.lead } : l)));
         setReloadTrigger((prev: number) => prev + 1);
       } else {
         setActionError(data.error || 'Failed to update lead.');
@@ -338,17 +339,19 @@ export default function AdminLeadsPage() {
             <div style={{ display: 'flex', gap: 10, marginBottom: 20 }}>
               <a
                 href={`tel:${selectedLead.phone}`}
+                className="admin-btn admin-btn--secondary"
                 style={{ flex: 1, textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
               >
-                <AdminButton variant="secondary" style={{ width: '100%' }}>📞 Call Client</AdminButton>
+                📞 Call Client
               </a>
               <a
                 href={getWhatsAppLink(selectedLead.phone, `Assalamu Alaikum ${selectedLead.fullName}, this is Rishte Forever support. We received your inquiry and would like to guide you further.`)}
                 target="_blank"
                 rel="noopener noreferrer"
+                className="admin-btn admin-btn--primary"
                 style={{ flex: 1, textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
               >
-                <AdminButton variant="primary" style={{ width: '100%' }}>💬 WhatsApp</AdminButton>
+                💬 WhatsApp
               </a>
             </div>
 
