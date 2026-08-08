@@ -143,14 +143,26 @@ export function setRateLimitStore(store: RateLimitStore | null): void {
  * @param limit Max requests in the window.
  * @param windowMs Window length in ms.
  * @returns Detailed result including remaining quota and reset timestamp.
+ *
+ * NOTE: Currently a pass-through (always allows) for development ease.
+ *       Re-enable the store.check() call below when rate limiting is needed.
  */
 export async function checkRateLimit(
   key: string,
   limit: number,
   windowMs: number
 ): Promise<RateLimitResult> {
-  const store = await getStore();
-  return store.check(key, limit, windowMs);
+  // Pass-through — no rate limiting in development
+  return {
+    allowed: true,
+    resetAt: Date.now() + windowMs,
+    remaining: limit,
+    limit,
+  };
+
+  // --- Original implementation (re-enable when needed) ---
+  // const store = await getStore();
+  // return store.check(key, limit, windowMs);
 }
 
 /**

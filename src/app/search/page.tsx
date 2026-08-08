@@ -15,7 +15,7 @@ export async function generateMetadata(): Promise<Metadata> {
     console.error("Failed to load settings in metadata", e);
   }
   
-  const rawSiteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://rishteforever.in';
+  const rawSiteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://rishteforever.com';
   const siteUrl = rawSiteUrl.startsWith('http://') || rawSiteUrl.startsWith('https://') 
     ? rawSiteUrl 
     : `https://${rawSiteUrl}`;
@@ -24,7 +24,7 @@ export async function generateMetadata(): Promise<Metadata> {
   try {
     metadataBase = new URL(siteUrl);
   } catch {
-    metadataBase = new URL('https://rishteforever.in');
+    metadataBase = new URL('https://rishteforever.com');
   }
 
   const title = "Muslim Matrimonial Directory — Rishte Forever";
@@ -80,13 +80,13 @@ export default function SearchPage() {
         "@type": "ListItem",
         "position": 1,
         "name": "Home",
-        "item": "https://rishteforever.in"
+        "item": "https://rishteforever.com"
       },
       {
         "@type": "ListItem",
         "position": 2,
         "name": "Matrimonial Search Directory",
-        "item": "https://rishteforever.in/search"
+        "item": "https://rishteforever.com/search"
       }
     ]
   };

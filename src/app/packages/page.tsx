@@ -11,7 +11,7 @@ export async function generateMetadata(): Promise<Metadata> {
     console.error("Failed to load settings in metadata", e);
   }
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://rishteforever.in';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://rishteforever.com';
   const title = "Matrimonial Packages & Plans — Rishte Forever";
   const description = "Explore Rishte Forever matrimonial packages: Monthly Membership, Good Profile Package, Silver Plan, and Gold Package. All plans include manual verification, privacy-safe browsing, and 1-year validity.";
   const previewImage = settings?.defaultPreviewImage || "/images/nikah-1.jpeg";
@@ -66,13 +66,13 @@ export default function PackagesPage() {
         "@type": "ListItem",
         "position": 1,
         "name": "Home",
-        "item": "https://rishteforever.in"
+        "item": "https://rishteforever.com"
       },
       {
         "@type": "ListItem",
         "position": 2,
         "name": "Packages",
-        "item": "https://rishteforever.in/packages"
+        "item": "https://rishteforever.com/packages"
       }
     ]
   };

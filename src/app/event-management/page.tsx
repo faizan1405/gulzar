@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 import EventManagementClient from './EventManagementClient';
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://rishteforever.in';
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://rishteforever.com';
 const title = 'Event Management | Rishte Forever';
 const description =
   'Rishte Forever helps families connect with trusted wedding and event service partners for Nikah, Walima, engagement, decoration, venues, catering, photography, makeup, and more.';

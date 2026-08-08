@@ -52,7 +52,7 @@ const SILVER = PREMIUM_PACKAGES[PACKAGE_KEYS.SILVER].name; // "Silver Plan"
 const GOLD = PREMIUM_PACKAGES[PACKAGE_KEYS.GOLD].name; // "Gold Package"
 
 // Shared, project-accurate support contact line. Mirrors the Contact page.
-export const SUPPORT_EMAIL = 'support@rishteforever.in';
+export const SUPPORT_EMAIL = 'support@rishteforever.com';
 export const SUPPORT_PHONE = '+91 96754 83125';
 export const SUPPORT_HOURS = '10 AM to 6 PM';
 

@@ -74,20 +74,6 @@ export const AUTH_URL = env('AUTH_URL', SITE_URL);
 
 export const DATABASE_URL = env('DATABASE_URL', '');
 
-/* ------------------------------------------------------------------ */
-/*  Razorpay                                                         */
-/* ------------------------------------------------------------------ */
-
-export const RAZORPAY_KEY_ID = env('RAZORPAY_KEY_ID', '');
-export const RAZORPAY_KEY_SECRET = env('RAZORPAY_KEY_SECRET', '');
-
-/* ------------------------------------------------------------------ */
-/*  Feature flags                                                    */
-/* ------------------------------------------------------------------ */
-
-export const ENABLE_REGISTRATION = envBool('NEXT_PUBLIC_ENABLE_REGISTRATION', true);
-export const ENABLE_AI_CHATBOT = envBool('NEXT_PUBLIC_ENABLE_AI_CHATBOT', false);
-export const ENABLE_PAYMENTS = envBool('NEXT_PUBLIC_ENABLE_PAYMENTS', true);
 
 /* ------------------------------------------------------------------ */
 /*  Rate limits (centralised — used by src/lib/rateLimit.ts)         */

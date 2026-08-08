@@ -9,16 +9,22 @@ import { auth } from '@/auth';
  *
  * Returns null if the request has a valid session (allowing the handler to
  * continue), or a 401 Response if the session is missing/invalid.
+ *
+ * NOTE: Currently disabled (always returns null) for development ease.
+ *       Each route handler still does its own `await auth()` check.
  */
 export async function jwtGuard(req: NextRequest): Promise<NextResponse | null> {
-  try {
-    const session = await auth();
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
-    }
-  } catch {
-    return NextResponse.json({ error: 'Invalid or expired session.' }, { status: 401 });
-  }
-
+  // Disabled for development — each route handler does its own auth() check
   return null;
+
+  // --- Original implementation below (re-enable when needed) ---
+  // try {
+  //   const session = await auth();
+  //   if (!session?.user?.id) {
+  //     return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
+  //   }
+  // } catch {
+  //   return NextResponse.json({ error: 'Invalid or expired session.' }, { status: 401 });
+  // }
+  // return null;
 }

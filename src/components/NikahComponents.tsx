@@ -140,13 +140,13 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
     unlockCta = 'Choose Package';
     showUpgradeCta = true;
   } else if (isLockedCategory === 'good_profile_package' && !hasGoodProfileAccess) {
-    unlockCta = 'Good Profile Package · ₹1';
+    unlockCta = 'Good Profile Package · ₹2';
     showUpgradeCta = true;
   } else if (isLockedCategory === 'second_marriage_package' && !hasSecMarriageAccess) {
-    unlockCta = 'Silver Plan · ₹1';
+    unlockCta = 'Silver Plan · ₹3';
     showUpgradeCta = true;
   } else if (isLockedCategory === 'high_profile_package' && !hasHighProfAccess) {
-    unlockCta = 'Gold Package · ₹1';
+    unlockCta = 'Gold Package · ₹4';
     showUpgradeCta = true;
   }
 

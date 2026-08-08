@@ -11,7 +11,7 @@ export async function generateMetadata(): Promise<Metadata> {
     console.error("Failed to load settings in metadata", e);
   }
   
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://rishteforever.in';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://rishteforever.com';
   const title = "Zaicha | Rishte Forever";
   const description = "Traditional Zaicha compatibility guidance for Muslim matrimonial matches. Optional supportive family guidance based on deen and character.";
   const previewImage = settings?.defaultPreviewImage || "/images/commitment.png";
@@ -64,13 +64,13 @@ export default function ZaichaPage() {
         "@type": "ListItem",
         "position": 1,
         "name": "Home",
-        "item": "https://rishteforever.in"
+        "item": "https://rishteforever.com"
       },
       {
         "@type": "ListItem",
         "position": 2,
         "name": "Zaicha Guidance",
-        "item": "https://rishteforever.in/zaicha"
+        "item": "https://rishteforever.com/zaicha"
       }
     ]
   };

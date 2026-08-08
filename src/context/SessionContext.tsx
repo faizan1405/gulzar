@@ -182,8 +182,8 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   // Purchase access (populated by loadAllData)
   const [activePackages, setActivePackages] = useState<string[]>([]);
+  const [highProfileApproved, setHighProfileApproved] = useState(false);
   const hasPaid300 = !!userProfile?.hasPaid || activePackages.includes('monthly_membership');
-  const highProfileApproved = !!userProfile?.highProfileApproved;
 
   // Master Data Options
   const [masterMaslaks, setMasterMaslaks] = useState<MaslakOption[]>(() =>
@@ -479,6 +479,11 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
                   .map((p: Record<string, unknown>) => typeof (p as Record<string, unknown>).packageType === 'string' ? (p as Record<string, unknown>).packageType as string : '')
               : [];
             setActivePackages(pkgs);
+            // highProfileApproved is returned by the API based on actual purchases,
+            // not from the profile schema (which has no such field).
+            if (typeof pkgData.highProfileApproved === 'boolean') {
+              setHighProfileApproved(pkgData.highProfileApproved);
+            }
           }
         } catch {
           // ignore — purchases will just be empty if DB is down
@@ -548,6 +553,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
       setUserProfile(null);
       setAccountData(null);
       setActivePackages([]);
+      setHighProfileApproved(false);
       setIsRegistering(false);
       setReloadTrigger((prev) => prev + 1);
     }

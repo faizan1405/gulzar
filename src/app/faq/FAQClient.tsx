@@ -20,7 +20,7 @@ export default function FAQClient() {
   };
 
   const openChatbot = () => {
-    window.dispatchEvent(new Event('rf-open-chatbot'));
+    // Chatbot removed — no-op
   };
 
   const filtered = useMemo(() => {

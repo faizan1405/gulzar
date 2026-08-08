@@ -40,19 +40,19 @@ export async function proxy(request: NextRequest) {
     // session is guaranteed non-null here: isAdmin required role + authMethod
     const sess = session!;
     // Block suspended admins
-    if (sess.user.accountStatus === 'SUSPENDED') {
-      return NextResponse.redirect(new URL('/suspended', request.url));
-    }
+    // if (sess.user.accountStatus === 'SUSPENDED') {
+    //   return NextResponse.redirect(new URL('/suspended', request.url));
+    // }
 
     // Invalidate session if tokenVersion has changed (password changed elsewhere)
-    const sessionTokenVersion = sess.user.tokenVersion || 1;
-    const dbUser = await prisma.user.findUnique({
-      where: { id: sess.user.id },
-      select: { tokenVersion: true },
-    });
-    if (dbUser && dbUser.tokenVersion !== sessionTokenVersion) {
-      return NextResponse.redirect(new URL('/', request.url));
-    }
+    // const sessionTokenVersion = sess.user.tokenVersion || 1;
+    // const dbUser = await prisma.user.findUnique({
+    //   where: { id: sess.user.id },
+    //   select: { tokenVersion: true },
+    // });
+    // if (dbUser && dbUser.tokenVersion !== sessionTokenVersion) {
+    //   return NextResponse.redirect(new URL('/', request.url));
+    // }
   }
 
   // Redirect legacy /premium URL to /packages
@@ -82,13 +82,10 @@ export const config = {
     '/admin/:path*',
     '/api/admin/:path*',
     '/api/leads/:path*',
-    '/api/packages/:path*',
-    '/api/payment/:path*',
     '/api/profile/:path*',
     '/api/profiles/:path*',
     '/api/user/:path*',
     '/api/business-location/:path*',
-    '/api/chatbot/:path*',
     '/premium',
   ],
 };

@@ -1,6 +1,7 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo } from 'react';
+import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useSession } from '../context/SessionContext';
@@ -20,8 +21,10 @@ import {
   PremiumPlanCard,
   ZaichaPromoCard
 } from '../components/NikahComponents';
-import PackageInquiryForm from '../components/PackageInquiryForm';
-import UPIPaymentModal from '../components/UPIPaymentModal';
+
+// Heavy modal components — only load when actually needed
+const PackageInquiryForm = dynamic(() => import('../components/PackageInquiryForm'), { ssr: false });
+const UPIPaymentModal = dynamic(() => import('../components/UPIPaymentModal'), { ssr: false });
 
 export default function HomeClient() {
   const router = useRouter();
@@ -62,13 +65,37 @@ export default function HomeClient() {
 
   const isFormComplete = isLoggedIn && userProfile?.profileCompletionStatus === 'COMPLETE';
 
-  const activeMaslaks = masterMaslaks.filter(m => !m.isDisabled).sort((a, b) => a.label.localeCompare(b.label));
-  const activeCastes = masterCastes.filter(c => !c.isDisabled).sort((a, b) => a.label.localeCompare(b.label));
-  const activeLocations = masterLocations.filter(l => !l.isDisabled);
-  const quickStates = Array.from(new Set(activeLocations.map(l => l.state))).sort((a, b) => a.localeCompare(b));
-  const quickCities = quickState
-    ? Array.from(new Set(activeLocations.filter(l => l.state === quickState).map(l => l.district))).sort((a, b) => a.localeCompare(b))
-    : [];
+  // Memoize derived filter/sort arrays to avoid recomputation on every render
+  const activeMaslaks = useMemo(
+    () => masterMaslaks.filter(m => !m.isDisabled).sort((a, b) => a.label.localeCompare(b.label)),
+    [masterMaslaks]
+  );
+  const activeCastes = useMemo(
+    () => masterCastes.filter(c => !c.isDisabled).sort((a, b) => a.label.localeCompare(b.label)),
+    [masterCastes]
+  );
+  const activeLocations = useMemo(
+    () => masterLocations.filter(l => !l.isDisabled),
+    [masterLocations]
+  );
+  const quickStates = useMemo(
+    () => Array.from(new Set(activeLocations.map(l => l.state))).sort((a, b) => a.localeCompare(b)),
+    [activeLocations]
+  );
+  const quickCities = useMemo(
+    () => quickState
+      ? Array.from(new Set(activeLocations.filter(l => l.state === quickState).map(l => l.district))).sort((a, b) => a.localeCompare(b))
+      : [],
+    [quickState, activeLocations]
+  );
+  const userName = useMemo(
+    () => userProfile?.fullName || accountData?.name || '',
+    [userProfile, accountData]
+  );
+  const userPhone = useMemo(
+    () => userProfile?.phoneNumber || accountData?.phone || '',
+    [userProfile, accountData]
+  );
 
   const handleQuickSearch = () => {
     const minNum = quickAgeMin ? Number(quickAgeMin) : null;
@@ -92,15 +119,6 @@ export default function HomeClient() {
   const handleNavigate = (view: string) => {
     router.push('/' + (view === 'home' ? '' : view));
   };
-
-  const userName = React.useMemo(
-    () => userProfile?.fullName || accountData?.name || '',
-    [userProfile, accountData]
-  );
-  const userPhone = React.useMemo(
-    () => userProfile?.phoneNumber || accountData?.phone || '',
-    [userProfile, accountData]
-  );
 
   const handleBuyPackage = async (packageType: string, planName: string) => {
     if (!isLoggedIn) {

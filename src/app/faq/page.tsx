@@ -12,7 +12,7 @@ export async function generateMetadata(): Promise<Metadata> {
     console.error('Failed to load settings in metadata', e);
   }
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://rishteforever.in';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://rishteforever.com';
   const title = 'Frequently Asked Questions — Rishte Forever Matrimonial';
   const description =
     'Answers about registration, telephone verification, profile visibility, privacy, memberships and packages on Rishte Forever, the trusted Muslim matrimonial platform.';
@@ -59,7 +59,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function FAQPage() {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://rishteforever.in';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://rishteforever.com';
 
   const breadcrumbSchema = {
     '@context': 'https://schema.org',

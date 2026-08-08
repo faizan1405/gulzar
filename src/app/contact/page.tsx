@@ -11,7 +11,7 @@ export async function generateMetadata(): Promise<Metadata> {
     console.error("Failed to load settings in metadata", e);
   }
   
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://rishteforever.in';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://rishteforever.com';
   const title = "Contact Customer Support — Rishte Forever Marriage Bureau";
   const description = "Get in touch with Rishte Forever customer support. Find our New Delhi office address, verified phone number +91-96754-83125, and email details.";
   const previewImage = settings?.defaultPreviewImage || "/images/nikah-1.jpeg";
@@ -60,10 +60,10 @@ export default function ContactPage() {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
     "name": "Rishte Forever",
-    "image": "https://rishteforever.in/images/nikah-1.jpeg",
+    "image": "https://rishteforever.com/images/nikah-1.jpeg",
     "telePhone": "+91-96754-83125",
-    "email": "support@rishteforever.in",
-    "url": "https://rishteforever.in",
+    "email": "support@rishteforever.com",
+    "url": "https://rishteforever.com",
     "address": {
       "@type": "PostalAddress",
       "streetAddress": "Innov8 44 Regal Building, 2nd Floor, Property No. 44, Above Madame Tussauds, Regal Building",
@@ -96,13 +96,13 @@ export default function ContactPage() {
         "@type": "ListItem",
         "position": 1,
         "name": "Home",
-        "item": "https://rishteforever.in"
+        "item": "https://rishteforever.com"
       },
       {
         "@type": "ListItem",
         "position": 2,
         "name": "Contact Support",
-        "item": "https://rishteforever.in/contact"
+        "item": "https://rishteforever.com/contact"
       }
     ]
   };

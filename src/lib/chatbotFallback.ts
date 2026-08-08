@@ -101,7 +101,7 @@ export function getFallbackResponse(message: string): string {
     msg.includes('admin') ||
     msg.includes('reach')
   ) {
-    return "You can contact Rishte Forever support by navigating to the Contact page or by emailing support@rishteforever.in. Our support team is active Monday to Saturday, 9:00 AM to 6:00 PM.";
+    return "You can contact Rishte Forever support by navigating to the Contact page or by emailing support@rishteforever.com. Our support team is active Monday to Saturday, 9:00 AM to 6:00 PM.";
   }
 
   // 8. General greeting/unknown fallback response

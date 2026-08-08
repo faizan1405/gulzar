@@ -75,12 +75,6 @@ export const AdminOverview: React.FC = () => {
       icon: '❤️',
       tone: 'maroon' as StatTone,
     },
-    {
-      label: 'Audit Logs',
-      value: auditLogs.length,
-      icon: '📜',
-      tone: 'neutral' as StatTone,
-    },
   ];
 
   // Count pending leads

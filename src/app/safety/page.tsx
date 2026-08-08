@@ -11,7 +11,7 @@ export async function generateMetadata(): Promise<Metadata> {
     console.error("Failed to load settings in metadata", e);
   }
   
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://rishteforever.in';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://rishteforever.com';
   const title = "Safety & Privacy Guidelines — Rishte Forever Matrimonial";
   const description = "Learn how Rishte Forever keeps your Muslim matrimonial search safe. Manual verification, telephone check, photo protection, and strict anti-dating policies.";
   const previewImage = settings?.defaultPreviewImage || "/images/nikah-2.jpeg";
@@ -65,13 +65,13 @@ export default function SafetyPage() {
         "@type": "ListItem",
         "position": 1,
         "name": "Home",
-        "item": "https://rishteforever.in"
+        "item": "https://rishteforever.com"
       },
       {
         "@type": "ListItem",
         "position": 2,
         "name": "Safety & Privacy Guidelines",
-        "item": "https://rishteforever.in/safety"
+        "item": "https://rishteforever.com/safety"
       }
     ]
   };

@@ -11,7 +11,7 @@ export async function generateMetadata(): Promise<Metadata> {
     console.error("Failed to load settings in metadata", e);
   }
   
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://rishteforever.in';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://rishteforever.com';
   const title = "How It Works — Rishte Forever Muslim Matrimonial Process";
   const description = "Learn how Rishte Forever matching process works. Create matrimonial biodata, complete manual telephone check verification, and start halal family introductions.";
   const previewImage = settings?.defaultPreviewImage || "/images/nikah-1.jpeg";
@@ -87,13 +87,13 @@ export default function HowItWorksPage() {
         "@type": "ListItem",
         "position": 1,
         "name": "Home",
-        "item": "https://rishteforever.in"
+        "item": "https://rishteforever.com"
       },
       {
         "@type": "ListItem",
         "position": 2,
         "name": "How It Works",
-        "item": "https://rishteforever.in/how-it-works"
+        "item": "https://rishteforever.com/how-it-works"
       }
     ]
   };

@@ -11,7 +11,7 @@ export async function generateMetadata(): Promise<Metadata> {
     console.error("Failed to load settings in metadata", e);
   }
   
-  const rawSiteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://rishteforever.in';
+  const rawSiteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://rishteforever.com';
   const siteUrl = rawSiteUrl.startsWith('http://') || rawSiteUrl.startsWith('https://') 
     ? rawSiteUrl 
     : `https://${rawSiteUrl}`;
@@ -20,7 +20,7 @@ export async function generateMetadata(): Promise<Metadata> {
   try {
     metadataBase = new URL(siteUrl);
   } catch {
-    metadataBase = new URL('https://rishteforever.in');
+    metadataBase = new URL('https://rishteforever.com');
   }
 
   const title = "Rishte Forever — Trusted Muslim Matrimonial Website & Marriage Bureau";
@@ -75,8 +75,8 @@ export default function Home() {
     "@context": "https://schema.org",
     "@type": "Organization",
     "name": "Rishte Forever",
-    "url": "https://rishteforever.in",
-    "logo": "https://rishteforever.in/images/rishte-forever-logo.png",
+    "url": "https://rishteforever.com",
+    "logo": "https://rishteforever.com/images/rishte-forever-logo.png",
     "contactPoint": {
       "@type": "ContactPoint",
       "telephone": "+91-96754-83125",
@@ -95,10 +95,10 @@ export default function Home() {
     "@context": "https://schema.org",
     "@type": "WebSite",
     "name": "Rishte Forever",
-    "url": "https://rishteforever.in",
+    "url": "https://rishteforever.com",
     "potentialAction": {
       "@type": "SearchAction",
-      "target": "https://rishteforever.in/search?q={search_term_string}",
+      "target": "https://rishteforever.com/search?q={search_term_string}",
       "query-input": "required name=search_term_string"
     }
   };

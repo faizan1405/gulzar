@@ -11,7 +11,7 @@ export async function generateMetadata(): Promise<Metadata> {
     console.error("Failed to load settings in metadata", e);
   }
   
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://rishteforever.in';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://rishteforever.com';
   const title = "Success Stories — Rishte Forever Muslim Matrimonials";
   const description = "Alhamdulillah! Read inspiring success stories of marriage from blessed couples who found their life partners on Rishte Forever.";
   const previewImage = settings?.defaultPreviewImage || "/images/nikah-4.jpeg";
@@ -64,13 +64,13 @@ export default function SuccessStoriesPage() {
         "@type": "ListItem",
         "position": 1,
         "name": "Home",
-        "item": "https://rishteforever.in"
+        "item": "https://rishteforever.com"
       },
       {
         "@type": "ListItem",
         "position": 2,
         "name": "Success Stories",
-        "item": "https://rishteforever.in/success-stories"
+        "item": "https://rishteforever.com/success-stories"
       }
     ]
   };

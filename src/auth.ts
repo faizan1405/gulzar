@@ -44,7 +44,7 @@ export const { handlers, auth, signOut } = NextAuth({
   secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET,
   trustHost: true,
   useSecureCookies: process.env.NODE_ENV === 'production',
-  session: { strategy: 'jwt', maxAge: 60 * 60 * 24 },
+  session: { strategy: 'jwt', maxAge: 60 * 60 * 24 * 7 },
   providers: [
     // ─────────────────────────────────────────────────────────────
     // CUSTOMER AUTH — Google OAuth

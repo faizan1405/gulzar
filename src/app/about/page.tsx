@@ -11,7 +11,7 @@ export async function generateMetadata(): Promise<Metadata> {
     console.error("Failed to load settings in metadata", e);
   }
   
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://rishteforever.in';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://rishteforever.com';
   const title = "About Us — Rishte Forever Muslim Matrimonial Platform";
   const description = "Learn about Rishte Forever, India's trusted Muslim matrimonial platform & marriage bureau enabling serious, call-verified, and Shariah-compliant Muslim matchmaking.";
   const previewImage = settings?.defaultPreviewImage || "/images/nikah-1.jpeg";
@@ -65,13 +65,13 @@ export default function AboutPage() {
         "@type": "ListItem",
         "position": 1,
         "name": "Home",
-        "item": "https://rishteforever.in"
+        "item": "https://rishteforever.com"
       },
       {
         "@type": "ListItem",
         "position": 2,
         "name": "About Us",
-        "item": "https://rishteforever.in/about"
+        "item": "https://rishteforever.com/about"
       }
     ]
   };
