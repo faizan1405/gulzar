@@ -19,15 +19,15 @@ export async function proxy(request: NextRequest) {
 
   // Admin route protection — login page is public
   if (pathname.startsWith('/admin') && pathname !== '/admin/login') {
+    // Admin access requires both ADMIN role AND credentials-based auth.
+    // A Google session can never reach admin pages, even if the role claim
+    // somehow ended up set.
     let session;
     try {
       session = await auth();
     } catch {
       // Missing or invalid session token — treat as unauthenticated
     }
-    // Admin access requires both ADMIN role AND credentials-based auth.
-    // A Google session can never reach admin pages, even if the role claim
-    // somehow ended up set.
     const isAdmin =
       session?.user?.role === 'ADMIN' &&
       session?.user?.authMethod === 'CREDENTIALS';
@@ -37,15 +37,17 @@ export async function proxy(request: NextRequest) {
       return NextResponse.redirect(loginUrl);
     }
 
+    // session is guaranteed non-null here: isAdmin required role + authMethod
+    const sess = session!;
     // Block suspended admins
-    if (session.user.accountStatus === 'SUSPENDED') {
+    if (sess.user.accountStatus === 'SUSPENDED') {
       return NextResponse.redirect(new URL('/suspended', request.url));
     }
 
     // Invalidate session if tokenVersion has changed (password changed elsewhere)
-    const sessionTokenVersion = session.user.tokenVersion || 1;
+    const sessionTokenVersion = sess.user.tokenVersion || 1;
     const dbUser = await prisma.user.findUnique({
-      where: { id: session.user.id },
+      where: { id: sess.user.id },
       select: { tokenVersion: true },
     });
     if (dbUser && dbUser.tokenVersion !== sessionTokenVersion) {
