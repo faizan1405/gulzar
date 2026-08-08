@@ -418,7 +418,7 @@ export default function HomeClient() {
             <div className="packages-grid">
               <PremiumPlanCard
                 title="Monthly Membership"
-                price={300}
+                price={1}
                 gstRate={0.18}
                 billingText="Monthly billing"
                 features={[
@@ -434,15 +434,15 @@ export default function HomeClient() {
                 onActivate={isLoggedIn && userProfile?.profileCompletionStatus === 'COMPLETE'
                   ? () => handleBuyPackage('monthly_membership', 'Standard Monthly Membership')
                   : undefined}
-                onInquire={() => setInquiryPackage('₹300 Monthly Membership')}
-                whatsappMessage="Assalamu Alaikum, I want to know more about the ₹300 monthly membership on Rishte Forever."
+                onInquire={() => setInquiryPackage('₹1 Monthly Membership')}
+                whatsappMessage="Assalamu Alaikum, I want to know more about the ₹1 monthly membership on Rishte Forever."
                 hidePrices={!isLoggedIn || userProfile?.profileCompletionStatus !== 'COMPLETE'}
                 isLoggedIn={isLoggedIn}
                 loginCtaText="Login to View Plans"
               />
               <PremiumPlanCard
                 title="Good Profile Package"
-                price={5500}
+                price={2}
                 gstRate={0.18}
                 billingText="One-time, 1 year validity"
                 features={[
@@ -458,15 +458,15 @@ export default function HomeClient() {
                 onActivate={isLoggedIn && userProfile?.profileCompletionStatus === 'COMPLETE'
                   ? () => handleBuyPackage('good_profile_package', 'Good Profile Package')
                   : undefined}
-                onInquire={() => setInquiryPackage('₹5,500 Good Profiles Package')}
-                whatsappMessage="Assalamu Alaikum, I am interested in the ₹5,500 Good Profiles Package on Rishte Forever. Please guide me."
+                onInquire={() => setInquiryPackage('₹2 Good Profiles Package')}
+                whatsappMessage="Assalamu Alaikum, I am interested in the ₹2 Good Profiles Package on Rishte Forever. Please guide me."
                 hidePrices={!isLoggedIn || userProfile?.profileCompletionStatus !== 'COMPLETE'}
                 isLoggedIn={isLoggedIn}
                 loginCtaText="Login to View Plans"
               />
               <PremiumPlanCard
                 title="Silver Plan"
-                price={11000}
+                price={3}
                 gstRate={0.18}
                 billingText="One-time, 1 year validity"
                 features={[
@@ -483,15 +483,15 @@ export default function HomeClient() {
                 onActivate={isLoggedIn && userProfile?.profileCompletionStatus === 'COMPLETE'
                   ? () => handleBuyPackage('second_marriage_package', 'Silver Plan')
                   : undefined}
-                onInquire={() => setInquiryPackage('₹11,000 Silver Plan')}
-                whatsappMessage="Assalamu Alaikum, I am interested in the ₹11,000 Silver Plan on Rishte Forever. Please guide me."
+                onInquire={() => setInquiryPackage('₹3 Silver Plan')}
+                whatsappMessage="Assalamu Alaikum, I am interested in the ₹3 Silver Plan on Rishte Forever. Please guide me."
                 hidePrices={!isLoggedIn || userProfile?.profileCompletionStatus !== 'COMPLETE'}
                 isLoggedIn={isLoggedIn}
                 loginCtaText="Login to View Plans"
               />
               <PremiumPlanCard
                 title="Gold Package"
-                price={21000}
+                price={4}
                 gstRate={0.18}
                 billingText="One-time, 1 year validity"
                 features={[
@@ -508,8 +508,8 @@ export default function HomeClient() {
                 onActivate={isLoggedIn && userProfile?.profileCompletionStatus === 'COMPLETE'
                   ? () => handleBuyPackage('high_profile_package', 'Gold Package')
                   : undefined}
-                onInquire={() => setInquiryPackage('₹21,000 Gold Package')}
-                whatsappMessage="Assalamu Alaikum, I am interested in the ₹21,000 Gold Package on Rishte Forever. Please guide me."
+                onInquire={() => setInquiryPackage('₹4 Gold Package')}
+                whatsappMessage="Assalamu Alaikum, I am interested in the ₹4 Gold Package on Rishte Forever. Please guide me."
                 hidePrices={!isLoggedIn || userProfile?.profileCompletionStatus !== 'COMPLETE'}
                 isLoggedIn={isLoggedIn}
                 loginCtaText="Login to View Plans"

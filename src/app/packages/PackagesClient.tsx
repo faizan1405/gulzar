@@ -29,7 +29,7 @@ interface PlanDef {
 const PLANS: PlanDef[] = [
   {
     title: 'Monthly Membership',
-    price: 300,
+    price: 1,
     gstRate: 0.18,
     billingText: 'Monthly billing',
     features: [
@@ -43,11 +43,11 @@ const PLANS: PlanDef[] = [
     imageUrl: '/images/monthly_active.png',
     ctaText: 'Start Monthly Membership',
     packageType: 'monthly_membership',
-    whatsappMessage: 'Assalamu Alaikum, I want to know more about the ₹300 monthly membership on Rishte Forever.',
+    whatsappMessage: 'Assalamu Alaikum, I want to know more about the ₹1 monthly membership on Rishte Forever.',
   },
   {
     title: 'Good Profile Package',
-    price: 5500,
+    price: 2,
     gstRate: 0.18,
     billingText: 'One-time, 1 year validity',
     features: [
@@ -61,11 +61,11 @@ const PLANS: PlanDef[] = [
     imageUrl: '/images/good_profile.png',
     ctaText: 'Choose Good Profile Package',
     packageType: 'good_profile_package',
-    whatsappMessage: 'Assalamu Alaikum, I am interested in the ₹5,500 Good Profiles Package on Rishte Forever. Please guide me.',
+    whatsappMessage: 'Assalamu Alaikum, I am interested in the ₹2 Good Profiles Package on Rishte Forever. Please guide me.',
   },
   {
     title: 'Silver Plan',
-    price: 11000,
+    price: 3,
     gstRate: 0.18,
     billingText: 'One-time, 1 year validity',
     features: [
@@ -80,11 +80,11 @@ const PLANS: PlanDef[] = [
     imageUrl: '/images/second_marriage.png',
     ctaText: 'Choose Silver Plan',
     packageType: 'second_marriage_package',
-    whatsappMessage: 'Assalamu Alaikum, I am interested in the ₹11,000 Silver Plan on Rishte Forever. Please guide me.',
+    whatsappMessage: 'Assalamu Alaikum, I am interested in the ₹3 Silver Plan on Rishte Forever. Please guide me.',
   },
   {
     title: 'Gold Package',
-    price: 21000,
+    price: 4,
     gstRate: 0.18,
     billingText: 'One-time, 1 year validity',
     features: [
@@ -99,7 +99,7 @@ const PLANS: PlanDef[] = [
     imageUrl: '/images/high_profile.png',
     ctaText: 'Choose Gold Package',
     packageType: 'high_profile_package',
-    whatsappMessage: 'Assalamu Alaikum, I am interested in the ₹21,000 Gold Package on Rishte Forever. Please guide me.',
+    whatsappMessage: 'Assalamu Alaikum, I am interested in the ₹4 Gold Package on Rishte Forever. Please guide me.',
   },
 ];
 

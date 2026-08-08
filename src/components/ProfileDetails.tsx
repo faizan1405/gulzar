@@ -65,16 +65,16 @@ export const ProfileDetails: React.FC = () => {
     modalUnlockText = 'Choose Package';
   } else if (isGoodProfile && !hasGoodProfileAccess) {
     modalBlur = true;
-    modalLockReason = 'Buy Good Profile Package for ₹5,500 to view these profiles.';
-    modalUnlockText = 'Buy Good Profile Package (₹5,500)';
+    modalLockReason = 'Buy Good Profile Package for ₹2 to view these profiles.';
+    modalUnlockText = 'Buy Good Profile Package (₹2)';
   } else if (isSecMarriage && !hasSecMarriageAccess) {
     modalBlur = true;
     modalLockReason = 'Second-Marriage Candidate. Access requires Silver Plan.';
-    modalUnlockText = 'Unlock Silver Plan (₹11,000)';
+    modalUnlockText = 'Unlock Silver Plan (₹3)';
   } else if (isHighProf && !hasHighProfAccess) {
     modalBlur = true;
     modalLockReason = 'High-Profile Match. Requires Gold Package & Admin eligibility approval.';
-    modalUnlockText = 'Unlock Gold Package (₹21,000)';
+    modalUnlockText = 'Unlock Gold Package (₹4)';
   }
 
   const handleUnlockClick = () => {

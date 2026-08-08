@@ -37,9 +37,9 @@ export const PREMIUM_PACKAGES: Record<PackageType, PackageDefinition> = {
   monthly_membership: {
     type: 'monthly_membership',
     name: 'Monthly Membership',
-    basePrice: 300,
+    basePrice: 1,
     gstRate: 0.18,
-    totalAmount: 354,
+    totalAmount: 2,
     billingType: 'MONTHLY',
     successFeeAmount: 0,
     benefits: [
@@ -52,11 +52,11 @@ export const PREMIUM_PACKAGES: Record<PackageType, PackageDefinition> = {
   good_profile_package: {
     type: 'good_profile_package',
     name: 'Good Profile Package',
-    basePrice: 5500,
+    basePrice: 2,
     gstRate: 0.18,
-    totalAmount: 6490,
+    totalAmount: 3,
     billingType: 'ONE_TIME',
-    successFeeAmount: 21000,
+    successFeeAmount: 0,
     benefits: [
       'Verified profile suggestions',
       'Basic matchmaking support',
@@ -67,9 +67,9 @@ export const PREMIUM_PACKAGES: Record<PackageType, PackageDefinition> = {
   second_marriage_package: {
     type: 'second_marriage_package',
     name: 'Silver Plan',
-    basePrice: 11000,
+    basePrice: 3,
     gstRate: 0.18,
-    totalAmount: 12980,
+    totalAmount: 4,
     billingType: 'ONE_TIME',
     successFeeAmount: 0,
     benefits: [
@@ -86,11 +86,11 @@ export const PREMIUM_PACKAGES: Record<PackageType, PackageDefinition> = {
   high_profile_package: {
     type: 'high_profile_package',
     name: 'Gold Package',
-    basePrice: 21000,
+    basePrice: 4,
     gstRate: 0.18,
-    totalAmount: 24780,
+    totalAmount: 5,
     billingType: 'ONE_TIME',
-    successFeeAmount: 25000,
+    successFeeAmount: 0,
     benefits: [
       'Everything in Silver Plan',
       'Premium verified profile suggestions',
