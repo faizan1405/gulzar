@@ -21,7 +21,7 @@ export default function MyAccountPage() {
   }, [isLoggedIn, authChecked]);
 
   const handleEditProfile = () => {
-    router.push('/register');
+    router.push('/register?edit=true');
   };
 
   if (!isLoggedIn) {

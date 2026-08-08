@@ -22,12 +22,13 @@ export default function RegisterPageClient() {
     if (!authChecked) return;
     if (!isLoggedIn) return;
     if (userProfile?.profileCompletionStatus === 'COMPLETE') {
-      const returnProfile = typeof window !== 'undefined'
-        ? new URLSearchParams(window.location.search).get('returnProfile')
-        : null;
-      const returnTo = typeof window !== 'undefined'
-        ? new URLSearchParams(window.location.search).get('returnTo')
-        : null;
+      // Allow editing if ?edit=true is in the URL
+      const searchParams = typeof window !== 'undefined'
+        ? new URLSearchParams(window.location.search)
+        : new URLSearchParams();
+      if (searchParams.get('edit') === 'true') return;
+      const returnProfile = searchParams.get('returnProfile');
+      const returnTo = searchParams.get('returnTo');
       if (returnProfile) {
         router.push(`/packages?returnProfile=${encodeURIComponent(returnProfile)}`);
       } else if (returnTo) {

@@ -146,7 +146,6 @@ const initialFormData = {
   noCastePreference: false,
   noMaslakPreference: false,
   willingToRelocate: false,
-  familyOrigin: '',
 };
 
 const SessionContext = createContext<SessionContextType | undefined>(undefined);
@@ -258,6 +257,48 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
   useEffect(() => {
     hasLoadedProfileRef.current = false;
   }, [reloadTrigger]);
+
+  // When an existing user opens the edit form, pre-populate fields
+  // from the saved profile so they can update instead of re-entering everything.
+  useEffect(() => {
+    if (!userProfile) return;
+    if (typeof window === 'undefined') return;
+    if (new URLSearchParams(window.location.search).get('edit') !== 'true') return;
+
+    const profile = userProfile;
+    setFormData({
+      fullName: profile.fullName || '',
+      gender: (profile.gender as 'Male' | 'Female') || 'Female',
+      dateOfBirth: (profile as { dateOfBirth?: string }).dateOfBirth || '',
+      maritalStatus: profile.maritalStatus || 'Single',
+      phoneNumber: profile.phoneNumber || '',
+      city: profile.city || '',
+      areaOrLocality: (profile as { areaOrLocality?: string }).areaOrLocality || '',
+      state: profile.state || '',
+      country: (profile as { country?: string }).country || 'India',
+      education: (profile as { education?: string }).education || '',
+      occupation: (profile as { occupation?: string }).occupation || '',
+      annualIncomeRange: (profile as { annualIncomeRange?: string }).annualIncomeRange || '₹3 LPA - ₹5 LPA',
+      familyInfo: (profile as { familyInfo?: string }).familyInfo || '',
+      bio: (profile as { bio?: string }).bio || '',
+      partnerPref: (profile as { partnerPref?: string }).partnerPref || '',
+      themeColor: 'emerald',
+      consent: false,
+      terms: false,
+      termsAccepted: true, // already accepted during initial registration
+      maslak: (profile as { maslak?: string }).maslak || '',
+      fiqh: (profile as { fiqh?: string }).fiqh || '',
+      biradari: (profile as { biradari?: string }).biradari || '',
+      district: (profile as { district?: string }).district || '',
+      locality: (profile as { locality?: string }).locality || '',
+      preferredLocations: (profile as { preferredLocations?: string[] }).preferredLocations || [],
+      sameCastePreference: !!(profile as { sameCastePreference?: boolean }).sameCastePreference,
+      sameMaslakPreference: !!(profile as { sameMaslakPreference?: boolean }).sameMaslakPreference,
+      noCastePreference: !!(profile as { noCastePreference?: boolean }).noCastePreference,
+      noMaslakPreference: !!(profile as { noMaslakPreference?: boolean }).noMaslakPreference,
+      willingToRelocate: !!(profile as { willingToRelocate?: boolean }).willingToRelocate,
+    });
+  }, [userProfile, setFormData]);
 
   // After a successful login, if the user has no complete profile yet,
   // auto-open the registration wizard so onboarding is seamless.
@@ -372,7 +413,6 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
             noCastePreference: data.profile.noCastePreference || false,
             noMaslakPreference: data.profile.noMaslakPreference || false,
             willingToRelocate: data.profile.willingToRelocate || false,
-            familyOrigin: data.profile.familyOrigin || '',
           });
           if (data.profile.profileCompletionStatus !== 'COMPLETE') {
             setIsRegistering(true);
@@ -520,6 +560,9 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
       if (pendingProfileId) {
         router.push(`/packages?returnProfile=${pendingProfileId}`);
         setPendingProfileId(null);
+      } else if (typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('edit') === 'true') {
+        // Coming from Edit Profile button — return to account page
+        router.push('/my-account');
       }
     } catch {
       setRegistrationError('Network error saving profile. Please check your connection and try again.');
