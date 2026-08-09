@@ -8,11 +8,12 @@ import { SectionHeading, PremiumFooter } from '../../components/NikahComponents'
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ROUTES } from '../../lib/routes';
-import { PACKAGE_DISPLAY } from '../../lib/packages';
 
 export default function MyAccountPage() {
   const { isLoggedIn, authChecked, userProfile, hasPaid300, setIsRegistering, setRegStep, activePackages } = useSession();
   const router = useRouter();
+
+  const hasAnyPackage = activePackages.length > 0 || hasPaid300;
 
   useEffect(() => {
     if (!authChecked) return;
@@ -22,7 +23,7 @@ export default function MyAccountPage() {
   }, [isLoggedIn, authChecked]);
 
   const handleEditProfile = () => {
-    router.push('/register?edit=true');
+    router.push('/my-account/edit-profile');
   };
 
   if (!isLoggedIn) {
@@ -157,7 +158,7 @@ export default function MyAccountPage() {
               position: 'relative',
               overflow: 'hidden'
             }}>
-              {hasPaid300 && (
+              {hasAnyPackage && (
                 <div style={{
                   position: 'absolute',
                   top: 0, right: 0,
@@ -170,13 +171,21 @@ export default function MyAccountPage() {
                 }}>PREMIUM</div>
               )}
               <h3 style={{ fontSize: '20px', color: 'var(--primary-dark)', marginBottom: '16px' }}>Membership</h3>
-              
+
               <div style={{ marginBottom: '24px' }}>
                 <p style={{ color: 'var(--text-secondary)', marginBottom: '8px' }}>Active Subscription</p>
-                <div style={{ fontSize: '18px', fontWeight: 600, color: hasPaid300 || activePackages.length > 0 ? 'var(--primary-brand)' : 'var(--text-primary)' }}>
+                <div style={{ fontSize: '18px', fontWeight: 600, color: hasAnyPackage ? 'var(--primary-brand)' : 'var(--text-primary)' }}>
                   {activePackages.length > 0
                     ? activePackages
-                        .map((key) => PACKAGE_DISPLAY[key] || key.replace(/_/g, ' '))
+                        .map((key) => {
+                          const map: Record<string, string> = {
+                            monthly_membership: 'Monthly Membership',
+                            good_profile_package: 'Good Profile Package',
+                            second_marriage_package: 'Silver Plan',
+                            high_profile_package: 'Gold Package',
+                          };
+                          return map[key] || key.replace(/_/g, ' ');
+                        })
                         .join(', ')
                     : hasPaid300
                       ? 'Monthly Membership'
@@ -188,16 +197,24 @@ export default function MyAccountPage() {
                 <div style={{ marginBottom: '24px', backgroundColor: '#fdfbf7', padding: '16px', borderRadius: '8px', border: '1px solid var(--gold-accent)' }}>
                   <p style={{ color: 'var(--text-secondary)', marginBottom: '8px', fontWeight: 'bold' }}>Premium Packages</p>
                   <ul style={{ listStyleType: 'disc', paddingLeft: '20px', fontSize: '15px', color: 'var(--primary-dark)' }}>
-                    {activePackages.map((pkg) => (
-                      <li key={pkg} style={{ textTransform: 'capitalize' }}>
-                        {pkg.replace(/_/g, ' ')}
-                      </li>
-                    ))}
+                    {activePackages.map((pkg) => {
+                      const map: Record<string, string> = {
+                        monthly_membership: 'Monthly Membership',
+                        good_profile_package: 'Good Profile Package',
+                        second_marriage_package: 'Silver Plan',
+                        high_profile_package: 'Gold Package',
+                      };
+                      return (
+                        <li key={pkg} style={{ textTransform: 'capitalize' }}>
+                          {map[pkg] || pkg.replace(/_/g, ' ')}
+                        </li>
+                      );
+                    })}
                   </ul>
                 </div>
               )}
 
-              {!hasPaid300 && (
+              {!hasAnyPackage && (
                 <div style={{ backgroundColor: 'var(--cream-bg)', padding: '16px', borderRadius: '8px', marginBottom: '16px' }}>
                   <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '12px' }}>
                     Unlock full profiles, photos, and direct contact numbers by upgrading to a premium membership.
@@ -207,8 +224,8 @@ export default function MyAccountPage() {
                   </Link>
                 </div>
               )}
-              
-              {hasPaid300 && (
+
+              {hasAnyPackage && (
                 <p style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
                   Your subscription is active. You can browse all standard verified profiles and view their contact details.
                 </p>

@@ -46,9 +46,19 @@ function isActivePaid(pkg: PackageType, purchases: MinimalPurchase[]): boolean {
 }
 
 function isEligibleForPremiumPackage(pkg: PackageType, purchases: MinimalPurchase[]): boolean {
-  if (pkg !== 'good_profile_package' && pkg !== 'high_profile_package') return true;
+  if (pkg === 'monthly_membership' || pkg === 'second_marriage_package') return true;
+  // good_profile_package only needs approval (default APPROVED at creation).
+  if (pkg === 'good_profile_package') {
+    return purchases.some(p =>
+      p.packageType === 'good_profile_package' &&
+      p.eligibilityStatus === ApprovalStatus.APPROVED &&
+      p.paymentStatus === PaymentStatus.PAID &&
+      p.accessStatus === 'ACTIVE'
+    );
+  }
+  // high_profile_package needs approval AND marriage confirmation (success fee flow).
   return purchases.some(p =>
-    p.packageType === pkg &&
+    p.packageType === 'high_profile_package' &&
     p.eligibilityStatus === ApprovalStatus.APPROVED &&
     p.marriageConfirmation === 'CONFIRMED' &&
     p.paymentStatus === PaymentStatus.PAID &&
@@ -74,11 +84,17 @@ export function getViewerPackageAccess(
   viewerProfile: { hasPaid: boolean; id?: string } | null,
   purchases: MinimalPurchase[]
 ) {
-  const hasMonthly = (viewerProfile?.hasPaid ?? false) || isActivePaid('monthly_membership', purchases);
-  const hasGoodProfile = isEligibleForPremiumPackage('good_profile_package', purchases);
-  const hasSecondMarriage = isActivePaid('second_marriage_package', purchases);
-  const hasHighProfile = isActivePaid('high_profile_package', purchases) &&
-    isEligibleForPremiumPackage('high_profile_package', purchases);
+  const now = new Date();
+  const active = purchases.filter(p =>
+    p.paymentStatus === PaymentStatus.PAID &&
+    p.accessStatus === 'ACTIVE' &&
+    (p.expiryDate == null || new Date(p.expiryDate) > now)
+  );
+
+  const hasMonthly = (viewerProfile?.hasPaid ?? false) || active.some(p => p.packageType === 'monthly_membership');
+  const hasGoodProfile = isEligibleForPremiumPackage('good_profile_package', active);
+  const hasSecondMarriage = isEligibleForPremiumPackage('second_marriage_package', active);
+  const hasHighProfile = isEligibleForPremiumPackage('high_profile_package', active);
 
   return {
     hasStandard: hasMonthly,

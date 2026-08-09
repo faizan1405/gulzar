@@ -40,6 +40,14 @@ export {
   upsertProfile,
   markUserAsPaid,
   updateProfileImage,
+  patchProfile,
+  calculateProfileCompletion,
+} from './profileQueries';
+
+export type {
+  ProfilePatch,
+  CompletionSection,
+  CompletionResult,
 } from './profileQueries';
 
 export {

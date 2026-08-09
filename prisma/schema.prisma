@@ -30,39 +30,39 @@ enum VerificationStatus {
 }
 
 model User {
-  id                        String            @id @default(auto()) @map("_id") @db.ObjectId
-  name                      String?
-  email                     String?           @unique
-  emailVerified             DateTime?
-  image                     String?
-  role                      Role              @default(USER)
-  accountStatus             AccountStatus     @default(ACTIVE)
-  passwordHash              String?
-  requiresPasswordChange    Boolean           @default(false)
-  tokenVersion              Int               @default(1) // Incremented to invalidate existing sessions
-  accounts                  Account[]
-  sessions                  Session[]
-  profile                   MatrimonialProfile?
-  auditLogs                 AuditLog[]        @relation("ActorUser")
-  assignedRequests          VerificationRequest[] @relation("AdminRequests")
-  notifications             Notification[]
-  createdAt                 DateTime          @default(now())
-  updatedAt                 DateTime          @updatedAt
+  id                     String                @id @default(auto()) @map("_id") @db.ObjectId
+  name                   String?
+  email                  String?               @unique
+  emailVerified          DateTime?
+  image                  String?
+  role                   Role                  @default(USER)
+  accountStatus          AccountStatus         @default(ACTIVE)
+  passwordHash           String?
+  requiresPasswordChange Boolean               @default(false)
+  tokenVersion           Int                   @default(1) // Incremented to invalidate existing sessions
+  accounts               Account[]
+  sessions               Session[]
+  profile                MatrimonialProfile?
+  auditLogs              AuditLog[]            @relation("ActorUser")
+  assignedRequests       VerificationRequest[] @relation("AdminRequests")
+  notifications          Notification[]
+  createdAt              DateTime              @default(now())
+  updatedAt              DateTime              @updatedAt
 }
 
 model Account {
-  id                 String  @id @default(auto()) @map("_id") @db.ObjectId
-  userId             String  @db.ObjectId
-  type               String
-  provider           String
-  providerAccountId  String
-  refresh_token      String? @db.String
-  access_token       String? @db.String
-  expires_at         Int?
-  token_type         String?
-  scope              String?
-  id_token           String? @db.String
-  session_state      String?
+  id                String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId            String  @db.ObjectId
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.String
+  access_token      String? @db.String
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.String
+  session_state     String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -104,50 +104,111 @@ model MatrimonialProfile {
   education               String
   occupation              String
   annualIncomeRange       String
-  familyInfo              String                  // Semi-structured text / basic info
+  familyInfo              String // Semi-structured text / basic info
   bio                     String
   themeColor              String                  @default("hsl(150, 45%, 18%)") // Default emerald
   verificationStatus      VerificationStatus      @default(PENDING)
   profileCompletionStatus ProfileCompletionStatus @default(INCOMPLETE)
   adminApprovalStatus     String                  @default("PENDING") // PENDING, APPROVED, REJECTED
   hasPaid                 Boolean                 @default(false)
-  
+
+  // ---- Extended optional fields ----
+
+  // Personal
+  height       String?
+  motherTongue String?
+  languages    String[] @default([])
+  aboutMe      String?
+
+  // Location (extended)
+  nativePlace     String?
+  currentLocation String?
+
+  // Education (extended)
+  highestQualification String?
+  degree               String?
+  college              String?
+  certifications       String?
+
+  // Career (extended)
+  jobTitle       String?
+  company        String?
+  industry       String?
+  workLocation   String?
+  employmentType String?
+  careerDetails  String?
+
+  // Lifestyle
+  foodPreference String?
+  smoking        String? // Never, Occasionally, Regularly
+  drinking       String?
+  hobbies        String[]
+  interests      String?
+  sports         String?
+  fitness        String?
+  travel         String?
+
+  // Family
+  fatherOccupation String?
+  motherOccupation String?
+  siblings         String?
+  familyType       String?
+  familyValues     String?
+  familyBackground String?
+
+  // Partner Preferences
+  partnerAgeMin             Int?
+  partnerAgeMax             Int?
+  partnerHeightMin          String?
+  partnerHeightMax          String?
+  partnerPreferredLocations String[] @default([])
+  partnerEducationPref      String?
+  partnerProfessionPref     String?
+  partnerBiradariPref       String?
+  partnerMaritalStatusPref  String?
+  partnerLifestylePref      String?
+  partnerExpectations       String?
+  partnerOtherPrefs         String?
+
+  // Photos
+  additionalPhotoUrls String[] @default([])
+
   // New Matrimonial Identity Fields
-  maslak                  String?
-  fiqh                    String?
-  biradari                String?
-  biradariAliases         String[]
-  district                String?
-  locality                String?
-  preferredLocations      String[]
-  sameCastePreference     Boolean                 @default(false)
-  sameMaslakPreference    Boolean                 @default(false)
-  noCastePreference       Boolean                 @default(false)
-  noMaslakPreference      Boolean                 @default(false)
-  willingToRelocate       Boolean                 @default(false)
-  category                String                  @default("normal")
-  partnerPref             String?
+  maslak               String?
+  fiqh                 String?
+  biradari             String?
+  biradariAliases      String[]
+  district             String?
+  locality             String?
+  preferredLocations   String[]
+  sameCastePreference  Boolean  @default(false)
+  sameMaslakPreference Boolean  @default(false)
+  noCastePreference    Boolean  @default(false)
+  noMaslakPreference   Boolean  @default(false)
+  willingToRelocate    Boolean  @default(false)
+  category             String   @default("normal")
+  partnerPref          String?
 
   // Profile Media
-  profileImageUrl         String?
-  profileImagePublicId    String?
-  profileImageStatus      ApprovalStatus          @default(PENDING)
-  uploadedAt              DateTime?
+  profileImageUrl      String?
+  profileImagePublicId String?
+  profileImageStatus   ApprovalStatus @default(PENDING)
+  uploadedAt           DateTime?
 
-  verificationRequests    VerificationRequest[]
-  purchases               PackagePurchase[]
-  buyerLeads              CuratedLeadAssignment[] @relation("BuyerLeads")
-  assignedLeads           CuratedLeadAssignment[] @relation("AssignedLeads")
-  
-  profileViewsViewed      ProfileView[]           @relation("Viewed")
-  profileViewsViewer      ProfileView[]           @relation("Viewer")
-  shortlistsGiven         Shortlist[]             @relation("ShortlistedBy")
-  shortlistsReceived      Shortlist[]             @relation("Shortlisted")
-  sentInterests           InterestRequest[]       @relation("SentInterests")
-  receivedInterests       InterestRequest[]       @relation("ReceivedInterests")
+  verificationRequests VerificationRequest[]
+  purchases            PackagePurchase[]
+  buyerLeads           CuratedLeadAssignment[] @relation("BuyerLeads")
+  assignedLeads        CuratedLeadAssignment[] @relation("AssignedLeads")
 
-  createdAt               DateTime                @default(now())
-  updatedAt               DateTime                @updatedAt
+  profileViewsViewed ProfileView[]     @relation("Viewed")
+  profileViewsViewer ProfileView[]     @relation("Viewer")
+  shortlistsGiven    Shortlist[]       @relation("ShortlistedBy")
+  shortlistsReceived Shortlist[]       @relation("Shortlisted")
+  sentInterests      InterestRequest[] @relation("SentInterests")
+  receivedInterests  InterestRequest[] @relation("ReceivedInterests")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model MaslakOption {
@@ -181,7 +242,6 @@ model LocationOption {
   @@unique([state, district, locality])
 }
 
-
 enum PackageType {
   monthly_membership
   good_profile_package
@@ -209,16 +269,16 @@ model PackagePurchase {
   basePrice               Float
   gstRate                 Float              @default(0.18)
   totalAmount             Float
-  billingType             String             // "MONTHLY" or "ONE_TIME"
+  billingType             String // "MONTHLY" or "ONE_TIME"
   successFeeAmount        Float              @default(0)
-  paymentReferenceId String?
-  userSubmittedTxnId String?
-  upiTransactionId   String?
-  razorpayOrderId    String?             // Razorpay order ID for online payments
-  paymentMode        String             @default("UPI")
+  paymentReferenceId      String?
+  userSubmittedTxnId      String?
+  upiTransactionId        String?
+  razorpayOrderId         String? // Razorpay order ID for online payments
+  paymentMode             String             @default("UPI")
   paymentStatus           PaymentStatus      @default(PENDING)
   purchaseDate            DateTime           @default(now())
-  expiryDate              DateTime?          // For monthly memberships
+  expiryDate              DateTime? // For monthly memberships
   accessStatus            String             @default("ACTIVE") // "ACTIVE", "EXPIRED", "REVOKED"
   eligibilityStatus       ApprovalStatus     @default(APPROVED) // PENDING, APPROVED, REJECTED (Specifically for HIGH_PROFILE)
   marriageConfirmation    String             @default("PENDING") // PENDING, CONFIRMED
@@ -232,14 +292,14 @@ model PackagePurchase {
 }
 
 model CuratedLeadAssignment {
-  id              String             @id @default(auto()) @map("_id") @db.ObjectId
-  buyerProfileId  String             @db.ObjectId
-  buyerProfile    MatrimonialProfile @relation("BuyerLeads", fields: [buyerProfileId], references: [id], onDelete: Cascade)
-  leadProfileId   String             @db.ObjectId
-  leadProfile     MatrimonialProfile @relation("AssignedLeads", fields: [leadProfileId], references: [id], onDelete: Cascade)
-  status          String             @default("PENDING") // "PENDING", "CONTACTED", "INTERESTED", "DECLINED", "MARRIED"
-  assignedAt      DateTime           @default(now())
-  updatedAt       DateTime           @updatedAt
+  id             String             @id @default(auto()) @map("_id") @db.ObjectId
+  buyerProfileId String             @db.ObjectId
+  buyerProfile   MatrimonialProfile @relation("BuyerLeads", fields: [buyerProfileId], references: [id], onDelete: Cascade)
+  leadProfileId  String             @db.ObjectId
+  leadProfile    MatrimonialProfile @relation("AssignedLeads", fields: [leadProfileId], references: [id], onDelete: Cascade)
+  status         String             @default("PENDING") // "PENDING", "CONTACTED", "INTERESTED", "DECLINED", "MARRIED"
+  assignedAt     DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
 
   @@unique([buyerProfileId, leadProfileId])
   @@index([status, assignedAt])
@@ -252,7 +312,7 @@ model VerificationRequest {
   status          VerificationStatus @default(PENDING)
   assignedAdminId String?            @db.ObjectId
   assignedAdmin   User?              @relation("AdminRequests", fields: [assignedAdminId], references: [id], onDelete: SetNull)
-  notes           String?            // Internal phone call notes
+  notes           String? // Internal phone call notes
   verifiedAt      DateTime?
   createdAt       DateTime           @default(now())
   updatedAt       DateTime           @updatedAt
@@ -264,30 +324,30 @@ model AuditLog {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
   actorUserId String?  @db.ObjectId
   actorUser   User?    @relation("ActorUser", fields: [actorUserId], references: [id], onDelete: SetNull)
-  action      String   // e.g. "VERIFICATION_STATUS_CHANGE"
-  targetType  String   // e.g. "MatrimonialProfile"
+  action      String // e.g. "VERIFICATION_STATUS_CHANGE"
+  targetType  String // e.g. "MatrimonialProfile"
   targetId    String?
-  metadata    String?  // Safe stringified JSON metadata
+  metadata    String? // Safe stringified JSON metadata
   createdAt   DateTime @default(now())
 
   @@index([actorUserId, createdAt])
 }
 
 model RateLimitEntry {
-  id         String   @id @map("_id")
+  id          String   @id @map("_id")
   windowStart DateTime @default(now())
-  count      Int      @default(1)
+  count       Int      @default(1)
 
   @@index([windowStart])
 }
 
 model NotificationLog {
   id               String   @id @default(auto()) @map("_id") @db.ObjectId
-  type             String   // e.g., "REGISTRATION_USER_EMAIL", "ADMIN_NEW_PROFILE_ALERT"
-  channel          String   // e.g., "EMAIL", "SMS"
-  recipientMasked  String   // e.g., "j***@gmail.com" or "+91 98****1234"
-  status           String   // "SUCCESS", "FAILED"
-  providerResponse String?  // Optional provider response ID or error message
+  type             String // e.g., "REGISTRATION_USER_EMAIL", "ADMIN_NEW_PROFILE_ALERT"
+  channel          String // e.g., "EMAIL", "SMS"
+  recipientMasked  String // e.g., "j***@gmail.com" or "+91 98****1234"
+  status           String // "SUCCESS", "FAILED"
+  providerResponse String? // Optional provider response ID or error message
   createdAt        DateTime @default(now())
 }
 
@@ -315,7 +375,7 @@ model Lead {
   email               String?
   city                String
   message             String?
-  inquiryType         String   // "general", "package", "profile_help", "verification_help", "callback", "other"
+  inquiryType         String // "general", "package", "profile_help", "verification_help", "callback", "other"
   interestedPackage   String?
   interestedProfileId String?
   sourcePage          String?
@@ -343,12 +403,12 @@ model ProfileView {
 }
 
 model Shortlist {
-  id              String             @id @default(auto()) @map("_id") @db.ObjectId
-  userId          String             @db.ObjectId
-  user            MatrimonialProfile @relation("ShortlistedBy", fields: [userId], references: [id], onDelete: Cascade)
-  profileId       String             @db.ObjectId
-  profile         MatrimonialProfile @relation("Shortlisted", fields: [profileId], references: [id], onDelete: Cascade)
-  createdAt       DateTime           @default(now())
+  id        String             @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String             @db.ObjectId
+  user      MatrimonialProfile @relation("ShortlistedBy", fields: [userId], references: [id], onDelete: Cascade)
+  profileId String             @db.ObjectId
+  profile   MatrimonialProfile @relation("Shortlisted", fields: [profileId], references: [id], onDelete: Cascade)
+  createdAt DateTime           @default(now())
 
   @@unique([userId, profileId])
   @@index([userId, createdAt])
@@ -362,34 +422,34 @@ enum InterestStatus {
 }
 
 model InterestRequest {
-  id              String             @id @default(auto()) @map("_id") @db.ObjectId
-  senderId        String             @db.ObjectId
-  sender          MatrimonialProfile @relation("SentInterests", fields: [senderId], references: [id], onDelete: Cascade)
-  receiverId      String             @db.ObjectId
-  receiver        MatrimonialProfile @relation("ReceivedInterests", fields: [receiverId], references: [id], onDelete: Cascade)
-  status          InterestStatus     @default(PENDING)
-  message         String?
-  createdAt       DateTime           @default(now())
-  updatedAt       DateTime           @updatedAt
-  respondedAt     DateTime?
-  withdrawnAt     DateTime?
+  id          String             @id @default(auto()) @map("_id") @db.ObjectId
+  senderId    String             @db.ObjectId
+  sender      MatrimonialProfile @relation("SentInterests", fields: [senderId], references: [id], onDelete: Cascade)
+  receiverId  String             @db.ObjectId
+  receiver    MatrimonialProfile @relation("ReceivedInterests", fields: [receiverId], references: [id], onDelete: Cascade)
+  status      InterestStatus     @default(PENDING)
+  message     String?
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  respondedAt DateTime?
+  withdrawnAt DateTime?
 
   @@unique([senderId, receiverId])
   @@index([receiverId, updatedAt])
 }
 
 model Notification {
-  id              String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId          String   @db.ObjectId
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  type            String   // e.g., INTEREST_RECEIVED, PROFILE_APPROVED, etc.
+  id              String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId          String    @db.ObjectId
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type            String // e.g., INTEREST_RECEIVED, PROFILE_APPROVED, etc.
   title           String
   message         String
   actionUrl       String?
-  relatedItemType String?  // e.g., InterestRequest
-  relatedItemId   String?  @db.ObjectId
-  isRead          Boolean  @default(false)
-  createdAt       DateTime @default(now())
+  relatedItemType String? // e.g., InterestRequest
+  relatedItemId   String?   @db.ObjectId
+  isRead          Boolean   @default(false)
+  createdAt       DateTime  @default(now())
   readAt          DateTime?
   expiresAt       DateTime?
 

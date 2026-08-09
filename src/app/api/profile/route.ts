@@ -1,6 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
-import { getProfileByUserId, getUserPurchases, testDbConnection, getValidObjectId, upsertProfile } from '@/lib/profileStore';
+import {
+  getProfileByUserId,
+  getUserPurchases,
+  testDbConnection,
+  getValidObjectId,
+  upsertProfile,
+  patchProfile,
+  calculateProfileCompletion,
+} from '@/lib/profileStore';
 import { prisma } from '@/lib/db';
 import { redactProfile } from '@/lib/profilePrivacy';
 import { notifyRegistration, notifyAdminNewProfile } from '@/lib/notifications';
@@ -231,3 +239,53 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Internal server error.' }, { status: 500 });
   }
 }
+
+// ------------------------------------------------------------------ //
+// PATCH — partial update (Edit Profile)                               //
+// Only updates fields sent in the body; recalculates completion %      //
+// ------------------------------------------------------------------ //
+export async function PATCH(req: NextRequest) {
+  try {
+    const jwtResult = await safeJsonBody(req, { maxSizeKB: 50 });
+    if (jwtResult instanceof Response) return jwtResult;
+
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const rate = await checkRateLimit(`profile:${session.user.id}:patch`, 10, 60_000);
+    if (!rate.allowed) {
+      return NextResponse.json({ error: 'Too many requests.' }, { status: 429, headers: buildRateLimitHeaders(rate) });
+    }
+
+    const patchData = jwtResult as any;
+    if (patchData._honey) return NextResponse.json({ success: true });
+
+    const patched = await patchProfile(session.user.id, patchData as any);
+    if (!patched) {
+      return NextResponse.json({ error: 'Profile not found. Please create a profile first.' }, { status: 404 });
+    }
+
+    // Recalculate completion percentage
+    const completion = calculateProfileCompletion(patched as unknown as Record<string, unknown>);
+    try {
+      const dbUserId = getValidObjectId(session.user.id);
+      if (dbUserId) {
+        await prisma.matrimonialProfile.update({
+          where: { userId: dbUserId },
+          data: { profileCompletionStatus: completion.percent >= 80 ? 'COMPLETE' : 'INCOMPLETE' },
+        });
+        (patched as any).profileCompletionStatus = completion.percent >= 80 ? 'COMPLETE' : 'INCOMPLETE';
+      }
+    } catch {
+      // Non-critical: completion status update failed but profile was patched
+    }
+
+    return NextResponse.json({ success: true, profile: patched, completion });
+  } catch (err) {
+    console.error('PATCH profile failed:', err);
+    return NextResponse.json({ error: 'Internal server error.' }, { status: 500 });
+  }
+}
+

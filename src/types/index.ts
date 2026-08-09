@@ -23,6 +23,51 @@ export interface Profile {
   updatedAt?: string | Date;
   uploadedAt?: Date | string | null;
 
+  // Extended optional fields
+  height?: string | null;
+  motherTongue?: string | null;
+  languages?: string[];
+  aboutMe?: string | null;
+  nativePlace?: string | null;
+  currentLocation?: string | null;
+  highestQualification?: string | null;
+  degree?: string | null;
+  college?: string | null;
+  certifications?: string;
+  jobTitle?: string | null;
+  company?: string | null;
+  industry?: string | null;
+  workLocation?: string | null;
+  employmentType?: string | null;
+  careerDetails?: string | null;
+  foodPreference?: string | null;
+  smoking?: string | null;
+  drinking?: string | null;
+  hobbies?: string[];
+  interests?: string | null;
+  sports?: string | null;
+  fitness?: string | null;
+  travel?: string | null;
+  fatherOccupation?: string | null;
+  motherOccupation?: string | null;
+  siblings?: string | null;
+  familyType?: string | null;
+  familyValues?: string | null;
+  familyBackground?: string | null;
+  partnerAgeMin?: number | null;
+  partnerAgeMax?: number | null;
+  partnerHeightMin?: string | null;
+  partnerHeightMax?: string | null;
+  partnerPreferredLocations?: string[];
+  partnerEducationPref?: string | null;
+  partnerProfessionPref?: string | null;
+  partnerBiradariPref?: string | null;
+  partnerMaritalStatusPref?: string | null;
+  partnerLifestylePref?: string | null;
+  partnerExpectations?: string | null;
+  partnerOtherPrefs?: string | null;
+  additionalPhotoUrls?: string[];
+
   // New Matrimonial Identity Fields
   maslak: string | null;
   fiqh: string | null;
@@ -36,7 +81,7 @@ export interface Profile {
   noCastePreference?: boolean;
   noMaslakPreference?: boolean;
   willingToRelocate?: boolean;
-  familyOrigin?: string; // e.g. "UP / Bihar", "Hyderabad", etc.
+  familyOrigin?: string;
 
   // Media
   profileImageUrl?: string | null;

@@ -85,7 +85,7 @@ export function redactProfile(
   const isAuthorizedForSecondMarriage = isOwner || isAdmin || viewerHasSecondMarriagePkg;
   const isAuthorizedForHighProfile = isOwner || isAdmin || viewerHasHighProfilePkg;
   const isAuthorizedForStandard = isOwner || isAdmin || viewerHasStandardPkg;
-  const isAuthorizedForGoodProfile = isOwner || isAdmin || (viewerHasStandardPkg && viewerHasGoodProfilePkg);
+  const isAuthorizedForGoodProfile = isOwner || isAdmin || viewerHasGoodProfilePkg;
 
   // Fields kept visible on a locked card so the directory stays useful for
   // filtering (community/location) WITHOUT leaking identity or contact details.
