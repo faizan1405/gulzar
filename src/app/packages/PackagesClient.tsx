@@ -221,7 +221,7 @@ export default function PackagesClient() {
               </div>
             )}
 
-            <div className="packages-grid">
+            <div className="packages-grid packages-responsive-grid">
               {PLANS.map((plan) => (
                 <PremiumPlanCard
                   key={plan.packageType}

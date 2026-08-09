@@ -29,6 +29,11 @@ export const metadata: Metadata = {
   openGraph: {
     images: [{ url: "/images/rishte-forever-logo.png", width: 900, height: 340 }],
   },
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 5,
+  },
 };
 
 export default function RootLayout({

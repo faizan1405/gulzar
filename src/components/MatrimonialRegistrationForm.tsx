@@ -45,7 +45,7 @@ export default function MatrimonialRegistrationForm({
         <form onSubmit={(e) => void handleRegisterSubmit(e)}>
           {/* Personal Information */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+            <div className="form-grid-2">
               <div className="form-group">
                 <label className="form-label">Full Name *</label>
                 <input
@@ -71,7 +71,7 @@ export default function MatrimonialRegistrationForm({
               </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+            <div className="form-grid-2">
               <div className="form-group">
                 <label className="form-label">Date of Birth *</label>
                 <input
@@ -110,7 +110,7 @@ export default function MatrimonialRegistrationForm({
             </div>
 
             {/* Location */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+            <div className="form-grid-2">
               <div className="form-group">
                 <label className="form-label">State *</label>
                 <input
@@ -159,7 +159,7 @@ export default function MatrimonialRegistrationForm({
             </div>
 
             {/* Education & Occupation */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+            <div className="form-grid-2">
               <div className="form-group">
                 <label className="form-label">Education</label>
                 <input

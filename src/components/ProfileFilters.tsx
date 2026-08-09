@@ -64,7 +64,7 @@ export const ProfileFilters: React.FC<ProfileFiltersProps> = ({
   return (
     <div className="search-panel font-sans" style={{ backgroundColor: 'var(--white)', border: '1px solid var(--border-color)', borderRadius: 'var(--border-radius-lg)', padding: '24px', marginBottom: '40px', boxShadow: 'var(--shadow-premium)' }}>
       {/* Primary Filters Row */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '20px', alignItems: 'flex-end', marginBottom: '24px' }}>
+      <div className="search-panel-grid" style={{ marginBottom: '20px' }}>
         <div>
           <label className="form-label" htmlFor="search-gender-select">Preference / Gender</label>
           <select
@@ -110,7 +110,7 @@ export const ProfileFilters: React.FC<ProfileFiltersProps> = ({
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '20px', alignItems: 'flex-end' }}>
+      <div className="search-panel-grid">
         <div>
           <label className="form-label">State</label>
           <select

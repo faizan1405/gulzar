@@ -140,7 +140,7 @@ export const ProfileDetails: React.FC = () => {
                 </div>
               </div>
 
-              <div className="modal-details-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+              <div className="modal-details-grid" style={{ gap: '20px' }}>
                 <div style={{ gridColumn: 'span 2', borderTop: '1px solid var(--border-color)', paddingTop: '16px' }}>
                   <strong style={{ color: 'var(--deep-maroon)', display: 'block', marginBottom: '4px' }}>Personal Bio & Values</strong>
                   <p style={{ color: 'var(--text-dark)', lineHeight: '1.6' }}>

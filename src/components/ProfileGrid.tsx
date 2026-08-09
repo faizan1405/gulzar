@@ -33,10 +33,10 @@ export const ProfileGrid: React.FC<ProfileGridProps> = ({ filteredProfiles, isFi
       // Show a friendly placeholder instead of a filter-specific error.
       return (
         <div style={{
-          maxWidth: '520px',
+          maxWidth: 'min(520px, 100%)',
           margin: '60px auto',
           textAlign: 'center',
-          padding: '52px 32px',
+          padding: '52px 24px',
           background: 'var(--white)',
           borderRadius: '20px',
           border: '1px solid rgba(184,146,74,0.15)',
@@ -80,10 +80,10 @@ export const ProfileGrid: React.FC<ProfileGridProps> = ({ filteredProfiles, isFi
     // Filters are active but no profiles match — show the actionable empty state.
     return (
       <div style={{
-        maxWidth: '520px',
+        maxWidth: 'min(520px, 100%)',
         margin: '60px auto',
         textAlign: 'center',
-        padding: '52px 32px',
+        padding: 'clamp(28px, 6vw, 52px) clamp(20px, 4vw, 32px)',
         background: 'var(--white)',
         borderRadius: '20px',
         border: '1px solid rgba(184,146,74,0.15)',
@@ -141,7 +141,7 @@ export const ProfileGrid: React.FC<ProfileGridProps> = ({ filteredProfiles, isFi
   }
 
   return (
-    <div className="grid-3" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '32px' }}>
+    <div className="grid-3" style={{ gap: '32px' }}>
       {filteredProfiles.map((profile, idx) => (
         <ProfileCard
           key={profile.id}
