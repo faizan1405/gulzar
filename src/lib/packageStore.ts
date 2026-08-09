@@ -181,7 +181,7 @@ export function verifyPackagePurchase(orderId: string, paymentId: string) {
  * Does NOT mark the purchase as PAID. Admin must confirm.
  */
 export async function submitUserPaymentClaim(
-  referenceId: string,
+  purchaseId: string,
   userSubmittedTxnId: string | null,
   submittedPhone: string | null,
   submittedName: string | null
@@ -194,9 +194,19 @@ export async function submitUserPaymentClaim(
 
   if (isDb) {
     try {
-      const purchase = await prisma.packagePurchase.findFirst({
-        where: { paymentReferenceId: referenceId },
-      });
+      // Try direct id lookup first (frontend sends the MongoDB _id).
+      const byId = getValidObjectId(purchaseId);
+      let purchase = byId
+        ? await prisma.packagePurchase.findUnique({ where: { id: byId } })
+        : null;
+
+      // Fallback to paymentReferenceId if direct id lookup fails.
+      if (!purchase) {
+        purchase = await prisma.packagePurchase.findFirst({
+          where: { paymentReferenceId: purchaseId },
+        });
+      }
+
       if (!purchase) return null;
 
       const updatedPurchase = await prisma.packagePurchase.update({
@@ -213,7 +223,7 @@ export async function submitUserPaymentClaim(
           action: `PAYMENT_CLAIM_SUBMITTED_${purchase.packageType}`,
           targetType: 'PackagePurchase',
           targetId: purchase.id,
-          metadata: JSON.stringify({ referenceId, userSubmittedTxnId }),
+          metadata: JSON.stringify({ purchaseId, userSubmittedTxnId }),
         },
       });
 
@@ -230,7 +240,7 @@ export async function submitUserPaymentClaim(
   }
 
   // Fallback
-  const purchase = inMemoryPurchases?.find((p) => p.paymentReferenceId === referenceId);
+  const purchase = inMemoryPurchases?.find((p) => p.id === purchaseId || p.paymentReferenceId === purchaseId);
   if (purchase) {
     purchase.userSubmittedTxnId = userSubmittedTxnId;
     purchase.internalNotes = updatedNotes;
@@ -242,7 +252,7 @@ export async function submitUserPaymentClaim(
       action: `PAYMENT_CLAIM_SUBMITTED_${purchase.packageType}`,
       targetType: 'PackagePurchase',
       targetId: purchase.id,
-      metadata: JSON.stringify({ referenceId, userSubmittedTxnId }),
+      metadata: JSON.stringify({ purchaseId, userSubmittedTxnId }),
       createdAt: new Date(),
     });
   }
