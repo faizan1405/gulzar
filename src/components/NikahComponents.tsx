@@ -310,12 +310,6 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
             >
               {isLoggedIn ? `🔓 ${unlockCta}` : `🔒 ${unlockCta}`}
             </button>
-            <button
-              onClick={() => onViewDetails(profile)}
-              className="profile-cta-secondary"
-            >
-              View Preview
-            </button>
           </div>
         ) : (
           <div className="profile-cta-area">

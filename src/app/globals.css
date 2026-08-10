@@ -5242,25 +5242,6 @@ input[type="checkbox"] {
   filter: brightness(1.08);
   transform: translateY(-1px);
 }
-.profile-cta-secondary {
-  width: 100%;
-  padding: 10px 18px;
-  background: transparent;
-  color: var(--text-muted);
-  border: 1px solid rgba(184,146,74,0.3);
-  border-radius: 10px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  font-family: var(--font-sans);
-  transition: var(--transition-smooth);
-  text-align: center;
-}
-.profile-cta-secondary:hover {
-  background: var(--soft-cream);
-  border-color: var(--gold-accent);
-  color: var(--deep-maroon);
-}
 .profile-contact-row {
   display: flex;
   align-items: center;
