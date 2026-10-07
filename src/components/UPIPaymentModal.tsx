@@ -2,8 +2,8 @@
 
 import React, { useState } from 'react';
 
-const UPI_ID = process.env.NEXT_PUBLIC_UPI_ID || '9873721207-13@ybl';
-const UPI_PAYEE_NAME = process.env.NEXT_PUBLIC_UPI_PAYEE_NAME || 'Rishte Forever';
+const UPI_ID = process.env.NEXT_PUBLIC_UPI_ID || 'gulzaarabdullah5-1@okaxis';
+const UPI_PAYEE_NAME = process.env.NEXT_PUBLIC_UPI_PAYEE_NAME || 'Abdullah Gulzaar';
 const QR_CODE_URL = process.env.NEXT_PUBLIC_UPI_QR || '/images/upi-qr.png.jpeg';
 
 // Build UPI deep link for "Pay using any UPI app"
