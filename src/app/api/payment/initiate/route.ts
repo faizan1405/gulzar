@@ -2,7 +2,8 @@ import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { getProfileByUserId } from '@/lib/profileStore';
 import { createPackagePurchase, submitUserPaymentClaim } from '@/lib/packageStore';
-import { PREMIUM_PACKAGES, PACKAGE_DISPLAY } from '@/lib/packages';
+import { PREMIUM_PACKAGES, PACKAGE_DISPLAY, PackageType } from '@/lib/packages';
+import { getCurrentPackagePricing } from '@/lib/packagePricing';
 
 export async function POST(request: Request) {
   try {
@@ -28,13 +29,15 @@ export async function POST(request: Request) {
     }
 
     const pkg = PREMIUM_PACKAGES[packageType as keyof typeof PREMIUM_PACKAGES];
+    // Retrieve server-side runtime price from database
+    const pricing = await getCurrentPackagePricing(packageType as PackageType);
 
     const purchase = await createPackagePurchase({
       profileId: profile.id,
       packageType: pkg.type as any,
-      basePrice: pkg.basePrice,
-      gstRate: pkg.gstRate,
-      totalAmount: pkg.totalAmount,
+      basePrice: pricing.basePrice,
+      gstRate: pricing.gstRate,
+      totalAmount: pricing.totalAmount,
       billingType: pkg.billingType as any,
       successFeeAmount: pkg.successFeeAmount,
     });

@@ -33,13 +33,38 @@ export interface PackageDefinition {
   benefits: string[];
 }
 
+export const DEFAULT_PACKAGE_BASE_PRICES: Record<PackageType, number> = {
+  monthly_membership: 1,
+  good_profile_package: 2,
+  second_marriage_package: 3,
+  high_profile_package: 4,
+};
+
+export const GST_RATE = 0.18;
+
+export function round2(num: number): number {
+  return Math.round((num + Number.EPSILON) * 100) / 100;
+}
+
+export function calculatePackagePricing(basePrice: number, gstRate: number = GST_RATE) {
+  const safeBase = round2(basePrice);
+  const gst = round2(safeBase * gstRate);
+  const totalAmount = round2(safeBase + gst);
+  return {
+    basePrice: safeBase,
+    gstRate,
+    gst,
+    totalAmount,
+  };
+}
+
 export const PREMIUM_PACKAGES: Record<PackageType, PackageDefinition> = {
   monthly_membership: {
     type: 'monthly_membership',
     name: 'Monthly Membership',
-    basePrice: 1,
-    gstRate: 0.18,
-    totalAmount: 2,
+    basePrice: DEFAULT_PACKAGE_BASE_PRICES.monthly_membership,
+    gstRate: GST_RATE,
+    totalAmount: calculatePackagePricing(DEFAULT_PACKAGE_BASE_PRICES.monthly_membership).totalAmount,
     billingType: 'MONTHLY',
     successFeeAmount: 0,
     benefits: [
@@ -52,9 +77,9 @@ export const PREMIUM_PACKAGES: Record<PackageType, PackageDefinition> = {
   good_profile_package: {
     type: 'good_profile_package',
     name: 'Good Profile Package',
-    basePrice: 2,
-    gstRate: 0.18,
-    totalAmount: 3,
+    basePrice: DEFAULT_PACKAGE_BASE_PRICES.good_profile_package,
+    gstRate: GST_RATE,
+    totalAmount: calculatePackagePricing(DEFAULT_PACKAGE_BASE_PRICES.good_profile_package).totalAmount,
     billingType: 'ONE_TIME',
     successFeeAmount: 0,
     benefits: [
@@ -67,9 +92,9 @@ export const PREMIUM_PACKAGES: Record<PackageType, PackageDefinition> = {
   second_marriage_package: {
     type: 'second_marriage_package',
     name: 'Silver Plan',
-    basePrice: 3,
-    gstRate: 0.18,
-    totalAmount: 4,
+    basePrice: DEFAULT_PACKAGE_BASE_PRICES.second_marriage_package,
+    gstRate: GST_RATE,
+    totalAmount: calculatePackagePricing(DEFAULT_PACKAGE_BASE_PRICES.second_marriage_package).totalAmount,
     billingType: 'ONE_TIME',
     successFeeAmount: 0,
     benefits: [
@@ -86,9 +111,9 @@ export const PREMIUM_PACKAGES: Record<PackageType, PackageDefinition> = {
   high_profile_package: {
     type: 'high_profile_package',
     name: 'Gold Package',
-    basePrice: 4,
-    gstRate: 0.18,
-    totalAmount: 5,
+    basePrice: DEFAULT_PACKAGE_BASE_PRICES.high_profile_package,
+    gstRate: GST_RATE,
+    totalAmount: calculatePackagePricing(DEFAULT_PACKAGE_BASE_PRICES.high_profile_package).totalAmount,
     billingType: 'ONE_TIME',
     successFeeAmount: 0,
     benefits: [

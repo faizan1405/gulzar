@@ -94,6 +94,12 @@ export let inMemoryLogs: AuditRecord[] = [];
 export let inMemoryPurchases: PurchaseRecord[] = [];
 export let inMemoryCuratedLeads: CuratedLeadRecord[] = [];
 export const inMemoryLeads: LeadRecord[] = [];
+export const inMemoryPricing: Record<string, number> = {
+  monthly_membership: 1,
+  good_profile_package: 2,
+  second_marriage_package: 3,
+  high_profile_package: 4,
+};
 
 // Seed data
 const MOCK_AUDIT_LOGS: AuditRecord[] = [];

@@ -249,6 +249,14 @@ enum PackageType {
   high_profile_package
 }
 
+model PackagePricing {
+  id          String      @id @default(auto()) @map("_id") @db.ObjectId
+  packageType PackageType @unique
+  basePrice   Float
+  updatedAt   DateTime    @updatedAt
+}
+
+
 enum PaymentStatus {
   PENDING
   PAID

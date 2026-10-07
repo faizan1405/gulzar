@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from '../../context/SessionContext';
 import { getSupportWhatsAppLink } from '../../lib/whatsapp';
@@ -12,9 +12,9 @@ import {
 } from '../../components/NikahComponents';
 import UPIPaymentModal from '../../components/UPIPaymentModal';
 
-interface PlanDef {
+interface StaticPlanDef {
   title: string;
-  price: number;
+  fallbackPrice: number;
   gstRate: number;
   billingText: string;
   features: string[];
@@ -23,13 +23,13 @@ interface PlanDef {
   imageUrl: string;
   ctaText: string;
   packageType: string;
-  whatsappMessage: string;
+  buildWhatsAppMessage: (price: number) => string;
 }
 
-const PLANS: PlanDef[] = [
+const STATIC_PLANS: StaticPlanDef[] = [
   {
     title: 'Monthly Membership',
-    price: 1,
+    fallbackPrice: 1,
     gstRate: 0.18,
     billingText: 'Monthly billing',
     features: [
@@ -43,11 +43,12 @@ const PLANS: PlanDef[] = [
     imageUrl: '/images/monthly_active.png',
     ctaText: 'Start Monthly Membership',
     packageType: 'monthly_membership',
-    whatsappMessage: 'Assalamu Alaikum, I want to know more about the ₹1 monthly membership on Rishte Forever.',
+    buildWhatsAppMessage: (p) =>
+      `Assalamu Alaikum, I want to know more about the ₹${p} monthly membership on Rishte Forever.`,
   },
   {
     title: 'Good Profile Package',
-    price: 2,
+    fallbackPrice: 2,
     gstRate: 0.18,
     billingText: 'One-time, 1 year validity',
     features: [
@@ -61,11 +62,12 @@ const PLANS: PlanDef[] = [
     imageUrl: '/images/good_profile.png',
     ctaText: 'Choose Good Profile Package',
     packageType: 'good_profile_package',
-    whatsappMessage: 'Assalamu Alaikum, I am interested in the ₹2 Good Profiles Package on Rishte Forever. Please guide me.',
+    buildWhatsAppMessage: (p) =>
+      `Assalamu Alaikum, I am interested in the ₹${p} Good Profiles Package on Rishte Forever. Please guide me.`,
   },
   {
     title: 'Silver Plan',
-    price: 3,
+    fallbackPrice: 3,
     gstRate: 0.18,
     billingText: 'One-time, 1 year validity',
     features: [
@@ -80,11 +82,12 @@ const PLANS: PlanDef[] = [
     imageUrl: '/images/second_marriage.png',
     ctaText: 'Choose Silver Plan',
     packageType: 'second_marriage_package',
-    whatsappMessage: 'Assalamu Alaikum, I am interested in the ₹3 Silver Plan on Rishte Forever. Please guide me.',
+    buildWhatsAppMessage: (p) =>
+      `Assalamu Alaikum, I am interested in the ₹${p} Silver Plan on Rishte Forever. Please guide me.`,
   },
   {
     title: 'Gold Package',
-    price: 4,
+    fallbackPrice: 4,
     gstRate: 0.18,
     billingText: 'One-time, 1 year validity',
     features: [
@@ -99,7 +102,8 @@ const PLANS: PlanDef[] = [
     imageUrl: '/images/high_profile.png',
     ctaText: 'Choose Gold Package',
     packageType: 'high_profile_package',
-    whatsappMessage: 'Assalamu Alaikum, I am interested in the ₹4 Gold Package on Rishte Forever. Please guide me.',
+    buildWhatsAppMessage: (p) =>
+      `Assalamu Alaikum, I am interested in the ₹${p} Gold Package on Rishte Forever. Please guide me.`,
   },
 ];
 
@@ -117,8 +121,46 @@ export default function PackagesClient() {
     accountData,
   } = useSession();
 
+  const [dynamicPrices, setDynamicPrices] = useState<Record<string, number>>({});
   const [isProcessing, setIsProcessing] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+
+  useEffect(() => {
+    let cancelled = false;
+    async function loadPrices() {
+      try {
+        const res = await fetch('/api/packages');
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data?.packages && Array.isArray(data.packages) && !cancelled) {
+          const priceMap: Record<string, number> = {};
+          for (const pkg of data.packages) {
+            if (typeof pkg.basePrice === 'number' && !isNaN(pkg.basePrice)) {
+              priceMap[pkg.type] = pkg.basePrice;
+            }
+          }
+          setDynamicPrices(priceMap);
+        }
+      } catch (err) {
+        console.error('Failed to load dynamic package prices:', err);
+      }
+    }
+    loadPrices();
+    return () => {
+      cancelled = true;
+    };
+  }, [isLoggedIn, userProfile?.profileCompletionStatus]);
+
+  const plans = useMemo(() => {
+    return STATIC_PLANS.map((plan) => {
+      const price = dynamicPrices[plan.packageType] ?? plan.fallbackPrice;
+      return {
+        ...plan,
+        price,
+        whatsappMessage: plan.buildWhatsAppMessage(price),
+      };
+    });
+  }, [dynamicPrices]);
 
   // Collect user name & phone for the payment modal
   const userName = useMemo(
@@ -222,7 +264,7 @@ export default function PackagesClient() {
             )}
 
             <div className="packages-grid packages-responsive-grid">
-              {PLANS.map((plan) => (
+              {plans.map((plan) => (
                 <PremiumPlanCard
                   key={plan.packageType}
                   title={plan.title}

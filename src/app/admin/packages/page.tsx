@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState, useCallback, type ChangeEvent } from 'react';
+import React, { useState, useEffect, useCallback, type ChangeEvent } from 'react';
 import { useSession } from '../../../context/SessionContext';
-import { PREMIUM_PACKAGES } from '../../../lib/packages';
+import { PREMIUM_PACKAGES, DEFAULT_PACKAGE_BASE_PRICES, type PackageType } from '../../../lib/packages';
 import {
   AdminPageHeader,
   AdminCard,
@@ -15,6 +15,13 @@ import {
   AdminTable,
   AdminAlert,
 } from '../../../components/AdminUI';
+
+const PACKAGE_LIST: { type: PackageType; name: string }[] = [
+  { type: 'monthly_membership', name: 'Monthly Membership' },
+  { type: 'good_profile_package', name: 'Good Profile Package' },
+  { type: 'second_marriage_package', name: 'Silver Plan' },
+  { type: 'high_profile_package', name: 'Gold Package' },
+];
 
 async function callAdminAction(action: string, payload: Record<string, string | boolean | number | null>) {
   const res = await fetch('/api/admin/packages', {
@@ -31,7 +38,7 @@ async function callAdminAction(action: string, payload: Record<string, string | 
 }
 
 function formatINR(n: number) {
-  return '₹' + n.toLocaleString('en-IN');
+  return '₹' + Number(n).toLocaleString('en-IN', { maximumFractionDigits: 2 });
 }
 
 export default function PremiumPackagesPage() {
@@ -47,6 +54,16 @@ export default function PremiumPackagesPage() {
     setReloadTrigger,
   } = useSession();
 
+  const [packagePrices, setPackagePrices] = useState<Record<string, number>>({
+    monthly_membership: 1,
+    good_profile_package: 2,
+    second_marriage_package: 3,
+    high_profile_package: 4,
+  });
+  const [editingType, setEditingType] = useState<string | null>(null);
+  const [editValue, setEditValue] = useState('');
+  const [isSavingPrice, setIsSavingPrice] = useState(false);
+
   const [assignBuyerId, setAssignBuyerId] = useState('');
   const [assignLeadId, setAssignLeadId] = useState('');
   const [rejectingId, setRejectingId] = useState<string | null>(null);
@@ -57,6 +74,59 @@ export default function PremiumPackagesPage() {
   const showAlert = (msg: string) => {
     setAlertMsg(msg);
     setTimeout(() => setAlertMsg(''), 4000);
+  };
+
+  useEffect(() => {
+    let cancelled = false;
+    async function fetchPricing() {
+      try {
+        const res = await fetch('/api/admin/packages/pricing');
+        const data = await res.json();
+        if (data?.success && data?.pricing && !cancelled) {
+          const map: Record<string, number> = {};
+          for (const key of Object.keys(data.pricing)) {
+            map[key] = data.pricing[key].basePrice;
+          }
+          setPackagePrices((prev) => ({ ...prev, ...map }));
+        }
+      } catch (err) {
+        console.error('Failed to load admin pricing:', err);
+      }
+    }
+    fetchPricing();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const handleSavePrice = async (pkgType: string) => {
+    const num = parseFloat(editValue);
+    if (isNaN(num) || num <= 0) {
+      alert('Please enter a valid numeric base price greater than 0.');
+      return;
+    }
+    setIsSavingPrice(true);
+    try {
+      const res = await fetch('/api/admin/packages/pricing', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ packageType: pkgType, basePrice: num }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        alert(data.error || 'Failed to update package price.');
+        return;
+      }
+      setPackagePrices((prev) => ({ ...prev, [pkgType]: data.pricing.basePrice }));
+      setEditingType(null);
+      setEditValue('');
+      const pkgName = PACKAGE_LIST.find((p) => p.type === pkgType)?.name || pkgType;
+      showAlert(`Base price for ${pkgName} updated to ${formatINR(data.pricing.basePrice)} successfully.`);
+    } catch {
+      alert('Network error. Failed to save package price.');
+    } finally {
+      setIsSavingPrice(false);
+    }
   };
 
   const onAssign = useCallback(async () => {
@@ -115,6 +185,91 @@ export default function PremiumPackagesPage() {
 
       {alertMsg && <AdminAlert type="success">{alertMsg}</AdminAlert>}
 
+      {/* Package Prices Section */}
+      <AdminCard style={{ marginBottom: 28, padding: 0, overflow: 'hidden' }}>
+        <div style={{ padding: '16px 20px', borderBottom: '1px solid #e2e8f0', background: '#f8fafc' }}>
+          <h2 style={{ fontSize: 16, fontWeight: 700, margin: 0, color: '#0f172a' }}>Package Prices</h2>
+          <p style={{ fontSize: 12, color: '#64748b', margin: '4px 0 0' }}>
+            Base pricing for customer packages. 18% GST is added automatically at checkout.
+          </p>
+        </div>
+        <div className="table-responsive">
+          <AdminTable headers={['Package Name', 'Base Price', 'Action']}>
+            {PACKAGE_LIST.map((pkg) => {
+              const isEditing = editingType === pkg.type;
+              const currentPrice = packagePrices[pkg.type] ?? DEFAULT_PACKAGE_BASE_PRICES[pkg.type] ?? 1;
+
+              return (
+                <tr key={pkg.type}>
+                  <td style={{ fontWeight: 600, color: '#1e293b' }}>{pkg.name}</td>
+                  <td>
+                    {isEditing ? (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <span style={{ fontWeight: 600, color: '#475569' }}>₹</span>
+                        <AdminInput
+                          type="number"
+                          min="1"
+                          step="any"
+                          value={editValue}
+                          onChange={(e: ChangeEvent<HTMLInputElement>) => setEditValue(e.target.value)}
+                          style={{ width: 120, height: 34, fontSize: 13 }}
+                          autoFocus
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') handleSavePrice(pkg.type);
+                            if (e.key === 'Escape') {
+                              setEditingType(null);
+                              setEditValue('');
+                            }
+                          }}
+                        />
+                      </div>
+                    ) : (
+                      <strong style={{ fontSize: 14 }}>{formatINR(currentPrice)}</strong>
+                    )}
+                  </td>
+                  <td>
+                    {isEditing ? (
+                      <div style={{ display: 'flex', gap: 6 }}>
+                        <AdminButton
+                          size="sm"
+                          variant="success"
+                          onClick={() => handleSavePrice(pkg.type)}
+                          disabled={isSavingPrice}
+                        >
+                          {isSavingPrice ? 'Saving…' : 'Save'}
+                        </AdminButton>
+                        <AdminButton
+                          size="sm"
+                          variant="secondary"
+                          onClick={() => {
+                            setEditingType(null);
+                            setEditValue('');
+                          }}
+                          disabled={isSavingPrice}
+                        >
+                          Cancel
+                        </AdminButton>
+                      </div>
+                    ) : (
+                      <AdminButton
+                        size="sm"
+                        variant="secondary"
+                        onClick={() => {
+                          setEditingType(pkg.type);
+                          setEditValue(String(currentPrice));
+                        }}
+                      >
+                        Edit
+                      </AdminButton>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
+          </AdminTable>
+        </div>
+      </AdminCard>
+
       <AdminCard style={{ marginBottom: 28, padding: 0, overflow: 'hidden' }}>
         <div className="table-responsive">
           <AdminTable headers={['Customer', 'Package', 'Amount', 'Payment', 'Txn IDs', 'Mode', 'Date', 'Actions']}>
@@ -131,6 +286,9 @@ export default function PremiumPackagesPage() {
             ) : (
               adminPurchases.map((purchase) => {
                 const details = getPriceDetails(purchase.packageType);
+                const actualBase = typeof purchase.basePrice === 'number' ? purchase.basePrice : details.base;
+                const actualTotal = typeof purchase.totalAmount === 'number' ? purchase.totalAmount : details.total;
+                const actualGst = Math.round((actualTotal - actualBase) * 100) / 100;
                 return (
                   <tr key={purchase.id}>
                     <td>
@@ -141,8 +299,8 @@ export default function PremiumPackagesPage() {
                     </td>
                     <td><strong>{details.name}</strong></td>
                     <td>
-                      <strong>{formatINR(details.total)}</strong>
-                      <div style={{ fontSize: 11, color: '#64748b' }}>Base: {formatINR(details.base)} + GST: {formatINR(details.gst)}</div>
+                      <strong>{formatINR(actualTotal)}</strong>
+                      <div style={{ fontSize: 11, color: '#64748b' }}>Base: {formatINR(actualBase)} + GST: {formatINR(actualGst)}</div>
                     </td>
                     <td><AdminBadge status={purchase.paymentStatus}>{purchase.paymentStatus}</AdminBadge></td>
                     <td style={{ fontSize: 11, fontFamily: 'monospace' }}>

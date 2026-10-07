@@ -16,6 +16,7 @@ import { checkRateLimitByName, buildRateLimitHeaders } from '@/lib/rateLimit';
 import { logAudit } from '@/lib/audit';
 import { jwtGuard } from '@/lib/jwtGuard';
 import { safeJsonBody } from '@/lib/requestUtils';
+import { getAllPackagePricing, updatePackagePrice, isValidPackageType } from '@/lib/packagePricing';
 
 export async function GET(request: NextRequest) {
   try {
@@ -37,6 +38,11 @@ export async function GET(request: NextRequest) {
     let take = parseInt(searchParams.get('take') || '50');
     if (skip < 0 || isNaN(skip)) skip = 0;
     if (take < 1 || take > 100) take = 50;
+
+    if (mode === 'pricing') {
+      const pricing = await getAllPackagePricing();
+      return NextResponse.json({ success: true, pricing });
+    }
 
     if (mode === 'assignments') {
       const assignments = await getCuratedAssignments();
@@ -174,6 +180,29 @@ export async function POST(req: NextRequest) {
         await logAudit({ actorUserId: adminUserId, action: 'ADMIN_REJECT_PAYMENT', targetType: 'PackagePurchase', targetId: purchaseId, metadata: 'Payment claim rejected' });
         return NextResponse.json({ success: true, purchase: updated, message: 'Payment rejected.' });
       }
+    }
+
+    // Admin updates package base price
+    if (action === 'update_pricing') {
+      const { packageType, basePrice } = body;
+      if (!isValidPackageType(packageType)) {
+        return NextResponse.json({ error: 'Invalid package type.' }, { status: 400 });
+      }
+
+      const numPrice = typeof basePrice === 'number' ? basePrice : parseFloat(basePrice);
+      if (typeof numPrice !== 'number' || isNaN(numPrice) || !isFinite(numPrice) || numPrice <= 0) {
+        return NextResponse.json({ error: 'Base price must be a valid number greater than 0.' }, { status: 400 });
+      }
+
+      const updated = await updatePackagePrice(packageType, numPrice);
+      await logAudit({
+        actorUserId: adminUserId,
+        action: 'ADMIN_UPDATE_PACKAGE_PRICING',
+        targetType: 'PackagePricing',
+        targetId: packageType,
+        metadata: JSON.stringify({ packageType, basePrice: updated.basePrice }),
+      });
+      return NextResponse.json({ success: true, pricing: updated });
     }
 
     return NextResponse.json({ error: 'Invalid action' }, { status: 400 });

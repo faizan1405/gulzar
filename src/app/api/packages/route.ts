@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { getProfileByUserId } from '@/lib/profileStore';
 import { PREMIUM_PACKAGES } from '@/lib/packages';
+import { getAllPackagePricing } from '@/lib/packagePricing';
 
 // Public packages API — returns names/features always, prices only after form completion
 export async function GET() {
@@ -20,6 +21,15 @@ export async function GET() {
       }
     }
 
+    let dynamicPricing: Record<string, any> = {};
+    if (formComplete) {
+      try {
+        dynamicPricing = await getAllPackagePricing();
+      } catch (err) {
+        console.error('Failed to load dynamic package pricing:', err);
+      }
+    }
+
     const packages = Object.values(PREMIUM_PACKAGES).map(pkg => {
       const base = {
         type: pkg.type,
@@ -29,11 +39,12 @@ export async function GET() {
       };
 
       if (formComplete) {
+        const pricing = dynamicPricing[pkg.type];
         return {
           ...base,
-          basePrice: pkg.basePrice,
-          totalAmount: pkg.totalAmount,
-          gstRate: pkg.gstRate,
+          basePrice: typeof pricing?.basePrice === 'number' ? pricing.basePrice : pkg.basePrice,
+          totalAmount: typeof pricing?.totalAmount === 'number' ? pricing.totalAmount : pkg.totalAmount,
+          gstRate: typeof pricing?.gstRate === 'number' ? pricing.gstRate : pkg.gstRate,
           successFeeAmount: pkg.successFeeAmount,
         };
       }
